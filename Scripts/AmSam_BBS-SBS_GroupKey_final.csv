@@ -1,487 +1,507 @@
-SPECIES_PK,GENUS,SPECIES,SCIENTIFIC_NAME,COMMON_NAME,FAMILY,Trevally_109,Jacks_110,Bottomfishes_200,Groupers_210,Deep_snappers_230,Prist_Etelis_240,Emporers_260,Inshore_groupers_380,Inshore_snappers_390
-328,Acanthurus,Achilles tang,achilles,Achilles tang,Acanthuridae,0,0,0,0,0,0,0,0,0
-5206,Acanthurus,Whitefin surgeonfish,albipectoralis,Whitefin surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-331,Naso,Whitemargin unicornfish,annulatus,Whitemargin unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-5116,Acanthurus,Orange-socket surgeonfish,auranticavus,Orange-socket surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-5253,Acanthurus,Black-spot surgeonfish,bariene,Black-spot surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3221,Ctenochaetus,Twospot bristletooth,binotatus,Twospot bristletooth,Acanthuridae,0,0,0,0,0,0,0,0,0
-329,Acanthurus,Ringtail surgeonfish,blochii,Ringtail surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-333,Naso,Humpback unicornfish,brachycentron,Humpback unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-334,Naso,Spotted unicornfish,brevirostris,Spotted unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3312,Naso,Bluetail Unicornfish,caeruleacauda,Bluetail Unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-335,Naso,Gray unicornfish,caesius,Gray unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3201,Acanthurus,Eye-striped surgeonfish,dussumeiri,Eye-striped surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-5185,Acanthurus,Fine-lined surgeonfish,grammoptilus,Fine-lined surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-325,Acanthurus,Whitespotted surgeonfish,guttatus,Whitespotted surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-336,Naso,Black tongue unicornfish,hexacanthius,Black tongue unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3202,Acanthurus,Whitebar surgeonfish,leucopareius,Whitebar surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-321,Acanthurus,Blue-banded surgeonfish,lineatus,Blue-banded surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-332,Naso,Orangespine unicornfish,lituratus,Orangespine unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3209,Acanthurus,Spotted Face Surgeonfish,maculiceps,Spotted Face Surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3203,Acanthurus,Elongate surgeonfish,mata,Elongate surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3204,Acanthurus,Whitecheek surgeonfish,nigricans,Whitecheek surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3205,Acanthurus,Blackstreak surgeonfish,nigricauda,Blackstreak surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-326,Acanthurus,Brown surgeonfish,nigrofuscus,Brown surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3206,Acanthurus,Bluelined surgeonfish,nigroris,Bluelined surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3207,Acanthurus,Orange-spot surgeonfish,olivaceus,Orange-spot surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3208,Acanthurus,Mimic surgeonfish,pyorferus,Mimic surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-320,Acanthurus,Surgeonfishes/tangs,spp.,Surgeonfishes/tangs,Acanthuridae,0,0,0,0,0,0,0,0,0
-327,Naso,Naso tangs,spp.,Naso tangs,Acanthuridae,0,0,0,0,0,0,0,0,0
-330,Naso,Unicornfishes,spp.,Unicornfishes,Acanthuridae,0,0,0,0,0,0,0,0,0
-322,Ctenochaetus,Striped bristletooth,striatus,Striped bristletooth,Acanthuridae,0,0,0,0,0,0,0,0,0
-3222,Ctenochaetus,Yellow-eyed bristletooth,strigosus,Yellow-eyed bristletooth,Acanthuridae,0,0,0,0,0,0,0,0,0
-337,Naso,Barred unicornfish,thynnoides,Barred unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-323,Acanthurus,Convict tang,triostegus,Convict tang,Acanthuridae,0,0,0,0,0,0,0,0,0
-338,Naso,Humpnose unicornish,tuberosus,Humpnose unicornish,Acanthuridae,0,0,0,0,0,0,0,0,0
-339,Naso,Bluespine unicornfish,unicornis,Bluespine unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-3281,Zebrasoma,Pacific sailfin tang,veliferum,Pacific sailfin tang,Acanthuridae,0,0,0,0,0,0,0,0,0
-3311,Naso,Bignose unicornfish,vlamingii,Bignose unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-324,Acanthurus,Yellowfin surgeonfish,xanthopterus,Yellowfin surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0
-1551,Alopias,Pelagic thresher shark,pelagicus,Pelagic thresher shark,Alopiidae,0,0,0,0,0,0,0,0,0
-1552,Alopias,Bigeye thresher shark,superciliousus,Bigeye thresher shark,Alopiidae,0,0,0,0,0,0,0,0,0
-155,Alopias,Thresher shark,vulpinus,Thresher shark,Alopiidae,0,0,0,0,0,0,0,0,0
-710,Anguilla,Freshwater eel,marmorata,Freshwater eel,Anguillidae,0,0,0,0,0,0,0,0,0
-187,Anomalops,Flashlightfish,kaptoptron,Flashlightfish,Anomalopidae,0,0,0,0,0,0,0,0,0
-189,"Antennarius, Antennatus",Frogfishes,spp.,Frogfishes,Antennariidae,0,0,0,0,0,0,0,0,0
-5231,Apogon,Samoan cardinalfish,fuscus,Samoan cardinalfish,Apogonidae,0,0,0,0,0,0,0,0,0
-103,Hypoathernia,Silversides,temminckii,Silversides,Atherinidae,0,0,0,0,0,0,0,0,0
-101,Aulostomus,Trumpetfish,chinensis,Trumpetfish,Aulostomidae,0,0,0,0,0,0,0,0,0
-603,Megaptera,Humpback whale,novaeangliae,Humpback whale,Balaenopteridae,0,0,0,0,0,0,0,0,0
-3841,Rhinecanthus,Picassofish,aculeatus,Picassofish,Balistidae,0,0,0,0,0,0,0,0,0
-5245,Sufflamen,Boomerang/Scythe triggerfi,bursa,Boomerang/Scythe triggerfi,Balistidae,0,0,0,0,0,0,0,0,0
-382,Balistoides,Clown triggerfish,conspicillum,Clown triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-5140,Pseudobalistes,Yellowmargin triggerfish,flavimarginatus,Yellowmargin triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-3825,Sufflamen,Bridled triggerfish,freanatum,Bridled triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-3824,Pseudobalistes,Blue triggerfish,fuscus,Blue triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-3823,Melichthys,Black triggerfish,Niger,Black triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-384,Balistoides,Wedged picassofish,rectangulus,Wedged picassofish,Balistidae,0,0,0,0,0,0,0,0,0
-5242,Abalistes,Starry triggerfish,stellatus,Starry triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-3821,Balistapus,Orangestripe triggerfish,undulatus,Orangestripe triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-3822,Melichthys,Pinktail triggerfish,vidua,Pinktail triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-387,Balistoides,Titan triggerfish,viridescens,Titan triggerfish,Balistidae,0,0,0,0,0,0,0,0,0
-5146,Platybelone,Keeltail needlefish,argalus,Keeltail needlefish,Belonidae,0,0,0,0,0,0,0,0,0
-5145,Stongylura,Reef needlefish,incisa,Reef needlefish,Belonidae,0,0,0,0,0,0,0,0,0
-3051,Asterorhombus,Angler flatfish,fijiensis,Angler flatfish,Bothidae,0,0,0,0,0,0,0,0,0
-5210,Bothus,Leopard flounder,mancus,Leopard flounder,Bothidae,0,0,0,0,0,0,0,0,0
-3855,Taractichthys,Monchong,steindachneri,Monchong,Bramidae,0,0,1,0,0,0,0,0,0
-293,Tarachtichthys,Pomfret,steindachneri,Pomfret,Bramidae,0,0,1,0,0,0,0,0,0
-554,Brissus,Heart sea urchin,latecarinatus,Heart sea urchin,Brissidae,0,0,0,0,0,0,0,0,0
-557,Brissus,Heart sea urchin insides,spp.,Heart sea urchin insides,Brissidae,0,0,0,0,0,0,0,0,0
-107,Caesio,Scissortail fusilier,caerulaurea,Scissortail fusilier,Caesionidae,0,0,0,0,0,0,0,0,0
-3856,Caesio,Blue and Yellow Fusilier,teres,Blue and Yellow Fusilier,Caesionidae,0,0,0,0,0,0,0,0,0
-3857,Caesio,Variable-lined fusilier,varilineata,Variable-lined fusilier,Caesionidae,0,0,0,0,0,0,0,0,0
-186,Caracanthus,Coral crouchers,unipinna,Coral crouchers,Caracanthidae,0,0,0,0,0,0,0,0,0
-5214,Trachinotus,Small spotted dart,bailonii,Small spotted dart,Carangidae,1,1,1,0,0,0,0,0,0
-410,Elagatis,Rainbow runner,bipinnulatus,Rainbow runner,Carangidae,1,1,1,0,0,0,0,0,0
-127,Trachinotus,Snubnose pompano,blochii,Snubnose pompano,Carangidae,1,1,1,0,0,0,0,0,0
-5248,Caranx,Bluespotted trevally,bucculentus,Bluespotted trevally,Carangidae,1,1,1,0,0,0,0,0,0
-116,Carangoides,Blue kingfish trevally,caeruleopinnatus,Blue kingfish trevally,Carangidae,1,1,1,0,0,0,0,0,0
-5246,Carangoides,Longnose trevally,chrysophrys,Longnose trevally,Carangidae,1,1,1,0,0,0,0,0,0
-102,Selar,Bigeye scad,crumenophthalmus,Bigeye scad,Carangidae,0,0,0,0,0,0,0,0,0
-5233,Pseudocaranx,Silver trevally,dentex,Silver trevally,Carangidae,1,1,1,0,0,0,0,0,0
-126,Seriola,Greater amberjack,dumerilii,Greater amberjack,Carangidae,1,1,1,0,0,0,0,0,0
-5258,Uraspis,Whitetongue jack,helvola,Whitetongue jack,Carangidae,1,1,1,0,0,0,0,0,0
-119,Caranx,Giant trevally,ignoblis,Giant trevally,Carangidae,1,1,1,0,0,0,0,0,0
-5265,Seriola,Yellowtail amberjack,lalandi,Yellowtail amberjack,Carangidae,1,1,1,0,0,0,0,0,0
-5247,Selaroides,Yellowstripe scad,leptolepis,Yellowstripe scad,Carangidae,0,0,0,0,0,0,0,0,0
-111,Caranx,Black jack,lugubris,Black jack,Carangidae,1,1,1,0,0,0,0,0,0
-106,Scomberoides,"Leatherback, Double-spot Q",lysan,"Leatherback, Double-spot Q",Carangidae,1,1,1,0,0,0,0,0,0
-104,Decapterus,Mackerel scad (opelu),macarellus,Mackerel scad (opelu),Carangidae,0,0,0,0,0,0,0,0,0
-113,Caranx,Bluefin trevally,melampygus,Bluefin trevally,Carangidae,1,1,1,0,0,0,0,0,0
-114,Carangoides,Goldspot trevally,orthogrammus,Goldspot trevally,Carangidae,1,1,1,0,0,0,0,0,0
-115,Caranx,Brassy trevally,papuensis,Brassy trevally,Carangidae,1,1,1,0,0,0,0,0,0
-118,Seriola,Amberjack,rivoliana,Amberjack,Carangidae,1,1,1,0,0,0,0,0,0
-5159,Decapterus,Indian scad,russelli,Indian scad,Carangidae,0,0,0,0,0,0,0,0,0
-117,Uraspis,Whitemouth trevally,secunda,Whitemouth trevally,Carangidae,1,1,1,0,0,0,0,0,0
-112,Caranx,Bigeye trevally,sexfasciatus,Bigeye trevally,Carangidae,1,1,1,0,0,0,0,0,0
-5173,Gnathanodon,Golden trevally,speciosus,Golden trevally,Carangidae,1,1,1,0,0,0,0,0,0
-5224,Caranx,Tille trevally,tille,Tille trevally,Carangidae,1,1,1,0,0,0,0,0,0
-1541,Carcharhinus,Silvertip shark,albimarginatus,Silvertip shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-1542,Carcharhinus,Grey reef shark,amblyrhynchos,Grey reef shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-159,Galeocerdo,Tiger shark,cuvier,Tiger shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-157,Carcharhinus,Silky shark,falciformis,Silky shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-1543,Carcharhinus,Galapagos shark,galapagenis,Galapagos shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-151,Prionace,Blue shark,glauca,Blue shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-156,Carcharhinus,White tip oceanic shark,longimanus,White tip oceanic shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-154,Carcharhinus,Blacktip reef shark,melanopterus,Blacktip reef shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-1544,Triaenodon,White tip reef shark,obesus,White tip reef shark,Carcharhinidae,0,0,0,0,0,0,0,0,0
-560,Cassiopea,Upsidedown jellyfishes,andromeda,Upsidedown jellyfishes,Cassiopeidae,0,0,0,0,0,0,0,0,0
-3851,Chaetodon,Butterflyfish (auriga),auriga,Butterflyfish (auriga),Chaetodontidae,0,0,0,0,0,0,0,0,0
-5269,Chaetodon,Speckled butterflyfish,citrinnellus,Speckled butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0
-3854,Chaetodon,Saddleback butterflyfish,ephippium,Saddleback butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0
-5183,Chaetodon,Lined butterflyfish,lineolatus,Lined butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0
-3852,Chaetodon,Racoon butterflyfish,lunula,Racoon butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0
-3853,Chaetodon,Butterflyfish (melanotic),melannotus,Butterflyfish (melanotic),Chaetodontidae,0,0,0,0,0,0,0,0,0
-5190,Chaetodon,Ornate butterflyfish,omatissimus,Ornate butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0
-385,Chaetodon,Butterflyfishes,spp.,Butterflyfishes,Chaetodontidae,0,0,0,0,0,0,0,0,0
-180,Chanos,Milkfish,chanos,Milkfish,Chanidae,0,0,0,0,0,0,0,0,0
-593,Caretta,Loggerhead turtle,caretta,Loggerhead turtle,Cheloniidae,0,0,0,0,0,0,0,0,0
-595,Eretmochelys,Hawksbill turtle,imbricata,Hawksbill turtle,Cheloniidae,0,0,0,0,0,0,0,0,0
-591,Chelonia,Green turtle,mydas,Green turtle,Cheloniidae,0,0,0,0,0,0,0,0,0
-594,Lepidochelys,Olive ridley turtle,olivacea,Olive ridley turtle,Cheloniidae,0,0,0,0,0,0,0,0,0
-700,Tilapia,Tilapia,zillii,Tilapia,Cichlidae,0,0,0,0,0,0,0,0,0
-3192,Neocirrhitus,Flame hawkfish,armatus,Flame hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0
-319,Amplycirrhitus,Two spotted hawkfish,bimacula,Two spotted hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0
-5192,Paracirrhites,Halfspotted hawkfish,hemistictus,Halfspotted hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0
-3191,Cirrhitus,Stocky hawkfish,pinnalatus,Stocky hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0
-131,Herklotsichthys,Herrings,quadrimaculatus,Herrings,Clupeidae,0,0,0,0,0,0,0,0,0
-173,Conger,White eel,cinereus,White eel,Congridae,0,0,0,0,0,0,0,0,0
-172,Conger,Conger eels,spp.,Conger eels,Congridae,0,0,0,0,0,0,0,0,0
-531,Conus,Cone snail,spp.,Cone snail,Conidae,0,0,0,0,0,0,0,0,0
-404,Coryphaena,Mahimahi,hippurus,Mahimahi,Coryphenidae,0,0,0,0,0,0,0,0,0
-5014,Sesama,Large red crab,erythrodactyla,Large red crab,Decopoda,0,0,0,0,0,0,0,0,0
-5011,Carpillius,Spotted/7-11reef crab,maculatus,Spotted/7-11reef crab,Decopoda,0,0,0,0,0,0,0,0,0
-503,Scylla,Mangrove crab,paramamosian,Mangrove crab,Decopoda,0,0,0,0,0,0,0,0,0
-624,Steno,Rough tooth dolphin,bredanesis,Rough tooth dolphin,Delphinidae,0,0,0,0,0,0,0,0,0
-604,Pseudorca,False killer whale,crassidens,False killer whale,Delphinidae,0,0,0,0,0,0,0,0,0
-623,Grampus,Risso's dolphin,griseus,Risso's dolphin,Delphinidae,0,0,0,0,0,0,0,0,0
-622,Stenella,Spinner dolphin,longirostris,Spinner dolphin,Delphinidae,0,0,0,0,0,0,0,0,0
-602,Globicephala,Pilot whale,melas,Pilot whale,Delphinidae,0,0,0,0,0,0,0,0,0
-621,Tursiops,Bottlenose dolphin,spp.,Bottlenose dolphin,Delphinidae,0,0,0,0,0,0,0,0,0
-592,Dermochelys,Leatherback turtle,coriacea,Leatherback turtle,Dermochelyidae,0,0,0,0,0,0,0,0,0
-553,"Diadema, Echinothrix",Black sea urchin,spp.,Black sea urchin,Diadematidae,0,0,0,0,0,0,0,0,0
-556,"Diadema, Echinothrix",Black sea urchin insides,spp.,Black sea urchin insides,Diadematidae,0,0,0,0,0,0,0,0,0
-5115,Diodon,Porcupinefish,hystrix,Porcupinefish,Diodontidae,0,0,0,0,0,0,0,0,0
-386,Diodon,Porcupinefish,spp.,Porcupinefish,Diodontidae,0,0,0,0,0,0,0,0,0
-904,Phoebastria,Short-tailed albatross,albatrus,Short-tailed albatross,Diomedeidae,0,0,0,0,0,0,0,0,0
-903,Phoebastria,Laysan albatross,immutabilis,Laysan albatross,Diomedeidae,0,0,0,0,0,0,0,0,0
-902,Phoebastria,Blackfoot albatross,nigripes,Blackfoot albatross,Diomedeidae,0,0,0,0,0,0,0,0,0
-901,Phoebastria,Albatross,spp.,Albatross,Diomedeidae,0,0,0,0,0,0,0,0,0
-558,Echinometra,White sea urchin insides,mathaei,White sea urchin insides,Echinometridae,0,0,0,0,0,0,0,0,0
-188,Encrasicholina,Anchovies,spp.,Anchovies,Engraulidae,0,0,0,0,0,0,0,0,0
-5187,Platax,Circular spadefish,orbicular,Circular spadefish,Ephippidae,0,0,0,0,0,0,0,0,0
-182,Platax,"Batfishes, Spadefishes",spp.,"Batfishes, Spadefishes",Ephippidae,0,0,0,0,0,0,0,0,0
-907,Platax,Spadefish,spp.,Spadefish,Ephippidae,0,0,0,0,0,0,0,0,0
-5151,Platax,Longfin spadefish,teira,Longfin spadefish,Ephippidae,0,0,0,0,0,0,0,0,0
-570,Palola,Annelid worm,viridis,Annelid worm,Eunicidae,0,0,0,0,0,0,0,0,0
-132,"Exocoetus, Cheilopogon",Flyingfishes,spp.,Flyingfishes,Exocoetidae,0,0,0,0,0,0,0,0,0
-133,Fistularia,Cornetfish,commersonii,Cornetfish,Fistulariidae,0,0,0,0,0,0,0,0,0
-702,Pollachius,Pollock,virens,Pollock,Gadidae,0,0,0,0,0,0,0,0,0
-292,Ruvettus,Oilfish,"pretiosus, marleyi",Oilfish,Gempylidae,0,0,1,0,0,0,0,0,0
-291,Promethichthys,Snake mackerel,prometheus,Snake mackerel,Gempylidae,0,0,1,0,0,0,0,0,0
-5182,Gerres,Slender/Oblong silver-bidd,oblongus,Slender/Oblong silver-bidd,Gerreidae,0,0,0,0,0,0,0,0,0
-135,Gerres,Mojarras,spp.,Mojarras,Gerreidae,0,0,0,0,0,0,0,0,0
-5169,Plectorhinchus,"Giant sweetlips, Two-strip",albovittatus,"Giant sweetlips, Two-strip",Haemulidae,0,0,0,0,0,0,0,0,0
-5267,Plectorhinchus,Harlequin sweetlips,chaetodonoides,Harlequin sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0
-5131,Plectorhinchus,"Blubberlip, Harry hotlips",gibbosus,"Blubberlip, Harry hotlips",Haemulidae,0,0,0,0,0,0,0,0,0
-5168,Plectorhinchus,Dotted sweetlips,picus,Dotted sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0
-357,Plectorhinchus,Sweetlips,spp.,Sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0
-3621,Plectorhinchus,Oriental sweetlips,vittatus,Oriental sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0
-136,Hemiramphus,Halfbeaks,spp.,Halfbeaks,Hemirhamphidae,0,0,0,0,0,0,0,0,0
-342,Myripristis,Bronze soldierfish,adustus,Bronze soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3411,Myripristis,Brick soldierfish,amaena,Brick soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-347,Neoniphon,Yellowstriped squirrelfish,aurolineatus,Yellowstriped squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-345,Myripristis,Bigscale soldierfish,berndti,Bigscale soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-352,Sargocentron,Tailspot squirrelfish,caudimaculatum,Tailspot squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3412,Myripristis,Yellowfin soldierfish,chryseres,Yellowfin soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-353,Sargocentron,Crown squirrelfish,diadema,Crown squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-5171,Sargocentron,Yellow-striped squirrelfis,ensifer,Yellow-striped squirrelfis,Holocentridae,0,0,0,0,0,0,0,0,0
-3413,Myripristis,Double tooth soldierfish,hexagona,Double tooth soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-343,Myripristis,Pearly soldierfish,kuntee,Pearly soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-359,Sargocentron,Blackspot squirrelfish,melanospilos,Blackspot squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-356,Sargocentron,Filelined squirrelfish,microstoma,Filelined squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3414,Myripristis,Blotcheye soldierfish,murdjan,Blotcheye soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-348,Neoniphon,Blackfin squirrelfish,opercularis,Blackfin squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-344,Myripristis,Scarlet soldierfish,pralinius,Scarlet soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-354,Sargocentron,Peppered squirrelfish,punctatissimum,Peppered squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-351,Neoniphon,Sammara squirrelfish,sammara,Sammara squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-341,Sargocentron,Saber squirrelfish,spiniferum,Saber squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3410,Myripristis,Soldierfishes,spp.,Soldierfishes,Holocentridae,0,0,0,0,0,0,0,0,0
-340,Sargocentron,Squirrelfishes,spp.,Squirrelfishes,Holocentridae,0,0,0,0,0,0,0,0,0
-3511,Sargocentron,Bluelined squirrelfish,tiere,Bluelined squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-358,Sargocentron,Violet squirrelfish,violaceum,Violet squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-346,Myripristis,Violet soldierfish,violaceus,Violet soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3415,Myripristis,Whitetip soldierfish,vittata,Whitetip soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3416,Myripristis,Whitespot Soldierfish,woodsi,Whitespot Soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3513,Sargocentron,Hawaiian squirrelfish,xantherythrum,Hawaiian squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0
-3512,Sargocentron,Pink squirrelfish,tieroides,Pink squirrelfish,Holocentridae`,0,0,0,0,0,0,0,0,0
-5264,Actinopyga,Surf redfish,mauritiana,Surf redfish,Holothuriidae,0,0,0,0,0,0,0,0,0
-825,Bohadschia,Leopard sea cucumber,argus,Leopard sea cucumber,Holothuroidae,0,0,0,0,0,0,0,0,0
-828,Bohadschia,Leopard sea cucumber 2,argus,Leopard sea cucumber 2,Holothuroidae,0,0,0,0,0,0,0,0,0
-820,Holothuria,Sea cucumber,atra,Sea cucumber,Holothuroidae,0,0,0,0,0,0,0,0,0
-827,Holothuria,Sea cucumber (Loli 2),atra (cubed),Sea cucumber (Loli 2),Holothuroidae,0,0,0,0,0,0,0,0,0
-824,Actinopyga,Surf redfish,mauritiana,Surf redfish,Holothuroidea,0,0,0,0,0,0,0,0,0
-504,Panulirus,Spiny lobster,pencillatus,Spiny lobster,Homaridae,0,0,0,0,0,0,0,0,0
-190,"Ictalurus, Clarias",Catfish (aqua & imp),"punctatus, spp.",Catfish (aqua & imp),"Ictaluridae, Clariid",0,0,0,0,0,0,0,0,0
-409,Tetrapturus,Spearfish,angustirostris,Spearfish,Istiophoridae,0,0,0,0,0,0,0,0,0
-403,Tetrapturus,Striped marlin,audax,Striped marlin,Istiophoridae,0,0,0,0,0,0,0,0,0
-407,Makaira,Black marlin,indica,Black marlin,Istiophoridae,0,0,0,0,0,0,0,0,0
-406,Makaira,Blue marlin,nigricans,Blue marlin,Istiophoridae,0,0,0,0,0,0,0,0,0
-408,Istiophorus,Sailfish,platypterus,Sailfish,Istiophoridae,0,0,0,0,0,0,0,0,0
-3631,Kuhlia,Barred flagtail,mugil,Barred flagtail,Kuhliidae,0,0,0,0,0,0,0,0,0
-363,Kuhlia,Flagtails,spp.,Flagtails,Kuhliidae,0,0,0,0,0,0,0,0,0
-720,Kuhlia,Mountain bass,spp.,Mountain bass,Kuhliidae,0,0,0,0,0,0,0,0,0
-3033,Kyphosus,Rudderfish (biggibus),biggibus,Rudderfish (biggibus),Kyphosidae,0,0,0,0,0,0,0,0,0
-303,Kyphosus,Rudderfish (cinerascens),cinerascens,Rudderfish (cinerascens),Kyphosidae,0,0,0,0,0,0,0,0,0
-3032,Kyphosus,Western drummer,cornelii,Western drummer,Kyphosidae,0,0,0,0,0,0,0,0,0
-3034,Kyphosus,Rudderfishes,spp,Rudderfishes,Kyphosidae,0,0,0,0,0,0,0,0,0
-3031,Kyphosus,Lowfin drummer,vaigiensis,Lowfin drummer,Kyphosidae,0,0,0,0,0,0,0,0,0
-3607,Xyrichtys,Whitepatch wrasse,aneitensis,Whitepatch wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3606,Oxycheilinus,Arenatus wrasse,arenatus,Arenatus wrasse,Labridae,0,0,0,0,0,0,0,0,0
-5249,Cheilinus,Two-spotted wrasse,bimaculatus,Two-spotted wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3603,Cheilinus,Floral wrasse,chlorourus,Floral wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3605,Oxycheilinus,Bandcheck wrasse,diagrammus,Bandcheck wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3604,Cheilinus,Harlequin tuskfish,fasciatus,Harlequin tuskfish,Labridae,0,0,0,0,0,0,0,0,0
-3610,Hemigymnus,Barred thicklip,fasciatus,Barred thicklip,Labridae,0,0,0,0,0,0,0,0,0
-3859,Coris,Yellowtail Coris,gaimard,Yellowtail Coris,Labridae,0,0,0,0,0,0,0,0,0
-3616,Halichoeres,Checkerboard wrasse,hortulanus,Checkerboard wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3608,Cheilio,Cigar wrasse,inermus,Cigar wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3620,Epibulus,Slingjaw Wrasse,insidiator,Slingjaw Wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3611,Thalassoma,Sunset wrasse,lutescens,Sunset wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3617,Halichoeres,Weedy surge wrasse,margaritaceus,Weedy surge wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3609,Hemigymnus,Blackeye thicklip,melapterus,Blackeye thicklip,Labridae,0,0,0,0,0,0,0,0,0
-5219,Macropharyngodon,Yellowspotted wrasse,negrosensis,Yellowspotted wrasse,Labridae,0,0,0,0,0,0,0,0,0
-5263,Iniistius,Fivefinger razorfish,pentadactylus,Fivefinger razorfish,Labridae,0,0,0,0,0,0,0,0,0
-3612,Thalassoma,Surge wrasse,purpureum,Surge wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3613,Thalassoma,Red ribbon wrasse,quinquevittaitum,Red ribbon wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3615,Cheilinus sp,Cheilinus wrasses,spp.,Cheilinus wrasses,Labridae,0,0,0,0,0,0,0,0,0
-3619,Novaculichthys,Rockmover wrasse,taeniorus,Rockmover wrasse,Labridae,0,0,0,0,0,0,0,0,0
-361,Thalassoma,Christmas wrasse,trilobata,Christmas wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3602,Cheilinus,Triple tail wrasse,trilobatus,Triple tail wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3601,Cheilinus,Napoleon wrasse,undulatus,Napoleon wrasse,Labridae,0,0,0,0,0,0,0,0,0
-5079,Oxycheilinus,Ringtail wrasse,unifasciatus,Ringtail wrasse,Labridae,0,0,0,0,0,0,0,0,0
-3614,Gomphosus,Bird wrasse,varius,Bird wrasse,Labridae,0,0,0,0,0,0,0,0,0
-153,Isurus,Shortfin mako shark,oxyrinchus,Shortfin mako shark,Lamnidae,0,0,0,0,0,0,0,0,0
-1531,Isurus,Longfin mako shark,paucus,Longfin mako shark,Lamnidae,0,0,0,0,0,0,0,0,0
-459,Lampris,Moonfish,guttatus,Moonfish,Lampridae,0,0,0,0,0,0,0,0,0
-5174,"Leiognathus, Aurigequula",Striped ponyfish,spp.,Striped ponyfish,Leiognathidae,0,0,0,0,0,0,0,0,0
-262,Lethrinus,Ambon emperor,amboinensis,Ambon emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5207,Lethrinus,Yellowtail emperor,atkinsoni,Yellowtail emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-255,Gnathodentex,Goldenline bream,aureolineatus,Goldenline bream,Lethrinidae,0,0,1,0,0,0,1,0,0
-264,Gnathodentex,Yellowspot emperor,aurolineatus,Yellowspot emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-261,Lethrinus,Longnose emperor,elongatus,Longnose emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-266,Lethrinus,Orangespot emperor,erythracanthus,Orangespot emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5191,Lethrinus,Longfin emperor,erythropterus,Longfin emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5262,Gymnocranius,Japanese large-eye bream,euanus,Japanese large-eye bream,Lethrinidae,0,0,1,0,0,0,1,0,0
-254,Monotaxis,Bigeye bream,grandoculis,Bigeye bream,Lethrinidae,0,0,1,0,0,0,1,0,0
-263,Gymnocranius,Blueline bream,grandoculis,Blueline bream,Lethrinidae,0,0,1,0,0,0,1,0,0
-5175,Gymnocranius,Grey large-eye bream,griseus,Grey large-eye bream,Lethrinidae,0,0,1,0,0,0,1,0,0
-5065,Lethrinus,One spot emperor,harak,One spot emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-2601,Lethrinus,Sweetlip emperor,miniatus,Sweetlip emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5221,Lethrinus,Orange striped emperor,obsoletus,Orange striped emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5075,Lethrinus,Longface emperor,olivaceus,Longface emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-267,Lethrinus,Redgill emperor,rubrioperculatus,Redgill emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5106,Lethrinus,Yellowlip emperor,xanthochilus,Yellowlip emperor,Lethrinidae,0,0,1,0,0,0,1,0,0
-5218,Sepioteuthis,Bigfin reef squid,lessoniana,Bigfin reef squid,Loliginidae,0,0,0,0,0,0,0,0,0
-5172,Lutjanus,Mangrove red snapper,argentimaculatus,Mangrove red snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-244,Pristipomoides,Blue lined gindai,argyrogrammicus,Blue lined gindai,Lutjanidae,0,0,1,0,1,1,0,0,1
-246,Pristipomoides,Goldflag jobfish,auricilla,Goldflag jobfish,Lutjanidae,0,0,1,0,1,1,0,0,1
-5209,Lutjanus,Two spot snapper,biguttatus,Two spot snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-235,Lutjanus,Twinspot/red snapper,bohar,Twinspot/red snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-392,Lutjanus,Twinspot/red snapper 2,bohar,Twinspot/red snapper 2,Lutjanidae,0,0,1,0,1,0,0,0,1
-5066,Lutjanus,Moluccan snapper,boutton,Moluccan snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-249,Etelis,Ruby snapper (ehu),carbunculus,Ruby snapper (ehu),Lutjanidae,0,0,1,0,1,1,0,0,1
-248,Etelis,Longtail snapper (onaga),coruscans,Longtail snapper (onaga),Lutjanidae,0,0,1,0,1,1,0,0,1
-5243,Lutjanus,Crimson snapper,erythropterus,Crimson snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-240,Pristipomoides,Pristipomoides/Etelis,Etelis spp.,Pristipomoides/Etelis,Lutjanidae,0,0,1,0,1,1,0,0,1
-242,Pristipomoides,Pink snapper /Crimson jobf,filamentosus,Pink snapper /Crimson jobf,Lutjanidae,0,0,1,0,1,1,0,0,1
-241,Pristipomoides,Yelloweye snapper,flavipinnis,Yelloweye snapper,Lutjanidae,0,0,1,0,1,1,0,0,1
-5257,Lutjanus,Dory/Black-spot snapper,fulviflamma,Dory/Black-spot snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-233,Lutjanus,Blacktail/Yellow margin sn,fulvus,Blacktail/Yellow margin sn,Lutjanidae,0,0,1,0,1,0,0,0,1
-238,Aphareus,Brown jobfish,furca,Brown jobfish,Lutjanidae,0,0,1,0,1,0,0,0,1
-236,Lutjanus,Humpback snapper,gibbus,Humpback snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-231,Lutjanus,Blue lined snapper,kasmira,Blue lined snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-253,Paracaesio,Kusakar's snapper,kusakarii,Kusakar's snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-5136,Lutjanus,Yellowstreaked/Dark-tailed,lemniscatus,Yellowstreaked/Dark-tailed,Lutjanidae,0,0,1,0,1,0,0,0,1
-5259,Macolor,Midnight snapper,macularis,Midnight snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-234,Lutjanus,Onespot snapper,monostigma,Onespot snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-250,Pristipomoides,Multidens snapper,multidens,Multidens snapper,Lutjanidae,0,0,1,0,1,1,0,0,1
-251,Macolor,Black snapper,niger,Black snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-256,Etelis,Scarlet snapper,radiosus,Scarlet snapper,Lutjanidae,0,0,1,0,1,1,0,0,1
-232,Lutjanus,Yellow-lined/Rufous snappe,rufolineatus,Yellow-lined/Rufous snappe,Lutjanidae,0,0,1,0,1,0,0,0,1
-243,Pristipomoides,Yelloweye opakapaka,rutilans,Yelloweye opakapaka,Lutjanidae,0,0,1,0,1,0,0,0,1
-247,Aphareus,Silverjaw jobfish (lehi),rutilans,Silverjaw jobfish (lehi),Lutjanidae,0,0,1,0,1,0,0,0,1
-237,Lutjanus,Humphead snapper,sanguineus,Humphead snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-5239,Pristipomoides,Lavender jobfish,sieboldii,Lavender jobfish,Lutjanidae,0,0,1,0,1,1,0,0,1
-5208,Paracaesio,"False fusilier, Dirty ordu",sordida,"False fusilier, Dirty ordu",Lutjanidae,0,0,1,0,1,0,0,0,1
-252,Paracaesio,Stone's snapper,stonei,Stone's snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-257,Lutjanus,Timor snapper,timorensis,Timor snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-239,Aprion,Gray jobfish,virescens,Gray jobfish,Lutjanidae,0,0,1,0,1,0,0,0,1
-908,Paracaesio,Yellowtail blue snapper,xanthura,Yellowtail blue snapper,Lutjanidae,0,0,1,0,1,0,0,0,1
-245,Pristipomoides,Flower snapper (gindai),zonatus,Flower snapper (gindai),Lutjanidae,0,0,1,0,1,1,0,0,1
-368,Malacanthus,Tilefishes,spp.,Tilefishes,Malacanthidae,0,0,0,0,0,0,0,0,0
-523,Paphies,Pipi clam,australis,Pipi clam,Mesodesmatidae,0,0,0,0,0,0,0,0,0
-460,Masturus,Sunfish,lanceolatus,Sunfish,Molidae,0,0,0,0,0,0,0,0,0
-5252,Aluterus,Scrawled filefish,scriptus,Scrawled filefish,Monacanthidae,0,0,0,0,0,0,0,0,0
-139,Monodactylus,Silver batfish,argenteus,Silver batfish,Monodactylidae,0,0,0,0,0,0,0,0,0
-130,Mugil,Mullets,cephalus,Mullets,Mugilidae,0,0,0,0,0,0,0,0,0
-1301,Crenimugil,Fringelip mullet,crenilabis,Fringelip mullet,Mugilidae,0,0,0,0,0,0,0,0,0
-1302,Neomyxus,False mullet,leuciscus,False mullet,Mugilidae,0,0,0,0,0,0,0,0,0
-1303,Ellochelon,Diamond scale mullet,vaigiensis,Diamond scale mullet,Mugilidae,0,0,0,0,0,0,0,0,0
-373,Parupeneus,Dash-and-dot goatfish,barberinus,Dash-and-dot goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-3731,Parupeneus,Doublebar goatfish,bifasciatus,Doublebar goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-5251,Parupeneus,Yellow-stripe goatfish,chrysopleuron,Yellow-stripe goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-3732,Parupeneus,White-lined goatfish,ciliatus,White-lined goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-374,Parupeneus,Yellowsaddle goatfish,cyclostomus,Yellowsaddle goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-371,Mulloidichthys,Yellowstripe goatfish,flavolineatus,Yellowstripe goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-376,Parupeneus,Redspot goatfish,heptacanthus,Redspot goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-377,Parupeneus,Indian goatfish,indicus,Indian goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-378,Parupeneus,Parupenus insularis,insularis,Parupenus insularis,Mullidae,0,0,0,0,0,0,0,0,0
-5244,Upeneus,Goldband goatfish,moluccencis,Goldband goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-3733,Parupeneus,Multi-barred goatfish,multifasciatus,Multi-barred goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-375,Mulloidichthys,Pink goatfish,pfluegeri,Pink goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-381,Parupeneus,Side spot goatfish,pleurostigma,Side spot goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-5238,Parupeneus,Rosy goatfish,rubescens,Rosy goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-370,Mulloidichthys,Yellow goatfishes (unknwn),spp.,Yellow goatfishes (unknwn),Mullidae,0,0,0,0,0,0,0,0,0
-3370,Parupeneus,Banded goatfishes,spp.,Banded goatfishes,Mullidae,0,0,0,0,0,0,0,0,0
-5270,Upeneus,Bandtail goatfish,taeniopterus,Bandtail goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-372,Mulloidichthys,Yellowfin goatfish,vanicolensis,Yellowfin goatfish,Mullidae,0,0,0,0,0,0,0,0,0
-500,Multi-species,Invertebrates (unknown),spp.,Invertebrates (unknown),Multi-family,0,0,0,0,0,0,0,0,0
-501,Multi-species,Crabs,spp.,Crabs,Multi-family,0,0,0,0,0,0,0,0,0
-5226,Muraenesox,Daggertooth pike,Muraenesox,Daggertooth pike,Muraenesocidae,0,0,0,0,0,0,0,0,0
-1741,Gymnothorax,Yellowmargin moray eel,flavimarginatus,Yellowmargin moray eel,Muraenidae,0,0,0,0,0,0,0,0,0
-1742,Gymnothorax,Giant moray eel,javanicus,Giant moray eel,Muraenidae,0,0,0,0,0,0,0,0,0
-175,Enchelycore,Dragon eel,pardalis,Dragon eel,Muraenidae,0,0,0,0,0,0,0,0,0
-170,Gymnothorax,Eels,spp.,Eels,Muraenidae,0,0,0,0,0,0,0,0,0
-174,Gymnothorax,Spotted moray eels,spp.,Spotted moray eels,Muraenidae,0,0,0,0,0,0,0,0,0
-176,"Gymnothorax, Muraena",Moray eels,spp.,Moray eels,Muraenidae,0,0,0,0,0,0,0,0,0
-1743,Gymnothorax,Undulated moray eel,undulatus,Undulated moray eel,Muraenidae,0,0,0,0,0,0,0,0,0
-162,Aetobatis,Eagle ray,narinari,Eagle ray,Myliobatidae,0,0,0,0,0,0,0,0,0
-890,N.A.,Sand and coral rubble,N.A.,Sand and coral rubble,N.A.,0,0,0,0,0,0,0,0,0
-892,N.A.,Sand,N.A.,Sand,N.A.,0,0,0,0,0,0,0,0,0
-533,Cellana,Opii,toreuma,Opii,Nacellidae,0,0,0,0,0,0,0,0,0
-532,"Amauropsis, Tanea",Masina,spp.,Masina,Naticidae,0,0,0,0,0,0,0,0,0
-909,Scolopsis,Pearly monocle bream,margaritifer,Pearly monocle bream,Nemipteridae,0,0,0,0,0,0,0,0,0
-910,Scolopsis,Three-lined monocle bream,trilineatus,Three-lined monocle bream,Nemipteridae,0,0,0,0,0,0,0,0,0
-906,Scolopsis,Monogram monocle bream,monogramma,Monogram monocle bream,Nempiteridae,0,0,0,0,0,0,0,0,0
-535,Nerita,Nertia,spp.,Nertia,Neritidae,0,0,0,0,0,0,0,0,0
-0,No Catch,No Catch,No Catch,No Catch,No Catch,0,0,0,0,0,0,0,0,0
-3497,Scarus,Palenose Parrotfish,psittacus,Palenose Parrotfish,NULL,0,0,0,0,0,0,0,0,0
-5061,Octopus,Octopus (cyanea),cyanea,Octopus (cyanea),Octopodidae,0,0,0,0,0,0,0,0,0
-5062,Octopus,Octopus (ornatus),ornatus,Octopus (ornatus),Octopodidae,0,0,0,0,0,0,0,0,0
-506,Octopus,Octopus,spp.,Octopus,Octopodidae,0,0,0,0,0,0,0,0,0
-152,Ginglymostoma,Nurse shark,cirratum,Nurse shark,Orectolobidae,0,0,0,0,0,0,0,0,0
-5156,Ostracion,Yellow boxfish,cubicus,Yellow boxfish,Ostraciidae,0,0,0,0,0,0,0,0,0
-141,Lactoria,Trunkfishes,spp.,Trunkfishes,Ostraciidae,0,0,0,0,0,0,0,0,0
-612,Multi-genera,Sea lion,spp.,Sea lion,Otariidae,0,0,0,0,0,0,0,0,0
-5097,Panulirus,Spiny lobster (unspecified,"penicillatus, versicolor",Spiny lobster (unspecified,Palinuridae,0,0,0,0,0,0,0,0,0
-379,Pempheris,Sweepers,spp.,Sweepers,Pempherididae,0,0,0,0,0,0,0,0,0
-611,Monachus,Monk seal,schauinslandi,Monk seal,Phocidae,0,0,0,0,0,0,0,0,0
-610,Multi-genera,Seals,spp.,Seals,Phocidae,0,0,0,0,0,0,0,0,0
-605,Physeter,Sperm whale,macrocephalus,Sperm whale,Physeteridae,0,0,0,0,0,0,0,0,0
-522,Streptopinna,Pen shell clam,saccata,Pen shell clam,Pinnidae,0,0,0,0,0,0,0,0,0
-185,Plesiops,Prettyfins,spp.,Prettyfins,Plesiopidae,0,0,0,0,0,0,0,0,0
-5160,Polydactylus,Sixfinger threadfin,sexfilis,Sixfinger threadfin,Polynemidae,0,0,0,0,0,0,0,0,0
-140,Polydactylus,Threadfins,"sexfilis, plebeius",Threadfins,Polynemidae,0,0,0,0,0,0,0,0,0
-143,Centropyge,Angelfish,flavissima,Angelfish,Pomacanthidae,0,0,0,0,0,0,0,0,0
-1431,Pomacanthus,Emperor angelfish,imperator,Emperor angelfish,Pomacanthidae,0,0,0,0,0,0,0,0,0
-5212,Pugoplites,Regal angelfish,navarchus,Regal angelfish,Pomacanthidae,0,0,0,0,0,0,0,0,0
-3181,Abudefduf,Banded sergeant,septemfasciatus,Banded sergeant,Pomacentridae,0,0,0,0,0,0,0,0,0
-318,Abudefduf,Sergeant major,spp.,Sergeant major,Pomacentridae,0,0,0,0,0,0,0,0,0
-142,Dascyllus,Damselfish,trimaculatus,Damselfish,Pomacentridae,0,0,0,0,0,0,0,0,0
-366,Priacanthus,Paeony bulleye,blochii,Paeony bulleye,Priacanthidae,0,0,1,0,0,0,0,0,0
-367,Heteropriacanthus,Glasseye,cruentatus,Glasseye,Priacanthidae,0,0,1,0,0,0,0,0,0
-369,Priacanthus,Moontail bullseye,hamrur,Moontail bullseye,Priacanthidae,0,0,1,0,0,0,0,0,0
-349,Priacanthus,Bigeye squirrelfish,spp.,Bigeye squirrelfish,Priacanthidae,0,0,1,0,0,0,0,0,0
-502,Ranina,Kona crab,ranina,Kona crab,Raninidae,0,0,0,0,0,0,0,0,0
-701,"Oncorhynchus, Salmo",Salmon,spp.,Salmon,Salmonidae,0,0,0,0,0,0,0,0,0
-3492,Scarus,Filament-fin Parrotfish,altipinnis,Filament-fin Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5114,Cetoscarus,Bicolor parrotfish,bicolor,Bicolor parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3501,Calotomus,Stareye parrotfish,carolinus,Stareye parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5235,Scarus,Chameleon parrotfish,chameleon,Chameleon parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5220,Scarus,Yellowfin parrotfish,flavipectoralis,Yellowfin parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3493,Scarus,Bluepatch Parrotfish,forsteni,Bluepatch Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3494,Scarus,Bridled Parrotfish,frenatus,Bridled Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3488,Chlorurus,Reefcrest Parrotfish,frontalis,Reefcrest Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5069,Scarus,Blue-barred parrotfish,ghobban,Blue-barred parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3495,Scarus,Violet-lined Parrotfish,globiceps,Violet-lined Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5189,Hipposcarus,Candelamoa parrotfish,harid,Candelamoa parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3489,Chlorurus,Redtail Parrotfish,japanensis,Redtail Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3503,Hipposcarus,Longnose parrotfish,Longiceps,Longnose parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3490,Chlorurus,Steephead Parrotfish,microrhinos,Steephead Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5083,Scarus,Swarthy parrotfish,niger,Swarthy parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3496,Scarus,Dark-capped Parrotfish,oviceps,Dark-capped Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5082,Scarus,Greenthroat parrotfish,prasiognathos,Greenthroat parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3498,Scarus,Redlip Parrotfish,rubroviolaceus,Redlip Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3502,Scarus,Yellowband parrotfish,schlegeli,Yellowband parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3491,Chlorurus,Bullethead Parrotfish,sordidus,Bullethead Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-3499,Scarus,Greencap Parrotfish,spinus,Greencap Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-350,Scarus,Parrotfishes,spp.,Parrotfishes,Scaridae,0,0,0,0,0,0,0,0,0
-3500,Scarus,Tricolor Parrotfish,tricolor,Tricolor Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-5084,Scarus,Red parrotfish,xanthopleura,Red parrotfish,Scaridae,0,0,0,0,0,0,0,0,0
-458,Euthynnus,Kawakawa,affinis,Kawakawa,Scombridae,0,0,0,0,0,0,0,0,0
-455,Thunnus,Albacore tuna,alalunga,Albacore tuna,Scombridae,0,0,0,0,0,0,0,0,0
-456,Thunnus,Yellowfin tuna,albacares,Yellowfin tuna,Scombridae,0,0,0,0,0,0,0,0,0
-5232,Grammatorcynos,Double-lined mackerel,bilineatus,Double-lined mackerel,Scombridae,0,0,0,0,0,0,0,0,0
-108,Rastrelliger,Mackerel,brachysoma,Mackerel,Scombridae,0,0,0,0,0,0,0,0,0
-5178,Rastrelliger,Long-jawed mackerel,kanagurta,Long-jawed mackerel,Scombridae,0,0,0,0,0,0,0,0,0
-457,Thunnus,Bigeye tuna,obesus,Bigeye tuna,Scombridae,0,0,0,0,0,0,0,0,0
-452,Katsuwonus,Skipjack tuna,pelamis,Skipjack tuna,Scombridae,0,0,0,0,0,0,0,0,0
-412,Acanthocybium,Wahoo,solandri,Wahoo,Scombridae,0,0,0,0,0,0,0,0,0
-453,Thunnus,Bluefin tuna,thynnus,Bluefin tuna,Scombridae,0,0,0,0,0,0,0,0,0
-454,Gymnosarda,Dogtooth tuna,unicolor,Dogtooth tuna,Scombridae,0,0,0,0,0,0,0,0,0
-5268,Pontinus,Large-headed scorpionfish,macrocephalus,Large-headed scorpionfish,Scorpaenidae,0,0,1,0,0,0,0,0,0
-145,Synaceia,Stonefishes,spp.,Stonefishes,Scorpaenidae,0,0,0,0,0,0,0,0,0
-146,Pterois,Lionfishes,spp.,Lionfishes,Scorpaenidae,0,0,0,0,0,0,0,0,0
-505,Parribacus,Slipper lobster,caledonicus,Slipper lobster,Scyllaridae,0,0,0,0,0,0,0,0,0
-220,Variola,White-edged lyretail,albimarginata,White-edged lyretail,Serranidae,0,0,1,1,0,0,0,1,0
-216,Plectropomus,Squaretail coral grouper,areolatus,Squaretail coral grouper,Serranidae,0,0,1,1,0,0,0,1,0
-213,Cephalopholis,Peacock hind,argus,Peacock hind,Serranidae,0,0,1,1,0,0,0,1,0
-202,Cephalopholis,Golden hind,aurantia,Golden hind,Serranidae,0,0,1,1,0,0,0,1,0
-5086,Epinephelus,Palemargin grouper,bontoides,Palemargin grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5227,Epinephelus,Orange-spotted grouper,coioides,Orange-spotted grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5112,Epinephelus,Speckled blue grouper,cyanopodus,Speckled blue grouper,Serranidae,0,0,1,1,0,0,0,1,0
-3858,Cephalopholis,Bluespotted grouper,cyanostigma,Bluespotted grouper,Serranidae,0,0,1,1,0,0,0,1,0
-221,Epinephelus,Blacktip grouper,fasciatus,Blacktip grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5223,Cephalopholis,Bluelined grouper,formosa,Bluelined grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5109,Epinephelus,Brown-marbled grouper,fuscoguttatus,Brown-marbled grouper,Serranidae,0,0,1,1,0,0,0,1,0
-224,Epinephelus,Hexagon grouper,hexagonatus,Hexagon grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5111,Epinephelus,Blacksaddle grouper,howlandi,Blacksaddle grouper,Serranidae,0,0,1,1,0,0,0,1,0
-203,Cephalopholis,Garish hind,igarashiensis,Garish hind,Serranidae,0,0,1,1,0,0,0,1,0
-217,Plectropomus,Saddleback grouper,laevi,Saddleback grouper,Serranidae,0,0,1,1,0,0,0,1,0
-206,Epinephelus,Giant grouper,lanceolatus,Giant grouper,Serranidae,0,0,1,1,0,0,0,1,0
-218,Plectropomus,Leopard coralgrouper,leopardus,Leopard coralgrouper,Serranidae,0,0,1,1,0,0,0,1,0
-201,Anyperodon,Slender grouper,leucogrammicus,Slender grouper,Serranidae,0,0,1,1,0,0,0,1,0
-207,Epinephelus,Longspine grouper,longispinnis,Longspine grouper,Serranidae,0,0,1,1,0,0,0,1,0
-229,Variola,Yellow-edged lyretail,louti,Yellow-edged lyretail,Serranidae,0,0,1,1,0,0,0,1,0
-5135,Epinephelus,Snubnose grouper,macrospilos,Snubnose grouper,Serranidae,0,0,1,1,0,0,0,1,0
-226,Epinephelus,Spotted grouper,maculatus,Spotted grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5177,Plectropomus,Spotted coral grouper,maculatus,Spotted coral grouper,Serranidae,0,0,1,1,0,0,0,1,0
-208,Epinephelus,One-bloch grouper,melanostigma,One-bloch grouper,Serranidae,0,0,1,1,0,0,0,1,0
-209,Epinephelus,Honeycomb grouper,merra,Honeycomb grouper,Serranidae,0,0,1,1,0,0,0,1,0
-227,Epinephelus,Smalltooth grouper,microdon,Smalltooth grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5167,Cephalopholis,Freckled grouper,microprion,Freckled grouper,Serranidae,0,0,1,1,0,0,0,1,0
-228,Epinephelus,Netfin grouper,miliaris,Netfin grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5063,Cephalopholis,Coral grouper,miniata,Coral grouper,Serranidae,0,0,1,1,0,0,0,1,0
-223,Epinephelus,Striped grouper,morrhua,Striped grouper,Serranidae,0,0,1,1,0,0,0,1,0
-211,Hyporthodus,Eightbar grouper,octofasciatus,Eightbar grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5110,Epinephelus,Whitestreaked grouper,ongus,Whitestreaked grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5163,Epinephelus,Camouflage grouper,polyphekadion,Camouflage grouper,Serranidae,0,0,1,1,0,0,0,1,0
-219,Saloptia,Powell's grouper,powelli,Powell's grouper,Serranidae,0,0,1,1,0,0,0,1,0
-5254,Epinephelus,Sixbar grouper,sexfasciatus,Sixbar grouper,Serranidae,0,0,1,1,0,0,0,1,0
-204,Cephalopholis,Six-blotch/banded hind,sexmaculata,Six-blotch/banded hind,Serranidae,0,0,1,1,0,0,0,1,0
-215,Cephalopholis,Tomato hind/grouper,sonnerati,Tomato hind/grouper,Serranidae,0,0,1,1,0,0,0,1,0
-205,Cephalopholis,Strawberry hind,spiloparaea,Strawberry hind,Serranidae,0,0,1,1,0,0,0,1,0
-5144,Epinephelus,Foursaddle grouper,spilotoceps,Foursaddle grouper,Serranidae,0,0,1,1,0,0,0,1,0
-210,Epinephelus,Groupers,spp.,Groupers,Serranidae,0,0,1,1,0,0,0,1,0
-380,Multi-species,Inshore groupers,spp.,Inshore groupers,Serranidae,0,0,1,1,0,0,0,1,0
-212,Epinephelus,Greasy grouper,tauvina,Greasy grouper,Serranidae,0,0,1,1,0,0,0,1,0
-222,Epinephelus,Yellowspot grouper,timorensis,Yellowspot grouper,Serranidae,0,0,1,1,0,0,0,1,0
-214,Cephalopholis,Flagtail grouper,urodeta,Flagtail grouper,Serranidae,0,0,1,1,0,0,0,1,0
-3101,Siganus,Forktail rabbitfish,aregenteus,Forktail rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0
-5236,Siganus,Golden rabbitfish,guttatus,Golden rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0
-3504,Siganus,Goldspotted rabbitfish,punctatus,Goldspotted rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0
-311,Siganus,Scribbled rabbitfish,spinus,Scribbled rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0
-310,Siganus,Rabbitfishes,spp.,Rabbitfishes,Siganidae,0,0,0,0,0,0,0,0,0
-5067,Siganus,Honeycomb rabbitfish,stellatus,Honeycomb rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0
-5200,Siganus,Vermiculate rabbitfish,vermiculatus,Vermiculate rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0
-121,Sphyraena,Great barracuda,barracuda,Great barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0
-123,Sphyraena,Bigeye barracuda,forsteri,Bigeye barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0
-124,Sphyraena,Heller's barracuda,helleri,Heller's barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0
-125,Sphyraena,Blackfin barracuda,qenie,Blackfin barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0
-120,Sphyraena,Barracudas,spp.,Barracudas,Sphyraenidae,0,0,0,0,0,0,0,0,0
-122,Sphyraena,Small barracudas,spp.,Small barracudas,Sphyraenidae,0,0,0,0,0,0,0,0,0
-158,Sphyrna,Hammerhead shark,lewini,Hammerhead shark,Sphyrnidae,0,0,0,0,0,0,0,0,0
-5260,Stegostoma fasciatum,Zebra shark,Stegostoma fasciatum,Zebra shark,Stegostomatidae,0,0,0,0,0,0,0,0,0
-905,Sula,Booby,spp.,Booby,Sulidae,0,0,0,0,0,0,0,0,0
-147,"Saurida, Synodus",Lizardfishes,spp.,Lizardfishes,Synodontidae,0,0,0,0,0,0,0,0,0
-355,Terapon,Terapon perch,jarbua,Terapon perch,Teraponidae,0,0,0,0,0,0,0,0,0
-161,Diodon,Spiny pufferfish,spp.,Spiny pufferfish,Tetradontidae,0,0,0,0,0,0,0,0,0
-810,Actineria,Sea anemone,spp.,Sea anemone,Thalassianthidae,0,0,0,0,0,0,0,0,0
-520,Tridacna,Giant clam (Southern),derasa,Giant clam (Southern),Tridacnidae,0,0,0,0,0,0,0,0,0
-5266,Triodon,Threetooth puffer,macropterus,Threetooth puffer,Triodontidae,0,0,0,0,0,0,0,0,0
-530,Turbo,Turban snail,spp.,Turban snail,Trochidae,0,0,0,0,0,0,0,0,0
-536,Turbo,Green snails,marmoratus,Green snails,Turbinidae,0,0,0,0,0,0,0,0,0
-5202,Etisus,Red crab,dentatus,Red crab,Xanthidae,0,0,0,0,0,0,0,0,0
-405,Xiphias,Swordfish,gladius,Swordfish,Xiphiidae,0,0,0,0,0,0,0,0,0
-388,Zanclus,Moorish Idol,cornutus,Moorish Idol,Zanclidae,0,0,0,0,0,0,0,0,0
+SPECIES_PK,GENUS,SPECIES,SCIENTIFIC_NAME,COMMON_NAME,FAMILY,Trevally_109,Jacks_110,Bottomfishes_200,Groupers_210,Deep_snappers_230,Prist_Etelis_240,Emporers_260,Inshore_groupers_380,Inshore_snappers_390,Fish_100
+0,No Catch,No Catch,No Catch,No Catch,No Catch,0,0,0,0,0,0,0,0,0,0
+100,Fishes (unknown),Fishes (unknown),Fishes (unknown),Fishes (unknown),Multi-family,0,0,0,0,0,0,0,0,0,1
+101,Aulostomus,Trumpetfish,chinensis,Trumpetfish,Aulostomidae,0,0,0,0,0,0,0,0,0,1
+102,Selar,Bigeye scad,crumenophthalmus,Bigeye scad,Carangidae,0,0,0,0,0,0,0,0,0,1
+103,Hypoathernia,Silversides,temminckii,Silversides,Atherinidae,0,0,0,0,0,0,0,0,0,1
+104,Decapterus,Mackerel scad (opelu),macarellus,Mackerel scad (opelu),Carangidae,0,0,0,0,0,0,0,0,0,1
+106,Scomberoides,"Leatherback, Double-spot Q",lysan,"Leatherback, Double-spot Q",Carangidae,1,1,1,0,0,0,0,0,0,1
+107,Caesio,Scissortail fusilier,caerulaurea,Scissortail fusilier,Caesionidae,0,0,0,0,0,0,0,0,0,1
+108,Rastrelliger,Mackerel,brachysoma,Mackerel,Scombridae,0,0,0,0,0,0,0,0,0,1
+109,Multi-genera,Trevallies,Multi-species,Trevallies,Carangidae,1,1,1,0,0,0,0,0,0,1
+110,Multi-species,Jacks,Multi-species,Jacks,Carangidae,1,1,1,0,0,0,0,0,0,1
+111,Caranx,Black jack,lugubris,Black jack,Carangidae,1,1,1,0,0,0,0,0,0,1
+112,Caranx,Bigeye trevally,sexfasciatus,Bigeye trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+113,Caranx,Bluefin trevally,melampygus,Bluefin trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+114,Carangoides,Goldspot trevally,orthogrammus,Goldspot trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+115,Caranx,Brassy trevally,papuensis,Brassy trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+116,Carangoides,Blue kingfish trevally,caeruleopinnatus,Blue kingfish trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+117,Uraspis,Whitemouth trevally,secunda,Whitemouth trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+118,Seriola,Amberjack,rivoliana,Amberjack,Carangidae,1,1,1,0,0,0,0,0,0,1
+119,Caranx,Giant trevally,ignoblis,Giant trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+120,Sphyraena,Barracudas,spp.,Barracudas,Sphyraenidae,0,0,0,0,0,0,0,0,0,1
+121,Sphyraena,Great barracuda,barracuda,Great barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0,1
+122,Sphyraena,Small barracudas,spp.,Small barracudas,Sphyraenidae,0,0,0,0,0,0,0,0,0,1
+123,Sphyraena,Bigeye barracuda,forsteri,Bigeye barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0,1
+124,Sphyraena,Heller's barracuda,helleri,Heller's barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0,1
+125,Sphyraena,Blackfin barracuda,qenie,Blackfin barracuda,Sphyraenidae,0,0,0,0,0,0,0,0,0,1
+126,Seriola,Greater amberjack,dumerilii,Greater amberjack,Carangidae,1,1,1,0,0,0,0,0,0,1
+127,Trachinotus,Snubnose pompano,blochii,Snubnose pompano,Carangidae,1,1,1,0,0,0,0,0,0,1
+130,Mugil,Mullets,cephalus,Mullets,Mugilidae,0,0,0,0,0,0,0,0,0,1
+131,Herklotsichthys,Herrings,quadrimaculatus,Herrings,Clupeidae,0,0,0,0,0,0,0,0,0,1
+132,"Exocoetus, Cheilopogon",Flyingfishes,spp.,Flyingfishes,Exocoetidae,0,0,0,0,0,0,0,0,0,1
+133,Fistularia,Cornetfish,commersonii,Cornetfish,Fistulariidae,0,0,0,0,0,0,0,0,0,1
+134,Multi-genera,Needlefishes,Multi-species,Needlefishes,Belonidae,0,0,0,0,0,0,0,0,0,1
+135,Gerres,Mojarras,spp.,Mojarras,Gerreidae,0,0,0,0,0,0,0,0,0,1
+136,Hemiramphus,Halfbeaks,spp.,Halfbeaks,Hemirhamphidae,0,0,0,0,0,0,0,0,0,1
+138,Multi-genera,Filefishes,Multi-species,Filefishes,Monacanthidae,0,0,0,0,0,0,0,0,0,1
+139,Monodactylus,Silver batfish,argenteus,Silver batfish,Monodactylidae,0,0,0,0,0,0,0,0,0,1
+140,Polydactylus,Threadfins,"sexfilis, plebeius",Threadfins,Polynemidae,0,0,0,0,0,0,0,0,0,1
+141,Lactoria,Trunkfishes,spp.,Trunkfishes,Ostraciidae,0,0,0,0,0,0,0,0,0,1
+142,Dascyllus,Damselfish,trimaculatus,Damselfish,Pomacentridae,0,0,0,0,0,0,0,0,0,1
+143,Centropyge,Angelfish,flavissima,Angelfish,Pomacanthidae,0,0,0,0,0,0,0,0,0,1
+145,Synaceia,Stonefishes,spp.,Stonefishes,Scorpaenidae,0,0,0,0,0,0,0,0,0,1
+146,Pterois,Lionfishes,spp.,Lionfishes,Scorpaenidae,0,0,0,0,0,0,0,0,0,1
+147,"Saurida, Synodus",Lizardfishes,spp.,Lizardfishes,Synodontidae,0,0,0,0,0,0,0,0,0,1
+148,Multi-genera,Pufferfishes,Multi-species,Pufferfishes,Tetraodontidae,0,0,0,0,0,0,0,0,0,1
+150,Multi-genera,Sharks (unknown pelagic),Multi-species,Sharks (unknown pelagic),Multi-family,0,0,0,0,0,0,0,0,0,1
+151,Prionace,Blue shark,glauca,Blue shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+152,Ginglymostoma,Nurse shark,cirratum,Nurse shark,Orectolobidae,0,0,0,0,0,0,0,0,0,1
+153,Isurus,Shortfin mako shark,oxyrinchus,Shortfin mako shark,Lamnidae,0,0,0,0,0,0,0,0,0,1
+154,Carcharhinus,Blacktip reef shark,melanopterus,Blacktip reef shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+155,Alopias,Thresher shark,vulpinus,Thresher shark,Alopiidae,0,0,0,0,0,0,0,0,0,1
+156,Carcharhinus,White tip oceanic shark,longimanus,White tip oceanic shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+157,Carcharhinus,Silky shark,falciformis,Silky shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+158,Sphyrna,Hammerhead shark,lewini,Hammerhead shark,Sphyrnidae,0,0,0,0,0,0,0,0,0,1
+159,Galeocerdo,Tiger shark,cuvier,Tiger shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+160,Multi-genera,Rays,Multi-species,Rays,Myliobatidae,0,0,0,0,0,0,0,0,0,1
+161,Diodon,Spiny pufferfish,spp.,Spiny pufferfish,Tetradontidae,0,0,0,0,0,0,0,0,0,1
+162,Aetobatis,Eagle ray,narinari,Eagle ray,Myliobatidae,0,0,0,0,0,0,0,0,0,1
+170,Gymnothorax,Eels,spp.,Eels,Muraenidae,0,0,0,0,0,0,0,0,0,1
+172,Conger,Conger eels,spp.,Conger eels,Congridae,0,0,0,0,0,0,0,0,0,1
+173,Conger,White eel,cinereus,White eel,Congridae,0,0,0,0,0,0,0,0,0,1
+174,Gymnothorax,Spotted moray eels,spp.,Spotted moray eels,Muraenidae,0,0,0,0,0,0,0,0,0,1
+175,Enchelycore,Dragon eel,pardalis,Dragon eel,Muraenidae,0,0,0,0,0,0,0,0,0,1
+176,"Gymnothorax, Muraena",Moray eels,spp.,Moray eels,Muraenidae,0,0,0,0,0,0,0,0,0,1
+180,Chanos,Milkfish,chanos,Milkfish,Chanidae,0,0,0,0,0,0,0,0,0,1
+182,Platax,"Batfishes, Spadefishes",spp.,"Batfishes, Spadefishes",Ephippidae,0,0,0,0,0,0,0,0,0,1
+185,Plesiops,Prettyfins,spp.,Prettyfins,Plesiopidae,0,0,0,0,0,0,0,0,0,1
+186,Caracanthus,Coral crouchers,unipinna,Coral crouchers,Caracanthidae,0,0,0,0,0,0,0,0,0,1
+187,Anomalops,Flashlightfish,kaptoptron,Flashlightfish,Anomalopidae,0,0,0,0,0,0,0,0,0,1
+188,Encrasicholina,Anchovies,spp.,Anchovies,Engraulidae,0,0,0,0,0,0,0,0,0,1
+189,"Antennarius, Antennatus",Frogfishes,spp.,Frogfishes,Antennariidae,0,0,0,0,0,0,0,0,0,1
+190,"Ictalurus, Clarias",Catfish (aqua & imp),"punctatus, spp.",Catfish (aqua & imp),"Ictaluridae, Clariid",0,0,0,0,0,0,0,0,0,1
+200,Multi-genera,Bottomfishes (unknown),Multi-species,Bottomfishes (unknown),Multi-family,0,0,1,0,0,0,0,0,0,1
+201,Anyperodon,Slender grouper,leucogrammicus,Slender grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+202,Cephalopholis,Golden hind,aurantia,Golden hind,Serranidae,0,0,1,1,0,0,0,1,0,1
+203,Cephalopholis,Garish hind,igarashiensis,Garish hind,Serranidae,0,0,1,1,0,0,0,1,0,1
+204,Cephalopholis,Six-blotch/banded hind,sexmaculata,Six-blotch/banded hind,Serranidae,0,0,1,1,0,0,0,1,0,1
+205,Cephalopholis,Strawberry hind,spiloparaea,Strawberry hind,Serranidae,0,0,1,1,0,0,0,1,0,1
+206,Epinephelus,Giant grouper,lanceolatus,Giant grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+207,Epinephelus,Longspine grouper,longispinnis,Longspine grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+208,Epinephelus,One-bloch grouper,melanostigma,One-bloch grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+209,Epinephelus,Honeycomb grouper,merra,Honeycomb grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+210,Epinephelus,Groupers,spp.,Groupers,Serranidae,0,0,1,1,0,0,0,1,0,1
+211,Hyporthodus,Eightbar grouper,octofasciatus,Eightbar grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+212,Epinephelus,Greasy grouper,tauvina,Greasy grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+213,Cephalopholis,Peacock hind,argus,Peacock hind,Serranidae,0,0,1,1,0,0,0,1,0,1
+214,Cephalopholis,Flagtail grouper,urodeta,Flagtail grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+215,Cephalopholis,Tomato hind/grouper,sonnerati,Tomato hind/grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+216,Plectropomus,Squaretail coral grouper,areolatus,Squaretail coral grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+217,Plectropomus,Saddleback grouper,laevi,Saddleback grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+218,Plectropomus,Leopard coralgrouper,leopardus,Leopard coralgrouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+219,Saloptia,Powell's grouper,powelli,Powell's grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+220,Variola,White-edged lyretail,albimarginata,White-edged lyretail,Serranidae,0,0,1,1,0,0,0,1,0,1
+221,Epinephelus,Blacktip grouper,fasciatus,Blacktip grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+222,Epinephelus,Yellowspot grouper,timorensis,Yellowspot grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+223,Epinephelus,Striped grouper,morrhua,Striped grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+224,Epinephelus,Hexagon grouper,hexagonatus,Hexagon grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+226,Epinephelus,Spotted grouper,maculatus,Spotted grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+227,Epinephelus,Smalltooth grouper,microdon,Smalltooth grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+228,Epinephelus,Netfin grouper,miliaris,Netfin grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+229,Variola,Yellow-edged lyretail,louti,Yellow-edged lyretail,Serranidae,0,0,1,1,0,0,0,1,0,1
+230,Multi-genera,Deep water snappers,Multi-species,Deep water snappers,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+231,Lutjanus,Blue lined snapper,kasmira,Blue lined snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+232,Lutjanus,Yellow-lined/Rufous snappe,rufolineatus,Yellow-lined/Rufous snappe,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+233,Lutjanus,Blacktail/Yellow margin sn,fulvus,Blacktail/Yellow margin sn,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+234,Lutjanus,Onespot snapper,monostigma,Onespot snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+235,Lutjanus,Twinspot/red snapper,bohar,Twinspot/red snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+236,Lutjanus,Humpback snapper,gibbus,Humpback snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+237,Lutjanus,Humphead snapper,sanguineus,Humphead snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+238,Aphareus,Brown jobfish,furca,Brown jobfish,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+239,Aprion,Gray jobfish,virescens,Gray jobfish,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+240,Pristipomoides,Pristipomoides/Etelis,Etelis spp.,Pristipomoides/Etelis,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+241,Pristipomoides,Yelloweye snapper,flavipinnis,Yelloweye snapper,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+242,Pristipomoides,Pink snapper /Crimson jobf,filamentosus,Pink snapper /Crimson jobf,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+243,Pristipomoides,Yelloweye opakapaka,rutilans,Yelloweye opakapaka,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+244,Pristipomoides,Blue lined gindai,argyrogrammicus,Blue lined gindai,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+245,Pristipomoides,Flower snapper (gindai),zonatus,Flower snapper (gindai),Lutjanidae,0,0,1,0,1,1,0,0,1,1
+246,Pristipomoides,Goldflag jobfish,auricilla,Goldflag jobfish,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+247,Aphareus,Silverjaw jobfish (lehi),rutilans,Silverjaw jobfish (lehi),Lutjanidae,0,0,1,0,1,0,0,0,1,1
+248,Etelis,Longtail snapper (onaga),coruscans,Longtail snapper (onaga),Lutjanidae,0,0,1,0,1,1,0,0,1,1
+249,Etelis,Ruby snapper (ehu),carbunculus,Ruby snapper (ehu),Lutjanidae,0,0,1,0,1,1,0,0,1,1
+250,Pristipomoides,Multidens snapper,multidens,Multidens snapper,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+251,Macolor,Black snapper,niger,Black snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+252,Paracaesio,Stone's snapper,stonei,Stone's snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+253,Paracaesio,Kusakar's snapper,kusakarii,Kusakar's snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+254,Monotaxis,Bigeye bream,grandoculis,Bigeye bream,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+255,Gnathodentex,Goldenline bream,aureolineatus,Goldenline bream,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+256,Etelis,Scarlet snapper,radiosus,Scarlet snapper,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+257,Lutjanus,Timor snapper,timorensis,Timor snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+260,Multi-genera,Emperors,Multi-species,Emperors,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+261,Lethrinus,Longnose emperor,elongatus,Longnose emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+262,Lethrinus,Ambon emperor,amboinensis,Ambon emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+263,Gymnocranius,Blueline bream,grandoculis,Blueline bream,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+264,Gnathodentex,Yellowspot emperor,aurolineatus,Yellowspot emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+266,Lethrinus,Orangespot emperor,erythracanthus,Orangespot emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+267,Lethrinus,Redgill emperor,rubrioperculatus,Redgill emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+291,Promethichthys,Snake mackerel,prometheus,Snake mackerel,Gempylidae,0,0,1,0,0,0,0,0,0,1
+292,Ruvettus,Oilfish,"pretiosus, marleyi",Oilfish,Gempylidae,0,0,1,0,0,0,0,0,0,1
+293,Tarachtichthys,Pomfret,steindachneri,Pomfret,Bramidae,0,0,1,0,0,0,0,0,0,1
+300,Multi-genera,Reef fishes (unknown),Multi-species,Reef fishes (unknown),Multi-family,0,0,0,0,0,0,0,0,0,1
+303,Kyphosus,Rudderfish (cinerascens),cinerascens,Rudderfish (cinerascens),Kyphosidae,0,0,0,0,0,0,0,0,0,1
+310,Siganus,Rabbitfishes,spp.,Rabbitfishes,Siganidae,0,0,0,0,0,0,0,0,0,1
+311,Siganus,Scribbled rabbitfish,spinus,Scribbled rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0,1
+315,Multi-genera,Cardinalfish,Multi-species,Cardinalfish,Apogonidae,0,0,0,0,0,0,0,0,0,1
+318,Abudefduf,Sergeant major,spp.,Sergeant major,Pomacentridae,0,0,0,0,0,0,0,0,0,1
+319,Amplycirrhitus,Two spotted hawkfish,bimacula,Two spotted hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0,1
+320,Acanthurus,Surgeonfishes/tangs,spp.,Surgeonfishes/tangs,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+321,Acanthurus,Blue-banded surgeonfish,lineatus,Blue-banded surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+322,Ctenochaetus,Striped bristletooth,striatus,Striped bristletooth,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+323,Acanthurus,Convict tang,triostegus,Convict tang,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+324,Acanthurus,Yellowfin surgeonfish,xanthopterus,Yellowfin surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+325,Acanthurus,Whitespotted surgeonfish,guttatus,Whitespotted surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+326,Acanthurus,Brown surgeonfish,nigrofuscus,Brown surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+327,Naso,Naso tangs,spp.,Naso tangs,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+328,Acanthurus,Achilles tang,achilles,Achilles tang,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+329,Acanthurus,Ringtail surgeonfish,blochii,Ringtail surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+330,Naso,Unicornfishes,spp.,Unicornfishes,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+331,Naso,Whitemargin unicornfish,annulatus,Whitemargin unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+332,Naso,Orangespine unicornfish,lituratus,Orangespine unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+333,Naso,Humpback unicornfish,brachycentron,Humpback unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+334,Naso,Spotted unicornfish,brevirostris,Spotted unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+335,Naso,Gray unicornfish,caesius,Gray unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+336,Naso,Black tongue unicornfish,hexacanthius,Black tongue unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+337,Naso,Barred unicornfish,thynnoides,Barred unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+338,Naso,Humpnose unicornish,tuberosus,Humpnose unicornish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+339,Naso,Bluespine unicornfish,unicornis,Bluespine unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+340,Sargocentron,Squirrelfishes,spp.,Squirrelfishes,Holocentridae,0,0,0,0,0,0,0,0,0,1
+341,Sargocentron,Saber squirrelfish,spiniferum,Saber squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+342,Myripristis,Bronze soldierfish,adustus,Bronze soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+343,Myripristis,Pearly soldierfish,kuntee,Pearly soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+344,Myripristis,Scarlet soldierfish,pralinius,Scarlet soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+345,Myripristis,Bigscale soldierfish,berndti,Bigscale soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+346,Myripristis,Violet soldierfish,violaceus,Violet soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+347,Neoniphon,Yellowstriped squirrelfish,aurolineatus,Yellowstriped squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+348,Neoniphon,Blackfin squirrelfish,opercularis,Blackfin squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+349,Priacanthus,Bigeye squirrelfish,spp.,Bigeye squirrelfish,Priacanthidae,0,0,1,0,0,0,0,0,0,1
+350,Scarus,Parrotfishes,spp.,Parrotfishes,Scaridae,0,0,0,0,0,0,0,0,0,1
+351,Neoniphon,Sammara squirrelfish,sammara,Sammara squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+352,Sargocentron,Tailspot squirrelfish,caudimaculatum,Tailspot squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+353,Sargocentron,Crown squirrelfish,diadema,Crown squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+354,Sargocentron,Peppered squirrelfish,punctatissimum,Peppered squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+355,Terapon,Terapon perch,jarbua,Terapon perch,Teraponidae,0,0,0,0,0,0,0,0,0,1
+356,Sargocentron,Filelined squirrelfish,microstoma,Filelined squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+357,Plectorhinchus,Sweetlips,spp.,Sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0,1
+358,Sargocentron,Violet squirrelfish,violaceum,Violet squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+359,Sargocentron,Blackspot squirrelfish,melanospilos,Blackspot squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+360,Multi-genera,Wrasses,Multi-species,Wrasses,Labridae,0,0,0,0,0,0,0,0,0,1
+361,Thalassoma,Christmas wrasse,trilobata,Christmas wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+363,Kuhlia,Flagtails,spp.,Flagtails,Kuhliidae,0,0,0,0,0,0,0,0,0,1
+365,Multi-genera,Bigeye,Multi-species,Bigeye,Priacanthidae,0,0,1,0,0,0,0,0,0,1
+366,Priacanthus,Paeony bulleye,blochii,Paeony bulleye,Priacanthidae,0,0,1,0,0,0,0,0,0,1
+367,Heteropriacanthus,Glasseye,cruentatus,Glasseye,Priacanthidae,0,0,1,0,0,0,0,0,0,1
+368,Malacanthus,Tilefishes,spp.,Tilefishes,Malacanthidae,0,0,0,0,0,0,0,0,0,1
+369,Priacanthus,Moontail bullseye,hamrur,Moontail bullseye,Priacanthidae,0,0,1,0,0,0,0,0,0,1
+370,Mulloidichthys,Yellow goatfishes (unknwn),spp.,Yellow goatfishes (unknwn),Mullidae,0,0,0,0,0,0,0,0,0,1
+371,Mulloidichthys,Yellowstripe goatfish,flavolineatus,Yellowstripe goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+372,Mulloidichthys,Yellowfin goatfish,vanicolensis,Yellowfin goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+373,Parupeneus,Dash-and-dot goatfish,barberinus,Dash-and-dot goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+374,Parupeneus,Yellowsaddle goatfish,cyclostomus,Yellowsaddle goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+375,Mulloidichthys,Pink goatfish,pfluegeri,Pink goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+376,Parupeneus,Redspot goatfish,heptacanthus,Redspot goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+377,Parupeneus,Indian goatfish,indicus,Indian goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+378,Parupeneus,Parupenus insularis,insularis,Parupenus insularis,Mullidae,0,0,0,0,0,0,0,0,0,1
+379,Pempheris,Sweepers,spp.,Sweepers,Pempherididae,0,0,0,0,0,0,0,0,0,1
+380,Multi-species,Inshore groupers,spp.,Inshore groupers,Serranidae,0,0,1,1,0,0,0,1,0,1
+381,Parupeneus,Side spot goatfish,pleurostigma,Side spot goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+382,Balistoides,Clown triggerfish,conspicillum,Clown triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+383,Multi-genera,Triggerfishes,Multi-species,Triggerfishes,Balistidae,0,0,0,0,0,0,0,0,0,1
+384,Balistoides,Wedged picassofish,rectangulus,Wedged picassofish,Balistidae,0,0,0,0,0,0,0,0,0,1
+385,Chaetodon,Butterflyfishes,spp.,Butterflyfishes,Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+386,Diodon,Porcupinefish,spp.,Porcupinefish,Diodontidae,0,0,0,0,0,0,0,0,0,1
+387,Balistoides,Titan triggerfish,viridescens,Titan triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+388,Zanclus,Moorish Idol,cornutus,Moorish Idol,Zanclidae,0,0,0,0,0,0,0,0,0,1
+390,Multi-genera,Inshore snappers,Multi-species,Inshore snappers,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+392,Lutjanus,Twinspot/red snapper 2,bohar,Twinspot/red snapper 2,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+400,Multi-genera,Pelagic fishes (unknown),Multi-species,Pelagic fishes (unknown),Multi-family,0,0,0,0,0,0,0,0,0,1
+403,Tetrapturus,Striped marlin,audax,Striped marlin,Istiophoridae,0,0,0,0,0,0,0,0,0,1
+404,Coryphaena,Mahimahi,hippurus,Mahimahi,Coryphenidae,0,0,0,0,0,0,0,0,0,1
+405,Xiphias,Swordfish,gladius,Swordfish,Xiphiidae,0,0,0,0,0,0,0,0,0,1
+406,Makaira,Blue marlin,nigricans,Blue marlin,Istiophoridae,0,0,0,0,0,0,0,0,0,1
+407,Makaira,Black marlin,indica,Black marlin,Istiophoridae,0,0,0,0,0,0,0,0,0,1
+408,Istiophorus,Sailfish,platypterus,Sailfish,Istiophoridae,0,0,0,0,0,0,0,0,0,1
+409,Tetrapturus,Spearfish,angustirostris,Spearfish,Istiophoridae,0,0,0,0,0,0,0,0,0,1
+410,Elagatis,Rainbow runner,bipinnulatus,Rainbow runner,Carangidae,1,1,1,0,0,0,0,0,0,1
+412,Acanthocybium,Wahoo,solandri,Wahoo,Scombridae,0,0,0,0,0,0,0,0,0,1
+450,Multi-genera,Tunas (unknown),Multi-species,Tunas (unknown),Scombridae,0,0,0,0,0,0,0,0,0,1
+452,Katsuwonus,Skipjack tuna,pelamis,Skipjack tuna,Scombridae,0,0,0,0,0,0,0,0,0,1
+453,Thunnus,Bluefin tuna,thynnus,Bluefin tuna,Scombridae,0,0,0,0,0,0,0,0,0,1
+454,Gymnosarda,Dogtooth tuna,unicolor,Dogtooth tuna,Scombridae,0,0,0,0,0,0,0,0,0,1
+455,Thunnus,Albacore tuna,alalunga,Albacore tuna,Scombridae,0,0,0,0,0,0,0,0,0,1
+456,Thunnus,Yellowfin tuna,albacares,Yellowfin tuna,Scombridae,0,0,0,0,0,0,0,0,0,1
+457,Thunnus,Bigeye tuna,obesus,Bigeye tuna,Scombridae,0,0,0,0,0,0,0,0,0,1
+458,Euthynnus,Kawakawa,affinis,Kawakawa,Scombridae,0,0,0,0,0,0,0,0,0,1
+459,Lampris,Moonfish,guttatus,Moonfish,Lampridae,0,0,0,0,0,0,0,0,0,1
+460,Masturus,Sunfish,lanceolatus,Sunfish,Molidae,0,0,0,0,0,0,0,0,0,1
+500,Multi-species,Invertebrates (unknown),spp.,Invertebrates (unknown),Multi-family,0,0,0,0,0,0,0,0,0,0
+501,Multi-species,Crabs,spp.,Crabs,Multi-family,0,0,0,0,0,0,0,0,0,0
+502,Ranina,Kona crab,ranina,Kona crab,Raninidae,0,0,0,0,0,0,0,0,0,0
+503,Scylla,Mangrove crab,paramamosian,Mangrove crab,Decopoda,0,0,0,0,0,0,0,0,0,0
+504,Panulirus,Spiny lobster,pencillatus,Spiny lobster,Homaridae,0,0,0,0,0,0,0,0,0,0
+505,Parribacus,Slipper lobster,caledonicus,Slipper lobster,Scyllaridae,0,0,0,0,0,0,0,0,0,0
+506,Octopus,Octopus,spp.,Octopus,Octopodidae,0,0,0,0,0,0,0,0,0,0
+520,Tridacna,Giant clam (Southern),derasa,Giant clam (Southern),Tridacnidae,0,0,0,0,0,0,0,0,0,0
+522,Streptopinna,Pen shell clam,saccata,Pen shell clam,Pinnidae,0,0,0,0,0,0,0,0,0,0
+523,Paphies,Pipi clam,australis,Pipi clam,Mesodesmatidae,0,0,0,0,0,0,0,0,0,0
+530,Turbo,Turban snail,spp.,Turban snail,Trochidae,0,0,0,0,0,0,0,0,0,0
+531,Conus,Cone snail,spp.,Cone snail,Conidae,0,0,0,0,0,0,0,0,0,0
+532,"Amauropsis, Tanea",Masina,spp.,Masina,Naticidae,0,0,0,0,0,0,0,0,0,0
+533,Cellana,Opii,toreuma,Opii,Nacellidae,0,0,0,0,0,0,0,0,0,0
+535,Nerita,Nertia,spp.,Nertia,Neritidae,0,0,0,0,0,0,0,0,0,0
+536,Turbo,Green snails,marmoratus,Green snails,Turbinidae,0,0,0,0,0,0,0,0,0,0
+553,"Diadema, Echinothrix",Black sea urchin,spp.,Black sea urchin,Diadematidae,0,0,0,0,0,0,0,0,0,0
+554,Brissus,Heart sea urchin,latecarinatus,Heart sea urchin,Brissidae,0,0,0,0,0,0,0,0,0,0
+556,"Diadema, Echinothrix",Black sea urchin insides,spp.,Black sea urchin insides,Diadematidae,0,0,0,0,0,0,0,0,0,0
+557,Brissus,Heart sea urchin insides,spp.,Heart sea urchin insides,Brissidae,0,0,0,0,0,0,0,0,0,0
+558,Echinometra,White sea urchin insides,mathaei,White sea urchin insides,Echinometridae,0,0,0,0,0,0,0,0,0,0
+560,Cassiopea,Upsidedown jellyfishes,andromeda,Upsidedown jellyfishes,Cassiopeidae,0,0,0,0,0,0,0,0,0,0
+570,Palola,Annelid worm,viridis,Annelid worm,Eunicidae,0,0,0,0,0,0,0,0,0,0
+591,Chelonia,Green turtle,mydas,Green turtle,Cheloniidae,0,0,0,0,0,0,0,0,0,0
+592,Dermochelys,Leatherback turtle,coriacea,Leatherback turtle,Dermochelyidae,0,0,0,0,0,0,0,0,0,0
+593,Caretta,Loggerhead turtle,caretta,Loggerhead turtle,Cheloniidae,0,0,0,0,0,0,0,0,0,0
+594,Lepidochelys,Olive ridley turtle,olivacea,Olive ridley turtle,Cheloniidae,0,0,0,0,0,0,0,0,0,0
+595,Eretmochelys,Hawksbill turtle,imbricata,Hawksbill turtle,Cheloniidae,0,0,0,0,0,0,0,0,0,0
+602,Globicephala,Pilot whale,melas,Pilot whale,Delphinidae,0,0,0,0,0,0,0,0,0,0
+603,Megaptera,Humpback whale,novaeangliae,Humpback whale,Balaenopteridae,0,0,0,0,0,0,0,0,0,0
+604,Pseudorca,False killer whale,crassidens,False killer whale,Delphinidae,0,0,0,0,0,0,0,0,0,0
+605,Physeter,Sperm whale,macrocephalus,Sperm whale,Physeteridae,0,0,0,0,0,0,0,0,0,0
+610,Multi-genera,Seals,spp.,Seals,Phocidae,0,0,0,0,0,0,0,0,0,0
+611,Monachus,Monk seal,schauinslandi,Monk seal,Phocidae,0,0,0,0,0,0,0,0,0,0
+612,Multi-genera,Sea lion,spp.,Sea lion,Otariidae,0,0,0,0,0,0,0,0,0,0
+621,Tursiops,Bottlenose dolphin,spp.,Bottlenose dolphin,Delphinidae,0,0,0,0,0,0,0,0,0,0
+622,Stenella,Spinner dolphin,longirostris,Spinner dolphin,Delphinidae,0,0,0,0,0,0,0,0,0,0
+623,Grampus,Risso's dolphin,griseus,Risso's dolphin,Delphinidae,0,0,0,0,0,0,0,0,0,0
+624,Steno,Rough tooth dolphin,bredanesis,Rough tooth dolphin,Delphinidae,0,0,0,0,0,0,0,0,0,0
+700,Tilapia,Tilapia,zillii,Tilapia,Cichlidae,0,0,0,0,0,0,0,0,0,1
+701,"Oncorhynchus, Salmo",Salmon,spp.,Salmon,Salmonidae,0,0,0,0,0,0,0,0,0,1
+702,Pollachius,Pollock,virens,Pollock,Gadidae,0,0,0,0,0,0,0,0,0,1
+710,Anguilla,Freshwater eel,marmorata,Freshwater eel,Anguillidae,0,0,0,0,0,0,0,0,0,1
+720,Kuhlia,Mountain bass,spp.,Mountain bass,Kuhliidae,0,0,0,0,0,0,0,0,0,1
+810,Actineria,Sea anemone,spp.,Sea anemone,Thalassianthidae,0,0,0,0,0,0,0,0,0,0
+820,Holothuria,Sea cucumber,atra,Sea cucumber,Holothuroidae,0,0,0,0,0,0,0,0,0,1
+824,Actinopyga,Surf redfish,mauritiana,Surf redfish,Holothuroidea,0,0,0,0,0,0,0,0,0,1
+825,Bohadschia,Leopard sea cucumber,argus,Leopard sea cucumber,Holothuroidae,0,0,0,0,0,0,0,0,0,1
+827,Holothuria,Sea cucumber (Loli 2),atra (cubed),Sea cucumber (Loli 2),Holothuroidae,0,0,0,0,0,0,0,0,0,1
+828,Bohadschia,Leopard sea cucumber 2,argus,Leopard sea cucumber 2,Holothuroidae,0,0,0,0,0,0,0,0,0,1
+890,N.A.,Sand and coral rubble,N.A.,Sand and coral rubble,N.A.,0,0,0,0,0,0,0,0,0,0
+892,N.A.,Sand,N.A.,Sand,N.A.,0,0,0,0,0,0,0,0,0,0
+901,Phoebastria,Albatross,spp.,Albatross,Diomedeidae,0,0,0,0,0,0,0,0,0,0
+902,Phoebastria,Blackfoot albatross,nigripes,Blackfoot albatross,Diomedeidae,0,0,0,0,0,0,0,0,0,0
+903,Phoebastria,Laysan albatross,immutabilis,Laysan albatross,Diomedeidae,0,0,0,0,0,0,0,0,0,0
+904,Phoebastria,Short-tailed albatross,albatrus,Short-tailed albatross,Diomedeidae,0,0,0,0,0,0,0,0,0,0
+905,Sula,Booby,spp.,Booby,Sulidae,0,0,0,0,0,0,0,0,0,0
+906,Scolopsis,Monogram monocle bream,monogramma,Monogram monocle bream,Nempiteridae,0,0,0,0,0,0,0,0,0,1
+907,Platax,Spadefish,spp.,Spadefish,Ephippidae,0,0,0,0,0,0,0,0,0,1
+908,Paracaesio,Yellowtail blue snapper,xanthura,Yellowtail blue snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+909,Scolopsis,Pearly monocle bream,margaritifer,Pearly monocle bream,Nemipteridae,0,0,0,0,0,0,0,0,0,1
+910,Scolopsis,Three-lined monocle bream,trilineatus,Three-lined monocle bream,Nemipteridae,0,0,0,0,0,0,0,0,0,1
+1301,Crenimugil,Fringelip mullet,crenilabis,Fringelip mullet,Mugilidae,0,0,0,0,0,0,0,0,0,1
+1302,Neomyxus,False mullet,leuciscus,False mullet,Mugilidae,0,0,0,0,0,0,0,0,0,1
+1303,Ellochelon,Diamond scale mullet,vaigiensis,Diamond scale mullet,Mugilidae,0,0,0,0,0,0,0,0,0,1
+1431,Pomacanthus,Emperor angelfish,imperator,Emperor angelfish,Pomacanthidae,0,0,0,0,0,0,0,0,0,1
+1531,Isurus,Longfin mako shark,paucus,Longfin mako shark,Lamnidae,0,0,0,0,0,0,0,0,0,1
+1541,Carcharhinus,Silvertip shark,albimarginatus,Silvertip shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+1542,Carcharhinus,Grey reef shark,amblyrhynchos,Grey reef shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+1543,Carcharhinus,Galapagos shark,galapagenis,Galapagos shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+1544,Triaenodon,White tip reef shark,obesus,White tip reef shark,Carcharhinidae,0,0,0,0,0,0,0,0,0,1
+1551,Alopias,Pelagic thresher shark,pelagicus,Pelagic thresher shark,Alopiidae,0,0,0,0,0,0,0,0,0,1
+1552,Alopias,Bigeye thresher shark,superciliousus,Bigeye thresher shark,Alopiidae,0,0,0,0,0,0,0,0,0,1
+1741,Gymnothorax,Yellowmargin moray eel,flavimarginatus,Yellowmargin moray eel,Muraenidae,0,0,0,0,0,0,0,0,0,1
+1742,Gymnothorax,Giant moray eel,javanicus,Giant moray eel,Muraenidae,0,0,0,0,0,0,0,0,0,1
+1743,Gymnothorax,Undulated moray eel,undulatus,Undulated moray eel,Muraenidae,0,0,0,0,0,0,0,0,0,1
+2601,Lethrinus,Sweetlip emperor,miniatus,Sweetlip emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+3031,Kyphosus,Lowfin drummer,vaigiensis,Lowfin drummer,Kyphosidae,0,0,0,0,0,0,0,0,0,1
+3032,Kyphosus,Western drummer,cornelii,Western drummer,Kyphosidae,0,0,0,0,0,0,0,0,0,1
+3033,Kyphosus,Rudderfish (biggibus),biggibus,Rudderfish (biggibus),Kyphosidae,0,0,0,0,0,0,0,0,0,1
+3034,Kyphosus,Rudderfishes,spp,Rudderfishes,Kyphosidae,0,0,0,0,0,0,0,0,0,1
+3051,Asterorhombus,Angler flatfish,fijiensis,Angler flatfish,Bothidae,0,0,0,0,0,0,0,0,0,1
+3101,Siganus,Forktail rabbitfish,aregenteus,Forktail rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0,1
+3181,Abudefduf,Banded sergeant,septemfasciatus,Banded sergeant,Pomacentridae,0,0,0,0,0,0,0,0,0,1
+3191,Cirrhitus,Stocky hawkfish,pinnalatus,Stocky hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0,1
+3192,Neocirrhitus,Flame hawkfish,armatus,Flame hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0,1
+3201,Acanthurus,Eye-striped surgeonfish,dussumeiri,Eye-striped surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3202,Acanthurus,Whitebar surgeonfish,leucopareius,Whitebar surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3203,Acanthurus,Elongate surgeonfish,mata,Elongate surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3204,Acanthurus,Whitecheek surgeonfish,nigricans,Whitecheek surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3205,Acanthurus,Blackstreak surgeonfish,nigricauda,Blackstreak surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3206,Acanthurus,Bluelined surgeonfish,nigroris,Bluelined surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3207,Acanthurus,Orange-spot surgeonfish,olivaceus,Orange-spot surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3208,Acanthurus,Mimic surgeonfish,pyorferus,Mimic surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3209,Acanthurus,Spotted Face Surgeonfish,maculiceps,Spotted Face Surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3221,Ctenochaetus,Twospot bristletooth,binotatus,Twospot bristletooth,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3222,Ctenochaetus,Yellow-eyed bristletooth,strigosus,Yellow-eyed bristletooth,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3281,Zebrasoma,Pacific sailfin tang,veliferum,Pacific sailfin tang,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3311,Naso,Bignose unicornfish,vlamingii,Bignose unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3312,Naso,Bluetail Unicornfish,caeruleacauda,Bluetail Unicornfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+3370,Parupeneus,Banded goatfishes,spp.,Banded goatfishes,Mullidae,0,0,0,0,0,0,0,0,0,1
+3410,Myripristis,Soldierfishes,spp.,Soldierfishes,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3411,Myripristis,Brick soldierfish,amaena,Brick soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3412,Myripristis,Yellowfin soldierfish,chryseres,Yellowfin soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3413,Myripristis,Double tooth soldierfish,hexagona,Double tooth soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3414,Myripristis,Blotcheye soldierfish,murdjan,Blotcheye soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3415,Myripristis,Whitetip soldierfish,vittata,Whitetip soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3416,Myripristis,Whitespot Soldierfish,woodsi,Whitespot Soldierfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3488,Chlorurus,Reefcrest Parrotfish,frontalis,Reefcrest Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3489,Chlorurus,Redtail Parrotfish,japanensis,Redtail Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3490,Chlorurus,Steephead Parrotfish,microrhinos,Steephead Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3491,Chlorurus,Bullethead Parrotfish,sordidus,Bullethead Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3492,Scarus,Filament-fin Parrotfish,altipinnis,Filament-fin Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3493,Scarus,Bluepatch Parrotfish,forsteni,Bluepatch Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3494,Scarus,Bridled Parrotfish,frenatus,Bridled Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3495,Scarus,Violet-lined Parrotfish,globiceps,Violet-lined Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3496,Scarus,Dark-capped Parrotfish,oviceps,Dark-capped Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3497,Scarus,Palenose Parrotfish,psittacus,Palenose Parrotfish,NULL,0,0,0,0,0,0,0,0,0,1
+3498,Scarus,Redlip Parrotfish,rubroviolaceus,Redlip Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3499,Scarus,Greencap Parrotfish,spinus,Greencap Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3500,Scarus,Tricolor Parrotfish,tricolor,Tricolor Parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3501,Calotomus,Stareye parrotfish,carolinus,Stareye parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3502,Scarus,Yellowband parrotfish,schlegeli,Yellowband parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3503,Hipposcarus,Longnose parrotfish,Longiceps,Longnose parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+3504,Siganus,Goldspotted rabbitfish,punctatus,Goldspotted rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0,1
+3511,Sargocentron,Bluelined squirrelfish,tiere,Bluelined squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3512,Sargocentron,Pink squirrelfish,tieroides,Pink squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3513,Sargocentron,Hawaiian squirrelfish,xantherythrum,Hawaiian squirrelfish,Holocentridae,0,0,0,0,0,0,0,0,0,1
+3601,Cheilinus,Napoleon wrasse,undulatus,Napoleon wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3602,Cheilinus,Triple tail wrasse,trilobatus,Triple tail wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3603,Cheilinus,Floral wrasse,chlorourus,Floral wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3604,Cheilinus,Harlequin tuskfish,fasciatus,Harlequin tuskfish,Labridae,0,0,0,0,0,0,0,0,0,1
+3605,Oxycheilinus,Bandcheck wrasse,diagrammus,Bandcheck wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3606,Oxycheilinus,Arenatus wrasse,arenatus,Arenatus wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3607,Xyrichtys,Whitepatch wrasse,aneitensis,Whitepatch wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3608,Cheilio,Cigar wrasse,inermus,Cigar wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3609,Hemigymnus,Blackeye thicklip,melapterus,Blackeye thicklip,Labridae,0,0,0,0,0,0,0,0,0,1
+3610,Hemigymnus,Barred thicklip,fasciatus,Barred thicklip,Labridae,0,0,0,0,0,0,0,0,0,1
+3611,Thalassoma,Sunset wrasse,lutescens,Sunset wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3612,Thalassoma,Surge wrasse,purpureum,Surge wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3613,Thalassoma,Red ribbon wrasse,quinquevittaitum,Red ribbon wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3614,Gomphosus,Bird wrasse,varius,Bird wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3615,Cheilinus sp,Cheilinus wrasses,spp.,Cheilinus wrasses,Labridae,0,0,0,0,0,0,0,0,0,1
+3616,Halichoeres,Checkerboard wrasse,hortulanus,Checkerboard wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3617,Halichoeres,Weedy surge wrasse,margaritaceus,Weedy surge wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3619,Novaculichthys,Rockmover wrasse,taeniorus,Rockmover wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3620,Epibulus,Slingjaw Wrasse,insidiator,Slingjaw Wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+3621,Plectorhinchus,Oriental sweetlips,vittatus,Oriental sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0,1
+3631,Kuhlia,Barred flagtail,mugil,Barred flagtail,Kuhliidae,0,0,0,0,0,0,0,0,0,1
+3731,Parupeneus,Doublebar goatfish,bifasciatus,Doublebar goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+3732,Parupeneus,White-lined goatfish,ciliatus,White-lined goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+3733,Parupeneus,Multi-barred goatfish,multifasciatus,Multi-barred goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+3734,Multi-genera,Goatfishes,Multi-species,Goatfishes,Mullidae,0,0,0,0,0,0,0,0,0,1
+3821,Balistapus,Orangestripe triggerfish,undulatus,Orangestripe triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+3822,Melichthys,Pinktail triggerfish,vidua,Pinktail triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+3823,Melichthys,Black triggerfish,Niger,Black triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+3824,Pseudobalistes,Blue triggerfish,fuscus,Blue triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+3825,Sufflamen,Bridled triggerfish,freanatum,Bridled triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+3841,Rhinecanthus,Picassofish,aculeatus,Picassofish,Balistidae,0,0,0,0,0,0,0,0,0,1
+3851,Chaetodon,Butterflyfish (auriga),auriga,Butterflyfish (auriga),Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+3852,Chaetodon,Racoon butterflyfish,lunula,Racoon butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+3853,Chaetodon,Butterflyfish (melanotic),melannotus,Butterflyfish (melanotic),Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+3854,Chaetodon,Saddleback butterflyfish,ephippium,Saddleback butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+3855,Taractichthys,Monchong,steindachneri,Monchong,Bramidae,0,0,1,0,0,0,0,0,0,1
+3856,Caesio,Blue and Yellow Fusilier,teres,Blue and Yellow Fusilier,Caesionidae,0,0,0,0,0,0,0,0,0,1
+3857,Caesio,Variable-lined fusilier,varilineata,Variable-lined fusilier,Caesionidae,0,0,0,0,0,0,0,0,0,1
+3858,Cephalopholis,Bluespotted grouper,cyanostigma,Bluespotted grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+3859,Coris,Yellowtail Coris,gaimard,Yellowtail Coris,Labridae,0,0,0,0,0,0,0,0,0,1
+5011,Carpillius,Spotted/7-11reef crab,maculatus,Spotted/7-11reef crab,Decopoda,0,0,0,0,0,0,0,0,0,0
+5014,Sesama,Large red crab,erythrodactyla,Large red crab,Decopoda,0,0,0,0,0,0,0,0,0,0
+5061,Octopus,Octopus (cyanea),cyanea,Octopus (cyanea),Octopodidae,0,0,0,0,0,0,0,0,0,0
+5062,Octopus,Octopus (ornatus),ornatus,Octopus (ornatus),Octopodidae,0,0,0,0,0,0,0,0,0,0
+5063,Cephalopholis,Coral grouper,miniata,Coral grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5065,Lethrinus,One spot emperor,harak,One spot emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5066,Lutjanus,Moluccan snapper,boutton,Moluccan snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5067,Siganus,Honeycomb rabbitfish,stellatus,Honeycomb rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0,1
+5069,Scarus,Blue-barred parrotfish,ghobban,Blue-barred parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5075,Lethrinus,Longface emperor,olivaceus,Longface emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5079,Oxycheilinus,Ringtail wrasse,unifasciatus,Ringtail wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+5082,Scarus,Greenthroat parrotfish,prasiognathos,Greenthroat parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5083,Scarus,Swarthy parrotfish,niger,Swarthy parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5084,Scarus,Red parrotfish,xanthopleura,Red parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5086,Epinephelus,Palemargin grouper,bontoides,Palemargin grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5097,Panulirus,Spiny lobster (unspecified,"penicillatus, versicolor",Spiny lobster (unspecified,Palinuridae,0,0,0,0,0,0,0,0,0,0
+5106,Lethrinus,Yellowlip emperor,xanthochilus,Yellowlip emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5109,Epinephelus,Brown-marbled grouper,fuscoguttatus,Brown-marbled grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5110,Epinephelus,Whitestreaked grouper,ongus,Whitestreaked grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5111,Epinephelus,Blacksaddle grouper,howlandi,Blacksaddle grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5112,Epinephelus,Speckled blue grouper,cyanopodus,Speckled blue grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5114,Cetoscarus,Bicolor parrotfish,bicolor,Bicolor parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5115,Diodon,Porcupinefish,hystrix,Porcupinefish,Diodontidae,0,0,0,0,0,0,0,0,0,1
+5116,Acanthurus,Orange-socket surgeonfish,auranticavus,Orange-socket surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+5131,Plectorhinchus,"Blubberlip, Harry hotlips",gibbosus,"Blubberlip, Harry hotlips",Haemulidae,0,0,0,0,0,0,0,0,0,1
+5135,Epinephelus,Snubnose grouper,macrospilos,Snubnose grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5136,Lutjanus,Yellowstreaked/Dark-tailed,lemniscatus,Yellowstreaked/Dark-tailed,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5140,Pseudobalistes,Yellowmargin triggerfish,flavimarginatus,Yellowmargin triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+5144,Epinephelus,Foursaddle grouper,spilotoceps,Foursaddle grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5145,Stongylura,Reef needlefish,incisa,Reef needlefish,Belonidae,0,0,0,0,0,0,0,0,0,1
+5146,Platybelone,Keeltail needlefish,argalus,Keeltail needlefish,Belonidae,0,0,0,0,0,0,0,0,0,1
+5151,Platax,Longfin spadefish,teira,Longfin spadefish,Ephippidae,0,0,0,0,0,0,0,0,0,1
+5156,Ostracion,Yellow boxfish,cubicus,Yellow boxfish,Ostraciidae,0,0,0,0,0,0,0,0,0,1
+5159,Decapterus,Indian scad,russelli,Indian scad,Carangidae,0,0,0,0,0,0,0,0,0,1
+5160,Polydactylus,Sixfinger threadfin,sexfilis,Sixfinger threadfin,Polynemidae,0,0,0,0,0,0,0,0,0,1
+5163,Epinephelus,Camouflage grouper,polyphekadion,Camouflage grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5167,Cephalopholis,Freckled grouper,microprion,Freckled grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5168,Plectorhinchus,Dotted sweetlips,picus,Dotted sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0,1
+5169,Plectorhinchus,"Giant sweetlips, Two-strip",albovittatus,"Giant sweetlips, Two-strip",Haemulidae,0,0,0,0,0,0,0,0,0,1
+5171,Sargocentron,Yellow-striped squirrelfis,ensifer,Yellow-striped squirrelfis,Holocentridae,0,0,0,0,0,0,0,0,0,1
+5172,Lutjanus,Mangrove red snapper,argentimaculatus,Mangrove red snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5173,Gnathanodon,Golden trevally,speciosus,Golden trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+5174,"Leiognathus, Aurigequula",Striped ponyfish,spp.,Striped ponyfish,Leiognathidae,0,0,0,0,0,0,0,0,0,1
+5175,Gymnocranius,Grey large-eye bream,griseus,Grey large-eye bream,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5177,Plectropomus,Spotted coral grouper,maculatus,Spotted coral grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5178,Rastrelliger,Long-jawed mackerel,kanagurta,Long-jawed mackerel,Scombridae,0,0,0,0,0,0,0,0,0,1
+5182,Gerres,Slender/Oblong silver-bidd,oblongus,Slender/Oblong silver-bidd,Gerreidae,0,0,0,0,0,0,0,0,0,1
+5183,Chaetodon,Lined butterflyfish,lineolatus,Lined butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+5185,Acanthurus,Fine-lined surgeonfish,grammoptilus,Fine-lined surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+5187,Platax,Circular spadefish,orbicular,Circular spadefish,Ephippidae,0,0,0,0,0,0,0,0,0,1
+5189,Hipposcarus,Candelamoa parrotfish,harid,Candelamoa parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5190,Chaetodon,Ornate butterflyfish,omatissimus,Ornate butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+5191,Lethrinus,Longfin emperor,erythropterus,Longfin emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5192,Paracirrhites,Halfspotted hawkfish,hemistictus,Halfspotted hawkfish,Cirrhitidae,0,0,0,0,0,0,0,0,0,1
+5200,Siganus,Vermiculate rabbitfish,vermiculatus,Vermiculate rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0,1
+5202,Etisus,Red crab,dentatus,Red crab,Xanthidae,0,0,0,0,0,0,0,0,0,0
+5206,Acanthurus,Whitefin surgeonfish,albipectoralis,Whitefin surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+5207,Lethrinus,Yellowtail emperor,atkinsoni,Yellowtail emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5208,Paracaesio,"False fusilier, Dirty ordu",sordida,"False fusilier, Dirty ordu",Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5209,Lutjanus,Two spot snapper,biguttatus,Two spot snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5210,Bothus,Leopard flounder,mancus,Leopard flounder,Bothidae,0,0,0,0,0,0,0,0,0,1
+5212,Pugoplites,Regal angelfish,navarchus,Regal angelfish,Pomacanthidae,0,0,0,0,0,0,0,0,0,1
+5214,Trachinotus,Small spotted dart,bailonii,Small spotted dart,Carangidae,1,1,1,0,0,0,0,0,0,1
+5218,Sepioteuthis,Bigfin reef squid,lessoniana,Bigfin reef squid,Loliginidae,0,0,0,0,0,0,0,0,0,0
+5219,Macropharyngodon,Yellowspotted wrasse,negrosensis,Yellowspotted wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+5220,Scarus,Yellowfin parrotfish,flavipectoralis,Yellowfin parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5221,Lethrinus,Orange striped emperor,obsoletus,Orange striped emperor,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5223,Cephalopholis,Bluelined grouper,formosa,Bluelined grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5224,Caranx,Tille trevally,tille,Tille trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+5226,Muraenesox,Daggertooth pike,Muraenesox,Daggertooth pike,Muraenesocidae,0,0,0,0,0,0,0,0,0,1
+5227,Epinephelus,Orange-spotted grouper,coioides,Orange-spotted grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5231,Apogon,Samoan cardinalfish,fuscus,Samoan cardinalfish,Apogonidae,0,0,0,0,0,0,0,0,0,1
+5232,Grammatorcynos,Double-lined mackerel,bilineatus,Double-lined mackerel,Scombridae,0,0,0,0,0,0,0,0,0,1
+5233,Pseudocaranx,Silver trevally,dentex,Silver trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+5235,Scarus,Chameleon parrotfish,chameleon,Chameleon parrotfish,Scaridae,0,0,0,0,0,0,0,0,0,1
+5236,Siganus,Golden rabbitfish,guttatus,Golden rabbitfish,Siganidae,0,0,0,0,0,0,0,0,0,1
+5238,Parupeneus,Rosy goatfish,rubescens,Rosy goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+5239,Pristipomoides,Lavender jobfish,sieboldii,Lavender jobfish,Lutjanidae,0,0,1,0,1,1,0,0,1,1
+5242,Abalistes,Starry triggerfish,stellatus,Starry triggerfish,Balistidae,0,0,0,0,0,0,0,0,0,1
+5243,Lutjanus,Crimson snapper,erythropterus,Crimson snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5244,Upeneus,Goldband goatfish,moluccencis,Goldband goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+5245,Sufflamen,Boomerang/Scythe triggerfi,bursa,Boomerang/Scythe triggerfi,Balistidae,0,0,0,0,0,0,0,0,0,1
+5246,Carangoides,Longnose trevally,chrysophrys,Longnose trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+5247,Selaroides,Yellowstripe scad,leptolepis,Yellowstripe scad,Carangidae,0,0,0,0,0,0,0,0,0,1
+5248,Caranx,Bluespotted trevally,bucculentus,Bluespotted trevally,Carangidae,1,1,1,0,0,0,0,0,0,1
+5249,Cheilinus,Two-spotted wrasse,bimaculatus,Two-spotted wrasse,Labridae,0,0,0,0,0,0,0,0,0,1
+5251,Parupeneus,Yellow-stripe goatfish,chrysopleuron,Yellow-stripe goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
+5252,Aluterus,Scrawled filefish,scriptus,Scrawled filefish,Monacanthidae,0,0,0,0,0,0,0,0,0,1
+5253,Acanthurus,Black-spot surgeonfish,bariene,Black-spot surgeonfish,Acanthuridae,0,0,0,0,0,0,0,0,0,1
+5254,Epinephelus,Sixbar grouper,sexfasciatus,Sixbar grouper,Serranidae,0,0,1,1,0,0,0,1,0,1
+5257,Lutjanus,Dory/Black-spot snapper,fulviflamma,Dory/Black-spot snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5258,Uraspis,Whitetongue jack,helvola,Whitetongue jack,Carangidae,1,1,1,0,0,0,0,0,0,1
+5259,Macolor,Midnight snapper,macularis,Midnight snapper,Lutjanidae,0,0,1,0,1,0,0,0,1,1
+5260,Stegostoma fasciatum,Zebra shark,Stegostoma fasciatum,Zebra shark,Stegostomatidae,0,0,0,0,0,0,0,0,0,1
+5262,Gymnocranius,Japanese large-eye bream,euanus,Japanese large-eye bream,Lethrinidae,0,0,1,0,0,0,1,0,0,1
+5263,Iniistius,Fivefinger razorfish,pentadactylus,Fivefinger razorfish,Labridae,0,0,0,0,0,0,0,0,0,1
+5264,Actinopyga,Surf redfish,mauritiana,Surf redfish,Holothuriidae,0,0,0,0,0,0,0,0,0,1
+5265,Seriola,Yellowtail amberjack,lalandi,Yellowtail amberjack,Carangidae,1,1,1,0,0,0,0,0,0,1
+5266,Triodon,Threetooth puffer,macropterus,Threetooth puffer,Triodontidae,0,0,0,0,0,0,0,0,0,1
+5267,Plectorhinchus,Harlequin sweetlips,chaetodonoides,Harlequin sweetlips,Haemulidae,0,0,0,0,0,0,0,0,0,1
+5268,Pontinus,Large-headed scorpionfish,macrocephalus,Large-headed scorpionfish,Scorpaenidae,0,0,1,0,0,0,0,0,0,1
+5269,Chaetodon,Speckled butterflyfish,citrinnellus,Speckled butterflyfish,Chaetodontidae,0,0,0,0,0,0,0,0,0,1
+5270,Upeneus,Bandtail goatfish,taeniopterus,Bandtail goatfish,Mullidae,0,0,0,0,0,0,0,0,0,1
