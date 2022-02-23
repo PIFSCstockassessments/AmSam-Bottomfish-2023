@@ -27,7 +27,17 @@ US[Depth_bin=="Deep"]$Depth_bin <- "DEEP"
 US$Area        <- paste(US$Area_B,"_",US$Depth_bin,sep="")
 US$Area_Weight <- US$Area_Weight/2  # Divide by 2 to distribute weights equally between deep and shallow. Temporary fix. This should be improved with more accurate accounting.
 
-US <- subset(US,select=c("Dataset","Year","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","Latitude","Longitude","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_TL","Count"))
+# Select BMUS
+US <- US[Species=="VALO"|Species=="LERU"|Species=="APVI"|Species=="LUKA"]
+
+# Convert TL to FL using metadata file
+LH <- data.table( read.xlsx("DATA/METADATA.xlsx",sheet="SPECIES") )
+LH <- select(LH,Species,TL_to_FL)
+US <- merge(US,LH,by="Species")
+US$Length_FL <- US$Length_TL*US$rTL_to_FL
+
+# Save data
+US <- subset(US,select=c("Dataset","Year","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_FL","Count"))
 saveRDS(US,file="Outputs/readyUVS.rds")
 
 
