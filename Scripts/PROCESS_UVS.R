@@ -34,7 +34,7 @@ US <- US[Species=="VALO"|Species=="LERU"|Species=="APVI"|Species=="LUKA"]
 LH <- data.table( read.xlsx("DATA/METADATA.xlsx",sheet="SPECIES") )
 LH <- select(LH,Species,TL_to_FL)
 US <- merge(US,LH,by="Species")
-US$Length_FL <- US$Length_TL*US$rTL_to_FL
+US$Length_FL <- US$Length_TL*US$TL_to_FL
 
 # Save data
 US <- subset(US,select=c("Dataset","Year","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_FL","Count"))

@@ -2,20 +2,22 @@ require(data.table); require(ggplot2); require(gridExtra); require(directlabels)
 
 # Load diver sizes
 US <- readRDS("Outputs\\readyUVS.rds")
-US <- US[Area_A!="Rose"&Area_A!="Swains"]
-
-US$Length_TL <- US$Length_TL/10 # Convert to cm
+US <- US[Area_C=="Tutuila"|Area_C=="Manua"]
+US$Length_FL <- US$Length_FL/10 # Convert to cm
+US <- select(US,Dataset,Year,Area_B,Species,Method_C=Method,Count,Length_FL)
 
 # Load biosampling sizes
 BS <- readRDS("Outputs\\readyBiosamp.rds")
 BS <- BS[!is.na(Length_FL)]
 BS$Length_FL <- BS$Length_FL/10 # Convert to cm
+BS <- select(BS,Dataset,Year,Area_B,Species,Method_C,Count,Length_FL)
 
 # Load BBS sizes
 BB <- readRDS("Outputs\\readyBBS_Size.rds")
+BB <- select(BB,Dataset,Year,Area_B,Species,Method_C,Count,Length_FL)
 
-
-
+# Merge datasets
+D <- rbind(US,BS,BB)
 
 
 
