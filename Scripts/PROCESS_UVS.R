@@ -28,7 +28,7 @@ US$Area        <- paste(US$Area_B,"_",US$Depth_bin,sep="")
 US$Area_Weight <- US$Area_Weight/2  # Divide by 2 to distribute weights equally between deep and shallow. Temporary fix. This should be improved with more accurate accounting.
 
 US <- subset(US,select=c("Dataset","Year","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","Latitude","Longitude","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_TL","Count"))
-saveRDS(US,file="DATA/readyUVS.rds")
+saveRDS(US,file="Outputs/readyUVS.rds")
 
 
 

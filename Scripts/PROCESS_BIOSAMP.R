@@ -31,14 +31,14 @@ S$Weight    <- S$LW_A*S$Length_FL^S$LW_B
 S <- S[Year>=2011&Year<=2016,list(Catch=sum(Weight_G,na.rm=T)/1000),by=list(SciName,Year)]
 S <- S[,list(Catch=round(mean(Catch),0)),by=list(SciName,Year)]
 S <- S[order(SciName,Year)]
-write.xlsx(S,file="1_OUTPUTS/Biosampling fishery description.xlsx")
+#write.xlsx(S,file="1_OUTPUTS/Biosampling fishery description.xlsx")
 
 BIO <- BIO[,c("Dataset","Area_A","Area_B","Area_C","FishedArea","Year","Method_B","Method_C","Method1","SciName","Species","Length_FL")]
 
 BIO$Length_FL <- BIO$Length_FL*10
 BIO$Count  <- 1
 
-saveRDS(BIO,file="DATA/readyBiosamp.rds")
+saveRDS(BIO,file="Outputs/readyBiosamp.rds")
 
 
 
