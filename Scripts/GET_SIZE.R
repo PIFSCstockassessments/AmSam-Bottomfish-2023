@@ -31,6 +31,7 @@ D[Area_B=="Manua"]$RW <- 0.2
 
 # Statistics
 MinN <- 30 # Minimum sample size to do size frequency
+BIN_SIZE <- 3 # in cm
 Species.List <- unique(D$Species)
 for(i in 1:length(Species.List)){
  
@@ -48,33 +49,32 @@ for(i in 1:length(Species.List)){
  ggplot(data=G[Dataset=="UVS"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y"); ggsave(paste0(Fld,Sp,"_Freq_","US",".png"))
  ggplot(data=G[Dataset=="BBS"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y"); ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"))
 
- # Prepare dataset for SS3
- E <- E[Dataset=="Biosampling"]
- BIN_SIZE  <- 3 # in cm
- MAXL      <- ceiling(max(E$Lmax))
-
+# Prepare dataset for SS3
 # Obtain mean weight and mean length per trip
  BINS      <- seq(0,MAXL,by=BIN_SIZE)
  BINS      <- cbind(BINS,seq(1,28,by=1))
- E         <- E[Length_FL<=MAXL]
+ G         <- G[Length_FL<=Lmax]
 
 # Add length bin lower ends to dataset
- E$LENGTH_BIN_START <- E$Length_FL-(E$Length_FL%%BIN_SIZE)
+ G$LENGTH_BIN_START <- G$Length_FL-(G$Length_FL%%BIN_SIZE)
 
 # Effective Sample size by year
- SAMPSIZE      <- E[Count==1,list(N=.N),by=list(Year,Area_B,RW)]
+ SAMPSIZE      <- G[,list(N=.N),by=list(Dataset,Year,Area_B,RW)]
  SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$RW
- SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(Year)]
- plot(SAMPSIZE$Year,SAMPSIZE$EFFN)
+ SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(Dataset,Year)]
+ #plot(SAMPSIZE$Year,SAMPSIZE$EFFN)
 
 # Calculate abundance-at-length
- E <- E[Count==1,list(Count=sum(Count)),by=list(Year,LENGTH_BIN_START)]
- E <- E[order(Year,LENGTH_BIN_START)]
+ G <- G[,list(N=.N),by=list(Dataset,Year,LENGTH_BIN_START)]
+ G <- G[order(Dataset,Year,LENGTH_BIN_START)]
 
- E <- dcast.data.table(E,Year~LENGTH_BIN_START,value.var="Count",fill=0)
+ G <- dcast.data.table(G,Dataset+Year~LENGTH_BIN_START,value.var="N",fill=0)
 
- E <- merge(E,SAMPSIZE,by="Year")
- E <- select(E,Year,EFFN,2:ncol(E))
+ G <- merge(G,SAMPSIZE,by=c("Dataset","Year"))
+ G <- select(G,Dataset,Year,EFFN,3:ncol(G))
+
+ write.csv(G,paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)
+ 
 }
 
 
