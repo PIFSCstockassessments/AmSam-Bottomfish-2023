@@ -178,31 +178,108 @@
 	rm(sp_data4)
 	sp_data4 <- sp_data4C
 
+# ------------------
+  #	1b. P. filamentosus and P. flavipinnis: for 2010-2015, sum fila, flavi, partician back to species
+
+    # remove fila/flavi (needing correction) landings
+   	string <- "SELECT *
+				FROM  sp_data4 
+				WHERE SPECIES_FK in ('242','241') AND year < 2016 AND year > 2009"
+	correct_me <- sqldf(string, stringsAsFactors=FALSE)				#str(correct_me)			#14 records
+	correct_me[is.na(correct_me)] <- 0
+
+    # use delete query to remove these records from sp_data4	
+      sp_data4B <- sqldf(c("DELETE FROM sp_data4 WHERE SPECIES_FK in ('242','241') AND year < 2016 AND year > 2009", "SELECT * FROM sp_data4"))
+	# note, running a DELETE query in sqldf will always throw a warning. ignore.
+	# str(sp_data4B)			# 	
+	# TEST	# sum(sp_data4B$LBS_CAUGHT, na.rm = TRUE)+sum(correct_me$LBS_CAUGHT)		# MAGIC_NUMBER
+
+   # for "correct_me", sum the two species lbs and variance by strata (year, zone, method)
+	string <- "SELECT year, zone, method, sum(LBS_CAUGHT) as sum_lbs, sum(VAR_LBS_CAUGHT) as sum_var
+				FROM correct_me
+				GROUP BY year, zone, method"
+	correct_me2 <- sqldf(string, stringsAsFactors=FALSE)			#str(correct_me2)
+
+   # make new columns of lbs and variance for each species
+	correct_me3 <- mutate(correct_me2, FILA_LBS = round(sum_lbs*p_fila,3), FILA_VAR = round(sum_var*p_fila,3),
+				FLAVI_LBS = round(sum_lbs*p_flavi,3), FLAVI_VAR = round(sum_var*p_flavi,3))	  
+	#View(correct_me3)			#nrow(correct_me3)			#str(correct_me3)
+	
+   # turn to long-form with seperate records for each species, match columns with sp_data4
+ 	correct_fila <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 242, 
+			LBS_CAUGHT = correct_me3$FILA_LBS,VAR_LBS_CAUGHT = correct_me3$FILA_VAR)		#str(correct_fila)
+ 	correct_flavi <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 241, 
+			LBS_CAUGHT = correct_me3$FLAVI_LBS,VAR_LBS_CAUGHT = correct_me3$FLAVI_VAR)		#str(correct_flavi)
+
+   # rbind back to unchanged records in sp_data4B, test
+	sp_data4C <- rbind(sp_data4B, correct_fila, correct_flavi)
+
+   	# now true/false won't work because of rounding, just make sure same.
+		sum(sp_data4C$LBS_CAUGHT)
+		MAGIC_NUMBER
+		sum(sp_data4C$VAR_LBS_CAUGHT, na.rm=TRUE)
+		MAGIC_NUMBER2
+
+	rm(sp_data4)
+	sp_data4 <- sp_data4C
 
 
 
+# ------------------
+  #	1c. lethrinidae in the Manu'as. combine by strata (all lethrinus) partition back to ambo, elon, and rubrio
+  #		do not do unidentified emperors here, we will break that down later.
+  #		WATCH OUT: when we add 2021 data, make sure there aren't "new" species of lethrinidae in Manu'a recorded
+  #		(e.g. olivaceous and xanthrochirus, which the survey tech claimed they often see)
+
+    # remove lethrinidae (needing correction) landings
+   	string <- "SELECT *
+				FROM  sp_data4 
+				WHERE SPECIES_FK in ('262','261','267') AND zone = 'Manua'"
+	correct_me <- sqldf(string, stringsAsFactors=FALSE)				#str(correct_me)			#20 records
+	correct_me[is.na(correct_me)] <- 0
+
+    # use delete query to remove these records from sp_data4	
+      sp_data4B <- sqldf(c("DELETE FROM sp_data4 WHERE SPECIES_FK in ('262','261','267') AND zone = 'Manua'", "SELECT * FROM sp_data4"))
+	# note, running a DELETE query in sqldf will always throw a warning. ignore.
+	# str(sp_data4B)			# 5698 records		
+	# TEST	# sum(sp_data4B$LBS_CAUGHT, na.rm = TRUE)+sum(correct_me$LBS_CAUGHT)		# MAGIC_NUMBER
+
+   # for "correct_me", sum the three species lbs and variance by strata (year, zone, method)
+	string <- "SELECT year, zone, method, sum(LBS_CAUGHT) as sum_lbs, sum(VAR_LBS_CAUGHT) as sum_var
+				FROM correct_me
+				GROUP BY year, zone, method"
+	correct_me2 <- sqldf(string, stringsAsFactors=FALSE)			#str(correct_me2)
+
+   # make new columns of lbs and variance for each species
+	correct_me3 <- mutate(correct_me2, AMBO_LBS = round(sum_lbs*p_amboinensis,3), AMBO_VAR = round(sum_var*p_amboinensis,3),
+				ELONG_LBS = round(sum_lbs*p_elongatus,3), ELONG_VAR = round(sum_var*p_elongatus,3),
+				RUBRIO_LBS = round(sum_lbs*p_rubrio,3), RUBRIO_VAR = round(sum_var*p_rubrio,3))	  
+	#View(correct_me3)			#nrow(correct_me3)			#str(correct_me3)
+	
+   # turn to long-form with seperate records for each species, match columns with sp_data4
+ 	correct_elong <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 261, 
+			LBS_CAUGHT = correct_me3$ELONG_LBS,VAR_LBS_CAUGHT = correct_me3$ELONG_VAR)		#str(correct_elong)
+
+ 	correct_ambo <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 262, 
+			LBS_CAUGHT = correct_me3$AMBO_LBS,VAR_LBS_CAUGHT = correct_me3$AMBO_VAR)		#str(correct_ambo)
+
+ 	correct_rubrio <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 267, 
+			LBS_CAUGHT = correct_me3$RUBRIO_LBS,VAR_LBS_CAUGHT = correct_me3$RUBRIO_VAR)		#str(correct_rubrio)
 
 
+   # rbind back to unchanged records in sp_data4B, test
+	sp_data4C <- rbind(sp_data4B, correct_elong , correct_ambo , correct_rubrio )
 
+   	# now true/false won't work because of rounding, just make sure same.
+		sum(sp_data4C$LBS_CAUGHT)
+		MAGIC_NUMBER
+		sum(sp_data4C$VAR_LBS_CAUGHT, na.rm=TRUE)
+		MAGIC_NUMBER2
 
+	rm(sp_data4)
+	sp_data4 <- sp_data4C
 
-
-
-
-
-
-
-ls()		View(correct_me2)
-
-
-
-
-
-
-
-
-
-
+	sp_data3 <- sp_data4
 
   # -----------------------------------------------------------------------------------
   # STEP 2: partitian group-level landings (lbs and variance) to BMUS
@@ -814,14 +891,16 @@ ls()		View(correct_me2)
  # clean up workspace
 	all_objs <- ls()
 	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_total", "breakdown_bmus_smooth",
-					"sp_data3_basic")
+					"species_proptable_by_year_gear_zone",
+					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
+					"p_amboinensis","p_rubrio", "sp_data3_basic")
 	remove_objs <- setdiff(all_objs, save_objs)
     rm(list=remove_objs)
 	rm(save_objs)
 	rm(remove_objs)
 	rm(all_objs)
 
-  # save.image(paste(root_dir, "/output/04_Landings_bdown_area.RData", sep=""))
+  # save.image(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
   
 
 
