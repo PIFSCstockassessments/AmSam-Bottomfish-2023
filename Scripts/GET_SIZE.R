@@ -33,17 +33,20 @@ D[Area_B=="Manua"]$RW <- 0.2
 MinN <- 30 # Minimum sample size to do size frequency
 BIN_SIZE <- 3 # in cm
 Species.List <- unique(D$Species)
+NList <- list()
 for(i in 1:length(Species.List)){
  
  Sp <- Species.List[i]
  E  <- D[Species==Sp&Length_FL>0]
  
  # Filter years with low N
- NB    <- data.table( table(E$Dataset,E$Year) )
- NB$V2 <- as.numeric(NB$V2)
- NB    <- NB[N>=MinN]
- G     <- merge(E,NB,by.x=c("Dataset","Year"),by.y=c("V1","V2"))
-
+ NB         <- data.table( table(E$Dataset,E$Year) )
+ NB$V2      <- as.numeric(NB$V2)
+ setnames(NB,c("V1","V2"),c("Dataset","Year"))
+ NB2        <- NB[N>=MinN]
+ G          <- merge(E,NB2,by=c("Dataset","Year"))
+ NB$Species <- Sp
+ 
  Fld <- "Outputs/Graphs/Size/"
  if(nrow(G[Dataset=="Biosampling"])>0){
  ggplot(data=G[Dataset=="Biosampling"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y")
@@ -59,8 +62,8 @@ for(i in 1:length(Species.List)){
 
 # Prepare dataset for SS3
 # Obtain mean weight and mean length per trip
- BINS      <- seq(0,max(G$Lmax),by=BIN_SIZE)
- BINS      <- cbind(BINS,seq(1,28,by=1))
+ #BINS      <- seq(from=0,ceiling(max(G$Lmax)),by=BIN_SIZE)
+ #BINS      <- cbind(BINS,seq(1,28,by=1))
  G         <- G[Length_FL<=Lmax]
 
 # Add length bin lower ends to dataset
@@ -81,8 +84,12 @@ for(i in 1:length(Species.List)){
  G <- merge(G,SAMPSIZE,by=c("Dataset","Year"))
  G <- select(G,Dataset,Year,EFFN,3:ncol(G))
 
+ NList[[i]] <- NB 
  write.csv(G,paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)
  
 }
 
-
+# Output a sample size summary (includes years with < MinN)
+Summary <- do.call(rbind.data.frame, NList)
+Summary <- dcast.data.table(Summary,Species+Dataset~Year,value.var="N",fill=0)
+write.xlsx(Summary,"Outputs//Graphs//SIZE//Size_N_Year.xlsx")
