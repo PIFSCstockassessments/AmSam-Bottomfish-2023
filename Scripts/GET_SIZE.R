@@ -45,10 +45,17 @@ for(i in 1:length(Species.List)){
  G     <- merge(E,NB,by.x=c("Dataset","Year"),by.y=c("V1","V2"))
 
  Fld <- "Outputs/Graphs/Size/"
- if()
- ggplot(data=G[Dataset=="Biosampling"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y"); ggsave(paste0(Fld,Sp,"_Freq_","BS",".png"))
- ggplot(data=G[Dataset=="UVS"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y"); ggsave(paste0(Fld,Sp,"_Freq_","US",".png"))
- ggplot(data=G[Dataset=="BBS"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y"); ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"))
+ if(nrow(G[Dataset=="Biosampling"])>0){
+ ggplot(data=G[Dataset=="Biosampling"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y")
+ ggsave(paste0(Fld,Sp,"_Freq_","BS",".png"))}
+ 
+ if(nrow(G[Dataset=="UVS"])>0){
+ ggplot(data=G[Dataset=="UVS"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y")
+ ggsave(paste0(Fld,Sp,"_Freq_","US",".png"))}
+ 
+ if(nrow(G[Dataset=="BBS"])>0){
+ ggplot(data=G[Dataset=="BBS"])+geom_histogram(aes(x=Length_FL,y=..density..))+facet_wrap(~Year,scales="free_y")
+ ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"))}
 
 # Prepare dataset for SS3
 # Obtain mean weight and mean length per trip
