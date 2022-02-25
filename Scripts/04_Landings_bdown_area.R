@@ -34,7 +34,7 @@
   # ----------------------------------
   # Read in the updated 14Dec expanded landings data
  
-  sp_data <- read.csv(paste(root_dir, "/NO_GITHUB_data_outputs/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  sp_data <- read.csv(paste(root_dir, "/data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
   # str(sp_data)
 
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
@@ -118,7 +118,7 @@
   # STEP 1: make the species identification corrections. See 01_BBS_data_prop.R
 
    # Read in 03_BBS_species_proptables.RData
-   load(paste(root_dir, "/output/03B_BBS_IDcorrections.RData", sep=""))
+   load(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
 
   # ------------
   #  Prepare expanded landings data
@@ -131,7 +131,7 @@
 
 	sp_data4 <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data4)		#5618 records (some species have multiple SPECIES_FK)
 	# sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)			# MAGIC_NUMBER <- sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)	
-
+										# MAGIC_NUMBER2 <- sum(sp_data4$VAR_LBS_CAUGHT, na.rm = TRUE)
 
   # ------------------
   #	1a. Variola: for 1986-2015, sum albimarginata, louti, partician back to species
@@ -146,7 +146,56 @@
     # use delete query to remove these records from sp_data4	
       sp_data4B <- sqldf(c("DELETE FROM sp_data4 WHERE SPECIES_FK in (220, 229) AND year < 2016", "SELECT * FROM sp_data4"))
 	# note, running a DELETE query in sqldf will always throw a warning. ignore.
-	# str(sp_data4B)			# 5484 records		#sum(sp_data4B$LBS_CAUGHT, na.rm = TRUE)+sum(correct_me$LBS_CAUGHT)
+	# str(sp_data4B)			# 5484 records		
+	# TEST	# sum(sp_data4B$LBS_CAUGHT, na.rm = TRUE)+sum(correct_me$LBS_CAUGHT) == MAGIC_NUMBER
+
+   # for "correct_me", sum louti and albimarginata lbs and variance by strata (year, zone, method)
+	string <- "SELECT year, zone, method, sum(LBS_CAUGHT) as sum_lbs, sum(VAR_LBS_CAUGHT) as sum_var
+				FROM correct_me
+				GROUP BY year, zone, method"
+	correct_me2 <- sqldf(string, stringsAsFactors=FALSE)			#str(correct_me2)
+
+   # make new columns of lbs and variance for each species
+	correct_me3 <- mutate(correct_me2, LOUTI_LBS = round(sum_lbs*p_louti,3), LOUTI_VAR = round(sum_var*p_louti,3),
+				ALBIMARGINATA_LBS = round(sum_lbs*p_albimarginata,3), ALBIMARGINATA_VAR = round(sum_var*p_albimarginata,3))	  
+	#View(correct_me3)			#nrow(correct_me3)			#str(correct_me3)
+	
+   # turn to long-form with seperate records for each species, match columns with sp_data4
+ 	correct_albi <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 220, 
+			LBS_CAUGHT = correct_me3$ALBIMARGINATA_LBS,VAR_LBS_CAUGHT = correct_me3$ALBIMARGINATA_VAR)		#str(correct_albi)
+ 	correct_louti <- data.frame(year = correct_me3$year, zone = correct_me3$zone, method = correct_me3$method , SPECIES_FK = 229, 
+			LBS_CAUGHT = correct_me3$LOUTI_LBS,VAR_LBS_CAUGHT = correct_me3$LOUTI_VAR)		#str(correct_louti)
+
+   # rbind back to unchanged records in sp_data4B, test
+	sp_data4C <- rbind(sp_data4B, correct_albi, correct_louti)
+
+   	# now true/false won't work because of rounding, just make sure same.
+		sum(sp_data4C$LBS_CAUGHT)
+		MAGIC_NUMBER
+		sum(sp_data4C$VAR_LBS_CAUGHT, na.rm=TRUE)
+		MAGIC_NUMBER2
+
+	rm(sp_data4)
+	sp_data4 <- sp_data4C
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ls()		View(correct_me2)
+
+
+
 
 
 
