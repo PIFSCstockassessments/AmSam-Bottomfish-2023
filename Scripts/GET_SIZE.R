@@ -59,7 +59,7 @@ for(i in 1:length(Species.List)){
 
 # Prepare dataset for SS3
 # Obtain mean weight and mean length per trip
- BINS      <- seq(0,MAXL,by=BIN_SIZE)
+ BINS      <- seq(0,max(G$Lmax),by=BIN_SIZE)
  BINS      <- cbind(BINS,seq(1,28,by=1))
  G         <- G[Length_FL<=Lmax]
 
