@@ -24,10 +24,10 @@
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
 #	these raw datasets contain vessel ID numbers and do not go on the remote github repo
 
-   aint_bbs1 <- read.csv(paste(root_dir, "/NO_GITHUB_data_outputs/a_bbs_int_flat1.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs2 <- read.csv(paste(root_dir, "/NO_GITHUB_data_outputs/a_bbs_int_flat2.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs3 <- read.csv(paste(root_dir, "/NO_GITHUB_data_outputs/a_bbs_int_flat3.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs4 <- read.csv(paste(root_dir, "/NO_GITHUB_data_outputs/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs1 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat1.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs2 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat2.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs3 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat3.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs4 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
    aint_bbs <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4)
 	str(aint_bbs)		# 141,659 records, 82 variables
 
@@ -886,7 +886,7 @@
 	rm(all_objs)
 
   #  save in the NO_GITHUB folder.
-  # save.image(paste(root_dir, "/NO_GITHUB_data_outputs/01_BBS_data_prep.RData", sep=""))
+  # save.image(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
   
 
 

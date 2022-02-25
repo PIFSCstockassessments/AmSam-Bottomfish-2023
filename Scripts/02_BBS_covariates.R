@@ -18,9 +18,7 @@
 	root_dir <- this.path::here(.. = 1)
 
   # read in 01_BBS_data_prep.RData
-  #  note this will replace root_dir, that's OK because we intend everyone to be using the standard directory structure
-  #		matching the git repo. if not, just redefine root_dir after load workspace
-  load(paste(root_dir, "/NO_GITHUB_data_outputs/01_BBS_data_prep.RData", sep=""))
+   load(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
   
 
 #  --------------------------------------------------------------------------------------------------------------
@@ -236,7 +234,7 @@
 	rm(remove_objs)
 	rm(all_objs)
 
-  # save.image(paste(root_dir, "/NO_GITHUB_data_outputs/02_BBS_covariates.RData", sep=""))
+  # save.image(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
   
 
 

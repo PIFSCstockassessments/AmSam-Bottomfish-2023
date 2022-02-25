@@ -32,7 +32,7 @@
   # ----------------------------------
   # Read in the updated 14Dec expanded landings data
  
-  sp_data <- read.csv(paste(root_dir, "/NO_GITHUB_data_outputs/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  sp_data <- read.csv(paste(root_dir, "/data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
   # str(sp_data)
 
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
@@ -105,7 +105,7 @@
 	rm(remove_objs)
 	rm(all_objs)
 
-  # save.image(paste(root_dir, "/NO_GITHUB_data_outputs/Alternate_04_BBS_landings_basic.RData", sep=""))
+  # save.image(paste(root_dir, "/output/Alternate_04_BBS_landings_basic.RData", sep=""))
   
 
 

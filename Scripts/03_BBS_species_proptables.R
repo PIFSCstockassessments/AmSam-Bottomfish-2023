@@ -64,9 +64,7 @@
   root_dir <- this.path::here(.. = 1)
 
 # Read in 02_BBS_covariates.RData
-  #  note this will replace root_dir, that's OK because we intend everyone to be using the standard directory structure
-  #		matching the git repo. if not, just redefine root_dir after load workspace
-  load(paste(root_dir, "/NO_GITHUB_data_outputs/02_BBS_covariates.RData", sep=""))
+  load(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
 
 #  ---------------
 # Read in the BBS-SBS group key to tell us which species are in which groups
@@ -1637,14 +1635,16 @@
 
  # clean up workspace
 	all_objs <- ls()
-	save_objs <- c("smooth_proptable","root_dir", "species_proptable_by_year_gear_zone")
+	save_objs <- c("smooth_proptable","root_dir", "species_proptable_by_year_gear_zone","p_louti", 
+				"p_albimarginata","p_flavi","p_fila","p_elongatus",
+					"p_amboinensis","p_rubrio")
 	remove_objs <- setdiff(all_objs, save_objs)
     rm(list=remove_objs)
 	rm(save_objs)
 	rm(remove_objs)
 	rm(all_objs)
 
-  # workspace no longer contains individual BBS records, can have in Github
+  # This is a smaller workspace, no longer contains the BBS data, just the proptable and species ID correction ps.
   # save.image(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
   
 
