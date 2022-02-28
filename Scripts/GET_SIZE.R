@@ -1,5 +1,10 @@
 require(data.table); require(ggplot2); require(gridExtra); require(directlabels);require(openxlsx); require(ggpmisc);require(directlabels);require(dplyr)
 
+# Options
+Combine_BB_BS <- T # Combine biosampling and creel survey lengths
+MinN          <- 30 # Minimum sample size to do size frequency
+BIN_SIZE      <- 5 # in cm
+
 # Load diver sizes
 US <- readRDS("Outputs\\readyUVS.rds")
 US <- US[Area_C=="Tutuila"|Area_C=="Manua"]
@@ -18,6 +23,8 @@ BB <- select(BB,Dataset,Year,Area_B,Species,Method_C,Count,Length_FL)
 
 # Merge datasets
 D <- rbind(US,BS,BB)
+if(Combine_BB_BS==T) D[Dataset=="Biosampling"|Dataset=="BBS"]$Dataset <- "BS and BBS"
+
 
 # Add some LH info
 LH <- data.table(read.xlsx("DATA\\METADATA.xlsx",sheet="SPECIES"))
@@ -30,8 +37,6 @@ D$RW <- 0.8
 D[Area_B=="Manua"]$RW <- 0.2
 
 # Statistics
-MinN <- 30 # Minimum sample size to do size frequency
-BIN_SIZE <- 5 # in cm
 Species.List <- unique(D$Species)
 NList <- list()
 for(i in 1:length(Species.List)){
@@ -60,6 +65,10 @@ for(i in 1:length(Species.List)){
  ggplot(data=G[Dataset=="BBS"])+geom_histogram(aes(x=Length_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~Year,scales="free_y")
  ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"))}
 
+ if(nrow(G[Dataset=="BS and BBS"])>0){
+ ggplot(data=G[Dataset=="BS and BBS"])+geom_histogram(aes(x=Length_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~Year,scales="free_y")
+ ggsave(paste0(Fld,Sp,"_Freq_","BS and BBS",".png"))}
+ 
 # Prepare dataset for SS3
 # Obtain mean weight and mean length per trip
  #BINS      <- seq(from=0,ceiling(max(G$Lmax)),by=BIN_SIZE)
