@@ -2,7 +2,7 @@
 #   AMERICAN SAMOA LANDINGS (shore-based): 
 #	Expanded shore-based landings estimates provided by Toby 17Feb, 2022
 #     -Correct for species ID errors in Variola. 
-#	-Break-down unidentified species groups (groupers, emperors, jacks not negligeable)
+#	-Break-down unidentified species groups (groupers, emperors, jacks, sometimes accounts for high catch)
 #		species_proptable based on shore-based creel survey. See 01_SBS_data_prep.R
 #   ----------------------------------------------------------------------------------------------------------------------------
 #   
@@ -60,15 +60,13 @@
 					daynight = substr(SPC_PK,7,7))
   head(sp_data2)
   sp_data2 <- mutate(sp_data2, year = year_raw + 1947)
-  str(sp_data2)			# 6336 records		# View(sp_data2)
+  str(sp_data2)			# 6336 records		# View(sp_data2)		
+  #sum(sp_data$EXP_LBS, na.rm=TRUE)		#1,653,081 is total exapanded landings, all species, all years, and should be conserved
 
   # fix P. rutilans
   sp_data2$SPECIES_FK[sp_data2$SPECIES_FK==243]<-241
 
   # add species names and simplify gears and routes
-  # summary(as.factor(sp_data2$method))
-  # summary(as.factor(sp_data2$route))
-
   sp_data2$route <- as.numeric(sp_data2$route)
   sp_data2$method <- as.numeric(sp_data2$method)
   sp_data2[is.na(sp_data2)] <- 0
@@ -102,7 +100,7 @@
   sp_data5 <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data5)		#  View(sp_data5)		#sum(sp_data5$EXP_LBS)
 
   # save this
-  sbs_landings_basic <- sp_data5			
+  sbs_expanded_landings_preliminary_01 <- sp_data5			
 
   # str(sp_data5)
 
@@ -126,19 +124,14 @@
   sp_data6 <- sqldf(string, stringsAsFactors=FALSE)
   #str(sp_data6)			#2071 		#sum(sp_data6$LBS_CAUGHT)
 
-      # identified to BMUS, sbs landings raw
-	string <- "SELECT year, zone, SPECIES_FK, LBS_CAUGHT, VAR_LBS_CAUGHT
-				FROM  sp_data6 
-				WHERE SPECIES_FK in (247, 239, 111, 248, 249, 267, 231, 241, 242, 245, 229)
-				ORDER BY SPECIES_FK, zone, year"
-	sbs_expanded_landings_raw_bmus <- sqldf(string, stringsAsFactors=FALSE)
-
+  # save a copy	
+  sbs_expanded_landings_basic_02 <- sp_data6
 
   # load in the species proptable and ID corrections
   load(paste(root_dir, "/output/01_SBS_data_prep.RData", sep=""))
   
   # ------------------
-  # Variola: for 1986-2015, sum albimarginata, louti, partician back to species
+  # Variola: for 1990-2015, sum albimarginata, louti, partician back to species
 
     # remove Variola (needing correction) landings
    	string <- "SELECT *
@@ -150,7 +143,7 @@
     # use delete query to remove these records from sp_data6	
       sp_data6B <- sqldf(c("DELETE FROM sp_data6 WHERE SPECIES_FK in (220, 229) AND year < 2016", "SELECT * FROM sp_data6"))
 	# note, running a DELETE query in sqldf will always throw a warning. ignore.
-	# str(sp_data6B)			# 2083 obs	
+	# str(sp_data6B)			# 2062 obs	
 	# TEST	# sum(sp_data6B$LBS_CAUGHT, na.rm = TRUE) + sum(correct_me$LBS_CAUGHT)
 
    # for "correct_me", sum louti and albimarginata lbs and variance by strata (year)
@@ -177,23 +170,19 @@
    # rbind back to unchanged records in sp_data6B, test		# str(sp_data6B)
 	sp_data6C <- rbind(sp_data6B, correct_albi, correct_louti)
 
-   	# now true/false won't work because of rounding, just make sure same.
+   	# check total landings and variance to ensure that none lost.
 		sum(sp_data6C$LBS_CAUGHT)				#sum(sp_data5$EXP_LBS)
 		sum(sp_data6C$VAR_LBS_CAUGHT, na.rm=TRUE)
 
 	#   str(sp_data6C)			#View(sp_data6C)
+	#  drop SCI_NAME for convenience
 	sp_data6C <- sp_data6C[,-3]
 
 	rm(sp_data6)
 	sp_data6 <- sp_data6C
 	
-   # identified to BMUS, with ID correct
-	string <- "SELECT year, zone, SPECIES_FK, LBS_CAUGHT, VAR_LBS_CAUGHT
-				FROM  sp_data6 
-				WHERE SPECIES_FK in (247, 239, 111, 248, 249, 267, 231, 241, 242, 245, 229)
-				ORDER BY SPECIES_FK, zone, year"
-	sbs_expanded_landings_IDcorrect <- sqldf(string, stringsAsFactors=FALSE)
-
+   # save a copy
+	sbs_expanded_landings_IDcorrect_03 <- sp_data6
 
 
 # -----------------------------------------------------------------------------------
@@ -338,7 +327,7 @@
 
 	rm('break_me_down', 'bdown_1', 'bdown_2', 'bdown_3')
 
-  #  double check that we don't have any other groups
+  #  double check that we don't have BOTTOMFISHES or PRIST/ET
 	subset(sp_data6, SPECIES_FK  == 200)
 	subset(sp_data6, SPECIES_FK  == 240)
 
@@ -370,20 +359,13 @@
   sum(sp_data8$VAR_LBS_CAUGHT, na.rm = TRUE)
 
 
-  sbs_landings_breakdown <- sp_data8
+  sbs_expanded_landings_breakdown_final <- sp_data8
 
- # identified to BMUS, ID correct and breakdown
-	string <- "SELECT year, zone, SPECIES_FK, LBS_CAUGHT, VAR_LBS_CAUGHT
-				FROM  sbs_landings_breakdown 
-				WHERE SPECIES_FK in (247, 239, 111, 248, 249, 267, 231, 241, 242, 245, 229)
-				ORDER BY SPECIES_FK, zone, year"
-	sbs_expanded_landings_IDcorrect_bdown <- sqldf(string, stringsAsFactors=FALSE)
 
  # clean up workspace
 	all_objs <- ls()
-	save_objs <- c("sbs_proptable","root_dir","p_louti", "p_albimarginata", "sbs_basic", 
-					"sbs_landings_basic", "sbs_landings_breakdown", "sbs_expanded_landings_IDcorrect",
-					"sbs_expanded_landings_IDcorrect_bdown", "sbs_expanded_landings_raw_bmus")
+	save_objs <- c("sbs_proptable","root_dir","p_louti", "p_albimarginata", "sbs_expanded_landings_preliminary_01", 
+ 				"sbs_expanded_landings_basic_02", "sbs_expanded_landings_IDcorrect_03", "sbs_expanded_landings_breakdown_final") 
 	remove_objs <- setdiff(all_objs, save_objs)
     rm(list=remove_objs)
 	rm(save_objs)
@@ -401,7 +383,7 @@
   #	they DO NOT catch palu from shore (in the old days, they got them from paddle canoes, but not now).
   #	So, only consider those 5 species (rutilans, flavi, carb are rare anyway (<200 lbs).
 
-bmus <- subset(sbs_landings_breakdown
+
 
 
 

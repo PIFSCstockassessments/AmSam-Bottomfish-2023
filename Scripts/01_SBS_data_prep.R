@@ -2,9 +2,10 @@
 #   AMERICAN SAMOA Shore-based Creel Survey 
 #	Data provided by Paul Tao Sep10 2021, see Jira data request PICDR-113003	
 #
-#   The only reason why we are using the raw shore-based creel survey is to calculate species ID correction p's
+#   The only reason to look at the raw shore-based creel survey is to calculate species ID correction factors
 #	and species_proptable to use on the expanded shore-based landings.
-#   The process will be similar to BB, but greatly simplified
+#   The process will be similar to boat-based, but greatly simplified because we will do the break-down over
+#	the entire timeseries for each species (no year x area x gear strata).
 #
 #   ----------------------------------------------------------------------------------------------------------------------------
 #   
@@ -76,12 +77,12 @@
   	sbs$SPECIES_FK[sbs$SPECIES_FK==243]<-241
 	sbs$SCIENTIFIC_NAME[sbs$SCIENTIFIC_NAME=='Pristipomoides rutilans']<-'Pristipomoides flavipinnis'
 
-  # keep only 1988 to 2020
+  # keep only 1990 to 2020 (to match SB expanded landings from Hongguang). 
 	sbs <- subset(sbs, year_num < 2021)
-	sbs <- subset(sbs, year_num > 1987)
-		length(unique(sbs$INTERVIEW_PK))		# 5372 interviews: only lost 27
-		length(unique(sbs$CATCH_PK))			# 34278 catch records
-		nrow(sbs)						# 34416 rows (if measured, multiple fish per catch record)
+	sbs <- subset(sbs, year_num > 1989)
+		length(unique(sbs$INTERVIEW_PK))		# 5009 interviews: only lost 27
+		length(unique(sbs$CATCH_PK))			# 33338 catch records
+		nrow(sbs)						# 33476 rows (if measured, multiple fish per catch record)
 
   # find and deal with weird records 
   # note: when using delete querries in sqldf, it will make a Warning message, IGNORE
@@ -98,9 +99,9 @@
 			"SELECT * FROM sbs")
 	sbs2 <- sqldf(string, stringsAsFactors=FALSE)
 
-	nrow(sbs2)					# 34367 = 34416-49
-	length(unique(sbs2$INTERVIEW_PK))	# 5372
-	length(unique(sbs2$CATCH_PK))		# 34229
+	nrow(sbs2)					# 33476-49 =  33427
+	length(unique(sbs2$INTERVIEW_PK))	# 5009
+	length(unique(sbs2$CATCH_PK))		# 33289
 
 
   # Simplify gears and routes
@@ -116,7 +117,7 @@
 		LEFT JOIN a_method
 			ON sbs2.METHOD_FK = a_method.method_fk"
   sbs3 <- sqldf(string, stringsAsFactors=FALSE)
-  str(sbs3)				# 34367 obs
+  str(sbs3)				# 33427  obs
 
   # rename duplicate FISHING_METHOD column
   names(sbs3)[40] <- 'FISHING_METHOD_FK'
@@ -126,7 +127,7 @@
 		LEFT JOIN a_routes
 			ON sbs3.Route_Fk = a_routes.route"
   sbs4 <- sqldf(string, stringsAsFactors=FALSE)
-  str(sbs4)				# 34367 obs
+  str(sbs4)				# 33427 obs
 
   sbs_basic <- sbs4
 
@@ -142,7 +143,7 @@
   #  going forward, the only information we want is year, interview, species, sum_catch. For boat-based,
   #	we use interview data for CPUE, so it is much more complex.
   #  note, the same CATCH_PK will repeat multiple times (with associated EST_LBS) if fish were measured
-  # 	and a single interview might have multiple CATCH_PK for a species
+  # 	AND a single interview might have multiple CATCH_PK for a species
   #	probably because multiple gear types were used in an interview that caught the species in question
 
   # Prepare a check: total lbs surveyed in sbs4
@@ -150,7 +151,9 @@
 		  FROM sbs4
 		  "
 		tot_catch_check_0 <- sqldf(string, stringsAsFactors=FALSE)
-		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 103357
+
+  # SUM TOTAL CATCH: this is the magic number and should not change going forward
+  sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					#  90261.49
 
   # This is a weird way to use GROUP BY, exercise caution
     string <- "SELECT year_num, INTERVIEW_PK, CATCH_PK, SPECIES_FK, sum(EST_LBS) as SUM_EST_LBS
@@ -161,7 +164,7 @@
           	  "
 	sbs5 <- sqldf(string, stringsAsFactors=FALSE)			# sum(sbs5$SUM_EST_LBS, na.rm=TRUE)		#str(sbs5)
 
-	names(sbs5)[5] <- 'EST_LBS'
+	names(sbs5)[5] <- 'EST_LBS'						# sum(sbs5$EST_LBS, na.rm=TRUE)	
 
   # ----------- STEP 2: account for species identification issues (similar to BBS, but greatly simplified)
 
@@ -169,13 +172,13 @@
   # ----- 2a. Variola louti and Variola albimarginata have been confused between 1986-2015. 
   #		Assume 2016-2020 SBS species identifications are reliable
 
-		# prepare a check: all variola, 1988-2020
+		# prepare a check: all variola, 1990-2020
 		string <- "SELECT *
 		  FROM sbs5
 		  WHERE SPECIES_FK in ('229','220')
 		  "
 		variola_check <- sqldf(string, stringsAsFactors=FALSE)	# View(variola_check)
-		sum_variola <- sum(variola_check$EST_LBS)				# 720.337 lbs
+		sum_variola <- sum(variola_check$EST_LBS)				# 602.392 lbs
 
 	# calculate sum(V. louti)/sum(V. louti, V. albimarginata) for 2016-2020, all areas, all gears
   	string <- "SELECT SPECIES_FK, SUM(EST_LBS) as TOT_LBS
@@ -186,14 +189,14 @@
 	p_louti <- variola_1$TOT_LBS[2]/(sum(variola_1$TOT_LBS))
 	p_albimarginata <- 1-p_louti			# will save p_louti and p_albimarginata to adjust expanded landings estimates.
 
-	# list all interview_pk, catch_pk that included either species, 1988-2015
+	# list all interview_pk, catch_pk that included either species, 1990-2015
 	string <- "SELECT *
 		  	FROM sbs5
-			WHERE SPECIES_FK in ('229','220') AND year_num < 2016 AND year_num > 1987
+			WHERE SPECIES_FK in ('229','220') AND year_num < 2016
 		  	"
 	variola_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(variola_2)		
 	#View(variola_2)  #sum(variola_2$EST_LBS)
-	#  707.925 lbs total   (720.337-12.412)
+	#  589.98 lbs total   (602.392-12.412)
 	
 	# divide interviews into those which caught just 1 of the variola species, and those which caught both
 
@@ -264,11 +267,12 @@
 	# update sbs5 with these new records
 	
 	sbs_keep1 <- subset(sbs5, !(CATCH_PK %in% variola_4$CATCH_PK))	
-		#str(sbs_keep1)	#13145
+		#str(sbs_keep1)	#12213
 
 	# don't forget, we had to drop a CATCH_PK for interviews where both V. louti and V. albimarginata were recorded
 	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
 	#	to avoid double counting catch
+	
 	sbs_keep2 <- subset(sbs_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))
 		
 	sbs_update1 <- subset(sbs5, (CATCH_PK %in% variola_4$CATCH_PK))
@@ -283,7 +287,7 @@
 					FROM sbs_update2 LEFT JOIN variola_4
 						ON sbs_update2.CATCH_PK = variola_4.CATCH_PK"
 		sbs_update4 <- sqldf(string, stringsAsFactors=FALSE)		
-			#View(sbs_update4)		#sum(sbs_update4$NEW_EST_LBS)			#707.925
+			#View(sbs_update4)		#sum(sbs_update4$NEW_EST_LBS)			#589.98
 
 	# use NEW_ columns in place of the original (retain same column order as bbs_3C)		#names(bbs_3C_update4)
 	sbs_update4$CATCH_PK <- sbs_update4$NEW_CATCH_PK
@@ -291,10 +295,10 @@
 	sbs_update4$EST_LBS  <- sbs_update4$NEW_EST_LBS
 
 	# drop columns 6 and 7
-	sbs_update5 <- sbs_update4[,1:5]   #sum(sbs_update5$EST_LBS)	#707.925
+	sbs_update5 <- sbs_update4[,1:5]   #sum(sbs_update5$EST_LBS)	#589.98
 
 	# put back together with the keep records
-	sbs_new <- rbind(sbs_keep2, sbs_update5)		#sum(sbs_new$EST_LBS, na.rm=TRUE)		#103357
+	sbs_new <- rbind(sbs_keep2, sbs_update5)		#sum(sbs_new$EST_LBS, na.rm=TRUE)		#90261.49
 		length(unique(sbs5$INTERVIEW_PK))
 		length(unique(sbs_new$INTERVIEW_PK))
 
@@ -302,7 +306,7 @@
 	sbs5 <- sbs_new					#str(sbs5)
 
   #  remainder of step 2: we are doing break-down summed over years, so heavy use of "Lethrinidae" over long periods
-  #	in Manu'as won't affect break-down. Also, fila / flavi mis-ID will also not be pertinent.
+  #	in Manu'as won't affect break-down. Also, fila / flavi mis-ID will not be pertinent (only 1 record of flavi in shore-based anyway)
 
   # ----------- STEP 3: create the shore-based species proptable. Because even the shallow species
   #				are relatively rare, sum by gear, area, year to get the props
@@ -321,7 +325,7 @@
 		  GROUP BY SPECIES_FK"
 
 	by_species <- sqldf(string, stringsAsFactors=FALSE)
-	str(by_species)		# View(by_species)			# 289 'species' recorded
+	str(by_species)		# View(by_species)			# 287 'species' recorded
 	# drop the first row for SPECIES_FK = NA
 	by_species[is.na(by_species)] <- 0
 	by_species <- subset(by_species, SPECIES_FK != 0) 
@@ -338,29 +342,30 @@
 		ORDER BY SPECIES_PK"
 
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(catch_year_codes)		#289 rows
+	str(catch_year_codes)		#287 rows
 	# View(catch_year_codes)
 	names(catch_year_codes)
 	
   by_species_init <- by_species
 
 
-  # ----------------------------   STEP 4: Break the BMUS groups
-  #	which ones do we need to do?
+  # -----  STEP 4: Break down the BMUS groups into species
+  #	which groups are in the shore-based data?
   #		list_species_groups <- as.numeric(by_species$SPECIES_FK)
-  
+  #
   #		  string <- "SELECT * 
   #			FROM by_species
   #			WHERE SPECIES_FK in (110, 200, 210, 230, 240, 260, 100, 109, 380, 390)"
   #  		list_bmus_groups <- sqldf(string, stringsAsFactors=FALSE)
-
+  #  so, no need to break down BOTTOMFISHES or PRIST/ET
+  #
   #  SPECIES_FK  TOT_LBS
   #        100    2.380			# fish
-  #        109   91.223			# Trevallys
-  #        110 4765.743			# jacks
-  #        210 2489.919			# groupers
-  #        230   48.397			# deep water snappers
-  #        260  228.708			# emperors
+  #        109   83.506			# Trevallys
+  #        110 4100.609			# jacks
+  #        210 1812.771			# groupers
+  #        230   21.499			# deep water snappers
+  #        260  183.513			# emperors
   #        380    2.621			# inshore groupers
   #        390   20.840			# inshore snappers
 
@@ -389,7 +394,7 @@
       by_species_new <- subset(by_species_init, SPECIES_FK != 210 & SPECIES_FK != 380)
 	by_species_new <- rbind(by_species_new, grps_step5)
     # test
- 	sum(by_species_new$TOT_LBS)				# 103357
+ 	sum(by_species_new$TOT_LBS)				# 90261.49
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
 			FROM by_species_new
@@ -420,7 +425,7 @@
       by_species_new <- subset(by_species_grps, SPECIES_FK != 230 & SPECIES_FK != 390)
 	by_species_new <- rbind(by_species_new, snaps_step5)
     # test
- 	sum(by_species_new$TOT_LBS)				# 103357
+ 	sum(by_species_new$TOT_LBS)				# 
 	
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
@@ -452,7 +457,7 @@
       by_species_new <- subset(by_species_grps_snaps, SPECIES_FK != 109 & SPECIES_FK != 110)
 	by_species_new <- rbind(by_species_new, jacks_step5)
     # test
- 	sum(by_species_new$TOT_LBS)				# 103357
+ 	sum(by_species_new$TOT_LBS)				#
 
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
@@ -485,7 +490,7 @@
       by_species_new <- subset(by_species_grps_snaps_jacks, SPECIES_FK != 260)
 	by_species_new <- rbind(by_species_new, emps_step5)
     # test
- 	sum(by_species_new$TOT_LBS)				# 103357
+ 	sum(by_species_new$TOT_LBS)				#
 
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
@@ -519,7 +524,7 @@
 	by_species_new <- rbind(by_species_new, fish_step5)
 
     # test
- 	sum(by_species_new$TOT_LBS)				# 103357
+ 	sum(by_species_new$TOT_LBS)				#
 
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
@@ -532,8 +537,8 @@
 
 
 
-  #  --------------- STEP 5: turn this total break-down catch table into a proportions key that we can use later 
-  #		(i.e. by applying it to expanded landings)
+  #  -------- STEP 5: turn this total break-down catch table into a proportions key that we can use for expanded landings
+  #	  in 05_SBS_Landings.R	
 
 	# join break-down catch (step 4) back in with the group_key, so we know which groups each species could belong to.
 	string <- "SELECT by_species_grps_snaps_jacks_emps_fish.*, group_key.*
@@ -554,7 +559,7 @@
  							Inshore_groupers_380_catch = Inshore_groupers_380*TOT_LBS,
  							Inshore_snappers_390_catch = Inshore_snappers_390*TOT_LBS,
 							Fish_100_catch = Fish_100*TOT_LBS)
-	# str(step2)			#View(step2)			# 3749
+	# str(step2)			#View(step2)			#
 
 
 	# sum groups by year, gear, zone  (sum catch per strata for each unknown group)
