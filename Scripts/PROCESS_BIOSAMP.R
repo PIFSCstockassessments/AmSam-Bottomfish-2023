@@ -33,10 +33,10 @@ S <- S[,list(Catch=round(mean(Catch),0)),by=list(SciName,Year)]
 S <- S[order(SciName,Year)]
 #write.xlsx(S,file="1_OUTPUTS/Biosampling fishery description.xlsx")
 
-BIO <- BIO[,c("Dataset","Area_A","Area_B","Area_C","FishedArea","Year","Method_B","Method_C","Method1","SciName","Species","Length_FL")]
+BIO <- select(BIO,DATASET=Dataset,AREA_A=Area_A,AREA_B=Area_B,AREA_C=Area_C,FISHEDAREA=FishedArea,YEAR=Year,METHOD_B=Method_B,METHOD_C=Method_C,METHOD1=Method1,SCINAME=SciName,SPECIES=Species,LENGTH_FL=Length_FL)
 
-BIO$Length_FL <- BIO$Length_FL*10
-BIO$Count  <- 1
+BIO$LENGTH_FL <- BIO$LENGTH_FL*10
+BIO$COUNT  <- 1
 
 saveRDS(BIO,file="Outputs/readyBiosamp.rds")
 

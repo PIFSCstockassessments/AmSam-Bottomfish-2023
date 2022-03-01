@@ -38,6 +38,9 @@ US$Length_FL <- US$Length_TL*US$TL_to_FL
 
 # Save data
 US <- subset(US,select=c("Dataset","Year","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_FL","Count"))
+
+colnames(US) <- toupper(colnames(US))
+
 saveRDS(US,file="Outputs/readyUVS.rds")
 
 
