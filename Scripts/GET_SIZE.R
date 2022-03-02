@@ -56,20 +56,20 @@ for(i in 1:length(Species.List)){
  
  Fld <- "Outputs/Graphs/Size/"
  if(nrow(G[DATASET=="Biosampling"])>0){
- ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y")
- ggsave(paste0(Fld,Sp,"_Freq_","BS",".png"))}
+ ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+ ggsave(paste0(Fld,Sp,"_Freq_","BS",".png"),width=20,height=10,unit="cm")}
  
  if(nrow(G[DATASET=="UVS"])>0){
- ggplot(data=G[DATASET=="UVS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y")
- ggsave(paste0(Fld,Sp,"_Freq_","US",".png"))}
+ ggplot(data=G[DATASET=="UVS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+ ggsave(paste0(Fld,Sp,"_Freq_","US",".png"),width=20,height=10,unit="cm")}
  
  if(nrow(G[DATASET=="BBS"])>0){
- ggplot(data=G[DATASET=="BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y")
- ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"))}
+ ggplot(data=G[DATASET=="BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+ ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"),width=20,height=10,unit="cm")}
 
  if(nrow(G[DATASET=="BS and BBS"])>0){
- ggplot(data=G[DATASET=="BS and BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y")
- ggsave(paste0(Fld,Sp,"_Freq_","BS and BBS",".png"))}
+ ggplot(data=G[DATASET=="BS and BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+ ggsave(paste0(Fld,Sp,"_Freq_","BS and BBS",".png"),width=20,height=10,unit="cm")}
  
 # Prepare DATASET for SS3
 # Obtain mean weight and mean length per trip
