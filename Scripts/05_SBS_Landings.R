@@ -128,7 +128,7 @@
   sbs_expanded_landings_basic_02 <- sp_data6
 
   # load in the species proptable and ID corrections
-  load(paste(root_dir, "/output/01_SBS_data_prep.RData", sep=""))
+  load(paste(root_dir, "/output/01_SBS_data_prep.RData", sep=""))				#View(sbs_proptable)
   
   # ------------------
   # Variola: for 1990-2015, sum albimarginata, louti, partician back to species
@@ -271,7 +271,7 @@
 	bdown_3 <- bdown_2[,c(1,7,3,8,9)]					# View(bdown_3)		#str(bdown_3)
 	names(bdown_3)[4:5] <- c("LBS_CAUGHT", "VAR_LBS_CAUGHT")
 	names(bdown_3)[2] <- c("SPECIES_FK")
-	bdown_210 <- bdown_3
+	bdown_210 <- bdown_3					#View(bdown_210)
 
 	rm('break_me_down', 'bdown_1', 'bdown_2', 'bdown_3')
 
@@ -336,7 +336,7 @@
 
   string <- "SELECT * 
 			FROM sp_data6
-			WHERE SPECIES_FK not in (110, 200, 210, 230, 240, 260, 100)
+			WHERE SPECIES_FK not in (110, 200, 210, 230, 240, 260, 100, 380,390,109)
 			"
   sp_data7 <- sqldf(string, stringsAsFactors=FALSE)
   #str(sp_data7)		str(bdown_110)
@@ -359,7 +359,7 @@
   sum(sp_data8$VAR_LBS_CAUGHT, na.rm = TRUE)
 
 
-  sbs_expanded_landings_breakdown_final <- sp_data8
+  sbs_expanded_landings_breakdown_final <- sp_data8				#View(sp_data8)
 
 
  # clean up workspace

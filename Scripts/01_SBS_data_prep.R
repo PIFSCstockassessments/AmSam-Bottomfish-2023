@@ -264,7 +264,7 @@
 	  #sum(variola_4$EST_LBS)		#View(variola_4)			#str(variola_4)
 	  update_interview_pks <- unique(variola_4$INTERVIEW_PK)
 
-	# update sbs5 with these new records
+	# update sbs5 with these new records			#str(sbs5)			#12265
 	
 	sbs_keep1 <- subset(sbs5, !(CATCH_PK %in% variola_4$CATCH_PK))	
 		#str(sbs_keep1)	#12213
@@ -273,13 +273,13 @@
 	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
 	#	to avoid double counting catch
 	
-	sbs_keep2 <- subset(sbs_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))
+	sbs_keep2 <- subset(sbs_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))			#str(sbs_keep2)		#12212
 		
 	sbs_update1 <- subset(sbs5, (CATCH_PK %in% variola_4$CATCH_PK))
-	# View(head(sbs_update1))	
+	# View(head(sbs_update1))			#str(sbs_update1)	
 
 	# keep only the first instance of each CATCH_PK (because some catch_pk had lengths)
-	sbs_update2 <- sbs_update1[with(sbs_update1, order(CATCH_PK)), ]
+	sbs_update2 <- sbs_update1[with(sbs_update1, order(CATCH_PK)), ]			#str(sbs_update2)
 		
 	# merge on the updated CATCH_PKs
 	string <- "SELECT sbs_update2.*, variola_4.NEW_CATCH_PK, variola_4.SPECIES_FK as NEW_SPECIES_FK,
@@ -289,13 +289,13 @@
 		sbs_update4 <- sqldf(string, stringsAsFactors=FALSE)		
 			#View(sbs_update4)		#sum(sbs_update4$NEW_EST_LBS)			#589.98
 
-	# use NEW_ columns in place of the original (retain same column order as bbs_3C)		#names(bbs_3C_update4)
+	# use NEW_ columns in place of the original (retain same column order as sbs)		#
 	sbs_update4$CATCH_PK <- sbs_update4$NEW_CATCH_PK
 	sbs_update4$SPECIES_FK  <- sbs_update4$NEW_SPECIES_FK
 	sbs_update4$EST_LBS  <- sbs_update4$NEW_EST_LBS
 
 	# drop columns 6 and 7
-	sbs_update5 <- sbs_update4[,1:5]   #sum(sbs_update5$EST_LBS)	#589.98
+	sbs_update5 <- sbs_update4[,1:5]   #sum(sbs_update5$EST_LBS)	#589.98			#View(sbs_update5)
 
 	# put back together with the keep records
 	sbs_new <- rbind(sbs_keep2, sbs_update5)		#sum(sbs_new$EST_LBS, na.rm=TRUE)		#90261.49
@@ -303,7 +303,7 @@
 		length(unique(sbs_new$INTERVIEW_PK))
 
 	# update sbs5			
-	sbs5 <- sbs_new					#str(sbs5)
+	sbs6 <- sbs_new					#str(sbs6)
 
   #  remainder of step 2: we are doing break-down summed over years, so heavy use of "Lethrinidae" over long periods
   #	in Manu'as won't affect break-down. Also, fila / flavi mis-ID will not be pertinent (only 1 record of flavi in shore-based anyway)
@@ -316,11 +316,11 @@
   group_key <- read.csv(paste(root_dir, "/data/AmSam_BBS-SBS_GroupKey.csv", sep=""), header=T, stringsAsFactors=FALSE) 
   # View(group_key)
 
-  # reduce sbs5 to the simple catch table
+  # reduce sbs6 to the simple catch table
 	string <- "SELECT SPECIES_FK, SUM(EST_LBS) as TOT_LBS
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, EST_LBS
-			FROM sbs5
+			FROM sbs6
 			WHERE SPECIES_FK IS NOT '0' AND SPECIES_FK IS NOT 'NULL') 
 		  GROUP BY SPECIES_FK"
 
@@ -392,14 +392,17 @@
 
     # update by_species by replacing SPECIES_FK = 210 or 380 with the broken down species
       by_species_new <- subset(by_species_init, SPECIES_FK != 210 & SPECIES_FK != 380)
-	by_species_new <- rbind(by_species_new, grps_step5)
+	by_species_new2 <- rbind(by_species_new, grps_step5)			#str(by_species_new)
     # test
- 	sum(by_species_new$TOT_LBS)				# 90261.49
+ 	sum(by_species_new2$TOT_LBS)				# 90261.49
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
-			FROM by_species_new
+			FROM by_species_new2
 			GROUP BY SPECIES_FK"
 	by_species_grps <- sqldf(string, stringsAsFactors=FALSE)			#sum(by_species_grps$TOT_LBS)
+
+	rm(by_species_new, id_group_tot)
+	rm(by_species_new2)
 
  #  ---- 4b. Inshore snappers (230, 390) 
 
@@ -423,15 +426,20 @@
 
     # update by_species by replacing SPECIES_FK = 230 or 390 with the broken down species
       by_species_new <- subset(by_species_grps, SPECIES_FK != 230 & SPECIES_FK != 390)
-	by_species_new <- rbind(by_species_new, snaps_step5)
+	by_species_new2 <- rbind(by_species_new, snaps_step5)
     # test
  	sum(by_species_new$TOT_LBS)				# 
 	
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
-			FROM by_species_new
+			FROM by_species_new2
 			GROUP BY SPECIES_FK"
 	by_species_grps_snaps  <- sqldf(string, stringsAsFactors=FALSE)		#sum(by_species_grps_snaps$TOT_LBS)
+
+	rm(by_species_new, id_group_tot)
+	rm(by_species_new2)
+
+
 
  #  ---- 4c. jacks, trevallies
 
@@ -455,16 +463,21 @@
 
     # update by_species by replacing SPECIES_FK = 109 or 110 with the broken down species
       by_species_new <- subset(by_species_grps_snaps, SPECIES_FK != 109 & SPECIES_FK != 110)
-	by_species_new <- rbind(by_species_new, jacks_step5)
+	by_species_new2 <- rbind(by_species_new, jacks_step5)
     # test
- 	sum(by_species_new$TOT_LBS)				#
+ 	sum(by_species_new2$TOT_LBS)				#
 
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
-			FROM by_species_new
+			FROM by_species_new2
 			GROUP BY SPECIES_FK"
 	by_species_grps_snaps_jacks  <- sqldf(string, stringsAsFactors=FALSE)	
 			#sum(by_species_grps_snaps_jacks$TOT_LBS)
+
+	rm(by_species_new, id_group_tot)
+	rm(by_species_new2)
+
+
 
  #  ---- 4d. emperors
 
@@ -488,16 +501,22 @@
 
     # update by_species by replacing SPECIES_FK = 260 with the broken down species
       by_species_new <- subset(by_species_grps_snaps_jacks, SPECIES_FK != 260)
-	by_species_new <- rbind(by_species_new, emps_step5)
+	by_species_new2 <- rbind(by_species_new, emps_step5)
     # test
- 	sum(by_species_new$TOT_LBS)				#
+ 	sum(by_species_new2$TOT_LBS)				#
 
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
-			FROM by_species_new
+			FROM by_species_new2
 			GROUP BY SPECIES_FK"
 	by_species_grps_snaps_jacks_emps  <- sqldf(string, stringsAsFactors=FALSE)	
 		#sum(by_species_grps_snaps_jacks_emps$TOT_LBS)
+
+
+	rm(by_species_new, id_group_tot)
+	rm(by_species_new2)
+
+
 
  #  ---- 4e. fish
 
@@ -521,14 +540,14 @@
 
     # update by_species by replacing SPECIES_FK = 100 with the broken down species
       by_species_new <- subset(by_species_grps_snaps_jacks_emps, SPECIES_FK != 100)
-	by_species_new <- rbind(by_species_new, fish_step5)
+	by_species_new2 <- rbind(by_species_new, fish_step5)
 
     # test
- 	sum(by_species_new$TOT_LBS)				#
+ 	sum(by_species_new2$TOT_LBS)				#
 
     # sum by SPECIES_FK
 	string <- "SELECT SPECIES_FK, sum(TOT_LBS) as TOT_LBS
-			FROM by_species_new
+			FROM by_species_new2
 			GROUP BY SPECIES_FK"
 	by_species_grps_snaps_jacks_emps_fish  <- sqldf(string, stringsAsFactors=FALSE)	
 
@@ -548,7 +567,7 @@
 	by_species_w_codes <- sqldf(string, stringsAsFactors=FALSE)
 	str(by_species_w_codes)		#			# View(by_species_w_codes)
 
-	# build group sums by year, gear, area
+	# build group sums
 	step2 <- mutate(by_species_w_codes, Trevally_109_catch = Trevally_109*TOT_LBS,
 							Jacks_110_catch = Jacks_110*TOT_LBS,
  							Bottomfishes_200_catch = Bottomfishes_200*TOT_LBS,
@@ -595,7 +614,7 @@
 
 	#View(step3)
 
-	sbs_proptable <- step3
+	sbs_proptable <- step3					#View(sbs_proptable)
 
 
  # clean up workspace
