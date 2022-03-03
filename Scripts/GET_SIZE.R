@@ -1,15 +1,18 @@
 require(data.table); require(ggplot2); require(gridExtra); require(directlabels);require(openxlsx); require(ggpmisc);require(directlabels);require(dplyr)
 
 # Options
-Combine_BB_BS <- T # Combine biosampling and creel survey lengths
+Combine_BB_BS <- F # Combine biosampling and creel survey lengths
 MinN          <- 30 # Minimum sample size to do size frequency
 BIN_SIZE      <- 5 # in cm
 
 # Load diver sizes
 US <- readRDS("Outputs\\readyUVS.rds")
-US <- US[AREA_B=="Tutuila"|AREA_B=="Manua"]
 US$LENGTH_FL <- US$LENGTH_FL/10 # Convert to cm
-US <- select(US,DATASET,YEAR,AREA_B,SPECIES,METHOD_C,COUNT,LENGTH_FL)
+table(US$SPECIES,US$AREA_B)
+#ggplot(data=US[AREA_B=="Atoll"])+geom_histogram(aes(x=LENGTH_FL),binwidth=10)+facet_wrap(~SPECIES,scales="free")
+US[AREA_B=="Atoll"]$YEAR <- 9999 # Put all the Atoll data into a non-specific year, for further analyses (while separting it from other areas)
+#US <- US[METHOD!="SPC"] # Exclude the old SPC method
+US <- select(US,DATASET,YEAR,AREA_B,SPECIES,METHOD_C=METHOD,COUNT,LENGTH_FL)
 
 # Load biosampling sizes
 BS <- readRDS("Outputs\\readyBiosamp.rds")

@@ -4,7 +4,7 @@ require(data.table); require(openxlsx); require(dplyr); options(stringsAsFactors
 load("DATA\\ALL_REA_FISH_RAW.rdata")
 US <- rapply(df, as.character, classes="factor", how="replace")
 US <- data.table(US)
-US <- US[METHOD!="SPC"&REGION=="SAMOA"]
+US <- US[REGION=="SAMOA"]
 US <- US[METHOD!="nSPC-CCR"]
 US <- US[EXCLUDE_FLAG!=-1]
 US <- subset(US,select=-c(LW_A,LW_B))
@@ -18,7 +18,7 @@ US$Dataset <- "UVS"
 #======Get external datasets==================================================
 AREA        <- data.table( read.xlsx("DATA/METADATA.xlsx",sheet="AREAS") )
 AREA        <- AREA[Dataset=="UVS"]
-US          <- merge(US,AREA, by.x=c("Site","Dataset"),by.y=c("Area","Dataset"))
+US          <- merge(US,AREA, by.x=c("Site","Dataset"),by.y=c("Area","Dataset"),all.x=T)
 
 # Assign area and weight
 US[Depth_bin=="Mid"]$Depth_bin  <- "DEEP"
