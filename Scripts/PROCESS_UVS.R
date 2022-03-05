@@ -4,15 +4,15 @@ require(data.table); require(openxlsx); require(dplyr); options(stringsAsFactors
 load("DATA\\ALL_REA_FISH_RAW.rdata")
 US <- rapply(df, as.character, classes="factor", how="replace")
 US <- data.table(US)
-US <- US[REGION=="SAMOA"]
+US <- US[REGION=="SAMOA"|REGION=="NWHI"] # Keep NWHI to check APVI values in LBSPR
 US <- US[METHOD!="nSPC-CCR"]
 US <- US[EXCLUDE_FLAG!=-1]
 US <- subset(US,select=-c(LW_A,LW_B))
 
 US$SIZE_   <- US$SIZE_*10
-US         <- subset(US,select=c("OBS_YEAR","ISLAND","DEPTH_BIN","SITE","LATITUDE","LONGITUDE","SITEVISITID","REP","METHOD","TAXONNAME","SPECIES","OBS_TYPE","COUNT","SIZE_"))                
+US         <- subset(US,select=c("OBS_YEAR","REGION","ISLAND","DEPTH_BIN","SITE","LATITUDE","LONGITUDE","SITEVISITID","REP","METHOD","TAXONNAME","SPECIES","OBS_TYPE","COUNT","SIZE_"))                
 US[DEPTH_BIN=="Shallow"]$DEPTH_BIN <- "SHALLOW"
-setnames(US,1:14,c("Year","Island","Depth_bin","Site","Latitude","Longitude","SiteVisitID","Rep","Method","SciName","Species","Obs_Type","Count","Length_TL"))
+setnames(US,1:15,c("Year","Region","Island","Depth_bin","Site","Latitude","Longitude","SiteVisitID","Rep","Method","SciName","Species","Obs_Type","Count","Length_TL"))
 US$Dataset <- "UVS"
 
 #======Get external datasets==================================================
@@ -37,7 +37,7 @@ US <- merge(US,LH,by="Species")
 US$Length_FL <- US$Length_TL*US$TL_to_FL
 
 # Save data
-US <- subset(US,select=c("Dataset","Year","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_FL","Count"))
+US <- subset(US,select=c("Dataset","Year","Region","Island","Area","Area_Weight","Area_A","Area_B","Area_C","Site","SiteVisitID","Rep","SciName","Species","Method","Obs_Type","Length_FL","Count"))
 
 colnames(US) <- toupper(colnames(US))
 

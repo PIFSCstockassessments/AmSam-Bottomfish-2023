@@ -29,6 +29,10 @@ BB <- merge(BB,AREAS,by="AREA_FK",all.x=T)
 BB <- merge(BB,METHODS,by="METHOD_FK",all.x=T)
 BB <- merge(BB,SPECIES,by="SPECIES_FK")
 
+# Assign N/As to islands
+BB[AREA_B=="N/A"]$AREA_B <- BB[AREA_B=="N/A"]$ISLAND_NAME
+BB[is.na(AREA_B)]$AREA_B <- BB[is.na(AREA_B)]$ISLAND_NAME
+
 BB <- select(BB,YEAR,TAXONNAME,SPECIES,AREA_B,METHOD_C,COUNT=NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
 
 BB$DATASET <- "BBS"

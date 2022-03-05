@@ -2,26 +2,31 @@ require(data.table); require(ggplot2); require(gridExtra); require(directlabels)
 
 # Options
 Combine_BB_BS <- F # Combine biosampling and creel survey lengths
+Combine_Areas <- T # Combine Tutuila, Manua, and the Banks
 MinN          <- 30 # Minimum sample size to do size frequency
 BIN_SIZE      <- 5 # in cm
 
 # Load diver sizes
 US <- readRDS("Outputs\\readyUVS.rds")
-US$LENGTH_FL <- US$LENGTH_FL/10 # Convert to cm
-table(US$SPECIES,US$AREA_B)
-#ggplot(data=US[AREA_B=="Atoll"])+geom_histogram(aes(x=LENGTH_FL),binwidth=10)+facet_wrap(~SPECIES,scales="free")
-US[AREA_B=="Atoll"]$YEAR <- 9999 # Put all the Atoll data into a non-specific year, for further analyses (while separting it from other areas)
 #US <- US[METHOD!="SPC"] # Exclude the old SPC method
+US$LENGTH_FL              <- US$LENGTH_FL/10 # Convert to cm
+US[REGION=="NWHI"]$AREA_B <- "NWHI"
+table(US$SPECIES,US$AREA_B)
+#US[AREA_B=="Atoll"]$YEAR <- 9999 # Put all the Atoll data into a non-specific year, for further analyses (while separting it from other areas)
+if(Combine_Areas==T) US[AREA_B=="Tutuila"|AREA_B=="Manua"|AREA_B=="Bank"]$AREA_B <- "Main"
 US <- select(US,DATASET,YEAR,AREA_B,SPECIES,METHOD_C=METHOD,COUNT,LENGTH_FL)
 
 # Load biosampling sizes
-BS <- readRDS("Outputs\\readyBiosamp.rds")
-BS <- BS[!is.na(LENGTH_FL)]
-BS$LENGTH_FL <- BS$LENGTH_FL/10 # Convert to cm
-BS <- select(BS,DATASET,YEAR,AREA_B,SPECIES,METHOD_C,COUNT,LENGTH_FL)
+BS                       <- readRDS("Outputs\\readyBiosamp.rds")
+BS                       <- BS[!is.na(LENGTH_FL)]
+BS[AREA_B=="N/A"]$AREA_B <- "Tutuila" # Assign N/A to Tutuila (only a few lengths)
+BS$LENGTH_FL             <- BS$LENGTH_FL/10 # Convert to cm
+if(Combine_Areas==T) BS[AREA_B=="Tutuila"|AREA_B=="Manua"|AREA_B=="Bank"]$AREA_B <- "Main"
+BS                       <- select(BS,DATASET,YEAR,AREA_B,SPECIES,METHOD_C,COUNT,LENGTH_FL)
 
 # Load BBS sizes
 BB <- readRDS("Outputs\\readyBBS_Size.rds")
+if(Combine_Areas==T) BB[AREA_B=="Tutuila"|AREA_B=="Manua"|AREA_B=="Bank"]$AREA_B <- "Main"
 BB <- select(BB,DATASET,YEAR,AREA_B,SPECIES,METHOD_C,COUNT,LENGTH_FL)
 BB <- BB[!is.na(LENGTH_FL)]
 
@@ -50,11 +55,11 @@ for(i in 1:length(Species.List)){
  E  <- D[SPECIES==Sp&LENGTH_FL>0]
  
  # Filter YEARs with low N
- NB         <- data.table( table(E$DATASET,E$YEAR) )
+ NB         <- data.table( table(E$DATASET,E$YEAR,E$AREA_B) )
  NB$V2      <- as.numeric(NB$V2)
- setnames(NB,c("V1","V2"),c("DATASET","YEAR"))
+ setnames(NB,c("V1","V2","V3"),c("DATASET","YEAR","AREA_B"))
  NB2        <- NB[N>=MinN]
- G          <- merge(E,NB2,by=c("DATASET","YEAR"))
+ G          <- merge(E,NB2,by=c("DATASET","YEAR","AREA_B"))
  NB$SPECIES <- Sp
  
  Fld <- "Outputs/Graphs/Size/"
@@ -90,13 +95,13 @@ for(i in 1:length(Species.List)){
  #plot(SAMPSIZE$YEAR,SAMPSIZE$EFFN)
 
 # Calculate abundance-at-length
- G <- G[,list(N=.N),by=list(DATASET,YEAR,LENGTH_BIN_START)]
- G <- G[order(DATASET,YEAR,LENGTH_BIN_START)]
+ G <- G[,list(N=.N),by=list(AREA_B,DATASET,YEAR,LENGTH_BIN_START)]
+ G <- G[order(AREA_B,DATASET,YEAR,LENGTH_BIN_START)]
 
- G <- dcast.data.table(G,DATASET+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
+ G <- dcast.data.table(G,DATASET+AREA_B+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
 
- G <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"))
- G <- select(G,DATASET,YEAR,EFFN,3:ncol(G))
+ G <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
+ G <- select(G,DATASET,AREA_B,YEAR,EFFN,4:ncol(G))
 
  NList[[i]] <- NB 
  write.csv(G,paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)
