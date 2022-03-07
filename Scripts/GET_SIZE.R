@@ -34,6 +34,9 @@ BB <- BB[!is.na(LENGTH_FL)]
 D <- rbind(US,BS,BB)
 if(Combine_BB_BS==T) D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BS and BBS"
 
+# Merge all years for Atoll and NWHI
+D[AREA_B=="Atoll"|AREA_B=="NWHI"]$YEAR <- 2022
+
 
 # Add some LH info
 LH <- data.table(read.xlsx("DATA\\METADATA.xlsx",sheet="SPECIES"))
@@ -110,5 +113,6 @@ for(i in 1:length(Species.List)){
 
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
-Summary <- dcast.data.table(Summary,SPECIES+DATASET~YEAR,value.var="N",fill=0)
+Summary <- dcast.data.table(Summary,SPECIES+AREA_B+DATASET~YEAR,value.var="N",fill=0)
+
 write.xlsx(Summary,"Outputs//Graphs//SIZE//Size_N_YEAR.xlsx")
