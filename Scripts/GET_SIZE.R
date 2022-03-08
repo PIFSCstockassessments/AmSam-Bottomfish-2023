@@ -52,6 +52,7 @@ D[AREA_B=="Manua"]$RW <- 0.2
 # Statistics
 Species.List <- unique(D$SPECIES)
 NList <- list()
+L99List <- list()
 for(i in 1:length(Species.List)){
  
  Sp <- Species.List[i]
@@ -88,6 +89,8 @@ for(i in 1:length(Species.List)){
  #BINS      <- cbind(BINS,seq(1,28,by=1))
  G         <- G[LENGTH_FL<=LMAX]
 
+ L99List[[i]] <- G[,list(L99=round(quantile(LENGTH_FL,0.99),1)),by=list(SPECIES,DATASET)]
+ 
 # Add length bin lower ends to DATASET
  G$LENGTH_BIN_START <- G$LENGTH_FL-(G$LENGTH_FL%%BIN_SIZE)
 
@@ -114,5 +117,8 @@ for(i in 1:length(Species.List)){
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_B+DATASET~YEAR,value.var="N",fill=0)
-
 write.xlsx(Summary,"Outputs//Graphs//SIZE//Size_N_YEAR.xlsx")
+
+L99Summary <- do.call(rbind.data.frame, L99List)
+L99Summary <- dcast.data.table(L99Summary,SPECIES~DATASET,value.var="L99",fill=NA)
+write.xlsx(L99Summary,"Outputs//Graphs//SIZE//L99.xlsx")
