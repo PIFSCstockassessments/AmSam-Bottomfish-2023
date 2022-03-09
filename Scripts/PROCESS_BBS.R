@@ -29,7 +29,7 @@ BB <- merge(BB,AREAS,by="AREA_FK",all.x=T)
 BB <- merge(BB,METHODS,by="METHOD_FK",all.x=T)
 BB <- merge(BB,SPECIES,by="SPECIES_FK")
 
-# Assign N/As to islands
+# Assign AREA_B N/As to islands
 BB[AREA_B=="N/A"]$AREA_B <- BB[AREA_B=="N/A"]$ISLAND_NAME
 BB[is.na(AREA_B)]$AREA_B <- BB[is.na(AREA_B)]$ISLAND_NAME
 
