@@ -1,9 +1,8 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
-require(LBSPR)
+require(LBSPR); require(data.table)
 
 # General parameters
-Units    <- "cm"
 BinWidth <- 5
 SPR      <- 0.3 # Target SPR
 
@@ -52,21 +51,47 @@ if(Sp=="VALO"){
 }
 
 MyPars          <- new("LB_pars")
-MyPars@Species  <- Name
-MyPars@Linf     <- Linf
-MyPars@MK       <- M / KKKKK
-MyPars@L50      <- L50 
-MyPars@L95      <- L95
-MyPars@CVLinf   <- CVLinf
+MyPars@Species  <- Sp
+MyPars@Linf     <- Growth[1]
+MyPars@CVLinf   <- CVLinf[3]
+MyPars@MK       <- Growth[4]/Growth[2]
+MyPars@L50      <- Mat[1] 
+MyPars@L95      <- Mat[2]
 MyPars@SPR      <- SPR 
 MyPars@BinWidth <- BinWidth
-MyPars@L_units  <- Units
+MyPars@L_units  <- "cm"
 
-Len1a <- new("LB_lengths", LB_pars=MyPars, file="DATA/APVI_BB.csv",dataType="freq", header=TRUE)
-Len1b <- new("LB_lengths", LB_pars=MyPars, file="DATA/APVI_BS.csv",dataType="freq", header=TRUE)
+# Reshape size structure data to go into LBSPR
+DAT <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"))   )
+DAT <- DAT[,!"EFFN"]
+colnames(DAT) <- gsub("X","",colnames(DAT))
+setnames(DAT,"YEAR","year")
+DAT <- melt(DAT, id.vars=1:3,variable.name="length",value.name="COUNT",)
+DAT <- dcast(DAT,DATASET+AREA_B+length~year,value.var="COUNT",fill=0)
+
+# Split datasets and regions
+BBS      <- DAT[DATASET=="BBS"&AREA_B=="Main",!c("DATASET","AREA_B")]
+BS       <- DAT[DATASET=="Biosampling"&AREA_B=="Main",!c("DATASET","AREA_B")]
+US_Atoll <- DAT[DATASET=="UVS"&AREA_B=="Atoll",!c("DATASET","AREA_B")]
+US_NWHI  <- DAT[DATASET=="UVS"&AREA_B=="NWHI",!c("DATASET","AREA_B")]
+US_Main  <- DAT[DATASET=="UVS"&AREA_B=="Main",!c("DATASET","AREA_B")]
+
+
+
+Len1 <- new("LB_lengths")
+slotNames(Len1)
+
+Len1@LMids
+
+
+Len1a <- new("LB_lengths", LB_pars=MyPars, file="Outputs/SS3_Inputs/APVI/SIZE_APVI.csv",dataType="freq", header=TRUE)
+Len1b <- new("LB_lengths", LB_pars=MyPars, file=test,dataType="freq", header=TRUE)
 Len2  <- new("LB_lengths", LB_pars=MyPars, file="DATA/APVI_atoll.csv",dataType="freq", header=TRUE)
 Len3  <- new("LB_lengths", LB_pars=MyPars, file="DATA/APVI_NWHI.csv",dataType="freq", header=TRUE)
 #plotSize(Len1)
+
+
+Len1b@Years
 
 myFit_BB    <- LBSPRfit(MyPars, Len1a)
 myFit_BS    <- LBSPRfit(MyPars, Len1b)
