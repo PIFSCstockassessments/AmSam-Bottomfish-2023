@@ -1,13 +1,13 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
-require(LBSPR); require(data.table)
+require(LBSPR); require(data.table); require(openxlsx)
 
 # General parameters
 BinWidth <- 5
 SPR      <- 0.3 # Target SPR
 
 # LH Parameters 
-Sp <- "APVI"
+Sp   <- "APVI"
 Name <- Sp
 
 # Growth: Linf,K,CVLinf,M
@@ -62,12 +62,14 @@ MyPars@BinWidth <- BinWidth
 MyPars@L_units  <- "cm"
 
 # Reshape size structure data to go into LBSPR
-DAT <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"))   )
-DAT <- DAT[,!"EFFN"]
+DAT        <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"))   )
+DAT        <- DAT[,!"EFFN"]
 colnames(DAT) <- gsub("X","",colnames(DAT))
 setnames(DAT,"YEAR","year")
-DAT <- melt(DAT, id.vars=1:3,variable.name="length",value.name="COUNT",)
-DAT <- dcast(DAT,DATASET+AREA_B+length~year,value.var="COUNT",fill=0)
+DAT        <- melt(DAT, id.vars=1:3,variable.name="length",value.name="COUNT",)
+DAT        <- dcast(DAT,DATASET+AREA_B+length~year,value.var="COUNT",fill=0)
+DAT$length <- as.numeric(as.character(DAT$length))
+DAT$length <- DAT$length+(BinWidth/2) #Convert lengths to mid-points
 
 # Split datasets and regions
 BBS      <- DAT[DATASET=="BBS"&AREA_B=="Main",!c("DATASET","AREA_B")]
@@ -76,43 +78,55 @@ US_Atoll <- DAT[DATASET=="UVS"&AREA_B=="Atoll",!c("DATASET","AREA_B")]
 US_NWHI  <- DAT[DATASET=="UVS"&AREA_B=="NWHI",!c("DATASET","AREA_B")]
 US_Main  <- DAT[DATASET=="UVS"&AREA_B=="Main",!c("DATASET","AREA_B")]
 
+# Remove empty years
+BBS      <- BBS[,c(which(colSums(BBS) != 0)),with=F]
+BS       <- BS[,c(which(colSums(BS) != 0)),with=F]
+US_Atoll <- US_Atoll[,c(which(colSums(US_Atoll) != 0)),with=F]
+US_NWHI  <- US_NWHI[,c(which(colSums(US_NWHI) != 0)),with=F]
+US_Main  <- US_Main[,c(which(colSums(US_Main) != 0)),with=F]
+
+# Save to csv files (easier integration with LBSPR)
+Drive <- paste0("Outputs/LBSPR/Temp size/",Sp)
+write.csv(BBS,paste0(Drive,"_BBS_Main.csv"),row.names=F)
+write.csv(BS,paste0(Drive,"_BS_Main.csv"),row.names=F)
+write.csv(US_Atoll,paste0(Drive,"_UVS_Atoll.csv"),row.names=F)
+write.csv(US_NWHI,paste0(Drive,"_UVS_NWHI.csv"),row.names=F)
+write.csv(US_Main,paste0(Drive,"_UVS_Main.csv"),row.names=F)
+
+# Load data in LBSPR object
+LenBBS_Main <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BBS_Main.csv"),dataType="freq", header=TRUE)
+LenBS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BS_Main.csv"),dataType="freq", header=TRUE)
+LenUS_Atoll <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Atoll.csv"),dataType="freq", header=TRUE)
+LenUS_NWHI  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_NWHI.csv"),dataType="freq", header=TRUE)
+LenUS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Main.csv"),dataType="freq", header=TRUE)
+
+# Fit data to model
+myFit_BBMain   <- LBSPRfit(MyPars, LenBBS_Main)
+myFit_BSMain   <- LBSPRfit(MyPars, LenBS_Main)
+myFit_UVSAtoll <- LBSPRfit(MyPars, LenUS_Atoll)
+myFit_UVSNWHI  <- LBSPRfit(MyPars, LenUS_NWHI)
+myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
+
+# Outputs
+OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*Growth[4],myFit_BBMain@SPR),
+             cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*Growth[4],myFit_BSMain@SPR),
+             cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*Growth[4],myFit_UVSMain@SPR),
+             cbind("UVS_Atoll",myFit_UVSNWHI@Years,myFit_UVSNWHI@FM*Growth[4],myFit_UVSNWHI@SPR),
+             cbind("UVS_NWHI", myFit_UVSAtoll@Years,myFit_UVSAtoll@FM*Growth[4],myFit_UVSAtoll@SPR)
+           )
+OUT <- data.table(OUT)
+setnames(OUT,c("DATASET","YEAR","F","SPR"))
+OUT[,2:4] <- rapply(OUT[,2:4],as.numeric,how="replace")
+OUT[,3:4] <- round(OUT[,3:4],2)
+
+write.xlsx(OUT,paste0("Outputs/LBSPR/Graphs/LBSPR_",Sp,".xlsx"))
 
 
-Len1 <- new("LB_lengths")
-slotNames(Len1)
+plotSize(myFit_BBMain)
+plotSize(myFit_BSMain)
+plotSize(myFit_UVSMain)
+plotSize(myFit_UVSAtoll)
+plotSize(myFit_UVSNWHI)
 
-Len1@LMids
-
-
-Len1a <- new("LB_lengths", LB_pars=MyPars, file="Outputs/SS3_Inputs/APVI/SIZE_APVI.csv",dataType="freq", header=TRUE)
-Len1b <- new("LB_lengths", LB_pars=MyPars, file=test,dataType="freq", header=TRUE)
-Len2  <- new("LB_lengths", LB_pars=MyPars, file="DATA/APVI_atoll.csv",dataType="freq", header=TRUE)
-Len3  <- new("LB_lengths", LB_pars=MyPars, file="DATA/APVI_NWHI.csv",dataType="freq", header=TRUE)
-#plotSize(Len1)
-
-
-Len1b@Years
-
-myFit_BB    <- LBSPRfit(MyPars, Len1a)
-myFit_BS    <- LBSPRfit(MyPars, Len1b)
-myFit_Atoll <- LBSPRfit(MyPars, Len2)
-myFit_NWHI  <- LBSPRfit(MyPars, Len3)
-
-
-#myFit1@Ests #Smoothed multiyear estimates
-rawEsts <- data.frame(rawSL50=myFit_NWHI@SL50, rawSL95=myFit_NWHI@SL95, rawFM=myFit_NWHI@FM, rawSPR=myFit_NWHI@SPR) # Raw estimates
-View(rawEsts)
-
-plotSize(myFit_BB); plotEsts(myFit_BB)
-plotSize(myFit_BS); plotEsts(myFit_BS)
-plotSize(myFit_Atoll); plotEsts(myFit_Atoll)
-plotSize(myFit_NWHI); plotEsts(myFit_NWHI)
-
-
-# Compare to target size structure
-Yr <- 18 # Highest data year (2013)
-MyPars@SL50 <- myFit1@SL50[Yr]
-MyPars@SL95 <- myFit1@SL95[Yr]
-plotTarg(MyPars, Len1, yr=Yr)
 
 
