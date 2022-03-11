@@ -93,7 +93,7 @@ for(i in 1:length(Species.List)){
  
 # Add length bin lower ends to DATASET
  G$LENGTH_BIN_START <- G$LENGTH_FL-(G$LENGTH_FL%%BIN_SIZE)
-
+ 
 # Effective Sample size by YEAR
  SAMPSIZE      <- G[,list(N=.N),by=list(DATASET,YEAR,AREA_B,RW)]
  SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$RW
@@ -104,10 +104,17 @@ for(i in 1:length(Species.List)){
  G <- G[,list(N=.N),by=list(AREA_B,DATASET,YEAR,LENGTH_BIN_START)]
  G <- G[order(AREA_B,DATASET,YEAR,LENGTH_BIN_START)]
 
+ # Add full range of size bins, if any are missing, by temporarily inserting fake data with full range
+ BINS       <- seq(min(G$LENGTH_BIN_START),max(G$LENGTH_BIN_START),by=BIN_SIZE)
+ TEMP       <- data.table(cbind(DATASET="FAKE",AREA_B="FAKE",YEAR=2222,LENGTH_BIN_START=BINS,N=0))
+ TEMP[,3:5] <- rapply(TEMP[,3:5], as.numeric, how="replace") 
+ G          <- rbind(G,TEMP)
+ 
+ # Continue
  G <- dcast.data.table(G,DATASET+AREA_B+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
 
  G <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
- G <- select(G,DATASET,AREA_B,YEAR,EFFN,4:ncol(G))
+ G <- select(G[DATASET!="FAKE"],DATASET,AREA_B,YEAR,EFFN,4:ncol(G))
 
  NList[[i]] <- NB 
  write.csv(G,paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)

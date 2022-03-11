@@ -7,7 +7,7 @@ BinWidth <- 5
 SPR      <- 0.3 # Target SPR
 
 # LH Parameters 
-Sp   <- "APVI"
+Sp   <- "APRU"
 Name <- Sp
 
 # Growth: Linf,K,CVLinf,M
@@ -53,7 +53,7 @@ if(Sp=="VALO"){
 MyPars          <- new("LB_pars")
 MyPars@Species  <- Sp
 MyPars@Linf     <- Growth[1]
-MyPars@CVLinf   <- CVLinf[3]
+MyPars@CVLinf   <- Growth[3]
 MyPars@MK       <- Growth[4]/Growth[2]
 MyPars@L50      <- Mat[1] 
 MyPars@L95      <- Mat[2]
@@ -72,23 +72,23 @@ DAT$length <- as.numeric(as.character(DAT$length))
 DAT$length <- DAT$length+(BinWidth/2) #Convert lengths to mid-points
 
 # Split datasets and regions
-BBS      <- DAT[DATASET=="BBS"&AREA_B=="Main",!c("DATASET","AREA_B")]
-BS       <- DAT[DATASET=="Biosampling"&AREA_B=="Main",!c("DATASET","AREA_B")]
+BBS_Main <- DAT[DATASET=="BBS"&AREA_B=="Main",!c("DATASET","AREA_B")]
+BS_Main  <- DAT[DATASET=="Biosampling"&AREA_B=="Main",!c("DATASET","AREA_B")]
 US_Atoll <- DAT[DATASET=="UVS"&AREA_B=="Atoll",!c("DATASET","AREA_B")]
 US_NWHI  <- DAT[DATASET=="UVS"&AREA_B=="NWHI",!c("DATASET","AREA_B")]
 US_Main  <- DAT[DATASET=="UVS"&AREA_B=="Main",!c("DATASET","AREA_B")]
 
 # Remove empty years
-BBS      <- BBS[,c(which(colSums(BBS) != 0)),with=F]
-BS       <- BS[,c(which(colSums(BS) != 0)),with=F]
+BBS_Main <- BBS_Main[,c(which(colSums(BBS_Main) != 0)),with=F]
+BS_Main  <- BS_Main[,c(which(colSums(BS_Main) != 0)),with=F]
 US_Atoll <- US_Atoll[,c(which(colSums(US_Atoll) != 0)),with=F]
 US_NWHI  <- US_NWHI[,c(which(colSums(US_NWHI) != 0)),with=F]
 US_Main  <- US_Main[,c(which(colSums(US_Main) != 0)),with=F]
 
 # Save to csv files (easier integration with LBSPR)
 Drive <- paste0("Outputs/LBSPR/Temp size/",Sp)
-write.csv(BBS,paste0(Drive,"_BBS_Main.csv"),row.names=F)
-write.csv(BS,paste0(Drive,"_BS_Main.csv"),row.names=F)
+write.csv(BBS_Main,paste0(Drive,"_BBS_Main.csv"),row.names=F)
+write.csv(BS_Main,paste0(Drive,"_BS_Main.csv"),row.names=F)
 write.csv(US_Atoll,paste0(Drive,"_UVS_Atoll.csv"),row.names=F)
 write.csv(US_NWHI,paste0(Drive,"_UVS_NWHI.csv"),row.names=F)
 write.csv(US_Main,paste0(Drive,"_UVS_Main.csv"),row.names=F)
@@ -123,8 +123,31 @@ OUT[,5]   <- round(OUT[,5],0)
 write.xlsx(OUT,paste0("Outputs/LBSPR/Graphs/LBSPR_",Sp,".xlsx"))
 
 
-plotSize(myFit_UVSNWHI)
-plotEsts(myFit_UVSNWHI)
+Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
+png(file=paste0(Drive,"_BB_Results.png"),
+    width=600, height=350)
+plotEsts(myFit_BBMain)
+dev.off()
+
+Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
+png(file=paste0(Drive,"_BB_Fit.png"),
+    width=600, height=350)
+plotSize(myFit_BBMain)
+dev.off()
+
+Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
+png(file=paste0(Drive,"_BS_Results.png"),
+    width=600, height=350)
+plotEsts(myFit_BSMain)
+dev.off()
+
+Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
+png(file=paste0(Drive,"_BS_Fit.png"),
+    width=600, height=350)
+plotSize(myFit_BSMain)
+dev.off()
+
+
 
 
 
