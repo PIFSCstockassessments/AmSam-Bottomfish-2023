@@ -1,6 +1,6 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
-require(LBSPR); require(data.table); require(openxlsx)
+require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra)
 
 # General parameters
 BinWidth <- 5
@@ -108,25 +108,24 @@ myFit_UVSNWHI  <- LBSPRfit(MyPars, LenUS_NWHI)
 myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
 
 # Outputs
-OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*Growth[4],myFit_BBMain@SPR),
-             cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*Growth[4],myFit_BSMain@SPR),
-             cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*Growth[4],myFit_UVSMain@SPR),
-             cbind("UVS_Atoll",myFit_UVSNWHI@Years,myFit_UVSNWHI@FM*Growth[4],myFit_UVSNWHI@SPR),
-             cbind("UVS_NWHI", myFit_UVSAtoll@Years,myFit_UVSAtoll@FM*Growth[4],myFit_UVSAtoll@SPR)
+OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*Growth[4],myFit_BBMain@SPR,myFit_BBMain@SL50),
+             cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*Growth[4],myFit_BSMain@SPR,myFit_BSMain@SL50),
+             cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*Growth[4],myFit_UVSMain@SPR,myFit_UVSMain@SL50),
+             cbind("UVS_Atoll",myFit_UVSNWHI@Years,myFit_UVSNWHI@FM*Growth[4],myFit_UVSNWHI@SPR,myFit_UVSAtoll@SL50),
+             cbind("UVS_NWHI", myFit_UVSAtoll@Years,myFit_UVSAtoll@FM*Growth[4],myFit_UVSAtoll@SPR,myFit_UVSNWHI@SL50)
            )
 OUT <- data.table(OUT)
-setnames(OUT,c("DATASET","YEAR","F","SPR"))
-OUT[,2:4] <- rapply(OUT[,2:4],as.numeric,how="replace")
+setnames(OUT,c("DATASET","YEAR","F","SPR","SL50"))
+OUT[,2:5] <- rapply(OUT[,2:5],as.numeric,how="replace")
 OUT[,3:4] <- round(OUT[,3:4],2)
+OUT[,5]   <- round(OUT[,5],0)
 
 write.xlsx(OUT,paste0("Outputs/LBSPR/Graphs/LBSPR_",Sp,".xlsx"))
 
 
-plotSize(myFit_BBMain)
-plotSize(myFit_BSMain)
-plotSize(myFit_UVSMain)
-plotSize(myFit_UVSAtoll)
 plotSize(myFit_UVSNWHI)
+plotEsts(myFit_UVSNWHI)
+
 
 
 
