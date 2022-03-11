@@ -3,19 +3,20 @@
 require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra)
 
 # General parameters
+rm(list=ls())
 BinWidth <- 5
 SPR      <- 0.3 # Target SPR
-
-# LH Parameters 
-Sp   <- "APRU"
+Sp   <- "VALO"
 Name <- Sp
+
 
 # Growth: Linf,K,CVLinf,M
 # Mat:    L50,L95
 
 if(Sp=="APRU"){
-  Growth <- c(122.9,0.163,0.1,0.20) # Ralston 1988, M from Fry 2006 (amax=16)
-  Mat    <- c(46.9,51.9)            # StepwiseLH Lmat + 5 cm for L95
+  #Growth <- c(122.9,0.163,0.1,0.20)       # Ralston 1988, M from Fry 2006 (amax=16)
+  Growth <- c((82.7*1.278),0.16,0.1,0.20)  # Fry 2006, M from Fry 2006 (amax=16)
+  Mat    <- c(46.9,51.9)                   # StepwiseLH Lmat + 5 cm for L95
 }
 if(Sp=="APVI"){
   Growth <- c(72.0,0.33,0.1,0.101) # O'Malley 2021, M from Hawaii assessment
@@ -66,7 +67,15 @@ DAT        <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,
 DAT        <- DAT[,!"EFFN"]
 colnames(DAT) <- gsub("X","",colnames(DAT))
 setnames(DAT,"YEAR","year")
-DAT        <- melt(DAT, id.vars=1:3,variable.name="length",value.name="COUNT",)
+
+# Add a few larger size bins to help LBSPR run
+LASTBIN <- as.numeric( colnames(DAT)[length(DAT)] )
+DAT     <- cbind(DAT,0,0)
+setnames(DAT,c("V2","V3"),as.character(c(LASTBIN+BinWidth,LASTBIN+2*BinWidth)))
+DAT[,5:length(DAT)] <- rapply(DAT[,5:length(DAT)],as.integer,how="replace") 
+
+# Continue
+DAT        <- melt(DAT, id.vars=1:3,variable.name="length",value.name="COUNT")
 DAT        <- dcast(DAT,DATASET+AREA_B+length~year,value.var="COUNT",fill=0)
 DAT$length <- as.numeric(as.character(DAT$length))
 DAT$length <- DAT$length+(BinWidth/2) #Convert lengths to mid-points
@@ -108,12 +117,18 @@ myFit_UVSNWHI  <- LBSPRfit(MyPars, LenUS_NWHI)
 myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
 
 # Outputs
+if(Sp=="APVI"|Sp=="LUKA"){
 OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*Growth[4],myFit_BBMain@SPR,myFit_BBMain@SL50),
              cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*Growth[4],myFit_BSMain@SPR,myFit_BSMain@SL50),
              cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*Growth[4],myFit_UVSMain@SPR,myFit_UVSMain@SL50),
              cbind("UVS_Atoll",myFit_UVSNWHI@Years,myFit_UVSNWHI@FM*Growth[4],myFit_UVSNWHI@SPR,myFit_UVSAtoll@SL50),
              cbind("UVS_NWHI", myFit_UVSAtoll@Years,myFit_UVSAtoll@FM*Growth[4],myFit_UVSAtoll@SPR,myFit_UVSNWHI@SL50)
            )
+} else {
+OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*Growth[4],myFit_BBMain@SPR,myFit_BBMain@SL50),
+             cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*Growth[4],myFit_BSMain@SPR,myFit_BSMain@SL50))
+}
+
 OUT <- data.table(OUT)
 setnames(OUT,c("DATASET","YEAR","F","SPR","SL50"))
 OUT[,2:5] <- rapply(OUT[,2:5],as.numeric,how="replace")
