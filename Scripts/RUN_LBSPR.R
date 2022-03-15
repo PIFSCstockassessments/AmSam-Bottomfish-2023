@@ -1,18 +1,20 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
 require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra)
-
-# General parameters
 rm(list=ls())
-BinWidth <- 5
-SPR      <- 0.3 # Target SPR
-Sp   <- "VALO"
-Name <- Sp
 
+Species.List  <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
+BinWidth.List <- c(5,5,5,5,3,2,5,5,5)
+SPR           <- 0.3 # Target SPR
 
+for(i in 1:length(Species.List)){
+
+Sp       <- Species.List[i]
+Name     <- Sp
+BinWidth <- BinWidth.List[i]
+Growth <- NULL;  Mat    <- NULL
 # Growth: Linf,K,CVLinf,M
 # Mat:    L50,L95
-
 if(Sp=="APRU"){
   #Growth <- c(122.9,0.163,0.1,0.20)       # Ralston 1988, M from Fry 2006 (amax=16)
   Growth <- c((82.7*1.278),0.16,0.1,0.20)  # Fry 2006, M from Fry 2006 (amax=16)
@@ -105,16 +107,22 @@ write.csv(US_Main,paste0(Drive,"_UVS_Main.csv"),row.names=F)
 # Load data in LBSPR object
 LenBBS_Main <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BBS_Main.csv"),dataType="freq", header=TRUE)
 LenBS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BS_Main.csv"),dataType="freq", header=TRUE)
+
+if(length(US_Atoll>0))
 LenUS_Atoll <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Atoll.csv"),dataType="freq", header=TRUE)
+
+if(length(US_NWHI>0))
 LenUS_NWHI  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_NWHI.csv"),dataType="freq", header=TRUE)
+
+if(length(US_Main>0))
 LenUS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Main.csv"),dataType="freq", header=TRUE)
 
 # Fit data to model
 myFit_BBMain   <- LBSPRfit(MyPars, LenBBS_Main)
 myFit_BSMain   <- LBSPRfit(MyPars, LenBS_Main)
-myFit_UVSAtoll <- LBSPRfit(MyPars, LenUS_Atoll)
-myFit_UVSNWHI  <- LBSPRfit(MyPars, LenUS_NWHI)
-myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
+if(length(US_Atoll>0)) myFit_UVSAtoll <- LBSPRfit(MyPars, LenUS_Atoll)
+if(length(US_NWHI>0))  myFit_UVSNWHI  <- LBSPRfit(MyPars, LenUS_NWHI)
+if(length(US_Main>0))  myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
 
 # Outputs
 if(Sp=="APVI"|Sp=="LUKA"){
@@ -163,7 +171,7 @@ plotSize(myFit_BSMain)
 dev.off()
 
 
-
+} # End of for-loop
 
 
 
