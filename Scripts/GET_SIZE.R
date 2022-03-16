@@ -23,12 +23,14 @@ BS[AREA_B=="N/A"]$AREA_B <- "Tutuila" # Assign N/A to Tutuila (only a few length
 BS$LENGTH_FL             <- BS$LENGTH_FL/10 # Convert to cm
 if(Combine_Areas==T) BS[AREA_B=="Tutuila"|AREA_B=="Manua"|AREA_B=="Bank"]$AREA_B <- "Main"
 BS                       <- select(BS,DATASET,YEAR,AREA_B,SPECIES,METHOD_C,COUNT,LENGTH_FL)
+BS                       <- BS[(SPECIES=="VALO"&METHOD_C=="Spear")|(SPECIES!="VALO"&METHOD_C=="Bottomfishing")] # Removes some misIDed PRFI and PRFL caught by spear
 
 # Load BBS sizes
 BB <- readRDS("Outputs\\readyBBS_Size.rds")
 if(Combine_Areas==T) BB[AREA_B=="Tutuila"|AREA_B=="Manua"|AREA_B=="Bank"]$AREA_B <- "Main"
 BB <- select(BB,DATASET,YEAR,AREA_B,SPECIES,METHOD_C,COUNT,LENGTH_FL)
 BB <- BB[!is.na(LENGTH_FL)]
+BB <- BB[METHOD_C=="Bottomfishing"]
 
 # Merge DATASETs
 D <- rbind(US,BS,BB)
