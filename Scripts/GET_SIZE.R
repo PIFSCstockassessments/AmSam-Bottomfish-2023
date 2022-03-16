@@ -4,7 +4,7 @@ require(data.table); require(ggplot2); require(gridExtra); require(directlabels)
 Combine_BB_BS <- F # Combine biosampling and creel survey lengths
 Combine_Areas <- T # Combine Tutuila, Manua, and the Banks
 MinN          <- 30 # Minimum sample size to do size frequency
-BIN_SIZE      <- 5 # in cm
+BIN.LIST      <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),BINWIDTH=c(5,5,5,5,5,3,2,5,5,5,5)) # in cm
 
 # Load diver sizes
 US <- readRDS("Outputs\\readyUVS.rds")
@@ -55,7 +55,8 @@ NList <- list()
 L99List <- list()
 for(i in 1:length(Species.List)){
  
- Sp <- Species.List[i]
+ Sp        <- Species.List[i]
+ BIN_SIZE  <- BIN.LIST[SPECIES==Sp]$BINWIDTH
  E  <- D[SPECIES==Sp&LENGTH_FL>0]
  
  # Filter YEARs with low N

@@ -1,18 +1,16 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
-require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra)
+require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify)
 rm(list=ls())
 
 Species.List  <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
-BinWidth.List <- c(5,5,5,5,3,2,5,5,5)
 SPR           <- 0.3 # Target SPR
 
 for(i in 1:length(Species.List)){
 
 Sp       <- Species.List[i]
 Name     <- Sp
-BinWidth <- BinWidth.List[i]
-Growth <- NULL;  Mat    <- NULL
+Growth   <- NULL;  Mat    <- NULL
 # Growth: Linf,K,CVLinf,M
 # Mat:    L50,L95
 if(Sp=="APRU"){
@@ -61,14 +59,16 @@ MyPars@MK       <- Growth[4]/Growth[2]
 MyPars@L50      <- Mat[1] 
 MyPars@L95      <- Mat[2]
 MyPars@SPR      <- SPR 
-MyPars@BinWidth <- BinWidth
 MyPars@L_units  <- "cm"
 
 # Reshape size structure data to go into LBSPR
-DAT        <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"))   )
-DAT        <- DAT[,!"EFFN"]
-colnames(DAT) <- gsub("X","",colnames(DAT))
+DAT             <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"))   )
+DAT             <- DAT[,!"EFFN"]
+colnames(DAT)   <- gsub("X","",colnames(DAT))
 setnames(DAT,"YEAR","year")
+
+BinWidth        <- as.numeric(colnames(DAT)[5])-as.numeric(colnames(DAT)[4])
+MyPars@BinWidth <- BinWidth
 
 # Add a few larger size bins to help LBSPR run
 LASTBIN <- as.numeric( colnames(DAT)[length(DAT)] )
@@ -145,33 +145,20 @@ OUT[,5]   <- round(OUT[,5],0)
 
 write.xlsx(OUT,paste0("Outputs/LBSPR/Graphs/LBSPR_",Sp,".xlsx"))
 
-
+# Create some graphs
 Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
-png(file=paste0(Drive,"_BB_Results.png"),
-    width=600, height=350)
-plotEsts(myFit_BBMain)
-dev.off()
 
-Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
-png(file=paste0(Drive,"_BB_Fit.png"),
-    width=600, height=350)
-plotSize(myFit_BBMain)
-dev.off()
+aFit1  <- as.ggplot(plotSize(myFit_BBMain))
+aFit2  <- as.ggplot(plotSize(myFit_BSMain))
+Fit    <- arrangeGrob(aFit1,aFit2,ncol=1)
+ggsave(Fit,filename=paste0(Drive,"_Fit.png"))
 
-Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
-png(file=paste0(Drive,"_BS_Results.png"),
-    width=600, height=350)
-plotEsts(myFit_BSMain)
-dev.off()
-
-Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
-png(file=paste0(Drive,"_BS_Fit.png"),
-    width=600, height=350)
-plotSize(myFit_BSMain)
-dev.off()
+aGraph1 <- ggplot(data=OUT)+geom_line(aes(x=YEAR,y=F,col=DATASET),size=1)+ggtitle(Sp)+theme_bw()
+aGraph2 <- ggplot(data=OUT)+geom_line(aes(x=YEAR,y=SPR,col=DATASET),size=1)+theme_bw()
+aGraph3 <- ggplot(data=OUT)+geom_line(aes(x=YEAR,y=SL50,col=DATASET),size=1)+theme_bw()
+Graph   <- arrangeGrob(aGraph1,aGraph2,aGraph3,ncol=1)
+ggsave(Graph,filename=paste0(Drive,"_Results.png"))
 
 
 } # End of for-loop
-
-
 
