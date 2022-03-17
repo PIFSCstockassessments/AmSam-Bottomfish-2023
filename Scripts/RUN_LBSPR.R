@@ -6,6 +6,7 @@ rm(list=ls())
 Species.List  <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 SPR           <- 0.3 # Target SPR
 
+OUT.List <- list()
 for(i in 1:length(Species.List)){
 
 Sp       <- Species.List[i]
@@ -142,8 +143,10 @@ setnames(OUT,c("DATASET","YEAR","F","SPR","SL50"))
 OUT[,2:5] <- rapply(OUT[,2:5],as.numeric,how="replace")
 OUT[,3:4] <- round(OUT[,3:4],2)
 OUT[,5]   <- round(OUT[,5],0)
+OUT$SPECIES <- Sp
+OUT       <- select(OUT,SPECIES,DATASET,YEAR,F,SPR,SL50)
 
-write.xlsx(OUT,paste0("Outputs/LBSPR/Graphs/LBSPR_",Sp,".xlsx"))
+OUT.List[[i]] <- OUT
 
 # Create some graphs
 Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
@@ -153,12 +156,22 @@ aFit2  <- as.ggplot(plotSize(myFit_BSMain))
 Fit    <- arrangeGrob(aFit1,aFit2,ncol=1)
 ggsave(Fit,filename=paste0(Drive,"_Fit.png"))
 
-aGraph1 <- ggplot(data=OUT)+geom_line(aes(x=YEAR,y=F,col=DATASET),size=1)+ggtitle(Sp)+theme_bw()
-aGraph2 <- ggplot(data=OUT)+geom_line(aes(x=YEAR,y=SPR,col=DATASET),size=1)+theme_bw()
-aGraph3 <- ggplot(data=OUT)+geom_line(aes(x=YEAR,y=SL50,col=DATASET),size=1)+theme_bw()
+aGraph1 <- ggplot(data=OUT,aes(x=YEAR,y=F,col=DATASET))+geom_line(size=1)+geom_point(size=3)+ggtitle(Sp)+theme_bw()
+aGraph2 <- ggplot(data=OUT,aes(x=YEAR,y=SPR,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
+aGraph3 <- ggplot(data=OUT,aes(x=YEAR,y=SPR,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
 Graph   <- arrangeGrob(aGraph1,aGraph2,aGraph3,ncol=1)
 ggsave(Graph,filename=paste0(Drive,"_Results.png"))
 
 
 } # End of for-loop
+
+
+Final <- rbindlist(OUT.List)
+write.xlsx(Final,paste0("Outputs/LBSPR/Graphs/LBSPR_Results.xlsx"))
+
+
+
+
+
+
 
