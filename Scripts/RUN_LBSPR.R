@@ -39,15 +39,22 @@ if(Sp=="ETCO"){
   Mat    <- c(54.7,59.7)           # Reed 2021 (Hawaii)
 }
 if(Sp=="LERU"){
-  Growth <- c(31.5,0.80,0.1,0.40) # Trianni 2011 (Mariana), M from Amax=8 (note: 15 yr in Japan)
+  #Growth <- c(31.5,0.80,0.1,0.40) # Trianni 2011 (Mariana), M from Amax=8 (Nadon)
+  #Growth <- c(38.3,0.415,0.1,0.25) # Ebisawa 2009 (Japan), M from Amax=13 yr (Nadon)
+  #Growth <- c(38.3,0.415,0.1,0.47) # Ebisawa 2009 (Japan), M from Amax=13 yr (Then)
+  Growth <- c(34.2,0.412,0.1,0.40) # StepwiseLH, M from Then (Amax=16 yr)
   Mat    <- c(22.6,25.5)          # Trianni 2011 (Mariana), average of two locations
 }
 if(Sp=="LUKA"){
-  Growth <- c(33.0,0.29,0.1,0.40) # Morales-Nin 1990 (Hawaii), M from Amax=8
+  Growth <- c(33.0,0.29,0.1,0.40) # Morales-Nin 1990 (Hawaii), M from Amax=8 (Nadon)
+  #Growth <- c(33.0,0.29,0.1,0.73) # Morales-Nin 1990 (Hawaii), M from Amax=8 (Then)
+  #Growth <- c(29.0,0.45,0.1,0.40) # StepwiseLH from an L99 of 33.2 TL cm from UVS, Amax is 
   Mat    <- c(21.3,24.3)          # StepwiseLH from Lmax = 33.2 (Divers) + 3 cm for L95
 }
 if(Sp=="PRFL"){
-  Growth <- c(41.2,0.47,0.1,0.111) # O'Malley 2019 (Mariana), M from Amax=28
+  #Growth <- c(41.2,0.47,0.1,0.111) # O'Malley 2019 (Mariana), M from Amax=28 (Nadon)
+  Growth <- c(41.2,0.47,0.1,0.23)  # O'Malley 2019 (Mariana), M from Amax=28 (Then)
+  #Growth <- c(48.3,0.24,0.1,0.29)  # StepwiseLH from an L99 of 52.2 FL (biosampling), M from Then
   Mat    <- c(27.0,32.0)           # Brouard 1985 (Vanuatu)
 }
 if(Sp=="PRZO"){

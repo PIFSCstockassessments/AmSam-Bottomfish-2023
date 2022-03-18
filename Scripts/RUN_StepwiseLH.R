@@ -49,6 +49,40 @@ Amax <- median(Data$Amax)
 M    <- median(Data$M)
 A0   <- median(Data$A0)
 
+# Get LERU estimates
+# Based on L99 of BBS 39.4 cm (FL) from BBS
+Data <- Get_distributions(Family="Lethrinidae", Lmax.mean=(394/0.91), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+
+Linf <- median(Data$Linf*0.91)
+Lmat <- median(Data$Lmat*0.91)
+K    <- median(Data$K)
+Amax <- median(Data$Amax)
+M    <- median(Data$M)
+A0   <- median(Data$A0)
+
+# Get LUKA estimates
+# Based on L99 of UVS 33.2 cm (TL)
+Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=332, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+
+Linf <- median(Data$Linf*0.97)
+Lmat <- median(Data$Lmat*0.97)
+K    <- median(Data$K)
+Amax <- median(Data$Amax)
+M    <- median(Data$M)
+A0   <- median(Data$A0)
+
+# Get PRFL estimates
+# Based on L99 of UVS 52.2 cm (FL) from biosampling
+Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=522/0.87, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+
+Linf <- median(Data$Linf*0.87)
+Lmat <- median(Data$Lmat*0.87)
+K    <- median(Data$K)
+Amax <- median(Data$Amax)
+M    <- median(Data$M)
+A0   <- median(Data$A0)
+
+-log(0.04)/Amax
 
 # Plot the growth curve
 Age  <- seq(0,Amax,by=0.5)
