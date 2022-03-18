@@ -1,6 +1,6 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
-require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify)
+require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify); require(dplyr)
 rm(list=ls())
 
 Species.List  <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
@@ -16,19 +16,26 @@ Growth   <- NULL;  Mat    <- NULL
 # Mat:    L50,L95
 if(Sp=="APRU"){
   #Growth <- c(122.9,0.163,0.1,0.20)       # Ralston 1988, M from Fry 2006 (amax=16)
-  Growth <- c((82.7*1.278),0.16,0.1,0.20)  # Fry 2006, M from Fry 2006 (amax=16)
+  #Growth <- c((82.7*1.278),0.16,0.1,0.20) # Fry 2006, M from Fry 2006 (amax=16)
+  Growth <- c(84.8,0.125,0.1,0.22)        # StepwiseLH, from a 86.5 TL cm Amax (BBS) and Amax=30 yr (M=0.22 from Then formula)
+  #Growth <- c(84.8,0.125,0.1,0.11)         # StepwiseLH, from a 86.5 TL cm Amax (BBS) and Amax=30 yr (M=0.11 from Nadon 2012 formula)
   Mat    <- c(46.9,51.9)                   # StepwiseLH Lmat + 5 cm for L95
 }
 if(Sp=="APVI"){
-  Growth <- c(72.0,0.33,0.1,0.101) # O'Malley 2021, M from Hawaii assessment
+  #Growth <- c(72.0,0.33,0.1,0.101) # O'Malley 2021, M from Hawaii assessment
+  #Growth <- c(72.0,0.33,0.1,0.20)  # O'Malley 2021, M from Then et al.
+  Growth <- c(72.0,0.15,0.1,0.20)  # Stepwise, M from Then et al.
   Mat    <- c(44.8,45.5)
 }
 if(Sp=="CALU"){
-  Growth <- c(82.2,0.12,0.1,0.27) # Menezes 1968 (Brazil), M from Fry 20016 (amax=12)
+  #Growth <- c(82.2,0.12,0.1,0.27) # Menezes 1968 (Brazil), M from Fry 20016 using Nadon 2012 (amax=12)
+  #Growth <- c(82.2,0.12,0.1,0.50) # Menezes 1968 (Brazil), M from Fry 20016 using Then et al. (amax=12)
+  Growth <- c(78.2,0.22,0.1,0.57) # StepwiseLH using a L99 of 75.9 TL cm from BBS, using Then et al. (amax=12)
   Mat    <- c(38,43)              # Garcia-Cagide 1994 (Cuba)
 }
 if(Sp=="ETCO"){
-  Growth <- c(82.1,0.133,0.1,0.06) # Uehara 2020 (Japan), M from Amax=55
+  #Growth <- c(82.1,0.133,0.1,0.06) # Uehara 2020 (Japan), M from Amax=55 yr (Nadon)
+  Growth <- c(82.1,0.133,0.1,0.12) # Uehara 2020 (Japan), M from Amax=55 (Then)
   Mat    <- c(54.7,59.7)           # Reed 2021 (Hawaii)
 }
 if(Sp=="LERU"){
@@ -146,6 +153,8 @@ OUT[,5]   <- round(OUT[,5],0)
 OUT$SPECIES <- Sp
 OUT       <- select(OUT,SPECIES,DATASET,YEAR,F,SPR,SL50)
 
+print(mean(OUT[DATASET=="BBS_Main"|DATASET=="BS_Main"]$SPR))
+
 OUT.List[[i]] <- OUT
 
 # Create some graphs
@@ -154,13 +163,13 @@ Drive <- paste0("Outputs/LBSPR/Graphs/",Sp)
 aFit1  <- as.ggplot(plotSize(myFit_BBMain))
 aFit2  <- as.ggplot(plotSize(myFit_BSMain))
 Fit    <- arrangeGrob(aFit1,aFit2,ncol=1)
-ggsave(Fit,filename=paste0(Drive,"_Fit.png"))
+ggsave(Fit,filename=paste0(Drive,"_Fit.png"),height=20,width=15,units="cm")
 
 aGraph1 <- ggplot(data=OUT,aes(x=YEAR,y=F,col=DATASET))+geom_line(size=1)+geom_point(size=3)+ggtitle(Sp)+theme_bw()
 aGraph2 <- ggplot(data=OUT,aes(x=YEAR,y=SPR,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
-aGraph3 <- ggplot(data=OUT,aes(x=YEAR,y=SPR,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
+aGraph3 <- ggplot(data=OUT,aes(x=YEAR,y=SL50,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
 Graph   <- arrangeGrob(aGraph1,aGraph2,aGraph3,ncol=1)
-ggsave(Graph,filename=paste0(Drive,"_Results.png"))
+ggsave(Graph,filename=paste0(Drive,"_Results.png"),height=20,width=15,units="cm")
 
 
 } # End of for-loop
