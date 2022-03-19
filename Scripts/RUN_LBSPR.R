@@ -58,11 +58,16 @@ if(Sp=="PRFL"){
   Mat    <- c(27.0,32.0)           # Brouard 1985 (Vanuatu)
 }
 if(Sp=="PRZO"){
-  Growth <- c(36.9,0.29,0.1,0.11) # Schemmel 2022 (Guam), M from Amax=30
+  #Growth <- c(36.9,0.29,0.1,0.11) # Schemmel 2022 (Guam), M from Amax=30 (Nadon)
+  Growth <- c(36.9,0.29,0.1,0.22) # Schemmel 2022 (Guam), M from Amax=30 (Then)
+  #Growth <- c(42.5,0.38,0.1,0.25) # Andrews 2021 (Hawaii), M from Amax=26 (Then)
+  #Growth <- c(40.2,0.29,0.1,0.32) # Andrews 2021 (Hawaii), M from Amax=20 (Then)
   Mat    <- c(23.6,26.6)          # Schemmel 2022 (Guam)
 }
 if(Sp=="VALO"){
-  Growth <- c(43.5,0.26,0.1,0.23) # Schemmel 2022, M from Amax=14
+  #Growth <- c(43.5,0.26,0.1,0.23) # Schemmel 2022, M from Amax=14 (Nadon)
+  Growth <- c(43.5,0.26,0.1,0.44) # Schemmel 2022, M from Amax=14 (Then)
+  #Growth <- c(43.3,0.23,0.1,0.33) # StepwiseLH with L99 of 45.8 FL cm (biosamp), M from Amax=19 (Then)
   Mat    <- c(25.8,28.8)          # Schemmel 2022
 }
 

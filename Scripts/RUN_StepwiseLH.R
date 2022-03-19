@@ -82,6 +82,30 @@ Amax <- median(Data$Amax)
 M    <- median(Data$M)
 A0   <- median(Data$A0)
 
+# Get PRZO estimates
+# Based on L99 of UVS 44.5 cm (FL) from BBS (note that biosampling is smaller)
+Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=445/0.87, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+
+Linf <- median(Data$Linf*0.87)
+Lmat <- median(Data$Lmat*0.87)
+K    <- median(Data$K)
+Amax <- median(Data$Amax)
+M    <- median(Data$M)
+A0   <- median(Data$A0)
+
+
+# Get VALO estimates
+# Based on L99 of UVS 45.8 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
+Data <- Get_distributions(Family="Serranidae", Lmax.mean=458/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+
+Linf <- median(Data$Linf*0.87)
+Lmat <- median(Data$Lmat*0.87)
+K    <- median(Data$K)
+Amax <- median(Data$Amax)
+M    <- median(Data$M)
+A0   <- median(Data$A0)
+
+
 -log(0.04)/Amax
 
 # Plot the growth curve
