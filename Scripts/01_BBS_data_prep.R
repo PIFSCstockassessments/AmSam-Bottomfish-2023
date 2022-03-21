@@ -885,7 +885,7 @@
 	rm(remove_objs)
 	rm(all_objs)
 
-  #  save in the NO_GITHUB folder.
+  #  save in the output folder.
   # save.image(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
   
 

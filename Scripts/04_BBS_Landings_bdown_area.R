@@ -115,7 +115,8 @@
   		sum(sp_data3_basic$LBS_CAUGHT, na.rm = TRUE)
 
   # -----------------------------------------------------------------------------------
-  # STEP 1: make the species identification corrections. See 01_BBS_data_prop.R
+  # STEP 1: make the species identification corrections within these landings data. 
+  #	See 01_BBS_data_prep.R for detailed justifications for all corrections.
 
    # Read in 03_BBS_species_proptables.RData
    load(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
@@ -134,7 +135,7 @@
 										# MAGIC_NUMBER2 <- sum(sp_data4$VAR_LBS_CAUGHT, na.rm = TRUE)
 
   # ------------------
-  #	1a. Variola: for 1986-2015, sum albimarginata, louti, partician back to species
+  #	1a. Variola: for 1986-2015, sum albimarginata, louti, partitian back to species
 
     # remove Variola (needing correction) landings
    	string <- "SELECT *
@@ -179,7 +180,7 @@
 	sp_data4 <- sp_data4C
 
 # ------------------
-  #	1b. P. filamentosus and P. flavipinnis: for 2010-2015, sum fila, flavi, partician back to species
+  #	1b. P. filamentosus and P. flavipinnis: for 2010-2015, sum fila, flavi, partitian back to species
 
     # remove fila/flavi (needing correction) landings
    	string <- "SELECT *
@@ -282,7 +283,8 @@
 	sp_data3 <- sp_data4
 
   # -----------------------------------------------------------------------------------
-  # STEP 2: partitian group-level landings (lbs and variance) to BMUS
+  # STEP 2: partitian group-level landings (lbs and variance) to BMUS based on the observed occurence of species
+  #		within the raw boat-based creel survey data.
 
   # Check to make sure we do not gain / lose lbs or variance in this step
   sum_lbs_init <- sum(sp_data3$LBS_CAUGHT, na.rm = TRUE)
