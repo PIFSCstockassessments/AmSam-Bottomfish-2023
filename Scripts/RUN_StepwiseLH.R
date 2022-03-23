@@ -28,7 +28,7 @@ A0   <- median(Data$A0)
 
 
 # Get CALU estimates
-# Based on L99 of BBS 75.8 cm (FL) from BBS
+# Based on L99 of 75.8 cm (FL) from BBS
 Data <- Get_distributions(Family="Carangidae", Lmax.mean=(758/0.88), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.88)
@@ -39,7 +39,7 @@ M    <- median(Data$M)
 A0   <- median(Data$A0)
 
 # Get ETCO estimates
-# Based on L99 of BBS 93.2 cm (FL) from BBS
+# Based on L99 of 93.2 cm (FL) from BBS
 Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=(932/0.86), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.86)
@@ -50,7 +50,7 @@ M    <- median(Data$M)
 A0   <- median(Data$A0)
 
 # Get LERU estimates
-# Based on L99 of BBS 39.4 cm (FL) from BBS
+# Based on L99 of 39.4 cm (FL) from BBS
 Data <- Get_distributions(Family="Lethrinidae", Lmax.mean=(394/0.91), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.91)
@@ -72,7 +72,7 @@ M    <- median(Data$M)
 A0   <- median(Data$A0)
 
 # Get PRFL estimates
-# Based on L99 of UVS 52.2 cm (FL) from biosampling
+# Based on L99 of 52.2 cm (FL) from biosampling
 Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=522/0.87, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
@@ -83,7 +83,7 @@ M    <- median(Data$M)
 A0   <- median(Data$A0)
 
 # Get PRZO estimates
-# Based on L99 of UVS 44.5 cm (FL) from BBS (note that biosampling is smaller)
+# Based on L99 of 44.5 cm (FL) from BBS (note that biosampling is smaller)
 Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=445/0.87, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
@@ -95,7 +95,7 @@ A0   <- median(Data$A0)
 
 
 # Get VALO estimates
-# Based on L99 of UVS 45.8 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
+# Based on L99 of 45.8 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
 Data <- Get_distributions(Family="Serranidae", Lmax.mean=458/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
