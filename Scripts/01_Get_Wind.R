@@ -49,12 +49,15 @@ setwd(paste(root_dir, "/data/Winds",sep=""))
 # -------------   accessed Oct26, 2021
 #  use version 2.1 (2.0 is deprecated) for 2019+
 
+# -------------   accessed Mar24, 2022 to include all of 2021
+#  modified end date for 2019-2021 griddap request below, re-run these next # lines and everything after.
+
 # 	systime_i <- Sys.time()
-# 	GET('https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-1-NRT.nc?uwnd%5B(2019-01-01):1:(2021-10-25T18:00:00Z)%5D%5B(-15):1:(-13.5)%5D%5B(189):1:(191)%5D,vwnd%5B(2019-01-01):1:(2021-10-25T18:00:00Z)%5D%5B(-15):1:(-13.5)%5D%5B(189):1:(191)%5D,nobs%5B(2019-01-01):1:(2021-10-25T18:00:00Z)%5D%5B(-15):1:(-13.5)%5D%5B(189):1:(191)%5D',
+# 	GET('https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-1-NRT.nc?uwnd%5B(2019-01-01):1:(2022-01-25T18:00:00Z)%5D%5B(-15):1:(-13.5)%5D%5B(189):1:(191)%5D,vwnd%5B(2019-01-01):1:(2022-01-25T18:00:00Z)%5D%5B(-15):1:(-13.5)%5D%5B(189):1:(191)%5D,nobs%5B(2019-01-01):1:(2022-01-25T18:00:00Z)%5D%5B(-15):1:(-13.5)%5D%5B(189):1:(191)%5D',
 # 	write_disk("winds_recent.nc", overwrite=TRUE))
 # 	systime_f <- Sys.time()
 # 	systime_f - systime_i
-nc <- nc_open("winds_recent.nc")
+#	nc <- nc_open("winds_recent.nc")
 
 uwnd <- ncvar_get(nc,nc$var[[1]])
 v1 <- nc$var[[1]]

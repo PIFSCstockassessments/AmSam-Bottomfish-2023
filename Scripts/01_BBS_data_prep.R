@@ -27,7 +27,9 @@
    aint_bbs1 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat1.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
    aint_bbs2 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat2.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
    aint_bbs3 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat3.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs4 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs4 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE)
+#   aint_bbs5 <- read.csv(paste(root_dir, "/data/PICDR-113220 BB Creel Data.csv", sep=""), header=T, stringsAsFactors=FALSE)
+ 			
    aint_bbs <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4)
 	str(aint_bbs)		# 141,659 records, 82 variables
 
