@@ -35,6 +35,8 @@
   # Read in the expanded landings data
  
   sp_data <- read.csv(paste(root_dir, "/data/SPC_AS_SBS.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  #sp_data <- read.csv(paste(root_dir, "/Data/SPC_AS_SBS.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  
   # str(sp_data)			# 6336 obs
 
 
@@ -47,7 +49,7 @@
   #			(1,2) rr: Two digits for ROUTE_FK, with leading zeros if necessary
   #			(3,4) yy: Two digits for YEAR, calculated as the number of years after 1947
   #			(5,6) CY: 
-  #			(7) P: A single capital letter for the time period (AM_PM), either “D” for day or “N” for night
+  #			(7) P: A single capital letter for the time period (AM_PM), either ?D? for day or ?N? for night
   #			(8) d: A single digit for TYPE_OF_DAY, either 1 for weekday or 2 for weekend/holiday
   #			(9,10) mm: Two digits for METHOD_FK, with leading zeros if necessary
   #			(11,14) ssss: Four digits for SPECIES_FK, with leading zeros if necessary
@@ -129,6 +131,8 @@
 
   # load in the species proptable and ID corrections
   load(paste(root_dir, "/output/01_SBS_data_prep.RData", sep=""))				#View(sbs_proptable)
+  #load(paste(root_dir, "/Outputs/01_SBS_data_prep.RData", sep=""))				#View(sbs_proptable)
+  
   
   # ------------------
   # Variola: for 1990-2015, sum albimarginata, louti, partician back to species

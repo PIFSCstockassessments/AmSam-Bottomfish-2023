@@ -19,7 +19,8 @@
 
   # read in 01_BBS_data_prep.RData
    load(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
-  
+   #load(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
+   
 
 #  --------------------------------------------------------------------------------------------------------------
 #  add some posix CT variables and moon phase, use library lunar
@@ -45,7 +46,9 @@
 
   # load 6 hour wind_data. Created in Get_Wind.R script.
    load(paste(root_dir, "/data/01_Get_Wind.RData", sep=""))
+   #load(paste(root_dir, "/Data/01_Get_Wind.RData", sep=""))
    
+    
   # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
 
   # MANU'A ISLANDS
@@ -186,6 +189,11 @@
    ONI <- read.csv(paste(root_dir, "/data/ONI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
    SOI <- read.csv(paste(root_dir, "/data/SOI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
 
+   #ENSO <- read.csv(paste(root_dir, "/Data/ENSO.csv", sep=""), header=TRUE, stringsAsFactors=FALSE)
+   #ONI <- read.csv(paste(root_dir, "/Data/ONI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
+   #SOI <- read.csv(paste(root_dir, "/Data/SOI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
+   
+   
   # do the merge in 3 steps
    string <- "SELECT bbs_3C.*, ENSO.ENSO
 		FROM bbs_3C 
@@ -235,7 +243,8 @@
 	rm(all_objs)
 
   # save.image(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
-  
+	# save.image(paste(root_dir, "/Outputs/02_BBS_covariates.RData", sep=""))
+	
 
 
 

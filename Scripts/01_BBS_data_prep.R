@@ -887,7 +887,8 @@
 
   #  save in the output folder.
   # save.image(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
-  
+	# save.image(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
+	
 
 
 

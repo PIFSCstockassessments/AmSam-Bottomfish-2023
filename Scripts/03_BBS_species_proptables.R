@@ -65,7 +65,9 @@
 
 # Read in 02_BBS_covariates.RData
   load(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
-
+  #load(paste(root_dir, "/Outputs/02_BBS_covariates.RData", sep=""))
+  
+  
 #  ---------------
 # Read in the BBS-SBS group key to tell us which species are in which groups
 #	Brian and John made this table for the 2019 bottomfish assessment. It lists every species in BBS
@@ -80,6 +82,8 @@
 #	at this point because we replaced it with 241 in 01_BBS_data_prep, but having the corrected group key may be useful in the future.
 
   group_key <- read.csv(paste(root_dir, "/data/AmSam_BBS-SBS_GroupKey.csv", sep=""), header=T, stringsAsFactors=FALSE) 
+  #group_key <- read.csv(paste(root_dir, "/Data/AmSam_BBS-SBS_GroupKey.csv", sep=""), header=T, stringsAsFactors=FALSE) 
+  
   # View(group_key)
 
 
@@ -1645,8 +1649,13 @@
 	rm(all_objs)
 
   # This is a smaller workspace, no longer contains the BBS data, just the proptable and species ID correction ps.
-  # save.image(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
   
+	# save.image(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
+	# save.image(paste(root_dir, "/Outputs/03_BBS_species_proptables.RData", sep=""))
+	
+	
+	
+	
 
 
 

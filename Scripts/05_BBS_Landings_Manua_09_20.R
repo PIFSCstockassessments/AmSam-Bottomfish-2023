@@ -28,7 +28,9 @@
 
   # read in the finished BBS Landings (breakdown, species ID corrected, tutuila ports assigned to area.
   load(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
-
+  #load(paste(root_dir, "/Outputs/04_BBS_Landings_bdown_area.RData", sep=""))
+  
+  
   # read in ggplot space which has sp_names for indexing
   source(paste(root_dir, "/Scripts/LOAD_theme.R", sep=""))
 
@@ -91,7 +93,8 @@
     # 	--------------------->   2b. make some figures
 		
 		pdf(paste(root_dir, "/output/", "tutu_v_manu_88_08.pdf", sep=""))
-
+		#pdf(paste(root_dir, "/Outputs/", "tutu_v_manu_88_08.pdf", sep=""))
+		
 		for (i in 1:11) {
 			plot_me <- subset(manu_tutu, SCIENTIFIC_NAME_PK == names(sp_names)[i] & year > 1987 & year < 2009)
 
@@ -174,7 +177,8 @@
 			just = "centre", hjust = NULL, vjust = NULL, rot = 90)
 
 		pdf(paste(root_dir, "/output/", "Manua_landings_reconstruct_compare.pdf", sep=""))
-
+		#pdf(paste(root_dir, "/Outputs/", "Manua_landings_reconstruct_compare.pdf", sep=""))
+		
 		grid.arrange(p_1 + theme(legend.position = c(.1,1), legend.title = element_blank(), legend.justification = "top") + expand_pretty_y(p_1),
 			p_2 + expand_pretty_y(p_2),
 			p_3 + expand_pretty_y(p_3), ncol=1, left = grob_ylab, bottom = grob_xlab)
@@ -207,7 +211,8 @@
 	rm(all_objs)
 
   # save.image(paste(root_dir, "/output/05_BBS_Landings_Manua_09_20.RData", sep=""))
-  
+	#  save.image(paste(root_dir, "/Outputs/05_BBS_Landings_Manua_09_20.RData", sep=""))
+	
 
 
 

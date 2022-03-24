@@ -254,7 +254,8 @@ str(wind_6h)
 	rm(all_objs)
 
   # save.image(paste(root_dir, "/data/01_Get_Wind.RData", sep=""))
-  
+	# save.image(paste(root_dir, "/Data/01_Get_Wind.RData", sep=""))
+	
 
 
 

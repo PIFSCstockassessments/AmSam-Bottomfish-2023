@@ -35,6 +35,8 @@
   # Read in the updated 14Dec expanded landings data
  
   sp_data <- read.csv(paste(root_dir, "/data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  #sp_data <- read.csv(paste(root_dir, "/Data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  
   # str(sp_data)
 
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
@@ -120,7 +122,12 @@
 
    # Read in 03_BBS_species_proptables.RData
    load(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
-
+   #load(paste(root_dir, "/Outputs/03_BBS_species_proptables.RData", sep=""))
+  		
+  		
+  	#load(paste(root_dir, "/Outputs/03_BBS_species_proptables.RData", sep=""))
+  		
+  		
   # ------------
   #  Prepare expanded landings data
 
@@ -775,7 +782,9 @@
 
 		# load boat-based survey data, processed (space contains root_dir, should be same as here)
   		load(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
-
+		  #load(paste(root_dir, "/Outputs/02_BBS_covariates.RData", sep=""))
+		
+		
   		# unfortunately, use of ' in port name will be a problem, rename now.
 			bbs_3C$port_simple <- as.character(bbs_3C$port_simple)
 			bbs_3C$port_simple[bbs_3C$port_simple=="AUNU'U"]<-'Tutuila'
@@ -903,7 +912,8 @@
 	rm(all_objs)
 
   # save.image(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
-  
+	# save.image(paste(root_dir, "/Outputs/04_BBS_Landings_bdown_area.RData", sep=""))
+	
 
 
 
