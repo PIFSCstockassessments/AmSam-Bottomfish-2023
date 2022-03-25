@@ -1,8 +1,10 @@
 #  --------------------------------------------------------------------------------------------------------------
 #   AMERICAN SAMOA BOTTOMFISH - INITIAL DATA HANDLING 01_BBS_data_prep.R
 #	Data preparation for BOAT BASED creel survey: 
-#	*** data updated Oct 6, 2021 with data received from Penlong JIRA ticket 113156
+#   *** data updated Oct 6, 2021 with data received from Penlong JIRA ticket 113156
 #	    should be ALL interviews, all gears, all years, all species, etc., through 2020
+#   *** data updated March 25 with data received from Dios JIRA ticket 113220
+#	    should be ALL interviews, all gears, all species, etc., for 2021
 #	Erin Bohaboy erin.bohaboy@noaa.gov
 #		includes some code written by John Syslo for the 2019 assessment
 #  --------------------------------------------------------------------------------------------------------------
@@ -22,17 +24,43 @@
 
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
-#	these raw datasets contain vessel ID numbers and do not go on the remote github repo
+#	reminder: these raw datasets contain vessel ID numbers and never go on the remote github repo
 
    aint_bbs1 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat1.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
    aint_bbs2 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat2.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
    aint_bbs3 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat3.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
    aint_bbs4 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE)
-#   aint_bbs5 <- read.csv(paste(root_dir, "/data/PICDR-113220 BB Creel Data.csv", sep=""), header=T, stringsAsFactors=FALSE)
- 			
-   aint_bbs <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4)
-	str(aint_bbs)		# 141,659 records, 82 variables
+   aint_bbs5 <- read.csv(paste(root_dir, "/data/PICDR-113220 BB Creel Data_all_columns.csv", sep=""), header=T, stringsAsFactors=FALSE)
+	
+   # aint_bbs5 is 2021 data: take a quick look
+	# str(aint_bbs5)						# 2527 records
+	# length(unique(aint_bbs5$INTERVIEW_PK))		# 83 interviews			
+	#	string <- "SELECT DISTINCT INTERVIEW_PK, FISHING_METHOD, ISLAND_NAME
+ 	#	FROM aint_bbs5
+ 	#	"
+	#  bbs5_A <- sqldf(string, stringsAsFactors=FALSE)	
+	#  summary(as.factor(bbs5_A$FISHING_METHOD))
+   # unfortunately, only 8 BOTTOMFISHING AND 4 BTM/TRL MIX interviews, only from Tutuila
 
+  # make some changes to 2021 columns / names to match previous datasets
+	# drop var 62 ('COMMON_NAME')		#head(aint_bbs5[,62])
+	aint_bbs5 <- aint_bbs5[,-62]
+	# rename 78 (COMMON_NAME.1)
+	names(aint_bbs5)[78] <- 'COMMON_NAME'
+
+  # aint_bbs4 included 2021 interviews through May. Remove these records because they are also in aint_bbs5
+   aint_bbs4 <- mutate(aint_bbs4, SAMPLE_YEAR = as.numeric(substr(SAMPLE_DATE,1,4)))		#nrow(aint_bbs4)
+   aint_bbs4 <- subset(aint_bbs4, SAMPLE_YEAR < 2021)								#nrow(aint_bbs4)
+   aint_bbs4 <- aint_bbs4[,-83]
+	
+   # rbind will coerce variable formats in the dfs to match those before, so mis-matched shouldn't be a problem		
+   aint_bbs <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5)
+   # check just 1-4		
+   aint_bbs1_4 <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4)
+
+   str(aint_bbs)		# 141,659 records, 82 variables  (add 2021: 142,936 records, 82 variables)
+   length(unique(aint_bbs$INTERVIEW_PK))		# 15121 interviews
+   length(unique(aint_bbs1_4$INTERVIEW_PK))		# 15038 interviews
 #  ----------------------------------------------
 #  In the boat-based data:
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
@@ -62,8 +90,8 @@
    aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
 
 	# quick check
-	length(unique(aint_bbs$INTERVIEW_PK))		# 15081 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 55548 catch records
+	length(unique(aint_bbs$INTERVIEW_PK))		# 15081 interviews	(15121)
+	length(unique(aint_bbs$CATCH_PK))			# 55548 catch records	(55875)
 
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 2: Basic Interview Filtering
@@ -71,9 +99,9 @@
  # -- 223 interviews from 1985 (incomplete year) and 1111 (database artifact)
    aint_bbs <- subset(aint_bbs, year_num != 1985)
    aint_bbs <- subset(aint_bbs, year_num != 1111)
-   	nrow(aint_bbs)		# 141219
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 55112 catch records
+   	nrow(aint_bbs)		# 141219	(143746)
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews	(14898)
+	length(unique(aint_bbs$CATCH_PK))			# 55112 catch records	(55439)
 
  # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded
 	# within these interviews. So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
@@ -87,12 +115,12 @@
    string3 <- "SELECT * FROM aint_bbs WHERE CATCH_PK NOT in
 	('2004004889', '2008007210', '2009002628', '2012004605', '2012004622', '2013005789', '2014002489')"
    aint_bbs_new <- sqldf(string3 , stringsAsFactors=FALSE)
-   	# nrow(aint_bbs_new)		# 141212 records
+   	# nrow(aint_bbs_new)		# 141212 records		(143734)
    aint_bbs_new -> aint_bbs		
    rm(aint_bbs_new)
 
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 55105 catch records (removed 7 catch records)
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews  (14893)
+	length(unique(aint_bbs$CATCH_PK))			# 55105 catch records (removed 7 catch records) (55431)
 
  # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
    	# identify these by the CATCH_PK
@@ -136,30 +164,30 @@
 		'2017003203', '2017003203', '2017003473', '2017003473', '2018002608', '2019003155')"
 
    aint_bbs_new <- sqldf(string4 , stringsAsFactors=FALSE)
-   nrow(aint_bbs_new)	# 141212 - 146 = 141066 
+   nrow(aint_bbs_new)	# 141212 - 146 = 141066   (143734 - 146 = 143588)
    aint_bbs_new -> aint_bbs
    rm(aint_bbs_new)
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 54964 catch records
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews			(14893)
+	length(unique(aint_bbs$CATCH_PK))			# 54964 catch records			(55290)
 
  # -- 11 interviews where TOT_EST_LBS > 0 but most other fields, including SPECIES_FK and CATCH_PK are NULL
 
    STRING <- "SELECT INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, COMMON_NAME, EST_LBS, TOT_EST_LBS
 	 FROM aint_bbs WHERE TOT_EST_LBS > 0 AND SPECIES_FK = 'NULL'"
-   try <- sqldf(STRING, stringsAsFactors=FALSE)
+   try <- sqldf(STRING, stringsAsFactors=FALSE)				#View(try)
 
    STRING7 <- "SELECT *
 		 FROM aint_bbs WHERE INTERVIEW_PK NOT IN (930928880202, 970201990102, 981107990205, 990715213516, 
 			120113063006, 120117063006, 120119053006, 120124062506, 
 			120210180702, 120210181902, 120217143302)"
    aint_bbs_new <- sqldf(STRING7 , stringsAsFactors=FALSE)
-   nrow(aint_bbs_new)	# 141055
+   nrow(aint_bbs_new)	# 141055				(143577)
 
    aint_bbs_new -> aint_bbs
    rm(aint_bbs_new)
    nrow(aint_bbs)	
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14847 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 54964 catch records
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14847 interviews			(14882)
+	length(unique(aint_bbs$CATCH_PK))			# 54964 catch records			(55290)
 
  # -- 99 interviews flagged as incomplete
    string <- "SELECT *
@@ -167,8 +195,8 @@
 		WHERE INCOMPLETE_F is FALSE"
 	
    aint_bbs <- sqldf(string, stringsAsFactors=FALSE)
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14748 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 54150 catch records
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14748 interviews			(14783)
+	length(unique(aint_bbs$CATCH_PK))			# 54150 catch records			(54476)
 
  # -- strange gear types:
    #	BLANK 		1 trip with gear_type "BLANK" was zero catch, exclude this record
@@ -182,10 +210,10 @@
 	 FROM aint_bbs WHERE FISHING_METHOD NOT IN ('BLANK' ,'GLEANING', 'NULL', 'PALOLO FISHING', 
 					'UNKNOWN - BOAT BASED','VERT. LONGLINE')"
    aint_bbs_new <- sqldf(STRING7 , stringsAsFactors=FALSE)
-   nrow(aint_bbs_new)	# 138448
+   nrow(aint_bbs_new)	# 138448		(140970)
 	
-	length(unique(aint_bbs_new$INTERVIEW_PK))		# 14734 interviews
-	length(unique(aint_bbs_new$CATCH_PK))		# 54135 catch records
+	length(unique(aint_bbs_new$INTERVIEW_PK))		# 14734 interviews		(14769)
+	length(unique(aint_bbs_new$CATCH_PK))		# 54135 catch records		(54461)
 
 
  # -- eliminate interviews missing a metric for effort. note: data dictionary is ambiguous, but previously, 
@@ -202,11 +230,10 @@
 	WHERE NUM_GEAR is not 0"
    aint_bbs <- sqldf(string, stringsAsFactors=FALSE)
 
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14192 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 52059 catch records
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14192 interviews		# 14226
+	length(unique(aint_bbs$CATCH_PK))			# 52059 catch records		# 52383
 
-	aint_bbs <- droplevels(aint_bbs)		# fish_meth_fac <- as.factor(aint_bbs$FISHING_METHOD)
-								# summary(fish_meth_fac)
+	aint_bbs <- droplevels(aint_bbs)		# summary(as.factor(aint_bbs$FISHING_METHOD))
 
   #  ------------------------------------------------------------------------------------------------
   #  ------------------------  SAVE THIS AS THE "ALL GEARS" DATASET  --------------------------------
@@ -223,8 +250,8 @@
 		WHERE FISHING_METHOD in ('BOTTOMFISHING','BTM/TRL MIX')"
 	
    aint_bbs <- sqldf(string, stringsAsFactors=FALSE)	
-	length(unique(aint_bbs$INTERVIEW_PK))		# 3066 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 21929 catch records
+	length(unique(aint_bbs$INTERVIEW_PK))		# 3066 interviews		(3068)
+	length(unique(aint_bbs$CATCH_PK))			# 21929 catch records	(21940)
 	
   # WATCH OUT- there were 779 interviews, 3105 catch records, that included NUM_KEPT = 0 but catch weight was recorded
 	# skimming through, it is obvious that the number of fish that must have been included in these weights was greater than 1.
@@ -248,7 +275,7 @@
 	FROM aint_bbs_filtered LEFT JOIN key
 			ON aint_bbs_filtered.AREA_FK = key.AREA_PK"
    bbs_2 <- sqldf(string, stringsAsFactors=FALSE)
-   nrow(bbs_2)	#49209	 	#nrow(aint_bbs_filtered)
+   nrow(bbs_2)	#49242	 	#nrow(aint_bbs_filtered)
 
    bbs_2$PRIMARY_AREA_FK <- as.factor(bbs_2$PRIMARY_AREA_FK)
    bbs_2$VESSEL_REGIST_NO <- as.factor(bbs_2$VESSEL_REGIST_NO)
@@ -267,7 +294,7 @@
    bbs_3 <- sqldf(string, stringsAsFactors=FALSE)
    bbs_3$AREA_B <- as.factor(bbs_3$AREA_B)
    bbs_3$AREA_2banks <- as.factor(bbs_3$AREA_2banks)	# summary(bbs_3$AREA_2banks)
-	nrow(bbs_3)			# 49209	 	# nrow(aint_bbs_filtered)	#str(bbs_3)
+	nrow(bbs_3)			# 49242	 	# nrow(aint_bbs_filtered)	#str(bbs_3)
 	# summary(bbs_3$AREA_B)
 	# summary(bbs_3$AREA_2banks)
 	# summary(bbs_3$FISHING_METHOD)
@@ -278,7 +305,7 @@
    bbs_3B$AREA_B2[bbs_3B$AREA_B2 == "Tut_South"] <- "Tutuila"
    bbs_3B$AREA_B2 <- as.factor(bbs_3B$AREA_B2)
    summary(bbs_3B$AREA_B2)		# nrow(bbs_3B)
-   length(unique(bbs_3B$INTERVIEW_PK))		# 3066 interviews
+   length(unique(bbs_3B$INTERVIEW_PK))		# 3068 interviews
 
    # make a new copy
    bbs_3C <- bbs_3B
@@ -371,25 +398,25 @@
 		  FROM bbs_3C
 		  "
 		tot_catch_check_0 <- sqldf(string, stringsAsFactors=FALSE)
-		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 442777.5
+		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 442824.1
 
-		# prepare a check: all variola, 1986-2020
+		# prepare a check: all variola, 1986-2021
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C
-		  WHERE SPECIES_FK in ('229','220') AND year_num < 2021
+		  WHERE SPECIES_FK in ('229','220')
 		  "
 		variola_check <- sqldf(string, stringsAsFactors=FALSE)	
-		sum_variola <- sum(variola_check$EST_LBS)				# 14092.56 lbs
+		sum_variola <- sum(variola_check$EST_LBS)				# 14100.09 lbs
 
-	# calculate sum(V. louti)/sum(V. louti, V. albimarginata) for 2016-2020, all areas, bottomfishing and btm/trl mix
+	# calculate sum(V. louti)/sum(V. louti, V. albimarginata) for 2016-2021, all areas, bottomfishing and btm/trl mix
   	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND year_num < 2021 AND year_num > 2015) 
+			WHERE SPECIES_FK in ('229','220') AND year_num > 2015) 
 		  GROUP BY SPECIES_FK"
 	variola_1 <- sqldf(string, stringsAsFactors=FALSE)
-	p_louti <- variola_1$TOT_LBS[2]/(variola_1$TOT_LBS[1]+variola_1$TOT_LBS[2])		# oddly, fishermen in workshops 
+	p_louti <- variola_1$TOT_LBS[2]/(variola_1$TOT_LBS[1]+variola_1$TOT_LBS[2])
 	p_albimarginata <- 1-p_louti			# will save p_louti and p_albimarginata to adjust expanded landings estimates.
 
 	# list all interview_pk, catch_pk that included either species, 1986-2015
@@ -468,12 +495,12 @@
 		rownames(variola_4) <- NULL
 	
 	bbs_3C_keep1 <- subset(bbs_3C, !(CATCH_PK %in% variola_4$CATCH_PK))	
-		#str(bbs_3C_keep1)	#46483 records					#46483 +2726	= 49209
+		#str(bbs_3C_keep1)	#46516 records
 
 	# don't forget, we had to drop a CATCH_PK for interviews where both V. louti and V. albimarginata were recorded
 	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
 	#	to avoid double counting catch
-	bbs_3C_keep2 <- subset(bbs_3C_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))		#str(bbs_3C_keep2)  #46456 
+	bbs_3C_keep2 <- subset(bbs_3C_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))		#str(bbs_3C_keep2)  #46489 
 		
 	bbs_3C_update1 <- subset(bbs_3C, (CATCH_PK %in% variola_4$CATCH_PK))	#str(bbs_3C_update1)	#2726 records
 	# View(head(bbs_3C_update1))	
@@ -504,44 +531,44 @@
 	# put back together with the keep records
 	bbs_3C_new <- rbind(bbs_3C_keep2, bbs_3C_update5)		#sum(bbs_3C_new
 
-	# repeat the check: all variola, 1986-2020
+	# repeat the check: all variola, 1986-2021
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C_new
-		  WHERE SPECIES_FK in ('229','220') AND year_num < 2021
+		  WHERE SPECIES_FK in ('229','220')
 		  "
 		variola_check_2 <- sqldf(string, stringsAsFactors=FALSE)	
-		sum_variola_2 <- sum(variola_check_2$EST_LBS)				# 14092.56 lbs
+		sum_variola_2 <- sum(variola_check_2$EST_LBS)				# 14100.09 lbs
 		sum_variola_2
 		sum_variola
 
-	# also check that bbs_3C still contains 3066 interviews and total lbs surveyed is the same
+	# also check that bbs_3C still contains 3068 interviews and total lbs surveyed is the same
 	length(unique(bbs_3C$INTERVIEW_PK))
 	#nrow(bbs_3C_new)  	#we expect lost rows because we dropped lengths and some CATCH_PK
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C_new
 		  "
 		tot_catch_check <- sqldf(string, stringsAsFactors=FALSE)
-	sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442777.5
+	sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442824.1
 
 	# update bbs_3C			
 	bbs_3C <- bbs_3C_new
 
-# ----- 4b. Pristipomoides filamentosus and P. flavipinnis were confused between 2010-2015. Assume 2016-2020 species is reliable.
+# ----- 4b. Pristipomoides filamentosus and P. flavipinnis were confused between 2010-2015. Assume 2016-2021 species is reliable.
  		 
 		# prepare a check: all flavi and fila, 1986-2020
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C
-		   WHERE SPECIES_FK in ('242','241') AND year_num < 2021
+		   WHERE SPECIES_FK in ('242','241')
 		  "
 		flavi_fila_check <- sqldf(string, stringsAsFactors=FALSE)	
 		sum_flavi_fila <- sum(flavi_fila_check$EST_LBS)		# 7577.458 lbs
 
-	# calculate sum(P. flavi)/sum(P. flavi, P. fila) for 2016-2020, all areas, bottomfishing and btm/trl mix
+	# calculate sum(P. flavi)/sum(P. flavi, P. fila) for 2016-2021, all areas, bottomfishing and btm/trl mix
   	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND year_num < 2021 AND year_num > 2015) 
+			WHERE SPECIES_FK in ('242','241') AND year_num > 2015) 
 		  GROUP BY SPECIES_FK"
 	flavi_fila_1 <- sqldf(string, stringsAsFactors=FALSE)
 	p_flavi <- flavi_fila_1$TOT_LBS[1]/(flavi_fila_1$TOT_LBS[1]+flavi_fila_1$TOT_LBS[2])
@@ -626,7 +653,7 @@
 		rownames(flavi_fila_4) <- NULL
 	
 	bbs_3C_keep1 <- subset(bbs_3C, !(CATCH_PK %in% flavi_fila_4$CATCH_PK))	
-		#str(bbs_3C_keep1)	#48758 records		#str(bbs_3C)		#48758 + 164 = 48922
+		#str(bbs_3C_keep1)	#48791 records		#str(bbs_3C)		#48791 + 164 = 48955
 
 	# don't forget, we had to drop a CATCH_PK for interviews where both fila and flavi (and rutilans) were recorded
 	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
@@ -665,21 +692,21 @@
 	# repeat the check: all flavi and fila, 1986-2020
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C_new
-		  WHERE SPECIES_FK in ('242','241') AND year_num < 2021
+		  WHERE SPECIES_FK in ('242','241')
 		  "
 		flavi_fila_check_2 <- sqldf(string, stringsAsFactors=FALSE)	
 		sum_flavi_fila_2 <- sum(flavi_fila_check_2$EST_LBS)				# 7577.458 lbs
 		sum_flavi_fila
 		sum_flavi_fila_2
 
-	# also check that bbs_3C still contains 3066 interviews, correct total catch
+	# also check that bbs_3C still contains 3068 interviews, correct total catch
 	length(unique(bbs_3C$INTERVIEW_PK))
 	#nrow(bbs_3C_new)  	#we expect lost rows because we dropped lengths and some CATCH_PK
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C_new
 		  "
 		tot_catch_check <- sqldf(string, stringsAsFactors=FALSE)
-		sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442777.5 lbs
+		sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442824.1 lbs
 
 	# update bbs_3C			
 	bbs_3C <- bbs_3C_new
@@ -717,12 +744,12 @@
 		  FROM bbs_3C
 		  "
 		tot_catch_check_0 <- sqldf(string, stringsAsFactors=FALSE)
-		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 442777.5
+		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 442824.1
 
-		# prepare a check: all lethrinidae, manu'a, 1986-2020
+		# prepare a check: all lethrinidae, manu'a, 1986-2021
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C
-		  WHERE SPECIES_FK in ('262','261','267','260') AND year_num < 2021 AND AREA_B = 'Manua'
+		  WHERE SPECIES_FK in ('262','261','267','260') AND AREA_B = 'Manua'
 		  "
 		manuaemps_check <- sqldf(string, stringsAsFactors=FALSE)	
 		sum_manuaemps <- sum(manuaemps_check$EST_LBS)				# 2078.13 lbs
@@ -732,7 +759,7 @@
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('262','261','267') AND year_num < 2021 AND AREA_B = 'Manua') 
+			WHERE SPECIES_FK in ('262','261','267') AND AREA_B = 'Manua') 
 		  GROUP BY SPECIES_FK"
 	manuaemps_1 <- sqldf(string, stringsAsFactors=FALSE)
 	p_elongatus <- manuaemps_1$TOT_LBS[1]/(sum(manuaemps_1$TOT_LBS))
@@ -742,7 +769,7 @@
 	# list all interview_pk, catch_pk that included id and unid emperors, 1986-2020
 	string <- "SELECT DISTINCT year_num, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('262','261','267','260') AND year_num < 2021 AND AREA_B = 'Manua'
+			WHERE SPECIES_FK in ('262','261','267','260') AND AREA_B = 'Manua'
 		  	"
 	manuaemps_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(manuaemps_2)		#View(manuaemps_2)  #sum(manuaemps_2$EST_LBS)
 	# 148 catch records, 2078.13 lbs total
@@ -818,12 +845,12 @@
 		rownames(manuaemps_4) <- NULL
 	
 	bbs_3C_keep1 <- subset(bbs_3C, !(CATCH_PK %in% manuaemps_4$CATCH_PK))	
-		#str(bbs_3C_keep1)	#48707 records
+		#str(bbs_3C_keep1)	#48740 records
 
 	# don't forget, we had to drop a CATCH_PK for rare interviews with multiple lethrinus / lethrinidae were recorded
 	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
 	#	to avoid double counting catch
-	bbs_3C_keep2 <- subset(bbs_3C_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))		#str(bbs_3C_keep2)  #48700 
+	bbs_3C_keep2 <- subset(bbs_3C_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))		#str(bbs_3C_keep2)  #48733 
 		
 	bbs_3C_update1 <- subset(bbs_3C, (CATCH_PK %in% manuaemps_4$CATCH_PK))	#str(bbs_3C_update1)	#171 records
 	# View(head(bbs_3C_update1))	
@@ -857,12 +884,12 @@
 	# repeat the check: all manua lethrinus / lethrinidae, 1986-2020
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C_new
-		  WHERE SPECIES_FK in ('262','261','267','260') AND year_num < 2021 AND AREA_B = 'Manua'
+		  WHERE SPECIES_FK in ('262','261','267','260') AND AREA_B = 'Manua'
 		  "
 		manuaemps_check_again <- sqldf(string, stringsAsFactors=FALSE)	
 		sum(manuaemps_check_again$EST_LBS)				# 2078.1321 lbs
 
-	# also check that bbs_3C still contains 3066 interviews and total lbs surveyed is the same
+	# also check that bbs_3C still contains 3068 interviews and total lbs surveyed is the same
 	length(unique(bbs_3C$INTERVIEW_PK))
 	#nrow(bbs_3C_new)  	#we expect lost rows because we dropped lengths and some CATCH_PK
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
@@ -871,7 +898,7 @@
 		tot_catch_check <- sqldf(string, stringsAsFactors=FALSE)
 		
 
-	sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442777.5
+	sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442824.1
 
 	# update bbs_3C			
 	bbs_3C <- bbs_3C_new
