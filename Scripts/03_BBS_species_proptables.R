@@ -5,6 +5,8 @@
 # 	
 #	MAKE SPECIES PROPTABLES
 #
+#    *UPDATE 28March2022 with complete 2021 data.
+#
 ##  -----------------------------------------------------------------------------------------------------------------------------------------------
 #  -----------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -87,7 +89,6 @@
   # View(group_key)
 
 
-
 #  -----------------------------------------------------------------------------------------------------------------------------------------------
 #  -----------------------------------------------------------------------------------------------------------------------------------------------
 #  -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -102,7 +103,7 @@
 #	1 area NA trip was landed in Tutila. Just put Unk and NA into Tutuila.
 
 # create the 'zone' variable that matches with landings expansion (Tutu or Manu, based on port landed.)
-	bbs_4C <- mutate(bbs_3C, zone = AREA_B)				# str(bbs_3C)	#49129 obs
+	bbs_4C <- mutate(bbs_3C, zone = AREA_B)				# str(bbs_3C)	#49162 obs
 	bbs_4C$zone[bbs_4C$zone == 'Bank'] <- 'Tutuila'
 	bbs_4C$zone[bbs_4C$zone == 'Tut_North'] <- 'Tutuila'
 	bbs_4C$zone[bbs_4C$zone == 'Tut_South'] <- 'Tutuila'
@@ -119,17 +120,17 @@
 # this is not the same as the interview TOT_LBS from the flatview
 # tail(bbs_3C)
 
-#  also, as of Feb2022 use only 1986 to 2020 (not 2021)
+#  1986 through 2021
 
   string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME, FISHING_METHOD, zone, SUM(EST_LBS) as TOT_LBS
 		  FROM
 			(SELECT DISTINCT CATCH_PK, year_num, SPECIES_FK, SCIENTIFIC_NAME, FISHING_METHOD, zone, EST_LBS
 			FROM bbs_4C
-			WHERE SPECIES_FK IS NOT '0' AND SPECIES_FK IS NOT 'NULL' AND year_num < 2021) 
+			WHERE SPECIES_FK IS NOT '0' AND SPECIES_FK IS NOT 'NULL') 
 		  GROUP BY year_num, SPECIES_FK, FISHING_METHOD, zone, SCIENTIFIC_NAME
 			ORDER BY  year_num, SPECIES_FK"
 	by_species <- sqldf(string, stringsAsFactors=FALSE)
-	str(by_species)		# 3,776 rows = species (including groups) x year x gear x zone strata		# View(by_species)
+	str(by_species)		# 3818 rows = species (including groups) x year x gear x zone strata		# View(by_species)
 
 # ---------------
 # STEP 2: merge this aggregated catch table to the BBS-SBS group key, this simply adds the group info, left join ensures 
@@ -141,7 +142,7 @@
 			ON by_species.SPECIES_FK = group_key.SPECIES_PK"
 
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(catch_year_codes)		#3776 rows
+	str(catch_year_codes)		#3818 rows
 	# View(catch_year_codes)
 	names(catch_year_codes)
 	
@@ -169,15 +170,15 @@
 	
 	PE_step1 <- sqldf(string, stringsAsFactors=FALSE)
 	# str(PE_step1)		# PE_step1 is all year x identified species x gear x area catch that could be Prist. / Etelis.
-					#	that is 479 rows = 479 strata
+					#	that is 484 rows = 484 strata
 
  	 string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as group_tot
 			FROM PE_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	PE_step2 <- sqldf(string, stringsAsFactors=FALSE)			#str(PE_step2)
-	# str(PE_step2)		# PE_step2 is sum identified Prist/etelis, by year x area x gear = 108 strata
+	# str(PE_step2)		# PE_step2 is sum identified Prist/etelis, by year x area x gear = 110 strata
 
-	# join year x identified species x gear x area (PE_step1) to year x gear x area (PE_step2) expect 439 rows
+	# join year x identified species x gear x area (PE_step1) to year x gear x area (PE_step2) expect 484 rows
   	string <- "SELECT PE_step1.*, PE_step2.group_tot
 		FROM PE_step1 LEFT JOIN PE_step2
 			ON PE_step1.year_num = PE_step2.year_num
@@ -188,7 +189,7 @@
 			"
 
 	PE_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(PE_step3)		#str(PE_step3)		#479
+	# View(PE_step3)		#str(PE_step3)		#484
 
 	PE_breakdown <- mutate(PE_step3, sp_prop = TOT_LBS/group_tot)
 	# View(PE_breakdown)	# add column for proportions
@@ -228,7 +229,7 @@
 				GROUP BY SPECIES_FK"
 		global_sp_prop <- sqldf(string, stringsAsFactors=FALSE)		#View(global_sp_prop)
 
-		n_strata <- sum(as.numeric(global_sp_prop$global_sp_prop))		#i.e. there were 108 strata with identified prist / etelis
+		n_strata <- sum(as.numeric(global_sp_prop$global_sp_prop))		#i.e. there were 110 strata with identified prist / etelis
 		global_sp_prop <- mutate(global_sp_prop, sp_prop = global_sp_prop / n_strata)		# scale back to 1
 
 			# what we expect is about to happen:
@@ -278,9 +279,9 @@
 					TOT_LBS = PE_step5$BREAKDOWN_TOT_LBS)
 	# View(PE_addin)	# str(PE_addin)	# 88 records
 	by_species_update1 <- subset(by_species, SPECIES_FK != 240)  
-		# str(by_species_update1) 	# check # records: 3,756 records = 3,776 originally in by_species - 20 that were PE
+		# str(by_species_update1) 	# check # records: 3,798 records = 3818 originally in by_species - 20 that were PE
 	by_species_update2 <- rbind(by_species_update1, PE_addin)			
-		#str(by_species_update2)	# add back in the 88 records that we just produced via. breakdown = 3756 + 88 = 3,844 records
+		#str(by_species_update2)	# add back in the 88 records that we just produced via. breakdown = 3798 + 88 = 3886 records
 
  # sum over year x species x gear x zone  (because strata that had both ID'd prist/etelis and unid prist/etelis will have some
  #	duplicate species columns.
@@ -290,12 +291,12 @@
 			GROUP BY year_num, FISHING_METHOD, zone, SPECIES_FK"
 	
 	by_species_update_PE <- sqldf(string, stringsAsFactors=FALSE)		
-	# str(by_species_update_PE)		# 3774. exact number of records to expect is difficult to tell
-							# minimum = previous by_species (3,776) - group records (20) = 3756
+	# str(by_species_update_PE)		# 3816. exact number of records to expect is difficult to tell
+							# minimum = previous by_species (3818) - group records (20) = 3798
 							# max would be if we created gear(2) x zone(2) x species(nrow(global_sp_prop)=9) x group_records(20)
-							# i.e. (3776-20)+(2*2*9*20) = 4,476
+							# i.e. (3818-20)+(2*2*9*20) = 4518
 	# nrow(by_species_update_PE)		
-	#		# UPDATED NUMBER OF RECORDS = 3,774
+	#		# UPDATED NUMBER OF RECORDS = 3816
 	# make sure catch was neither lost nor generated during the breakdown
 	before_4 <- sum(by_species$TOT_LBS)
 	after_4a <- sum(by_species_update_PE$TOT_LBS)
@@ -311,7 +312,7 @@
 			ON by_species_update_PE.SPECIES_FK = group_key.SPECIES_PK"
 
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(catch_year_codes)		#3774
+	str(catch_year_codes)		#3816
 	
 	# important to rename duplicate column names
 	names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -323,13 +324,13 @@
 			WHERE Deep_snappers_230 = 1 and SPECIES_FK not in (230, 390)
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	snaps_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(snaps_step1)	#str(snaps_step1)		#1203
+	# View(snaps_step1)	#str(snaps_step1)		#1217
 
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as group_tot
 			FROM snaps_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	snaps_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(snaps_step2)	#str(snaps_step2)		#114
+	# View(snaps_step2)	#str(snaps_step2)		#116
 
  	# merge back
   	string <- "SELECT snaps_step1.*, snaps_step2.group_tot
@@ -341,7 +342,7 @@
 				snaps_step1.zone = snaps_step2.zone"
 
 	snaps_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(snaps_step3)			#str(snaps_step3)		#1203
+	# View(snaps_step3)			#str(snaps_step3)		#1217
 
 	snaps_breakdown <- mutate(snaps_step3, sp_prop = TOT_LBS/group_tot)
 	# View(snaps_breakdown)
@@ -377,7 +378,7 @@
 				GROUP BY SPECIES_FK"
 		global_sp_prop <- sqldf(string, stringsAsFactors=FALSE)		#View(global_sp_prop)
 
-		n_strata <- sum(as.numeric(global_sp_prop$global_sp_prop))		#114 strata
+		n_strata <- sum(as.numeric(global_sp_prop$global_sp_prop))		#116 strata
 		global_sp_prop <- mutate(global_sp_prop, sp_prop = global_sp_prop / n_strata)		# scale back to 1
 
 			# what we expect is about to happen:
@@ -423,9 +424,9 @@
 					FISHING_METHOD = snaps_step5$FISHING_METHOD,
 					zone = snaps_step5$zone,
 					TOT_LBS = snaps_step5$BREAKDOWN_TOT_LBS)
-	# View(snaps_addin)	# str(snaps_addin)	# 436 records
-	by_species_update1 <- subset(by_species_update_PE, SPECIES_FK != 230 & SPECIES_FK != 390)  # str(by_species_update1) 	# 3743 records
-	by_species_update2 <- rbind(by_species_update1, snaps_addin)	#str(by_species_update2)	#4183 records
+	# View(snaps_addin)	# str(snaps_addin)	# 440 records
+	by_species_update1 <- subset(by_species_update_PE, SPECIES_FK != 230 & SPECIES_FK != 390)  # str(by_species_update1) 	# 3785 records
+	by_species_update2 <- rbind(by_species_update1, snaps_addin)	#str(by_species_update2)	#4225 records
 
  # sum over year x species x gear x zone
 
@@ -434,7 +435,7 @@
 			GROUP BY year_num, FISHING_METHOD, zone, SPECIES_FK"
 	
 	by_species_update_PE_snaps <- sqldf(string, stringsAsFactors=FALSE)		
-	str(by_species_update_PE_snaps)		# 3770
+	str(by_species_update_PE_snaps)		# 3812
 
 	# make sure catch was neither lost nor generated during the breakdown
 	before_4b <- sum(by_species_update_PE$TOT_LBS)
@@ -451,7 +452,7 @@
 			ON by_species_update_PE_snaps.SPECIES_FK = group_key.SPECIES_PK"
 
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(catch_year_codes)		# 3770 	View(catch_year_codes)
+	str(catch_year_codes)		# 3812 	View(catch_year_codes)
 	
 	# important to rename duplicate column names
 	names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -470,7 +471,7 @@
 			FROM grps_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	grps_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(grps_step2)		#str(grps_step2)			#106
+	# View(grps_step2)		#str(grps_step2)			#108
 
  	# merge back
 	string <- "SELECT grps_step1.*, grps_step2.group_tot
@@ -482,7 +483,7 @@
 				grps_step1.zone = grps_step2.zone"
 
 	grps_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(grps_step3)			#str(grps_step3)		#577
+	# View(grps_step3)			#str(grps_step3)		#
 
 	grps_breakdown <- mutate(grps_step3, sp_prop = TOT_LBS/group_tot)
 	# View(grps_breakdown)
@@ -516,7 +517,7 @@
 				GROUP BY SPECIES_FK"
 		global_sp_prop <- sqldf(string, stringsAsFactors=FALSE)		#View(global_sp_prop)
 
-		n_strata <- sum(as.numeric(global_sp_prop$global_sp_prop))		#106 strata
+		n_strata <- sum(as.numeric(global_sp_prop$global_sp_prop))		#108 strata
 		global_sp_prop <- mutate(global_sp_prop, sp_prop = global_sp_prop / n_strata)		# scale back to 1
 
 			# what we expect is about to happen:
@@ -563,8 +564,8 @@
 					zone = grps_step5$zone,
 					TOT_LBS = grps_step5$BREAKDOWN_TOT_LBS)
 	# View(grps_addin)	# str(grps_addin)	# 454 records
-	by_species_update1 <- subset(by_species_update_PE_snaps, SPECIES_FK != 210 & SPECIES_FK != 380)  # str(by_species_update1) 	# 3681 records
-	by_species_update2 <- rbind(by_species_update1, grps_addin)	#  str(by_species_update2)	#4209 records
+	by_species_update1 <- subset(by_species_update_PE_snaps, SPECIES_FK != 210 & SPECIES_FK != 380)  # str(by_species_update1) 	# records
+	by_species_update2 <- rbind(by_species_update1, grps_addin)	#  str(by_species_update2)	#records
 
  # sum over year x species x gear x zone
 
@@ -573,7 +574,7 @@
 			GROUP BY year_num, FISHING_METHOD, zone, SPECIES_FK"
 	
 	by_species_update_PE_snaps_grps <- sqldf(string, stringsAsFactors=FALSE)
-	str(by_species_update_PE_snaps_grps)		# 3745
+	str(by_species_update_PE_snaps_grps)		# 
 
 	# make sure catch was neither lost nor generated during the breakdown
 	before_4 <- sum(by_species$TOT_LBS)
@@ -588,7 +589,7 @@
 		LEFT JOIN group_key
 		  ON by_species_update_PE_snaps_grps.SPECIES_FK = group_key.SPECIES_PK"
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	# str(catch_year_codes)		#3745 	View(catch_year_codes)
+	# str(catch_year_codes)		#3787 	View(catch_year_codes)
 
 	# important to rename duplicate column names
 	names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -600,13 +601,13 @@
 		WHERE Jacks_110 = 1 and SPECIES_FK not in (109, 110)
 		ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	jacks_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(jacks_step1)		#str(jacks_step1)			#308 strata with identified jacks
+	# View(jacks_step1)		#str(jacks_step1)			#314 strata with identified jacks
 
 	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as group_tot
 		FROM jacks_step1
 		GROUP BY year_num, FISHING_METHOD, zone"
 	jacks_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(jacks_step2)		#str(jacks_step2)			#104 year x area x gear strata with id jacks
+	# View(jacks_step2)		#str(jacks_step2)			#106 year x area x gear strata with id jacks
 
  	# merge back
 	string <- "SELECT jacks_step1.*, jacks_step2.group_tot
@@ -617,7 +618,7 @@
 				  AND
 				jacks_step1.zone = jacks_step2.zone"
 	jacks_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(jacks_step3)			#str(jacks_step3)			#308
+	# View(jacks_step3)			#str(jacks_step3)			#314
 
 	jacks_breakdown <- mutate(jacks_step3, sp_prop = TOT_LBS/group_tot)
 	# View(jacks_breakdown)
@@ -640,7 +641,7 @@
 		ORDER BY FISHING_METHOD, zone, year_num, SPECIES_FK"
 	jacks_step4 <- sqldf(string, stringsAsFactors=FALSE)
 		
-	# str(jacks_step4)			# 270
+	# str(jacks_step4)			# 
 	names(jacks_step4)[7] <- "BREAKDOWN_SPECIES_FK"			#again, avoid duplicate column names
 	names(jacks_step4)[9] <- "FISHING_METHOD_FK"
 	names(jacks_step4)[10] <- "zone_FK"
@@ -700,8 +701,8 @@
 					zone = jacks_step5$zone,
 					TOT_LBS = jacks_step5$BREAKDOWN_TOT_LBS)
 	# View(jacks_addin)	# str(jacks_addin)	# 390 records
-	by_species_update1 <- subset(by_species_update_PE_snaps_grps, SPECIES_FK != 109 & SPECIES_FK != 110)  # str(by_species_update1) 	# 3660 records
-	by_species_update2 <- rbind(by_species_update1, jacks_addin)	#  str(by_species_update2)	#4050 records
+	by_species_update1 <- subset(by_species_update_PE_snaps_grps, SPECIES_FK != 109 & SPECIES_FK != 110)  # str(by_species_update1) 	# records
+	by_species_update2 <- rbind(by_species_update1, jacks_addin)	#  str(by_species_update2)	# records
 
  	# sum over year x species x gear x zone
 
@@ -710,7 +711,7 @@
 			GROUP BY year_num, FISHING_METHOD, zone, SPECIES_FK"
 	
 	by_species_update_PE_snaps_grps_jacks <- sqldf(string, stringsAsFactors=FALSE)
-	str(by_species_update_PE_snaps_grps_jacks)		# 3788
+	str(by_species_update_PE_snaps_grps_jacks)		# 3830
 
 	# make sure catch was neither lost nor generated during the breakdown
 	before_4 <- sum(by_species_update_PE$TOT_LBS)
@@ -726,7 +727,7 @@
 			ON by_species_update_PE_snaps_grps_jacks.SPECIES_FK = group_key.SPECIES_PK"
 
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(catch_year_codes)		# 3788
+	str(catch_year_codes)		# 3830
 	
 	# important to rename duplicate column names
 	names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -737,13 +738,13 @@
 			WHERE Emporers_260 = 1 and SPECIES_FK != 260
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	emps_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# str(emps_step1)			# 354
+	# str(emps_step1)			# 359
 
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as group_tot
 			FROM emps_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	emps_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# str(emps_step2)			# 96
+	# str(emps_step2)			# 
 
 	# merge back
 	string <- "SELECT emps_step1.*, emps_step2.group_tot
@@ -754,7 +755,7 @@
 				  AND
 				emps_step1.zone = emps_step2.zone"
 	emps_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# str(emps_step3)			# 354
+	# str(emps_step3)			# 
 
 	emps_breakdown <- mutate(emps_step3, sp_prop = TOT_LBS/group_tot)
 	# View(emps_breakdown)
@@ -836,8 +837,8 @@
 					TOT_LBS = emps_step5$BREAKDOWN_TOT_LBS)
 	# View(emps_addin)	# str(emps_addin)		# 234 records
 	
-	by_species_update1 <- subset(by_species_update_PE_snaps_grps_jacks, SPECIES_FK != 260)  # str(by_species_update1) 	# 3740 records
-	by_species_update2 <- rbind(by_species_update1, emps_addin)	#  str(by_species_update2)	# 3974 records
+	by_species_update1 <- subset(by_species_update_PE_snaps_grps_jacks, SPECIES_FK != 260)  # str(by_species_update1) 	# records
+	by_species_update2 <- rbind(by_species_update1, emps_addin)	#  str(by_species_update2)	# records
 
  	# sum over year x species x gear x zone
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME, FISHING_METHOD, zone, sum(TOT_LBS) as TOT_LBS
@@ -845,7 +846,7 @@
 			GROUP BY year_num, FISHING_METHOD, zone, SPECIES_FK"
 	by_species_update_PE_snaps_grps_jacks_emps <- sqldf(string, stringsAsFactors=FALSE)
 
-	str(by_species_update_PE_snaps_grps_jacks_emps)		# 3805
+	str(by_species_update_PE_snaps_grps_jacks_emps)		# 3847
 
 	# make sure catch was neither lost nor generated during the breakdown
 	 before_4 <- sum(by_species$TOT_LBS)
@@ -861,7 +862,7 @@
 			ON by_species_update_PE_snaps_grps_jacks_emps.SPECIES_FK = group_key.SPECIES_PK"
 
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(catch_year_codes)		#3805
+	str(catch_year_codes)		#3847
 	
 	# important to rename duplicate column names
 	names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -873,13 +874,13 @@
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	
 	bfish_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(bfish_step1)		# str(bfish_step1)		#2784
+	# View(bfish_step1)		# str(bfish_step1)		#2816
 
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as group_tot
 			FROM bfish_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	bfish_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(bfish_step2)		# str(bfish_step2)		#119
+	# View(bfish_step2)		# str(bfish_step2)		#121
 
  	# merge back
 	string <- "SELECT bfish_step1.*, bfish_step2.group_tot
@@ -891,7 +892,7 @@
 				bfish_step1.zone = bfish_step2.zone"
 
 	bfish_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(bfish_step3)		# str(bfish_step3)		#2784
+	# View(bfish_step3)		# str(bfish_step3)		#
 
 	bfish_breakdown <- mutate(bfish_step3, sp_prop = TOT_LBS/group_tot)
 	# View(bfish_breakdown)
@@ -934,8 +935,8 @@
 					TOT_LBS = bfish_step5$BREAKDOWN_TOT_LBS)
 	# View(bfish_addin)	# str(bfish_addin)		# 891 records
 	by_species_update1 <- subset(by_species_update_PE_snaps_grps_jacks_emps, SPECIES_FK != 200)  # 
-			str(by_species_update1) 	# 3766 records
-	by_species_update2 <- rbind(by_species_update1, bfish_addin)	#  str(by_species_update2)	#4657 records
+			str(by_species_update1) 	# records
+	by_species_update2 <- rbind(by_species_update1, bfish_addin)	#  str(by_species_update2)	# records
 
  	# sum over year x species x gear x zone
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME, FISHING_METHOD, zone, sum(TOT_LBS) as TOT_LBS
@@ -943,7 +944,7 @@
 			GROUP BY year_num, FISHING_METHOD, zone, SPECIES_FK"
 	
 	by_species_update_PE_snaps_grps_jacks_emps_bfish <- sqldf(string, stringsAsFactors=FALSE)
-	str(by_species_update_PE_snaps_grps_jacks_emps_bfish)		# 3766
+	str(by_species_update_PE_snaps_grps_jacks_emps_bfish)		# 3808
 
 	# make sure catch was neither lost nor generated during the breakdown
 	before_4 <- sum(by_species$TOT_LBS)
@@ -968,7 +969,7 @@
 		  ON by_species_update_PE_snaps_grps_jacks_emps_bfish.SPECIES_FK = group_key.SPECIES_PK
 		"
 	catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-	# str(catch_year_codes)		#3766 	View(catch_year_codes)
+	# str(catch_year_codes)		#3808 	View(catch_year_codes)
 
 	# important to rename duplicate column names
 	names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -996,7 +997,7 @@
 				  AND
 				fish_step1.zone = fish_step2.zone"
 	fish_step3 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(fish_step3)		# str(fish_step3)		# 3746
+	# View(fish_step3)		# str(fish_step3)		# 3788
 
 	fish_breakdown <- mutate(fish_step3, sp_prop = TOT_LBS/group_tot)
 	# View(fish_breakdown)
@@ -1050,8 +1051,8 @@
 					TOT_LBS = fish_step5$BREAKDOWN_TOT_LBS)
 	# View(fish_addin)	# str(fish_addin)		# 499 records this is a big number because every time unidentified fish showed up in a strata, we
 									# added a tiny amount of many new species
-	by_species_update1 <- subset(by_species_update_PE_snaps_grps_jacks_emps_bfish, SPECIES_FK != 100)  # str(by_species_update1) 	# 3749 records #View(by_species_update1)
-	by_species_update2 <- rbind(by_species_update1, fish_addin)	#  str(by_species_update2)	#4248 records
+	by_species_update1 <- subset(by_species_update_PE_snaps_grps_jacks_emps_bfish, SPECIES_FK != 100)  # str(by_species_update1) 	# records #View(by_species_update1)
+	by_species_update2 <- rbind(by_species_update1, fish_addin)	#  str(by_species_update2)	#records
 
  	# sum over year x species x gear x zone
 
@@ -1081,7 +1082,7 @@
 		LEFT JOIN group_key
 			ON by_species_update_PE_snaps_grps_jacks_emps_bfish_fish.SPECIES_FK = group_key.SPECIES_PK"
 	by_species_w_codes <- sqldf(string, stringsAsFactors=FALSE)
-	str(by_species_w_codes)		#3749				# View(by_species_w_codes)
+	str(by_species_w_codes)		#3791				# View(by_species_w_codes)
 	
 	# important to rename duplicate column names
 	names(by_species_w_codes)[3] <- "SCIENTIFIC_NAME_PK"
@@ -1098,7 +1099,7 @@
  							Inshore_groupers_380_catch = Inshore_groupers_380*TOT_LBS,
  							Inshore_snappers_390_catch = Inshore_snappers_390*TOT_LBS,
 							Fish_100_catch = Fish_100*TOT_LBS)
-	# str(step2)			#View(step2)			# 3749
+	# str(step2)			#View(step2)			# 
 
 
 	# sum groups by year, gear, zone  (sum catch per strata for each unknown group)
@@ -1147,7 +1148,7 @@
 	species_proptable_by_year_gear_zone <- species_proptable				 #  View(species_proptable_by_year)
 
 #  make a .csv to check out in excel
-#	write.csv(species_proptable_by_year_gear_zone, "species_proptable_by_year_gear_zone.csv")
+#	write.csv(species_proptable_by_year_gear_zone, "species_proptable_by_year_gear_zone_28Mar.csv")
 # I looked at this carefully in Excel (see species_proptable_by_year_gear_zone_scratchwork.xls)
 #	within each strata (gear x year x area) and group (trevallies, bottomfishes, fish, etc.)
 #		 all species props will sum to 1 (as is expected) or to zero (if the gear x year x area x group and all
@@ -1182,7 +1183,8 @@
 			WHERE SPECIES_FK in ('247','239','111','248','249','267','231','241','242','245','229')
 			ORDER BY SPECIES_FK, year_num
 			"
-	proptable_bmus <- sqldf(string, stringsAsFactors=FALSE)			#str(proptable_bmus)		#View(proptable_bmus)
+	proptable_bmus <- sqldf(string, stringsAsFactors=FALSE)			
+			#str(proptable_bmus)		#View(proptable_bmus)		#sum(proptable_bmus[,6:12], na.rm=TRUE)
 
 #  for each year x gear x zone, how much information do we actually have on each of the species groups and which strata are NAs?
 #	for example, if 1988 x Manu'a x Btm/trl mix there were zero identified pristipomoides / etelis, then we have no information
@@ -1194,11 +1196,11 @@
 		  	FROM
 				(SELECT DISTINCT CATCH_PK, year_num, SPECIES_FK, SCIENTIFIC_NAME, FISHING_METHOD, zone, EST_LBS
 				FROM bbs_4C
-				WHERE SPECIES_FK IS NOT '0' AND SPECIES_FK IS NOT 'NULL' AND year_num < 2021) 
+				WHERE SPECIES_FK IS NOT '0' AND SPECIES_FK IS NOT 'NULL') 
 		  	GROUP BY year_num, SPECIES_FK, FISHING_METHOD, zone, SCIENTIFIC_NAME
 			ORDER BY year_num, SPECIES_FK"
 		by_species <- sqldf(string, stringsAsFactors=FALSE)
-		str(by_species)		# 3776 rows = species (including groups) x year x gear x zone strata		# View(by_species)
+		str(by_species)		# 3818 rows = species (including groups) x year x gear x zone strata		# View(by_species)
 
   		string <- "SELECT by_species.*, group_key.*
 			FROM by_species
@@ -1206,7 +1208,7 @@
 			ON by_species.SPECIES_FK = group_key.SPECIES_PK"
 
 		catch_year_codes <- sqldf(string, stringsAsFactors=FALSE)
-		str(catch_year_codes)		#3776 rows
+		str(catch_year_codes)		#3818 rows
 		names(catch_year_codes)[3] <- "SCIENTIFIC_NAME_PK"
 		names(catch_year_codes)[10] <- "SCIENTIFIC_NAME_FK"	
 
@@ -1216,7 +1218,7 @@
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	PE_step1 <- sqldf(string, stringsAsFactors=FALSE)
 	# str(PE_step1)		# PE_step1 is all year x identified species x gear x area catch that could be Prist. / Etelis.
-					#	that is 437 rows = 437 strata
+					#	that is 484 rows = 484 strata
  	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as ID_prist_et
 			FROM PE_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
@@ -1227,12 +1229,12 @@
 			WHERE Deep_snappers_230 = 1 and SPECIES_FK not in (230, 390)
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	snaps_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(snaps_step1)	#str(snaps_step1)		#1205
+	# View(snaps_step1)	#str(snaps_step1)		#
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as ID_snaps
 			FROM snaps_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	snaps_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(snaps_step2)	#str(snaps_step2)		#114
+	# View(snaps_step2)	#str(snaps_step2)		#
 
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME_PK, FISHING_METHOD, zone, TOT_LBS
 			FROM catch_year_codes
@@ -1246,33 +1248,33 @@
 			FROM grps_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	grps_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(grps_step2)		#str(grps_step2)			#106
+	# View(grps_step2)		#str(grps_step2)			#108
 
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME_PK, FISHING_METHOD, zone, TOT_LBS
 		FROM catch_year_codes
 		WHERE Jacks_110 = 1 and SPECIES_FK not in (109, 110)
 		ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	jacks_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(jacks_step1)		#str(jacks_step1)			#308 strata with identified jacks
+	# View(jacks_step1)		#str(jacks_step1)			#314 strata with identified jacks
 
 	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as ID_jacks
 		FROM jacks_step1
 		GROUP BY year_num, FISHING_METHOD, zone"
 	jacks_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(jacks_step2)		#str(jacks_step2)			#104
+	# View(jacks_step2)		#str(jacks_step2)			#106
 
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME_PK, FISHING_METHOD, zone, TOT_LBS
 			FROM catch_year_codes
 			WHERE Emporers_260 = 1 and SPECIES_FK != 260
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	emps_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# str(emps_step1)			# 354
+	# str(emps_step1)			# 359
 
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as ID_emps
 			FROM emps_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	emps_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# str(emps_step2)			# 96
+	# str(emps_step2)			# 98
 
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME_PK, FISHING_METHOD, zone, TOT_LBS
 			FROM catch_year_codes
@@ -1280,13 +1282,13 @@
 			ORDER BY year_num, SPECIES_FK, FISHING_METHOD, zone"
 	
 	bfish_step1 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(bfish_step1)		# str(bfish_step1)		#3755
+	# View(bfish_step1)		# str(bfish_step1)		#3787
 
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as ID_bfish
 			FROM bfish_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
 	bfish_step2 <- sqldf(string, stringsAsFactors=FALSE)
-	# View(bfish_step2)		# str(bfish_step2)		#119
+	# View(bfish_step2)		# str(bfish_step2)		#
 
 	# select out ID species that could be fish, excluding fish group
 	string <- "SELECT year_num, SPECIES_FK, SCIENTIFIC_NAME_PK, FISHING_METHOD, zone, TOT_LBS
@@ -1298,13 +1300,13 @@
   	string <- "SELECT year_num, FISHING_METHOD, zone, sum(TOT_LBS) as ID_fish
 			FROM fish_step1
 			GROUP BY year_num, FISHING_METHOD, zone"
-	fish_step2 <- sqldf(string, stringsAsFactors=FALSE)		#str(fish_step2)		#121
+	fish_step2 <- sqldf(string, stringsAsFactors=FALSE)		#str(fish_step2)		#
 	# View(fish_step2)
 
- 	# make a dataframe of all possible strata= 35 years x 2 areas x 2 gears = 140
-		potential_strata <- data.frame(year_num = rep(seq(1986,2020,1),4),
-			FISHING_METHOD = c(rep('BOTTOMFISHING',70),rep('BTM/TRL MIX',70)),
-			zone = c(rep('Tutuila',35),rep('Manua',35),rep('Tutuila',35),rep('Manua',35)))
+ 	# make a dataframe of all possible strata= 36 years x 2 areas x 2 gears = 144
+		potential_strata <- data.frame(year_num = rep(seq(1986,2021,1),4),
+			FISHING_METHOD = c(rep('BOTTOMFISHING',72),rep('BTM/TRL MIX',72)),
+			zone = c(rep('Tutuila',36),rep('Manua',36),rep('Tutuila',36),rep('Manua',36)))
 
 			#str(potential_strata)		#View(species_years)
 
@@ -1340,30 +1342,31 @@
 						ID_bfish 	= index_sampled*temp2g$ID_bfish, 
 						ID_fish 	= index_sampled*temp2g$ID_fish)				#View(temp3)
 
-  # make a dataframe of all possible strata x 11 BMUS species. Expect 35 years x 2 areas x 2 gears x 11 species = 1540 rows
+  # make a dataframe of all possible strata x 11 BMUS species. Expect 36 years x 2 areas x 2 gears x 11 species = 1584 rows
 
 	# make a dataframe of all possible strata= 35 years x 2 areas x 2 gears x 11 species = 1540
-		year_gear_zone <- data.frame(year_num = rep(seq(1986,2020,1),4),
-			FISHING_METHOD = c(rep('BOTTOMFISHING',70),rep('BTM/TRL MIX',70)),
-			zone = c(rep('Tutuila',35),rep('Manua',35),rep('Tutuila',35),rep('Manua',35)))
+		year_gear_zone <- data.frame(year_num = rep(seq(1986,2021,1),4),
+			FISHING_METHOD = c(rep('BOTTOMFISHING',72),rep('BTM/TRL MIX',72)),
+			zone = c(rep('Tutuila',36),rep('Manua',36),rep('Tutuila',36),rep('Manua',36)))
 
 	year_gear_zone2 <- do.call("rbind", replicate(11, year_gear_zone, simplify = FALSE))		#str(year_gear_zone2)
 
+	rx = 144
 	species_rep <- data.frame(
-			SCIENTIFIC_NAME_PK = c(rep('Aphareus rutilans',140),rep('Aprion virescens',140),
-			rep('Caranx lugubris',140),rep('Etelis coruscans',140),rep('Etelis carbunculus',140),
-			rep('Lethrinus rubrioperculatus',140),rep('Lutjanus kasmira',140),rep('Pristipomoides flavipinnis',140),
-			rep('Pristipomoides filamentosus',140),rep('Pristipomoides zonatus',140),rep('Variola louti',140)),
+			SCIENTIFIC_NAME_PK = c(rep('Aphareus rutilans',rx),rep('Aprion virescens',rx),
+			rep('Caranx lugubris',rx),rep('Etelis coruscans',rx),rep('Etelis carbunculus',rx),
+			rep('Lethrinus rubrioperculatus',rx),rep('Lutjanus kasmira',rx),rep('Pristipomoides flavipinnis',rx),
+			rep('Pristipomoides filamentosus',rx),rep('Pristipomoides zonatus',rx),rep('Variola louti',rx)),
 			
-			SPECIES_FK = c(rep('247',140),rep('239',140),
-			rep('111',140),rep('248',140),rep('249',140),
-			rep('267',140),rep('231',140),rep('241',140),
-			rep('242',140),rep('245',140),rep('229',140))
+			SPECIES_FK = c(rep('247',rx),rep('239',rx),
+			rep('111',rx),rep('248',rx),rep('249',rx),
+			rep('267',rx),rep('231',rx),rep('241',rx),
+			rep('242',rx),rep('245',rx),rep('229',rx))
 
 			)							#str(species_rep)	
 
 
-	year_gear_zone_species <- cbind(year_gear_zone2, species_rep)			# str(year_gear_zone_species)		# 1540 
+	year_gear_zone_species <- cbind(year_gear_zone2, species_rep)			# str(year_gear_zone_species)		# 1584
 
 	proptable_bmus2 <- merge(x = year_gear_zone_species, y = proptable_bmus, 
 				by = c('year_num','FISHING_METHOD','zone','SPECIES_FK','SCIENTIFIC_NAME_PK') , all.x = TRUE)		
@@ -1396,31 +1399,31 @@
 #  CALCULATE THE SMOOTH (MOVING AVERAGE)
 	#	remember, columns 6:12 are the prop, 13:19 are sum ID catch, 20:26 are smoothed
 	# 	1986-1990 (first 5 years) average
-	#	1991-2015 2 ahead, 2 behind
-	#	2016-2020 (last 5) average
-	# must loop for 11 species over 35 years
+	#	1991-2016 2 ahead, 2 behind
+	#	2017-2021 (last 5) average
+	# must loop for 11 species over 36 years
 	
 	for (s in 1:11) {
-		y1 <- (s-1)*35 + 1
+		y1 <- (s-1)*36 + 1
 
 		for (y in 1:5) {
-			we_on <- (s-1)*35 + y
+			we_on <- (s-1)*36 + y
 			manua_mix[we_on, 20:26] <- (colSums(manua_mix[y1:(y1+4),6:12]*manua_mix[y1:(y1+4),13:19], na.rm=TRUE))/
 								(colSums(manua_mix[y1:(y1+4),13:19] , na.rm=TRUE))
 			}
-		 for (y in 6:30) {
-			we_on <- (s-1)*35 + y
+		 for (y in 6:31) {
+			we_on <- (s-1)*36 + y
 			manua_mix[(we_on), 20:26] <- (colSums(manua_mix[(we_on-2):(we_on+2),6:12]*manua_mix[(we_on-2):(we_on+2),13:19], na.rm=TRUE))/
 									(colSums(manua_mix[(we_on-2):(we_on+2),13:19] , na.rm=TRUE))
 			}
-		 for (y in 31:35) {
-			we_on <- (s-1)*35 + y
-			manua_mix[we_on, 20:26] <- (colSums(manua_mix[(y1+30):(y1+34),6:12]*manua_mix[(y1+30):(y1+34),13:19], na.rm=TRUE))/
-									(colSums(manua_mix[(y1+30):(y1+34),13:19] , na.rm=TRUE))
+		 for (y in 32:36) {
+			we_on <- (s-1)*36 + y
+			manua_mix[we_on, 20:26] <- (colSums(manua_mix[(y1+31):(y1+35),6:12]*manua_mix[(y1+31):(y1+35),13:19], na.rm=TRUE))/
+									(colSums(manua_mix[(y1+31):(y1+35),13:19] , na.rm=TRUE))
 			}
 		}
 
-	# write.csv(manua_mix, "manua_mix_ptable_13Dec.csv")
+	# write.csv(manua_mix, "manua_mix_ptable_28Mar.csv")
 	# I looked at this in Excel. It checks out.			# View(manua_mix)
 
 
@@ -1437,22 +1440,22 @@
 	smooth_me <- manua_btm				#View(smooth_me)
 
 	for (s in 1:11) {
-		y1 <- (s-1)*35 + 1
+		y1 <- (s-1)*36 + 1
 
 		for (y in 1:5) {
-			we_on <- (s-1)*35 + y
+			we_on <- (s-1)*36 + y
 			smooth_me[we_on, 20:26] <- (colSums(smooth_me[y1:(y1+4),6:12]*smooth_me[y1:(y1+4),13:19], na.rm=TRUE))/
 								(colSums(smooth_me[y1:(y1+4),13:19] , na.rm=TRUE))
 			}
-		 for (y in 6:30) {
-			we_on <- (s-1)*35 + y
+		 for (y in 6:31) {
+			we_on <- (s-1)*36 + y
 			smooth_me[(we_on), 20:26] <- (colSums(smooth_me[(we_on-2):(we_on+2),6:12]*smooth_me[(we_on-2):(we_on+2),13:19], na.rm=TRUE))/
 									(colSums(smooth_me[(we_on-2):(we_on+2),13:19] , na.rm=TRUE))
 			}
-		 for (y in 31:35) {
-			we_on <- (s-1)*35 + y
-			smooth_me[we_on, 20:26] <- (colSums(smooth_me[(y1+30):(y1+34),6:12]*smooth_me[(y1+30):(y1+34),13:19], na.rm=TRUE))/
-									(colSums(smooth_me[(y1+30):(y1+34),13:19] , na.rm=TRUE))
+		 for (y in 32:36) {
+			we_on <- (s-1)*36 + y
+			smooth_me[we_on, 20:26] <- (colSums(smooth_me[(y1+31):(y1+35),6:12]*smooth_me[(y1+31):(y1+35),13:19], na.rm=TRUE))/
+									(colSums(smooth_me[(y1+31):(y1+35),13:19] , na.rm=TRUE))
 			}
 		}
 
@@ -1468,25 +1471,26 @@
 	
 	smooth_me <- tutu_btm				#View(smooth_me)
 
-	for (s in 1:11) {
-		y1 <- (s-1)*35 + 1
+		for (s in 1:11) {
+		y1 <- (s-1)*36 + 1
 
 		for (y in 1:5) {
-			we_on <- (s-1)*35 + y
+			we_on <- (s-1)*36 + y
 			smooth_me[we_on, 20:26] <- (colSums(smooth_me[y1:(y1+4),6:12]*smooth_me[y1:(y1+4),13:19], na.rm=TRUE))/
 								(colSums(smooth_me[y1:(y1+4),13:19] , na.rm=TRUE))
 			}
-		 for (y in 6:30) {
-			we_on <- (s-1)*35 + y
+		 for (y in 6:31) {
+			we_on <- (s-1)*36 + y
 			smooth_me[(we_on), 20:26] <- (colSums(smooth_me[(we_on-2):(we_on+2),6:12]*smooth_me[(we_on-2):(we_on+2),13:19], na.rm=TRUE))/
 									(colSums(smooth_me[(we_on-2):(we_on+2),13:19] , na.rm=TRUE))
 			}
-		 for (y in 31:35) {
-			we_on <- (s-1)*35 + y
-			smooth_me[we_on, 20:26] <- (colSums(smooth_me[(y1+30):(y1+34),6:12]*smooth_me[(y1+30):(y1+34),13:19], na.rm=TRUE))/
-									(colSums(smooth_me[(y1+30):(y1+34),13:19] , na.rm=TRUE))
+		 for (y in 32:36) {
+			we_on <- (s-1)*36 + y
+			smooth_me[we_on, 20:26] <- (colSums(smooth_me[(y1+31):(y1+35),6:12]*smooth_me[(y1+31):(y1+35),13:19], na.rm=TRUE))/
+									(colSums(smooth_me[(y1+31):(y1+35),13:19] , na.rm=TRUE))
 			}
 		}
+
 
 	tutu_btm <- smooth_me
 
@@ -1500,23 +1504,23 @@
 	
 	smooth_me <- tutu_mix 				#View(smooth_me)
 
-	for (s in 1:11) {
-		y1 <- (s-1)*35 + 1
+		for (s in 1:11) {
+		y1 <- (s-1)*36 + 1
 
 		for (y in 1:5) {
-			we_on <- (s-1)*35 + y
+			we_on <- (s-1)*36 + y
 			smooth_me[we_on, 20:26] <- (colSums(smooth_me[y1:(y1+4),6:12]*smooth_me[y1:(y1+4),13:19], na.rm=TRUE))/
 								(colSums(smooth_me[y1:(y1+4),13:19] , na.rm=TRUE))
 			}
-		 for (y in 6:30) {
-			we_on <- (s-1)*35 + y
+		 for (y in 6:31) {
+			we_on <- (s-1)*36 + y
 			smooth_me[(we_on), 20:26] <- (colSums(smooth_me[(we_on-2):(we_on+2),6:12]*smooth_me[(we_on-2):(we_on+2),13:19], na.rm=TRUE))/
 									(colSums(smooth_me[(we_on-2):(we_on+2),13:19] , na.rm=TRUE))
 			}
-		 for (y in 31:35) {
-			we_on <- (s-1)*35 + y
-			smooth_me[we_on, 20:26] <- (colSums(smooth_me[(y1+30):(y1+34),6:12]*smooth_me[(y1+30):(y1+34),13:19], na.rm=TRUE))/
-									(colSums(smooth_me[(y1+30):(y1+34),13:19] , na.rm=TRUE))
+		 for (y in 32:36) {
+			we_on <- (s-1)*36 + y
+			smooth_me[we_on, 20:26] <- (colSums(smooth_me[(y1+31):(y1+35),6:12]*smooth_me[(y1+31):(y1+35),13:19], na.rm=TRUE))/
+									(colSums(smooth_me[(y1+31):(y1+35),13:19] , na.rm=TRUE))
 			}
 		}
 

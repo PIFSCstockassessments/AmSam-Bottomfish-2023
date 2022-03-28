@@ -3,7 +3,7 @@
 #	Data preparation for BOAT BASED creel survey: 
 #   *** data updated Oct 6, 2021 with data received from Penlong JIRA ticket 113156
 #	    should be ALL interviews, all gears, all years, all species, etc., through 2020
-#   *** data updated March 25 with data received from Dios JIRA ticket 113220
+#   *** data updated March 25 2022 with data received from Dios JIRA ticket 113220
 #	    should be ALL interviews, all gears, all species, etc., for 2021
 #	Erin Bohaboy erin.bohaboy@noaa.gov
 #		includes some code written by John Syslo for the 2019 assessment

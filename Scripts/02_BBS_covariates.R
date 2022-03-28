@@ -61,7 +61,7 @@
    wind_manu <- wind_manu[order(wind_manu$dt),]			#View(wind_manu[1:100,])
 
   #  remove 1986 and 1987 from the interview list because we don't have wind data before 1988
-   ints_manu <- subset(ints_manu, year_num > 1987)
+   ints_manu <- subset(ints_manu, year_num > 1987)			#str(ints_manu)
 
   # findInterval will return the vector of indices for the closest without being under. I.e., the most recent dt.
    index_mat <- findInterval(ints_manu$INTERVIEW_TIME_UTC,wind_manu$dt)
@@ -178,7 +178,7 @@
 	# names(bbs_3C_2)
 
   bbs_3C <- bbs_3C_2
-	# str(bbs_3C)
+	# str(bbs_3C)			 # 49162 obs. of  105 variables:
 
 
 #  --------------------------------------------------------------------------------------------------------------
@@ -229,7 +229,7 @@
 # --- add effort as num_gear x hours_fished
 	bbs_3C <- mutate(bbs_3C, effort = HOURS_FISHED*NUM_GEAR)			#nrow(bbs_3C)
 
-   length(unique(bbs_3C$INTERVIEW_PK))		# 3066 interviews (1986-2021 are still in here)
+   length(unique(bbs_3C$INTERVIEW_PK))		# 3068 interviews
 
   # clean up workspace
 	all_objs <- ls()
