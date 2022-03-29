@@ -42,7 +42,7 @@
 # ---------------------- list interviews with interview-level data
 # 
 
-	string <- "SELECT DISTINCT INTERVIEW_PK, year_num, AREA_B2, FISHING_METHOD, TYPE_OF_DAY
+	string <- "SELECT DISTINCT INTERVIEW_PK, year_num, AREA_B2, FISHING_METHOD, TYPE_OF_DAY,
 				season, wspd, tod_quarter,			
 					ENSO, Moon_days, wdir, ONI, SOI,shift, 
 					NUM_GEAR, HOURS_FISHED, effort
@@ -152,6 +152,7 @@
 		WHERE year_num > 1987 AND AREA_B2 IN ('Bank_E','Bank_S','Manua','Tutuila')"
 	ints_5 <- sqldf(string, stringsAsFactors=FALSE)		# 
 	str(ints_5)			#2702 interviews
+	ints_5 <- mutate(ints_5, year_fac = as.factor(year_num))
 
 #  ----- make a standardized effort var for possible inclusion in the binom model (following Cambell 2015)
 #	NOTE: THIS IS COMMON OVER ALL AREAS AND INCLUDES MISSING PCS
