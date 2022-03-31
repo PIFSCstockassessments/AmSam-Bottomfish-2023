@@ -69,9 +69,8 @@
 
 ##################   KASMIRA example using absolute AIC threshold
 
-##### presence/absence by area, forward selection, abs AIC threshold = 2
-
- #  --- Tutuila	
+## presence/absence by area, forward selection, abs AIC threshold = 2
+##  --- Tutuila	
 	species <- 'kasmira'
 	area <- 'tutu'
 	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
@@ -80,16 +79,21 @@
 	aic_abs_thresh <- 2
 
  LUKA_tutu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(LUKA_tutu_binom)
+	summary(LUKA_tutu_binom$model)
+	sp_data_all <- LUKA_tutu_binom$sp_data_all
+  	plot(LUKA_tutu_binom$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1,
+			seWithMean = TRUE, shift = coef(LUKA_tutu_binom$model)[1])
+	
+ gam.check(LUKA_tutu_binom$model)
+  # don't forget, q-q plot here doesn't really mean anything. Mostly look at residuals histogram.
 
  # examine the selected model formula, ensure no redundant covariables.
  # for additional details for each step in the selection process, see the output .txt.
 
 
-##### positive process by area, gamma error distribution, forward selection, abs AIC threshold = 2
+## positive process by area, gamma error distribution, forward selection, abs AIC threshold = 2
 	# same arguments as binomial fit functions
-
- #  --- Tutuila
+##  --- Tutuila
 	species <- 'kasmira'
 	area <- 'tutu'
 	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
@@ -106,13 +110,17 @@
 
 	aic_abs_thresh <- 2
 
- LUKA_tutu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(LUKA_tutu_gamma)
+ 	LUKA_tutu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	
+	sp_data_pos <- LUKA_tutu_gamma$sp_data_pos
+  	plot(LUKA_tutu_gamma$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1, pages = 1)
+	plot(LUKA_tutu_gamma$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1,
+			seWithMean = TRUE, shift = coef(LUKA_tutu_gamma$model)[1])
 
 
-##### positive process by area, LogNormal error distribution, forward selection, abs AIC threshold = 2
 
- #  --- Tutuila
+## positive process by area, LogNormal error distribution, forward selection, abs AIC threshold = 2
+##  --- Tutuila
 	species <- 'kasmira'
 	area <- 'tutu'
 	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
@@ -130,22 +138,138 @@
 	aic_abs_thresh <- 2
 
   LUKA_tutu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(LUKA_tutu_LnN)
-
+	summary(LUKA_tutu_LnN$model)
+   sp_data_pos_Ln <- LUKA_tutu_LnN$sp_data_pos_Ln
+  	plot(LUKA_tutu_LnN$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1, pages = 1)
+	plot(LUKA_tutu_LnN$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1,
+			seWithMean = TRUE, shift = coef(LUKA_tutu_LnN$model)[1])
 
  # in this example, chose between gamma and LnN
- 	gam.check(LUKA_tutu_gamma)
-	gam.check(LUKA_tutu_LnN)
+ 	gam.check(LUKA_tutu_gamma$model)
+	gam.check(LUKA_tutu_LnN$model)			#
+  #  LnN looks much better.
+
+
+####
+##  --- Manua	
+	species <- 'kasmira'
+	area <- 'manu'
+	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")	
+	aic_abs_thresh <- 2
+
+
+# binom
+#  var_name = c('effort_std', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+#			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+#  LUKA_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+#	summary(LUKA_manu_binom)
+
+ # can't have PC and prop_pelagics
+#  var_name = c('effort_std', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+#			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
+#  LUKA_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+#  summary(LUKA_manu_binom)	#30.9% dev., AIC = 793.22
+
+  var_name = c('effort_std', 'TYPE_OF_DAY', 'season', 'wspd', 'tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+  LUKA_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+  summary(LUKA_manu_binom$model)	#44.9% dev., AIC = 642.63
+
+  gam.check(LUKA_manu_binom$model)
+
+
+# gamma
+ var_name = c('TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+	
+ LUKA_manu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(LUKA_manu_gamma$model)
+
+
+# LnN
+ var_name = c('TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+
+ LUKA_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(LUKA_manu_LnN$model)
+
+
+ # gamma or LnN?
+ 	gam.check(LUKA_manu_gamma)
+	gam.check(LUKA_manu_LnN)
   #  LnN looks much better.
 
 
 
+####
+##  --- Banks	
+	species <- 'kasmira'
+	area <- 'banks'
+	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")	
+	aic_abs_thresh <- 2
+
+
+# binom
+  var_name = c('effort_std', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+  LUKA_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(LUKA_banks_binom$model)
+
+  gam.check(LUKA_banks_binom$model)
+  sp_data_all <- LUKA_banks_binom$sp_data_all
+  	plot(LUKA_banks_binom$model, all.terms = TRUE, select = 2, rug = TRUE, residuals = TRUE, pch = 1, cex = 1)
+
+
+
+
+
+# gamma
+ var_name = c('TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+	
+ LUKA_banks_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(LUKA_banks_gamma$model)
+
+
+
+
+# LnN
+ var_name = c('TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
+		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+
+ LUKA_banks_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+  summary(LUKA_banks_LnN$model)
+
+  gam.check(LUKA_banks_LnN$model)
+
+   sp_data_pos_Ln <- LUKA_banks_LnN$sp_data_pos_Ln
+  	plot(LUKA_banks_LnN$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1, pages = 1)
+
+
+
+
+ # gamma or LnN?
+ 	gam.check(LUKA_banks_gamma$model)
+	gam.check(LUKA_banks_LnN$model)
+  # pretty close, LnN slightly better, and use for consistency with tutu and manu.
+
+
+
+
+# make a list object to hold the LUKA models that we've chosen
+
+banks <- list('pa' = LUKA_banks_binom, 'pos'= LUKA_banks_LnN)
+tutu <- list('pa' = LUKA_tutu_binom, 'pos'= LUKA_tutu_LnN)
+manu <- list('pa' = LUKA_manu_binom, 'pos'= LUKA_manu_LnN)
+
+LUKA <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
+
+
  # -------------------------------------------------------------------------------------------------------------------------------
- # keep the data and model objects that we like the best
- #  will probably make more sense to build model objects into a list with all species, all areas, similar to the CPUE data.
+ # keep the data and model objects, save workspace for predition
 
 	all_objs <- ls()
-	save_objs <- c("cpue_datasets","root_dir","LUKA_tutu_binom","LUKA_tutu_LnN")
+	save_objs <- c("cpue_datasets","root_dir","LUKA")
 	remove_objs <- setdiff(all_objs, save_objs)
     rm(list=remove_objs)
 	rm(save_objs)
