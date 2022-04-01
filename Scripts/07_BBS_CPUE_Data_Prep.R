@@ -155,12 +155,27 @@
 	ints_5 <- mutate(ints_5, year_fac = as.factor(year_num))
 
 #  ----- make a standardized effort var for possible inclusion in the binom model (following Cambell 2015)
-#	NOTE: THIS IS COMMON OVER ALL AREAS AND INCLUDES MISSING PCS
+#	NOTE: THIS IS COMMON OVER ALL AREAS AND INCLUDES interviews that are MISSING PCS 
+#			(because they caught rare species only)
 	effort_mean <- mean(ints_5$effort)
 	effort_sd <- sd(ints_5$effort)
-	ints_5 <- mutate(ints_5, effort_std = (effort - effort_mean)/effort_sd)
+	hours_mean <- mean(ints_5$HOURS_FISHED)
+	hours_sd <- sd(ints_5$HOURS_FISHED)
+	ints_5 <- mutate(ints_5, effort_std = (effort - effort_mean)/effort_sd,
+			hours_std = (HOURS_FISHED - hours_mean)/hours_sd)
 	# var(ints_5$effort_std)
 	# mean(ints_5$effort_std)
+	# var(ints_5$hours_std)
+	# mean(ints_5$hours_std)
+
+#  create a categorical variable for number of gears, combine 7-9, see prelim analysis
+#  summary(as.factor(ints_5$NUM_GEAR))
+	ints_5 <- mutate(ints_5, num_gear_fac = as.character(NUM_GEAR))
+	ints_5$num_gear_fac[ints_5$num_gear_fac == '7'] <- '789'
+	ints_5$num_gear_fac[ints_5$num_gear_fac == '8'] <- '789'
+	ints_5$num_gear_fac[ints_5$num_gear_fac == '9'] <- '789'
+	ints_5$num_gear_fac = as.factor(ints_5$num_gear_fac)
+	summary(ints_5$num_gear_fac)
 
 #  catch data
   # ----------- pick out lbs caught for each bmus
@@ -298,7 +313,7 @@
  # ----- KASMIRA -----
 
 	sp_data <- merge(x = ints_5, y = LUKA_catch, by = 'INTERVIEW_PK' , all.x = TRUE) 	#nrow(sp_data)
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -330,7 +345,7 @@
  # ----- RUTILANS -----
 
 	sp_data <- merge(x = ints_5, y = APRU_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	summary(sp_data$AREA_B2)
@@ -364,7 +379,7 @@
  # ----- VIRESCENS -----
 
 	sp_data <- merge(x = ints_5, y = APVI_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	summary(sp_data$AREA_B2)
@@ -397,7 +412,7 @@
  # ----- LUGUBRIS -----
 
 	sp_data <- merge(x = ints_5, y = CALU_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -431,7 +446,7 @@
 
 	sp_data <- merge(x = ints_5, y = ETCO_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
 	# View(sp_data)		#str(sp_data)
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -463,7 +478,7 @@
 #  ----- CARBUNCULUS -----
 
 	sp_data <- merge(x = ints_5, y = ETCA_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -491,7 +506,7 @@
 #  ----- RUBRIOPERCULATUS -----
 
 	sp_data <- merge(x = ints_5, y = LERU_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -519,7 +534,7 @@
 #  ----- FLAVIPINNIS -----
 
 	sp_data <- merge(x = ints_5, y = PRFL_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -548,7 +563,7 @@
 #  ----- FILAMENTOSUS -----
 
 	sp_data <- merge(x = ints_5, y = PRFI_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -577,7 +592,7 @@
 #  ----- ZONATUS -----
 
 	sp_data <- merge(x = ints_5, y = PRZO_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
@@ -606,7 +621,7 @@
 #  ----- LOUTI -----
 
 	sp_data <- merge(x = ints_5, y = VALO_catch, by = 'INTERVIEW_PK' , all.x = TRUE)    
-	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/effort,digits=3))
+	sp_data <- mutate(sp_data, catch_cpue = round(catch_lbs/HOURS_FISHED,digits=3))
 	sp_data$catch_lbs[is.na(sp_data$catch_lbs)] <- 0 	
 	sp_data$catch_cpue[is.na(sp_data$catch_cpue)] <- 0 
 	sp_data$z <- 0
