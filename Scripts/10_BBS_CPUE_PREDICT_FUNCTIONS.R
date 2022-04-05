@@ -41,54 +41,106 @@
 
  # models and data are stored in LUKA$ tutu $ pa $ pos $sp_data_all $sp_data_pos
 
-  fitobject <- LUKA
+# str(LUKA)
+#	$ tutu [1]
+#		$ pa  [1][1]
+#			$model	  [1][1][1]
+#			$sp_data_all  [1][1][2]
+#		$ pos [1][2]
+#			$model	  [1][2][1]
+#			$sp_data_pos  [1][2][2]
+
+
 
 # example: Luka tutuila
+species = 'LUKA'
+area = 'tutu'
 
 
-# ----------------------  nominal
+# ----------------------  nominal CPUE function
 
-agg_catch <- aggregate(fitobject$tutu$pa$sp_data_all$catch_lbs,
-				 by=list(Group=fitobject$tutu$pa$sp_data_all$year_fac), FUN=sum)
-names(agg_catch)[] <- c("year_fac", "catch")
+  predict_nominal <- function(species, area) {
 
-agg_effort <- aggregate(fitobject$tutu$pa$sp_data_all$HOURS_FISHED,
-				 by=list(Group=fitobject$tutu$pa$sp_data_all$year_fac), FUN=sum)
-names(agg_effort)[] <- c("year_fac","effort")
+	this_species <- get(species)			# str(this_species)
+	index_area <- match(area, names(this_species))
 
-count_ints <- data.frame(year_fac = names(summary(fitobject$tutu$pa$sp_data_all$year_fac)),
-				n_ints = summary(fitobject$tutu$pa$sp_data_all$year_fac))
+	sp_data_all <- this_species[[index_area]][[1]][[2]] 			#names(sp_data_all)
 
-agg_cpue_var <- aggregate(fitobject$tutu$pa$sp_data_all$catch_cpue,
-				 by=list(Group=fitobject$tutu$pa$sp_data_all$year_fac), FUN=var)
-names(agg_cpue_var)[] <- c("year_fac","var_cpue")
+	agg_catch <- aggregate(sp_data_all$catch_lbs,
+				 by=list(Group=sp_data_all$year_fac), FUN=sum)
+	names(agg_catch)[] <- c("year_fac", "catch")
+
+	agg_effort <- aggregate(sp_data_all$HOURS_FISHED,
+				 by=list(Group=sp_data_all$year_fac), FUN=sum)
+	names(agg_effort)[] <- c("year_fac","effort")
+
+	count_ints <- data.frame(year_fac = names(summary(sp_data_all$year_fac)),
+				n_ints = summary(sp_data_all$year_fac))
+
+	agg_cpue_var <- aggregate(sp_data_all$catch_cpue,
+				 by=list(Group=sp_data_all$year_fac), FUN=var)
+	names(agg_cpue_var)[] <- c("year_fac","var_cpue")
 
 
-nom_cpue1 <- merge(x = agg_catch, y = agg_effort, by = "year_fac")
-nom_cpue2 <- merge(x = nom_cpue1, y = count_ints, by = "year_fac")
-nom_cpue3 <- merge(x = nom_cpue2, y = agg_cpue_var, by = "year_fac")
+	nom_cpue1 <- merge(x = agg_catch, y = agg_effort, by = "year_fac")
+	nom_cpue2 <- merge(x = nom_cpue1, y = count_ints, by = "year_fac")
+	nom_cpue3 <- merge(x = nom_cpue2, y = agg_cpue_var, by = "year_fac")
 
-nom_cpue <- mutate(nom_cpue3, cpue = catch/effort, stdev = sqrt(var_cpue), se = sqrt(var_cpue)/(n_ints-1))
+	nom_cpue <- mutate(nom_cpue3, cpue = catch/effort, stdev = sqrt(var_cpue), se = sqrt(var_cpue)/(n_ints-1))
+
+	return(nom_cpue)
+
+  }
 
 
-#  -------------- presence/absence
+# END NOMINAL CPUE FUNCTION   -----------------------------
 
-### build the prediction grid
 
-  # categorical covariables
-	pa_pred_grid <- expand.grid(fitobject$tutu$pa$model$xlevels)			#head(pa_pred_grid)		#str(pa_pred_grid)
-	pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(fitobject$tutu$pa$model$xlevels)],1,paste0,collapse="_"))
 
-  # add on median values for continous variables
-   for(i in 1:length(fitobject$tutu$pa$model$var.summary)) {
- 	this_var_name <- names(fitobject$tutu$pa$model$var.summary)[i]
-	if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
-		add_me <- data.frame(new_col = rep(fitobject$tutu$pa$model$var.summary[[i]][2],nrow(pa_pred_grid)))
-		names(add_me) <- as.character(names(fitobject$tutu$pa$model$var.summary)[i]) 
+  predict_delta <- function(species, area) {
+
+   # preliminaries
+   this_species <- get(species)			# str(this_species)		#str(sp_data_all)		#str(sp_data_pos)
+   index_area <- match(area, names(this_species))
+   sp_data_all <- this_species[[index_area]][[1]][[2]] 				#names(pa_model)		#names(pos_model)
+   pa_model <- this_species[[index_area]][[1]][[1]] 
+   sp_data_pos <- this_species[[index_area]][[2]][[2]] 
+   pos_model <- this_species[[index_area]][[2]][[1]] 
+
+   # build the presence/absence prediction grid
+
+  	# categorical covariables
+	  pa_pred_grid <- expand.grid(pa_model$xlevels)			#head(pa_pred_grid)		#str(pa_pred_grid)
+ 	  pa_pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(pa_model$xlevels)],1,paste0,collapse="_"))
+
+  	# add on median values for continous variables
+   	  for(i in 1:length(pa_model$var.summary)) {
+ 	    this_var_name <- names(pa_model$var.summary)[i]
+	      if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][2],nrow(pa_pred_grid)))
+		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
 		pa_pred_grid <- cbind(pa_pred_grid, add_me)
 		rm(add_me)
 		}
-	}
+	  }
+
+
+   # build the positive process prediction grid
+
+  	# categorical covariables
+	  pos_pred_grid <- expand.grid(pos_model$xlevels)			#head(pos_pred_grid)		#str(pos_pred_grid)
+ 	  pos_pred_grid_name = data.frame(grid_name = apply(pos_pred_grid[,1:length(pos_model$xlevels)],1,paste0,collapse="_"))
+
+  	# add on median values for continous variables
+   	  for(i in 1:length(pos_model$var.summary)) {
+ 	    this_var_name <- names(pos_model$var.summary)[i]
+	      if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+	  }
 
 
 ### predict for each grid (and mean continuous variables)
