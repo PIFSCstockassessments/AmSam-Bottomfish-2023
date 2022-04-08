@@ -8,7 +8,7 @@
 
 
 # ----- PRELIMINARIES
-  rm(list=ls())
+#  rm(list=ls())
   Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
   # load all the libraries.
@@ -508,13 +508,13 @@ ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
  # -------------------------------------------------------------------------------------------------------------------------------
  # keep the data and model objects, save workspace for predition
 
-	all_objs <- ls()
-	save_objs <- c("cpue_datasets","root_dir","LUKA","ETCO")
-	remove_objs <- setdiff(all_objs, save_objs)
-    rm(list=remove_objs)
-	rm(save_objs)
-	rm(remove_objs)
-	rm(all_objs)
+ #	all_objs <- ls()
+ #	save_objs <- c("cpue_datasets","root_dir","LUKA","ETCO")
+ #	remove_objs <- setdiff(all_objs, save_objs)
+ #   	rm(list=remove_objs)
+ #	rm(save_objs)
+ #	rm(remove_objs)
+ #	rm(all_objs)
 
   # save.image(paste(root_dir, "/output/09_BBS_CPUE_FIT_MODELS.RData", sep=""))
 	# save.image(paste(root_dir, "/Outputs/09_BBS_CPUE_FIT_MODELS.RData", sep=""))

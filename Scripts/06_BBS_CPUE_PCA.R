@@ -11,7 +11,7 @@
 
 
 # ----- PRELIMINARIES
-  rm(list=ls())
+#  rm(list=ls())
   Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
   # load all the libraries.
@@ -363,13 +363,13 @@
 
  # -------------------------------------------------------------------------------------------------------------------------------
  # clean up workspace, save just the PCA stuff
-	all_objs <- ls()
-	save_objs <- c("PCA_Banks", "PCA_Manua", "PCA_Tutuila", "ints_PCs","root_dir")
-	remove_objs <- setdiff(all_objs, save_objs)
-    rm(list=remove_objs)
-	rm(save_objs)
-	rm(remove_objs)
-	rm(all_objs)
+ #	all_objs <- ls()
+ #	save_objs <- c("PCA_Banks", "PCA_Manua", "PCA_Tutuila", "ints_PCs","root_dir")
+ #	remove_objs <- setdiff(all_objs, save_objs)
+ #      rm(list=remove_objs)
+ #	rm(save_objs)
+ #	rm(remove_objs)
+ #	rm(all_objs)
 
   # save.image(paste(root_dir, "/output/06_BBS_CPUE_PCA.RData", sep=""))
 	# save.image(paste(root_dir, "/Outputs/06_BBS_CPUE_PCA.RData", sep=""))

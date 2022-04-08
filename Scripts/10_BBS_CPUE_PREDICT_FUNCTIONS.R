@@ -6,7 +6,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 
 # ----- PRELIMINARIES
-  rm(list=ls())
+#  rm(list=ls())
   Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
   # load all the libraries.

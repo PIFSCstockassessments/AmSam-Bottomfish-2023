@@ -22,7 +22,7 @@
 # install.packages('ncdf4') 
 # install.packages('httr')
 
-   rm(list=ls())
+#  rm(list=ls())
    library(ncdf4)
    library(httr)
    library(dplyr)
@@ -248,16 +248,16 @@ str(wind_6h)
 
 
  # clean up workspace
-	all_objs <- ls()
-	save_objs <- c("wind_6h","root_dir")
-	remove_objs <- setdiff(all_objs, save_objs)
-    rm(list=remove_objs)
-	rm(save_objs)
-	rm(remove_objs)
-	rm(all_objs)
+ #	all_objs <- ls()
+ #	save_objs <- c("wind_6h","root_dir")
+ #	remove_objs <- setdiff(all_objs, save_objs)
+ #      rm(list=remove_objs)
+ #	rm(save_objs)
+ #	rm(remove_objs)
+ #	rm(all_objs)
 
-  # save.image(paste(root_dir, "/data/01_Get_Wind.RData", sep=""))
-	# save.image(paste(root_dir, "/Data/01_Get_Wind.RData", sep=""))
+ # 	save.image(paste(root_dir, "/data/01_Get_Wind.RData", sep=""))
+ # 	save.image(paste(root_dir, "/Data/01_Get_Wind.RData", sep=""))
 	
 
 

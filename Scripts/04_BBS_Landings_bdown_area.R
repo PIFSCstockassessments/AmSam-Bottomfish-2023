@@ -12,7 +12,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 
   #  PRELIMINARIES
-  rm(list=ls())
+ # rm(list=ls())
   Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
   # load all the libraries.
@@ -900,18 +900,18 @@
 # -----------------------------------------------------------------------------------------------------------------------------
 
  # clean up workspace
-	all_objs <- ls()
-	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_total", "breakdown_bmus_smooth",
-					"species_proptable_by_year_gear_zone",
-					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
-					"p_amboinensis","p_rubrio", "sp_data3_basic")
-	remove_objs <- setdiff(all_objs, save_objs)
-    rm(list=remove_objs)
-	rm(save_objs)
-	rm(remove_objs)
-	rm(all_objs)
+ #	all_objs <- ls()
+ #	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_total", "breakdown_bmus_smooth",
+ #					"species_proptable_by_year_gear_zone",
+ #					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
+ #					"p_amboinensis","p_rubrio", "sp_data3_basic")
+ #	remove_objs <- setdiff(all_objs, save_objs)
+ #   	rm(list=remove_objs)
+ #	rm(save_objs)
+ #	rm(remove_objs)
+ #	rm(all_objs)
 
-  # save.image(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
+ # save.image(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
 	# save.image(paste(root_dir, "/Outputs/04_BBS_Landings_bdown_area.RData", sep=""))
 	
 

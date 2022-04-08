@@ -48,7 +48,7 @@
 #  -----------------------------------------------------------------------------------------------------------------------------------------------
 
 #  PRELIMINARIES
-  	rm(list=ls())
+ # 	rm(list=ls())
   	Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
   	library(sqldf)
   	library(dplyr)
@@ -1642,18 +1642,17 @@
 
 
  # clean up workspace
-	all_objs <- ls()
-	save_objs <- c("smooth_proptable","root_dir", "species_proptable_by_year_gear_zone","p_louti", 
-				"p_albimarginata","p_flavi","p_fila","p_elongatus",
-					"p_amboinensis","p_rubrio")
-	remove_objs <- setdiff(all_objs, save_objs)
-    rm(list=remove_objs)
-	rm(save_objs)
-	rm(remove_objs)
-	rm(all_objs)
+ #	all_objs <- ls()
+ #	save_objs <- c("smooth_proptable","root_dir", "species_proptable_by_year_gear_zone","p_louti", 
+ #				"p_albimarginata","p_flavi","p_fila","p_elongatus",
+ #					"p_amboinensis","p_rubrio")
+ #	remove_objs <- setdiff(all_objs, save_objs)
+ #   	rm(list=remove_objs)
+ #	rm(save_objs)
+ #	rm(remove_objs)
+ #	rm(all_objs)
 
-  # This is a smaller workspace, no longer contains the BBS data, just the proptable and species ID correction ps.
-  
+  # This is a smaller workspace, no longer contains the BBS data, just the proptable and species ID correction ps
 	# save.image(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))
 	# save.image(paste(root_dir, "/Outputs/03_BBS_species_proptables.RData", sep=""))
 	

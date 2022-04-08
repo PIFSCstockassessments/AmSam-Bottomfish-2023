@@ -14,8 +14,8 @@
 #  --------------------------------------------------------------------------------------------------------------
 
   #  PRELIMINARIES
-  rm(list=ls())
-  Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
+#  rm(list=ls())
+#  Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
   # load all the libraries.
   library(sqldf)
@@ -618,17 +618,13 @@
 
 
  # clean up workspace
-	all_objs <- ls()
-	save_objs <- c("sbs_proptable","root_dir","p_louti", "p_albimarginata", "sbs_basic")
-	remove_objs <- setdiff(all_objs, save_objs)
-    rm(list=remove_objs)
-	rm(save_objs)
-	rm(remove_objs)
-	rm(all_objs)
-
-
-
-
+ #	all_objs <- ls()
+ #	save_objs <- c("sbs_proptable","root_dir","p_louti", "p_albimarginata", "sbs_basic")
+ #	remove_objs <- setdiff(all_objs, save_objs)
+ #   	rm(list=remove_objs)
+ #	rm(save_objs)
+ #	rm(remove_objs)
+ #	rm(all_objs)
 
 
  # save.image(paste(root_dir, "/output/01_SBS_data_prep.RData", sep=""))
