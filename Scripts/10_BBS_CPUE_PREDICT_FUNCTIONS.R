@@ -11,7 +11,7 @@
 
   # load all the libraries.
 #  library(sqldf)
-#  library(dplyr)
+  library(dplyr)
   library(this.path)
 #  library(ggfortify)		#  install.packages('ggfortify')
   library(data.table)		#  install.packages('data.table')
@@ -52,10 +52,6 @@
 
 
 
-# example: Luka tutuila
-species = 'LUKA'
-area = 'tutu'
-
 
 # ----------------------  nominal CPUE function
 
@@ -95,9 +91,110 @@ area = 'tutu'
 
 # END NOMINAL CPUE FUNCTION   -----------------------------
 
+  # example: Luka tutuila
+  	species = 'LUKA'
+	area = 'tutu'
+  nom_cpue_example <- predict_nominal(species, area)
+  str(nom_cpue_example)
+
+plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
 
 
-  predict_delta <- function(species, area) {
+# ---------------------- Use mode values for categorical variables to 
+#	do predictions for the delta distribution GAM objects
+
+  predict_delta_modes <- function(species, area) {
+
+   # preliminaries
+   this_species <- get(species)			# str(this_species)		#str(sp_data_all)		#str(sp_data_pos)
+   index_area <- match(area, names(this_species))					#summary(pa_model)
+   sp_data_all <- this_species[[index_area]][[1]][[2]] 				#names(pa_model)		#names(pos_model)
+   pa_model <- this_species[[index_area]][[1]][[1]] 
+   sp_data_pos <- this_species[[index_area]][[2]][[2]] 
+   pos_model <- this_species[[index_area]][[2]][[1]] 
+   first_year <- min(sp_data_all$year_num)
+   last_year <- max(sp_data_all$year_num)
+   pos_error <- summary(pos_model)$family$family
+
+
+   # build the prediction datasets
+
+   pa_pred_grid <- data.frame(year_fac = as.factor(seq(first_year, last_year, 1)))
+
+   for(i in 2:length(pa_model$var.summary)) {
+ 	    this_var_name <- names(pa_model$var.summary)[i]
+	      
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'fact') {
+		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][1],nrow(pa_pred_grid)))
+		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
+		pa_pred_grid <- cbind(pa_pred_grid, add_me)
+		rm(add_me)
+		}
+
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][2],nrow(pa_pred_grid)))
+		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
+		pa_pred_grid <- cbind(pa_pred_grid, add_me)
+		rm(add_me)
+		}
+
+	  }
+
+
+   pos_pred_grid <- data.frame(year_fac = as.factor(seq(first_year, last_year, 1)))
+
+   for(i in 2:length(pos_model$var.summary)) {
+ 	    this_var_name <- names(pos_model$var.summary)[i]
+	      
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'fact') {
+		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][1],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+
+	  }
+
+
+   # do the predictions 
+   pred_pa = predict.gam(pa_model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)
+   pred_pos = predict.gam(pos_model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)
+
+
+		# correct for lognormal error
+			MSE = summary(pos_model)$dispersion
+
+			new.data3$pred = exp(pred.pos$fit+(MSE/2))*pred.bin$fit
+
+		# combine variance, assume independence
+		# sd(XY) = (var(X)var(Y)+var(X)E(Y)^2 + var(Y)E(X)^2)^0.5
+			pos.se = exp(pred.pos$fit)*pred.pos$se.fit
+
+			new.data3$se = ((pos.se^2)*(pred.bin$se.fit^2) + (pos.se^2)*pred.bin$fit^2 + (pred.bin$se.fit^2)*exp(pred.pos$fit+(MSE/2))^2)^0.5
+
+
+
+
+
+
+summary(pa_model)
+str(pa_model)
+
+
+
+
+
+# ---------------------- Use Walter's Large Table (WLT, marginal means) to 
+#	do predictions for the delta distribution GAM objects
+
+  predict_delta_WLT <- function(species, area) {
 
    # preliminaries
    this_species <- get(species)			# str(this_species)		#str(sp_data_all)		#str(sp_data_pos)

@@ -46,6 +46,21 @@
   head(sp_data2)
   str(sp_data2)			# updated 2020: 10,095 records
 
+  # -------------------- 
+  # Read in the 8Apr2022 updated through 2021 expanded landings estimates. Note that some changes were made to 2000 forward since
+  #	14Dec.
+
+	sp_data2021 <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+	str(sp_data2021)
+ 
+  # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
+  sp_data2021_2 <- mutate(sp_data2021, year = substr(SPC_PK,2,5), method = substr(SPC_PK,11,11), 
+					zone = substr(SPC_PK,14,14), type = substr(SPC_PK,20,21), 
+					charter = substr(SPC_PK,22,22), process = substr(SPC_PK,23,23))
+  tail(sp_data2021_2)
+  str(sp_data2021_2)			# updated 2021: 10315 records			#
+
+
   #  Note:
   #		Method	4 = bottomfishing, 5 = btm/trl mix
   #		Zone	1 = Tutuila, 2 = Manua
