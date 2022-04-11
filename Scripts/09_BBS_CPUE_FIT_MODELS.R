@@ -65,6 +65,7 @@
 #  * use only 1 targeting covariable: the Winker PCs (PC1 and/or PC2) or prop_pelagics. Again, if both get selected for the
 #		best model, eliminate the weaker one from list_vars.
 #  * use only 1 time of day covariable: tod_quarter or shift. Dido above.
+#  * use only 1 time of year covariable: season, month, or yday
 
 
 ##################   KASMIRA example using absolute AIC threshold
@@ -78,14 +79,14 @@
 	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
 			'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 
 				'tod_quarter','year_fac*tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')","s(yday, bs='cc')", "month",
+			 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
 	aic_abs_thresh <- 2
 
  LUKA_tutu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_tutu_binom$model)
  #	sp_data_all <- LUKA_tutu_binom$sp_data_all
- # 	plot(LUKA_tutu_binom$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1,
- # 			seWithMean = TRUE, shift = coef(LUKA_tutu_binom$model)[1])
+ # 	plot(LUKA_tutu_binom$model, all.terms = FALSE, SE=TRUE , rug = TRUE, residuals = FALSE, pch = 1, cex = 1)
 	
  gam.check(LUKA_tutu_binom$model)
   # don't forget, q-q plot here doesn't really mean anything. Mostly look at residuals histogram.
@@ -97,22 +98,11 @@
 ## positive process by area, gamma error distribution, forward selection, abs AIC threshold = 2
 	# same arguments as binomial fit functions
 ##  --- Tutuila
-	species <- 'kasmira'
-	area <- 'tutu'
-	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
-	# var_name = c('num_gear_fac','TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-	#		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-	
-	# just PCs  Dev. exp. 36.9 %  AIC 2488.9
-	# var_name = c('num_gear_fac', 'TYPE_OF_DAY','season', 'wspd', 'tod_quarter',			
-	#		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-	
-	# just prop_pelagics	36.5% AIC 2497.42
-	 var_name = c('year_fac*tod_quarter','year_fac*season','year_fac*TYPE_OF_DAY','TYPE_OF_DAY',
-				'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
-
-	aic_abs_thresh <- 2
+	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
+			'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 
+				'tod_quarter','year_fac*tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')","s(yday, bs='cc')", "month",
+			 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
 
  	LUKA_tutu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_tutu_gamma$model)
@@ -126,26 +116,26 @@
 
 ## positive process by area, LogNormal error distribution, forward selection, abs AIC threshold = 2
 ##  --- Tutuila
-	species <- 'kasmira'
-	area <- 'tutu'
-	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
-	# var_name = c('year_fac*tod_quarter','year_fac*season','num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-	#		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-	
-	# just PCs  Dev. exp. 41.6%
-	 var_name = c('year_fac*season', 'year_fac*TYPE_OF_DAY','year_fac*tod_quarter','num_gear_fac', 'TYPE_OF_DAY','season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-	
-	# just prop_pelagics	39.2%
-	# var_name = c('num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-	#		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
 
-	aic_abs_thresh <- 2
+	
+  var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'num_gear_fac', 
+			'TYPE_OF_DAY', 
+		#	'prop_pelagics', 
+			'season', 'wspd', 
+				'tod_quarter','year_fac*tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')","s(yday, bs='cc')", "month",
+			 'ONI', 'SOI', 'shift', 
+			'PC1','PC2', 
+			'prop_unid' )
+
+  # just PCs: 41.9
+  # just prop pelagics:
+
 
   LUKA_tutu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_tutu_LnN$model)
  #   sp_data_pos_Ln <- LUKA_tutu_LnN$sp_data_pos_Ln
- # 	plot(LUKA_tutu_LnN$model, all.terms = TRUE, SE=TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1, pages = 1)
+ # 	plot(LUKA_tutu_LnN$model, all.terms = TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1)
 
  # in this example, chose between gamma and LnN
  	gam.check(LUKA_tutu_gamma$model)
@@ -160,29 +150,23 @@
 	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")	
 	aic_abs_thresh <- 2
 
-
 # binom
-#  var_name = c('hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-#			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-#  LUKA_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-#	summary(LUKA_manu_binom)
 
- # can't have PC and prop_pelagics, try both
-  var_name = c('year_fac*tod_quarter','year_fac*season', 'year_fac*TYPE_OF_DAY',
-				'hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
+	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'num_gear_fac', 'hours_std',
+			'TYPE_OF_DAY', 
+		#	'prop_pelagics', 
+			'season', 
+			'wspd', 
+				'tod_quarter','year_fac*tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')",
+		# "s(yday, bs='cc')", "month",
+			 'ONI', 'SOI', 'shift', 
+			'PC1','PC2', 
+			'prop_unid' )
+
   LUKA_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
   summary(LUKA_manu_binom$model)
-  # warning message occured
-  # year*tod included based on AIC, yet 90% of year x tod strata have no obs. Also, no coeffs were significant.
-  #	do not include year*tod 
 
-  var_name = c('year_fac*season', 'year_fac*TYPE_OF_DAY',
-				'hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'PC1','PC2', 'season', 'wspd', 
-				'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
-  LUKA_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-  summary(LUKA_manu_binom$model)
 
   
 # gamma
@@ -194,8 +178,21 @@
 
 
 # LnN
- var_name = c('year_fac*tod_quarter','year_fac*season', 'year_fac*TYPE_OF_DAY', 'num_gear_fac','TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+
+	var_name = c('year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'num_gear_fac', 
+		#	'hours_std',
+			'TYPE_OF_DAY', 
+		#	'prop_pelagics', 
+			'season', 
+			'wspd', 
+				'tod_quarter','year_fac*tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')",
+		 	"s(yday, bs='cc')", "month",
+			 'ONI', 'SOI', 'shift', 
+			'PC1','PC2', 
+			'prop_unid' )
+
+
  LUKA_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_manu_LnN$model)
 
@@ -219,16 +216,21 @@
 
 ####
 ##  --- Banks	
-	species <- 'kasmira'
-	area <- 'banks'
-	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")	
-	aic_abs_thresh <- 2
 
+	area <- 'banks'
+ 
+	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'num_gear_fac', 'hours_std',
+			'TYPE_OF_DAY', 
+			'prop_pelagics', 
+			'season', 'wspd', 
+				'tod_quarter','year_fac*tod_quarter',			
+			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')","s(yday, bs='cc')", "month",
+			 'ONI', 'SOI', 'shift', 
+			'PC1','PC2', 
+			'prop_unid' )
 
 # binom
-  var_name = c('year_fac*tod_quarter','year_fac*season', 'year_fac*TYPE_OF_DAY','hours_std','num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-  LUKA_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+    LUKA_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_banks_binom$model)
 
   gam.check(LUKA_banks_binom$model)
@@ -240,8 +242,21 @@
 
 
 # gamma (not enough data to look for interactions)
- var_name = c('TYPE_OF_DAY','num_gear_fac', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
+
+	var_name = c('num_gear_fac',
+			'TYPE_OF_DAY', 
+			'prop_pelagics', 
+		#	'season', 
+			'wspd', 
+			'tod_quarter',			
+		#	'ENSO', 
+			"s(Moon_days, bs='cc')", "s(wdir, bs='cc')",
+		#	"s(yday, bs='cc')", 
+			"month",
+			 'ONI', 'SOI', 
+		#	'shift', 
+			'PC1','PC2', 
+			'prop_unid' )
 	
  LUKA_banks_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_banks_gamma$model)
@@ -250,11 +265,9 @@
 
 
 # LnN (not enough data to look for interactions)
- var_name = c('TYPE_OF_DAY','num_gear_fac', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-		'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
 
  LUKA_banks_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-  summary(LUKA_banks_LnN$model)
+  summary(LUKA_banks_LnN$model)	#	month: 94.4			# 81.7%
 
   gam.check(LUKA_banks_LnN$model)
 
@@ -508,9 +521,9 @@ ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
  # -------------------------------------------------------------------------------------------------------------------------------
  # keep the data and model objects, save workspace for predition
 
- #	all_objs <- ls()
- #	save_objs <- c("cpue_datasets","root_dir","LUKA","ETCO")
- #	remove_objs <- setdiff(all_objs, save_objs)
+ 	all_objs <- ls()
+ 	save_objs <- c("cpue_datasets","root_dir","LUKA","ETCO")
+ 	remove_objs <- setdiff(all_objs, save_objs)
  #   	rm(list=remove_objs)
  #	rm(save_objs)
  #	rm(remove_objs)

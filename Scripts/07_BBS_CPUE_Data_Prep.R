@@ -28,6 +28,8 @@
  # library(cowplot)
  # library(lattice)
  # library(ggplotify)
+ # library(lubridate)		#  install.packages('lubridate')
+
 
   # establish directories using this.path::
   root_dir <- this.path::here(.. = 1)
@@ -41,15 +43,13 @@
 
 # ---------------------- list interviews with interview-level data
 # 
-
 	string <- "SELECT DISTINCT INTERVIEW_PK, year_num, AREA_B2, FISHING_METHOD, TYPE_OF_DAY,
 				season, wspd, tod_quarter,			
 					ENSO, Moon_days, wdir, ONI, SOI,shift, 
-					NUM_GEAR, HOURS_FISHED, effort
+					NUM_GEAR, HOURS_FISHED, effort, month, INTERVIEW_TIME_LOCAL
 			FROM bbs_3C
 			"
 	ints_1 <- sqldf(string, stringsAsFactors=FALSE)				#str(ints_1)
-
 
 # ------ Join primary components 1 and 2 to the data
 
@@ -176,6 +176,10 @@
 	ints_5$num_gear_fac[ints_5$num_gear_fac == '9'] <- '789'
 	ints_5$num_gear_fac = as.factor(ints_5$num_gear_fac)
 	summary(ints_5$num_gear_fac)
+
+#  Add a julian day variable for possible GAM inclusion (vs. season or month)
+	ints_5 <- mutate(ints_5, yday = yday(INTERVIEW_TIME_LOCAL)) 
+	
 
 #  catch data
   # ----------- pick out lbs caught for each bmus
@@ -669,9 +673,9 @@
 
  # -------------------------------------------------------------------------------------------------------------------------------
  # clean up workspace, save just the PCA stuff
- #	all_objs <- ls()
- #	save_objs <- c("cpue_datasets","root_dir")
- #	remove_objs <- setdiff(all_objs, save_objs)
+ 	all_objs <- ls()
+ 	save_objs <- c("cpue_datasets","root_dir")
+ 	remove_objs <- setdiff(all_objs, save_objs)
  #   	rm(list=remove_objs)
  #	rm(save_objs)
  #	rm(remove_objs)

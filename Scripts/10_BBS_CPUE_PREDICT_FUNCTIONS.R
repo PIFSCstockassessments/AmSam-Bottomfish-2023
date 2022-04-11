@@ -1,6 +1,6 @@
 #  --------------------------------------------------------------------------------------------------------------
 #   AMERICAN SAMOA BOAT-BASED CREEL SURVEY CPUE
-#	Fit GAM models
+#	Functions to do the predictions based on GAM model objects and data sets stored in each output from 09_
 #	Erin Bohaboy erin.bohaboy@noaa.gov
 
 #  --------------------------------------------------------------------------------------------------------------
@@ -35,8 +35,8 @@
 
  # make a relational table to tell us which covariate names are factors and which are continuous
   cov_types <- data.frame(cov_name = c('year_fac', 'hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', 'Moon_days', 'wdir', 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2'), cov_type = c('fact', 'cont','fact','fact','cont',
-			'fact','cont','fact','cont','cont','cont','cont','cont','fact','cont','cont','cont'))
+			'ENSO', 'Moon_days', 'wdir', 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2','yday','month'), cov_type = c('fact', 'cont','fact','fact','cont',
+			'fact','cont','fact','cont','cont','cont','cont','cont','fact','cont','cont','cont','cont','fact'))
 
 
  # models and data are stored in LUKA$ tutu $ pa $ pos $sp_data_all $sp_data_pos
@@ -83,6 +83,11 @@
 	nom_cpue3 <- merge(x = nom_cpue2, y = agg_cpue_var, by = "year_fac")
 
 	nom_cpue <- mutate(nom_cpue3, cpue = catch/effort, stdev = sqrt(var_cpue), se = sqrt(var_cpue)/(n_ints-1))
+	nom_cpue$species <- species
+	nom_cpue$area <- area
+	nom_cpue$type <- 'nominal'
+	nom_cpue$year <- as.numeric(as.character(nom_cpue$year_fac))
+
 
 	return(nom_cpue)
 
@@ -91,13 +96,7 @@
 
 # END NOMINAL CPUE FUNCTION   -----------------------------
 
-  # example: Luka tutuila
-  	species = 'LUKA'
-	area = 'tutu'
-  nom_cpue_example <- predict_nominal(species, area)
-  str(nom_cpue_example)
 
-plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
 
 
 # ---------------------- Use mode values for categorical variables to 
@@ -124,6 +123,7 @@ plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
    for(i in 2:length(pa_model$var.summary)) {
  	    this_var_name <- names(pa_model$var.summary)[i]
 	      
+		# for factor variables
 		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'fact') {
 		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][1],nrow(pa_pred_grid)))
 		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
@@ -131,6 +131,7 @@ plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
 		rm(add_me)
 		}
 
+		# for continuous variables
 		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
 		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][2],nrow(pa_pred_grid)))
 		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
@@ -146,6 +147,7 @@ plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
    for(i in 2:length(pos_model$var.summary)) {
  	    this_var_name <- names(pos_model$var.summary)[i]
 	      
+		# for factor variables
 		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'fact') {
 		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][1],nrow(pos_pred_grid)))
 		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
@@ -153,6 +155,7 @@ plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
 		rm(add_me)
 		}
 
+		# for continuous variables
 		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
 		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
 		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
@@ -164,20 +167,68 @@ plot(as.numeric(nom_cpue_example$year_fac), nom_cpue_example$cpue, pch = 1)
 
 
    # do the predictions 
+   
    pred_pa = predict.gam(pa_model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)
    pred_pos = predict.gam(pos_model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)
 
+   pred_delta <- data.frame(year = seq(first_year, last_year, 1), pa_raw = pred_pa$fit, pa_se = pred_pa$se.fit,
+					pos_raw = pred_pos$fit, pos_se = pred_pos$se.fit)
 
-		# correct for lognormal error
-			MSE = summary(pos_model)$dispersion
+   # correct for lognormal error if positive process was LnN
+	if (pos_error == "gaussian") {
+		MSE = summary(pos_model)$dispersion
+	#	pred_delta$pos_correct = exp(pred_delta$pos_raw+(MSE/2))
+		pred_delta$pos_correct = exp(pred_delta$pos_raw)
+		pred_delta$pos_se_correct = exp(pred_delta$pos_raw)*(pred_delta$pos_se)
+		}
 
-			new.data3$pred = exp(pred.pos$fit+(MSE/2))*pred.bin$fit
+	if (pos_error == "gamma") {
+		pred_delta$pos_correct = pred_delta$pos_raw
+		pred_delta$pos_se_correct = pred_delta$pos_se
+		}
+		
 
-		# combine variance, assume independence
-		# sd(XY) = (var(X)var(Y)+var(X)E(Y)^2 + var(Y)E(X)^2)^0.5
-			pos.se = exp(pred.pos$fit)*pred.pos$se.fit
+	# combine the 2 distributions
+	pred_delta$delta_fit = pred_delta$pos_correct*pred_delta$pa_raw
+		
+	# Goodman 1960 golden rule:
+	#	for 2 independent random variables X and Y:
+	#	var(XY) = var(X)var(Y) + var(X)E(Y)^2 + Var(Y)E(X)^2
+		
+	pred_delta$delta_var = pred_delta$pa_se*pred_delta$pos_se_correct +
+			pred_delta$pa_se*pred_delta$pos_correct^2 +
+			pred_delta$pos_se_correct*pred_delta$pa_raw^2
 
-			new.data3$se = ((pos.se^2)*(pred.bin$se.fit^2) + (pos.se^2)*pred.bin$fit^2 + (pred.bin$se.fit^2)*exp(pred.pos$fit+(MSE/2))^2)^0.5
+	# sd = sqrt(var)
+	pred_delta$delta_sd <- (pred_delta$delta_var)^(1/2)
+	pred_delta$species <- species
+	pred_delta$area <- area
+	pred_delta$type <- 'delta_modes'
+
+	return(pred_delta)
+  }
+
+
+# END Delta 2-distribution using categorical modes  -----------------------------
+
+
+# example using these 2 functions: Luka tutuila
+  	
+	species = 'LUKA'
+	area = 'tutu'
+  	nom_luka <- predict_nominal(species, area)
+	delta_luka_modes <- predict_delta_modes(species, area)
+
+
+
+  str(nom_cpue_example)
+  plot(as.numeric(as.character(nom_cpue_example$year_fac)), nom_cpue_example$cpue, pch = 1)
+
+
+
+
+
+
 
 
 

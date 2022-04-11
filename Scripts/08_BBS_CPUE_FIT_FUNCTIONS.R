@@ -85,7 +85,7 @@ binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_th
 # ---- STEP 1: fit null model
     null_formula_formula <- as.formula(null_formula_text)
 
-    run_gam <- gam(null_formula_formula, data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), wdir=c(0,360)), method='ML',
+    run_gam <- gam(null_formula_formula, data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML',
     			na.action = na.omit)
     last_aic <- run_gam$aic
 
@@ -109,7 +109,7 @@ binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_th
 	formula_text <- paste0(current_formula," + ",add_var)
 	formula_formula <- as.formula(formula_text)
 	run_gam <- gam(formula_formula, data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
-				wdir=c(0,360)), method='ML',na.action = na.omit)
+				wdir=c(0,360), yday=c(0,366)), method='ML',na.action = na.omit)
     	mod_aic <- run_gam$aic
 	
 	list_vars[i,3] <- mod_aic
@@ -194,7 +194,7 @@ binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_th
  #	refit the GAM, return the model object and the data in a list 
 	best_formula_formula <- as.formula(best_formula)
 	best_gam <- gam(best_formula_formula, data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
-			wdir=c(0,360)), method='ML', na.action = na.omit)
+			wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
 
 	return(list("model" = best_gam, "sp_data_all" = sp_data_all))
 
@@ -238,7 +238,7 @@ gamma_forwards <- function(species, area, var_name, out_directory, aic_abs_thres
     null_formula_formula <- as.formula(null_formula_text)
 
     run_gam <- gam(null_formula_formula, data = sp_data_pos,  family= 'Gamma', 
-					knots = list(Moon_days=c(0,30), wdir=c(0,360)), method='ML', na.action = na.omit)
+					knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
     last_aic <- run_gam$aic
 
    keep_going = TRUE
@@ -260,11 +260,11 @@ gamma_forwards <- function(species, area, var_name, out_directory, aic_abs_thres
 	add_var = list_vars[i,2]
 	formula_text <- paste0(current_formula," + ",add_var)
 	formula_formula <- as.formula(formula_text)
-	run_gam <- gam(formula_formula, data = sp_data_pos,  family= 'Gamma', knots = list(Moon_days=c(0,30), wdir=c(0,360)), 
+	run_gam <- gam(formula_formula, data = sp_data_pos,  family= 'Gamma', knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), 
 			method='ML', na.action = na.omit)
     	mod_aic <- run_gam$aic
 	list_vars[i,3] <- mod_aic
-	# trygam <- try(gam(formula_formula, data = sp_data_pos,  family= 'Gamma', knots = list(Moon_days=c(0,30), wdir=c(0,360)), method='ML'))
+	# trygam <- try(gam(formula_formula, data = sp_data_pos,  family= 'Gamma', knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML'))
 	# is.error(trygam)
 	# print(i)
 	# print(warnings())
@@ -349,7 +349,7 @@ gamma_forwards <- function(species, area, var_name, out_directory, aic_abs_thres
  #	refit the GAM and return that object
 	best_formula_formula <- as.formula(best_formula)
 	best_gam <- gam(best_formula_formula, data = sp_data_pos,  family= 'Gamma', knots = list(Moon_days=c(0,30), 
-			wdir=c(0,360)), method='ML', na.action = na.omit)
+			wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
 
 	return(list("model" = best_gam, "sp_data_pos" = sp_data_pos))
 
@@ -384,7 +384,7 @@ LnN_forwards <- function(species, area, list_vars, out_directory,  aic_abs_thres
     null_formula_formula <- as.formula(null_formula_text)
 
     run_gam <- gam(null_formula_formula, data = sp_data_pos_Ln,  family= gaussian, 
-					knots = list(Moon_days=c(0,30), wdir=c(0,360)), method='ML', na.action = na.omit)
+					knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
     last_aic <- run_gam$aic
 
    keep_going = TRUE
@@ -407,7 +407,7 @@ LnN_forwards <- function(species, area, list_vars, out_directory,  aic_abs_thres
 	formula_text <- paste0(current_formula," + ",add_var)
 	formula_formula <- as.formula(formula_text)
 	run_gam <- gam(formula_formula, data = sp_data_pos_Ln,  family= gaussian, knots = list(Moon_days=c(0,30), 
-			wdir=c(0,360)), method='ML', na.action = na.omit)
+			wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
     	mod_aic <- run_gam$aic
 	
 	list_vars[i,3] <- mod_aic
@@ -493,7 +493,7 @@ LnN_forwards <- function(species, area, list_vars, out_directory,  aic_abs_thres
  #	refit the GAM and return that object
 	best_formula_formula <- as.formula(best_formula)
 	best_gam <- gam(best_formula_formula, data = sp_data_pos_Ln,  family= gaussian, knots = list(Moon_days=c(0,30), 
-				wdir=c(0,360)), method='ML', na.action = na.omit)
+				wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
 
 	return(list("model" = best_gam, "sp_data_pos_Ln" = sp_data_pos_Ln))
 
