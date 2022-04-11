@@ -1,6 +1,6 @@
 
 #  --------------------------------------------------------------------------------------------------------------
-#   AMERICAN SAMOA Boat-Based catches: Reconstruct Manu'a catches for 2009-2020 (add 2021 later)
+#   AMERICAN SAMOA Boat-Based catches: Reconstruct Manu'a catches for 2009-2021
 #	Erin Bohaboy erin.bohaboy@noaa.gov
 #
 #		
@@ -45,7 +45,7 @@
   #   so, do not include 1986-1987 in information used to reconstruct recent catches.
 
 
-  # Estimate 2009-2020 Manu'a Islands catch, by species following 2 different approaches
+  # Estimate 2009-2021 Manu'a Islands catch, by species following 2 different approaches
   #	a. "slope": Manu'a catch and variance is a proportion of Tutuila catch based on 1988-2008
   #		only if p-value of regression indicates slope is not zero
   #	b. "constant": Manu'a catch is the average of 1987-2008 Manu'a catch. Variance is the variance
@@ -142,7 +142,7 @@
  		for (i in 1:11) {
 		  plot_me <- subset(manu_catch_all, SCIENTIFIC_NAME_PK == names(sp_names)[i])		#str(plot_me)
 		  plot_me$type <- with(plot_me, reorder(type,tot_lbs,function(tot_lbs) -1* sum(tot_lbs)))
-		  ticks <- seq(1985,2020,5)
+		  ticks <- seq(1985,2022,5)
 		  ymax <- max(plot_me$tot_lbs + 1.96*plot_me$sd, na.rm = TRUE)
 		  tick_height <- ymax/40
 
@@ -153,7 +153,7 @@
 		    scale_fill_manual(values=type.colors2) +
 		#  scale_fill_manual(values=type.colors2, labels=c("Tutuila", "Manu'a")) +
 		    geom_segment(y=0,yend=0,x=0,xend=3000) +
-		    scale_x_continuous(breaks=ticks, limits = c(1985,2021)) +
+		    scale_x_continuous(breaks=ticks, limits = c(1985,2022)) +
 		    geom_errorbar(aes(x=year, ymin = pmax(0, tot_lbs - 1.96*sd), ymax = tot_lbs + 1.96*sd, width = 0), size=0.1, col = "#646464", position=position_dodge(.9)) +
 		    theme_datareport_bar() +	
 		    geom_segment(y=0,yend=-tick_height,x=ticks[1],xend=ticks[1]) +
@@ -176,7 +176,7 @@
 			x = unit(0.6, "npc"), y = unit(0.5, "npc"),
 			just = "centre", hjust = NULL, vjust = NULL, rot = 90)
 
-		pdf(paste(root_dir, "/output/", "Manua_landings_reconstruct_compare.pdf", sep=""))
+		pdf(paste(root_dir, "/output/", "Manua_landings_reconstruct_compare_update.pdf", sep=""))
 		#pdf(paste(root_dir, "/Outputs/", "Manua_landings_reconstruct_compare.pdf", sep=""))
 		
 		grid.arrange(p_1 + theme(legend.position = c(.1,1), legend.title = element_blank(), legend.justification = "top") + expand_pretty_y(p_1),
@@ -196,33 +196,33 @@
 
 		dev.off()
 
+
 # -----------------------------------------------------------------------------------------------------------------------------
 
  # clean up workspace
- #	all_objs <- ls()
- #	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_all", "breakdown_bmus_smooth",
- #					"species_proptable_by_year_gear_zone",
- #					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
- #					"p_amboinensis","p_rubrio", "sp_data3_basic")
- #	remove_objs <- setdiff(all_objs, save_objs)
+ 	all_objs <- ls()
+ 	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_all", "breakdown_bmus_smooth",
+ 					"species_proptable_by_year_gear_zone",
+ 					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
+ 					"p_amboinensis","p_rubrio", "sp_data3_basic")
+ 	remove_objs <- setdiff(all_objs, save_objs)
  #   rm(list=remove_objs)
  #	rm(save_objs)
  #	rm(remove_objs)
  #	rm(all_objs)
 
- # save.image(paste(root_dir, "/output/05_BBS_Landings_Manua_09_20.RData", sep=""))
+ # save.image(paste(root_dir, "/output/05_BBS_Landings_Manua_09_21.RData", sep=""))
 	#  save.image(paste(root_dir, "/Outputs/05_BBS_Landings_Manua_09_20.RData", sep=""))
 	
-
-
-#  make a figure
-
-	manu_catch_all <- mutate(manu_catch_all, sd = sqrt(tot_var))			#head(manu_catch_all)
-	manu_catch_all$type <- as.factor(manu_catch_all$type)
-	summary(manu_catch_all$type)
-	type.colors2 <-c("bbs_expansion" = "#00467F", "constant" = "#008998", "slope"="#4C9C2E")
+ # load(paste(root_dir, "/output/05_BBS_Landings_Manua_09_21.RData", sep=""))
+ # to get the catch estimates out for stock assessment, either manipulate tutu_catch, banks_catch, manu_catch_all in R
+ #	or, output as .csv files and handle in excel, etc.
+ # View(manu_catch_all)
+ # View(tutu_catch)
+ # View(banks_catch)
 
 
 
+# -----------------------------------------------------------------------------------------------------------------------------
 
 

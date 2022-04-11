@@ -1657,8 +1657,8 @@
 	# save.image(paste(root_dir, "/Outputs/03_BBS_species_proptables.RData", sep=""))
 	
 	
-	
-	
+ # load(paste(root_dir, "/output/03_BBS_species_proptables.RData", sep=""))	
+ # write.csv(smooth_proptable, "smooth_proptable_11Apr.csv")
 
 
 
