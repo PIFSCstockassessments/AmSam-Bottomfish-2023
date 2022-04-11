@@ -1,7 +1,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 #   AMERICAN SAMOA LANDINGS (Boat-based)
 #   This is the most basic processing script for the expanded landings, 
-#		received from Hongguang Nov 21, 2021 (corrected for number of weekend days)
+#		updated April 2022 to include 2021 data and various changes to 2000+
 #   Use 04_Landings_bdown_area.R for complete landings data handling
 #
 #	Erin Bohaboy erin.bohaboy@noaa.gov
@@ -32,7 +32,7 @@
   # ----------------------------------
   # Read in the updated 14Dec expanded landings data
  
-  sp_data <- read.csv(paste(root_dir, "/data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
   # str(sp_data)
 
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
@@ -40,7 +40,7 @@
 					zone = substr(SPC_PK,14,14), type = substr(SPC_PK,20,21), 
 					charter = substr(SPC_PK,22,22), process = substr(SPC_PK,23,23))
   head(sp_data2)
-  str(sp_data2)			# updated 2020: 10,095 records
+  str(sp_data2)			# updated 2021: 10,315 records
 
   #  Note:
   #		Method	4 = bottomfishing, 5 = btm/trl mix
@@ -70,7 +70,7 @@
 			FROM sp_data2
 			WHERE method in ('4','5','6','8','61')
 			"
-  sp_data3 <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3)		#  8,707 records
+  sp_data3 <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3)		#  8,905 records
 
   #  spear and atule (landings, variance, and sample size) can be grouped to "other" and summed. We will not be breaking down
   #	groups from those gears. Use standard BBS names for the other gears
@@ -81,7 +81,7 @@
   sp_data3$method[sp_data3$method=='8']<-'other'
   sp_data3$method[sp_data3$method=='61']<-'other'
 
-  sp_data3$year <- as.numeric(sp_data3$year)				# str(sp_data3)  # 8707 records
+  sp_data3$year <- as.numeric(sp_data3$year)				# str(sp_data3)  # 8905 records
 
   # add species scientific names for convenience
   names_key <- read.csv(paste(root_dir, "/data/all_species_names.csv", sep=""), header=T, stringsAsFactors=FALSE) 
@@ -92,14 +92,14 @@
 		LEFT JOIN names_key ON
 			sp_data3.SPECIES_FK = names_key.SPECIES_FK
 		"
-  sp_data3B <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3B)		#  8,707 records
+  sp_data3B <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3B)		#  8,905 records
   bbs_landings_basic <- sp_data3B
 
 
  # clean up workspace, save this as the basic landings data
- #	all_objs <- ls()
- #	save_objs <- c("bbs_landings_basic","root_dir")
- #	remove_objs <- setdiff(all_objs, save_objs)
+ 	all_objs <- ls()
+ 	save_objs <- c("bbs_landings_basic","root_dir")
+ 	remove_objs <- setdiff(all_objs, save_objs)
  #      rm(list=remove_objs)
  #	rm(save_objs)
  #	rm(remove_objs)

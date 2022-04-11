@@ -7,11 +7,16 @@
 #   ----------------------------------------------------------------------------------------------------------------------------
 #   Expanded boat-based landings data received from Hongguang Dec 14, 2021 (corrected for number of weekend days, includes 2020)
 #
+#   Updated Landings Estimates 8Apr2022 
+#	Includes 2021 expanded landings estimates and some changes were made to 2000 forward since we received the Dec14 data
+#	See comparison figure 
+#   ----------------------------------------------------------------------------------------------------------------------------
+#
 #   Erin Bohaboy erin.bohaboy@noaa.gov
 #	
 #  --------------------------------------------------------------------------------------------------------------
 
-  #  PRELIMINARIES
+ #  PRELIMINARIES
  # rm(list=ls())
   Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
@@ -31,35 +36,19 @@
   # establish directories using this.path::
   root_dir <- this.path::here(.. = 1)
 
-  # ----------------------------------
-  # Read in the updated 14Dec expanded landings data
- 
-  sp_data <- read.csv(paste(root_dir, "/data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-  #sp_data <- read.csv(paste(root_dir, "/Data/SPC_BBS_AS3added2020.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-  
-  # str(sp_data)
 
+  # -------------------- 
+  # Read in the 8Apr2022 updated through 2021
+
+	sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+	str(sp_data)
+ 
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
   sp_data2 <- mutate(sp_data, year = substr(SPC_PK,2,5), method = substr(SPC_PK,11,11), 
 					zone = substr(SPC_PK,14,14), type = substr(SPC_PK,20,21), 
 					charter = substr(SPC_PK,22,22), process = substr(SPC_PK,23,23))
-  head(sp_data2)
-  str(sp_data2)			# updated 2020: 10,095 records
-
-  # -------------------- 
-  # Read in the 8Apr2022 updated through 2021 expanded landings estimates. Note that some changes were made to 2000 forward since
-  #	14Dec.
-
-	sp_data2021 <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-	str(sp_data2021)
- 
-  # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
-  sp_data2021_2 <- mutate(sp_data2021, year = substr(SPC_PK,2,5), method = substr(SPC_PK,11,11), 
-					zone = substr(SPC_PK,14,14), type = substr(SPC_PK,20,21), 
-					charter = substr(SPC_PK,22,22), process = substr(SPC_PK,23,23))
-  tail(sp_data2021_2)
-  str(sp_data2021_2)			# updated 2021: 10315 records			#
-
+  tail(sp_data2)
+  str(sp_data2)			# updated 2021: 10315 records			#
 
   #  Note:
   #		Method	4 = bottomfishing, 5 = btm/trl mix
@@ -100,7 +89,7 @@
   sp_data3$method[sp_data3$method=='8']<-'other'
   sp_data3$method[sp_data3$method=='61']<-'other'
 
-  sp_data3$year <- as.numeric(sp_data3$year)				# str(sp_data3)  # 8707 records
+  sp_data3$year <- as.numeric(sp_data3$year)				# str(sp_data3)  # 8905 records
 
   # rename duplicate group SPECIES_FK in cases of complete union:
 	# Jacks (110) and Trevally (109)
@@ -120,16 +109,16 @@
 			LEFT JOIN names_key ON
 			sp_data3.SPECIES_FK = names_key.SPECIES_FK
 		"
-  		sp_data3_basicA <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3_basicA)		#  8,707 records
+  		sp_data3_basicA <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3_basicA)		# records
 				
 		# simplify data to only the columns and strata we need (year x zone x gear)
 		# sum over year, zone, method, species_fk will combine the redefined gear types, species (groups), and daytype / charter
 		string <- "SELECT year, zone, method, SPECIES_FK,SCIENTIFIC_NAME, sum(LBS_CAUGHT) as LBS_CAUGHT, sum(VAR_LBS_CAUGHT) AS VAR_LBS_CAUGHT
 				FROM  sp_data3_basicA 
 				GROUP BY year, zone, method, SCIENTIFIC_NAME"
-		sp_data3_basic <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data3_basic)		#5315 records
+		sp_data3_basic <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data3_basic)		#5447 records
   		# Check to make sure we do not gain / lose lbs or variance in this step
-  		sum(sp_data3_basic$LBS_CAUGHT, na.rm = TRUE)
+  		sum(sp_data3_basic$LBS_CAUGHT, na.rm = TRUE)				# magic number = 8700717
 
   # -----------------------------------------------------------------------------------
   # STEP 1: make the species identification corrections within these landings data. 
@@ -152,7 +141,7 @@
 				FROM  sp_data3 
 				GROUP BY year, zone, method, SPECIES_FK"
 
-	sp_data4 <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data4)		#5618 records (some species have multiple SPECIES_FK)
+	sp_data4 <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data4)		#5751 records (some species have multiple SPECIES_FK)
 	# sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)			# MAGIC_NUMBER <- sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)	
 										# MAGIC_NUMBER2 <- sum(sp_data4$VAR_LBS_CAUGHT, na.rm = TRUE)
 
@@ -169,7 +158,7 @@
     # use delete query to remove these records from sp_data4	
       sp_data4B <- sqldf(c("DELETE FROM sp_data4 WHERE SPECIES_FK in (220, 229) AND year < 2016", "SELECT * FROM sp_data4"))
 	# note, running a DELETE query in sqldf will always throw a warning. ignore.
-	# str(sp_data4B)			# 5484 records		
+	# str(sp_data4B)			# 5617 records		
 	# TEST	# sum(sp_data4B$LBS_CAUGHT, na.rm = TRUE)+sum(correct_me$LBS_CAUGHT) == MAGIC_NUMBER
 
    # for "correct_me", sum louti and albimarginata lbs and variance by strata (year, zone, method)
@@ -351,7 +340,7 @@
   #		expanded landings. So, we will replace NA type 2 above with the timeseries average for each species x gear x area.
 
      	# check smooth_proptable, rename columns to match landings
-     	str(smooth_proptable)		# 1540	#View(smooth_proptable)		#names(smooth_proptable)  # 11*35*2*2
+     	str(smooth_proptable)		# 1584	#View(smooth_proptable)		#names(smooth_proptable)  # 11*36*2*2
      	names(smooth_proptable)[1] <- "year"
      	names(smooth_proptable)[2] <- "method"
      	names(smooth_proptable)[4] <- "SPECIES_PK"
@@ -402,10 +391,10 @@
     	# must add gear 'other' x zone x year x species (all values = 0)		View(year_gear_zone)
     	#	  so, we are looking for 1*2*35*11 = 770 new rows
     	# this is necessary in order to join the proptable back onto the landings
-    	n_yr <- 35
+    	n_yr <- 36
 	n_zone <- 2
 	n_sp <- 11
-	year_gear_zone <- data.frame(year = rep(seq(1986,2020,1),n_zone),					#View(year_gear_zone)
+	year_gear_zone <- data.frame(year = rep(seq(1986,2021,1),n_zone),					#View(year_gear_zone)
 		method = rep('other',n_zone*n_yr),
 		zone = c(rep('Tutuila',n_yr),rep('Manua',n_yr)))
 	year_gear_zone2 <- do.call("rbind", replicate(n_sp, year_gear_zone, simplify = FALSE))		#str(year_gear_zone2)
@@ -423,7 +412,7 @@
 		#str(year_gear_zone2)
 	add_zeros3 <- cbind(year_gear_zone_species, add_zeros2)
 	smooth_prop_complete2 <- rbind(smooth_prop_complete, add_zeros3)			#str(smooth_prop_complete2)
-		# expect 1540 + 770 = 2310			#View(smooth_prop_complete2)
+		# expect 1584 + 792 = 2376			#View(smooth_prop_complete2)
 
 	proptable <- smooth_prop_complete2
 	
@@ -437,8 +426,8 @@
 
 	# select group landings to break-down 
 	break_me_down <- subset(sp_data_groups, SPECIES_FK  == 110)			#str(break_me_down)		#View(break_me_down)
-	# sum(break_me_down$LBS_CAUGHT, na.rm = TRUE)					# 18896.51 lbs jacks to assign
-	# sum(break_me_down$VAR_LBS_CAUGHT, na.rm = TRUE)				# 1693881 var within jacks to partitian
+	# sum(break_me_down$LBS_CAUGHT, na.rm = TRUE)					# 20997.27 lbs jacks to assign
+	# sum(break_me_down$VAR_LBS_CAUGHT, na.rm = TRUE)				# 2852739 var within jacks to partitian
 
 	# join to proptable
 	string <- "SELECT break_me_down.*, 
@@ -468,8 +457,8 @@
 				FROM bdown_2 
 				GROUP BY year, zone, method"
 
-	leftover_1 <- sqldf(string, stringsAsFactors=FALSE)			#View(leftover_1)
-	leftover_2 <- mutate(leftover_1, LBS_CAUGHT = init_lbs - lbs_bdown, VAR_LBS_CAUGHT = init_var - var_bdown)
+	leftover_1 <- sqldf(string, stringsAsFactors=FALSE)			#View(leftover_2)
+	leftover_2 <- mutate(leftover_1, LBS_CAUGHT = init_lbs - lbs_bdown, VAR_LBS_CAUGHT = init_var - var_bdown)		#names(leftover_2)
 	# reorder columns
 	leftover_3 <- leftover_2[,-(5:8)]					
 	
@@ -479,7 +468,7 @@
 	# CHECK that lbs and variance are conserved over this step
 	# breakdown + leftover should equal break_me_down
 	(sum(bdown_3$LBS_CAUGHT, na.rm = TRUE) + sum(leftover_3$LBS_CAUGHT, na.rm = TRUE)) - sum(break_me_down$LBS_CAUGHT, na.rm = TRUE)
-		# 3.6 e-12 is very small, so yes, breakdown + leftover = break_me_down
+		# 0
 	(sum(bdown_3$VAR_LBS_CAUGHT, na.rm = TRUE) + sum(leftover_3$VAR_LBS_CAUGHT, na.rm = TRUE)) - sum(break_me_down$VAR_LBS_CAUGHT, na.rm = TRUE)
 		# 0
 
@@ -517,7 +506,7 @@
 	leftover_3 <- leftover_2[,-(5:8)]						# View(leftover_3)
 	leftover_260 <- leftover_3
 
-	# CHECK (should = 0)
+	# CHECK (should = 0 or something very close)
 	(sum(bdown_3$LBS_CAUGHT, na.rm = TRUE) + sum(leftover_3$LBS_CAUGHT, na.rm = TRUE)) - sum(break_me_down$LBS_CAUGHT, na.rm = TRUE)
 	(sum(bdown_3$VAR_LBS_CAUGHT, na.rm = TRUE) + sum(leftover_3$VAR_LBS_CAUGHT, na.rm = TRUE)) - sum(break_me_down$VAR_LBS_CAUGHT, na.rm = TRUE)
 
@@ -766,20 +755,31 @@
 	bmus_var_tot_2 <- sum(landings_2C$VAR_LBS_CAUGHT)
 
 #   Manu'a Landings
-	manua_landings <- subset(landings_2C, zone == 'Manua')		#str(manua_landings)
+	manua_landings <- subset(landings_2C, zone == 'Manua')		#str(manua_landings)		#sum(manua_landings$LBS_CAUGHT)
 
 #   Tutuila Landings
-	tutu_landings <- subset(landings_2C, zone == 'Tutuila')		#nrow(tutu_landings)
+	tutu_landings <- subset(landings_2C, zone == 'Tutuila')		#nrow(tutu_landings)		
 	# str(tutu_landings)		# summary(tutu_landings)		#tot_tutu <- sum(tutu_landings$LBS_CAUGHT)
-#	sum(manua_landings$LBS_CAUGHT,tutu_landings$LBS_CAUGHT)
 
-#   Records are correct (35 years * 11 species = 385) for Tutuila
-#	But, must add zeros for Manu'a			#str(zeros_df)
-		zeros_df <- data.frame(year = rep(seq(1986, 2020, 1),11), 
-			SCIENTIFIC_NAME_PK = c(rep('Aphareus rutilans',35),rep('Aprion virescens',35),
-			rep('Caranx lugubris',35),rep('Etelis coruscans',35),rep('Etelis carbunculus',35),
-			rep('Lethrinus rubrioperculatus',35),rep('Lutjanus kasmira',35),rep('Pristipomoides flavipinnis',35),
-			rep('Pristipomoides filamentosus',35),rep('Pristipomoides zonatus',35),rep('Variola louti',35)))
+#   393 records (36 years * 11 species = 396) for Tutuila			#View(tutu_landings)
+#	so we have some 0 strata (year 2021 for the 3 Pristipomoides)
+#   Add zeros by doing a all.x = TRUE merge
+ 	# make complete year x species grid	
+	nyrs = 36
+	zeros_df <- data.frame(year = rep(seq(1986, 2021, 1),11), 
+			SCIENTIFIC_NAME_PK = c(rep('Aphareus rutilans',36),rep('Aprion virescens',nyrs),
+			rep('Caranx lugubris',nyrs),rep('Etelis coruscans',nyrs),rep('Etelis carbunculus',nyrs),
+			rep('Lethrinus rubrioperculatus',nyrs),rep('Lutjanus kasmira',nyrs),rep('Pristipomoides flavipinnis',nyrs),
+			rep('Pristipomoides filamentosus',nyrs),rep('Pristipomoides zonatus',nyrs),rep('Variola louti',nyrs)))
+#	Tutuila
+		temp2 <- merge(x = zeros_df, y = tutu_landings, by = c('year','SCIENTIFIC_NAME_PK') , all.x = TRUE)
+		temp2 <- temp2[,c(1,2,4,5)]				# drop zone
+		temp2[is.na(temp2)] <- 0 				#View(temp2)
+		tutu_landings_zeros <- temp2				#View(tutu_landings_zeros)
+
+		tot_tutu <- sum(tutu_landings_zeros$LBS_CAUGHT)
+
+#	Manu'a		
 		temp2 <- merge(x = zeros_df, y = manua_landings, by = c('year','SCIENTIFIC_NAME_PK') , all.x = TRUE)
 		temp2 <- temp2[,c(1,2,4,5)]				# drop zone
 		temp2[is.na(temp2)] <- 0 				#View(temp2)
@@ -819,7 +819,6 @@
 					  (SELECT DISTINCT CATCH_PK, SCIENTIFIC_NAME, year_num, AREA_B2, port_simple, EST_LBS
 						FROM bbs_3C
 						WHERE SPECIES_FK in ('247','239','111','248','249','267','231','241','242','245','229') 
-						AND year_num < 2021
 						AND AREA_B2 in ('Bank_E', 'Bank_S')
 						AND port_simple = 'Tutuila' ) 
 		  			GROUP BY SCIENTIFIC_NAME, year_num"
@@ -832,7 +831,6 @@
 					  (SELECT DISTINCT CATCH_PK, SCIENTIFIC_NAME, year_num, AREA_B2, port_simple, EST_LBS
 						FROM bbs_3C
 						WHERE SPECIES_FK in ('247','239','111','248','249','267','231','241','242','245','229') 
-						AND year_num < 2021
 						AND AREA_B2 = 'Manua'
 						AND port_simple = 'Tutuila' ) 
 		 		      GROUP BY SCIENTIFIC_NAME, year_num"
@@ -845,7 +843,6 @@
 					  (SELECT DISTINCT CATCH_PK, SCIENTIFIC_NAME, year_num, AREA_B2, port_simple, EST_LBS
 						FROM bbs_3C
 						WHERE SPECIES_FK in ('247','239','111','248','249','267','231','241','242','245','229') 
-						AND year_num < 2021
 						AND AREA_B2 = 'Tutuila'
 						AND port_simple = 'Tutuila' ) 
 		 	 		GROUP BY SCIENTIFIC_NAME, year_num"
@@ -872,13 +869,18 @@
 				prop_manu = Manu_Tutu_lbs/tot_TBM_lbs,
 				prop_tutu = Tutu_Tutu_lbs/tot_TBM_lbs)
 
+
+
+
+
+
 #  join tutu_landings_props onto Tutu landings records
-	string <- "SELECT tutu_landings.*, tutu_landings_props.prop_banks,
+	string <- "SELECT tutu_landings_zeros.*, tutu_landings_props.prop_banks,
 				tutu_landings_props.prop_manu, tutu_landings_props.prop_tutu
-			FROM tutu_landings 
+			FROM tutu_landings_zeros 
 			LEFT JOIN tutu_landings_props 
-			ON tutu_landings.year = tutu_landings_props.year_num
-			  AND tutu_landings.SCIENTIFIC_NAME_PK = tutu_landings_props.SCIENTIFIC_NAME"
+			ON tutu_landings_zeros.year = tutu_landings_props.year_num
+			  AND tutu_landings_zeros.SCIENTIFIC_NAME_PK = tutu_landings_props.SCIENTIFIC_NAME"
 	tutu_landings_2 <- sqldf(string, stringsAsFactors=FALSE)		#View(tutu_landings_2)	  #str(tutu_landings_2)
 
   # must fill in NAs to assign all landings to Tutuila catch
@@ -889,13 +891,12 @@
   	tutu_landings_3 <- mutate(tutu_landings_2, tutu_lbs = LBS_CAUGHT*prop_tutu, tutu_var = VAR_LBS_CAUGHT*prop_tutu,
 					manu_lbs = LBS_CAUGHT*prop_manu, manu_var = VAR_LBS_CAUGHT*prop_manu,
 					banks_lbs = LBS_CAUGHT*prop_banks, banks_var = VAR_LBS_CAUGHT*prop_banks)
-	# str(tutu_landings_3)			#sum(tutu_landings_3$tutu_lbs,tutu_landings_3$manu_lbs,tutu_landings_3$banks_lbs)
+	# names(tutu_landings_3)			#sum(tutu_landings_3$tutu_lbs,tutu_landings_3$manu_lbs,tutu_landings_3$banks_lbs)
 	# View(tutu_landings_3)		#sum(tutu_landings_3$LBS_CAUGHT)
 
-	tutu_catch <- tutu_landings_3[,c(1,2,9,10)]		#View(tutu_catch)
-	banks_catch <- tutu_landings_3[,c(1,2,13,14)]		#View(banks_catch)
-
-	manu_catch_tutu <- tutu_landings_3[,c(1,2,11,12)]		#View(manu_catch_tutu)	#str(manu_catch_tutu)
+	tutu_catch <- tutu_landings_3[,c(1,2,8,9)]		#View(tutu_catch)
+	banks_catch <- tutu_landings_3[,c(1,2,12,13)]		#View(banks_catch)
+	manu_catch_tutu <- tutu_landings_3[,c(1,2,10,11)]		#View(manu_catch_tutu)	#str(manu_catch_tutu)
 
 	# str(manua_landings_zeros)
 	manu_catch_1 <- merge(x = manua_landings_zeros, y = manu_catch_tutu, 
@@ -915,12 +916,12 @@
 # -----------------------------------------------------------------------------------------------------------------------------
 
  # clean up workspace
- #	all_objs <- ls()
- #	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_total", "breakdown_bmus_smooth",
- #					"species_proptable_by_year_gear_zone",
- #					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
- #					"p_amboinensis","p_rubrio", "sp_data3_basic")
- #	remove_objs <- setdiff(all_objs, save_objs)
+ 	all_objs <- ls()
+ 	save_objs <- c("tutu_catch","root_dir", "banks_catch", "manu_catch_total", "breakdown_bmus_smooth",
+ 					"species_proptable_by_year_gear_zone",
+ 					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
+ 					"p_amboinensis","p_rubrio", "sp_data3_basic")
+ 	remove_objs <- setdiff(all_objs, save_objs)
  #   	rm(list=remove_objs)
  #	rm(save_objs)
  #	rm(remove_objs)
@@ -932,16 +933,97 @@
 
 
 
+# -----------------------------------------------------------------------------------------------------------------------------
+#	FIGURE TO COMPARE 14DEC UPDATE TO 09APR UPDATE
+
+if(1==2) {
+
+  library(ggplot2)
+  library(magrittr)
+  library(gridExtra)
+  library(grid)
+  library(cowplot)
+  library(lattice)
+  library(ggplotify)
+
+load(paste(root_dir, "/output/04_BBS_Landings_bdown_area_OLD.RData", sep=""))
+
+banks_catch_old <- banks_catch
+manu_catch_total_old <- manu_catch_total
+tutu_catch_old <- tutu_catch
+
+load(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
+source(paste0(root_dir,"/Scripts/LOAD_theme.R"))
+
+tutu_catch_old <- mutate(tutu_catch_old, type = 'old')
+tutu_catch <- mutate(tutu_catch, type = 'update')
+tutu_catch_compare <- rbind(tutu_catch_old, tutu_catch)
+tutu_catch_compare$type <- as.factor(tutu_catch_compare$type)
+
+sp_names <- sort(sp_names)
+index_df <- data.frame('species_names' = names(sp_names), 'sp_short' = as.character(sp_names))
+type.colors <- c("old"="#00467F", "update"="#008998")
+
+ for (i in 1:11) {
+
+	plot_me <- subset(tutu_catch_compare, SCIENTIFIC_NAME_PK == index_df$species_names[i])		#str(plot_me)
+
+	ticks <- seq(1985,2022,5)
+	ymax <- max(plot_me$tutu_lbs, na.rm = TRUE)
+	tick_height <- ymax/40
+
+     #--- create the ggplot objects
+     assign(paste("p_",i,sep=""),
+		ggplot(data=plot_me, aes(fill=type,x=year,y=tutu_lbs,scales="free",drop=TRUE)) +
+		geom_bar(position="dodge",stat="identity") +
+		scale_fill_manual(values=type.colors) +
+		geom_segment(y=0,yend=0,x=0,xend=3000) +
+		scale_x_continuous(breaks=ticks, limits = c(1985,2022)) +
+		# geom_errorbar(aes(x=year_num,ymin = pmax(0, tot_landings - 1.96*sd), ymax = tot_landings + 1.96*sd, width = 0), size=1, col = "#646464" ,position = "identity") +
+		theme_datareport_bar() +	
+	# add year ticks manually if we want them
+		 geom_segment(y=0,yend=-tick_height,x=ticks[1],xend=ticks[1]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[2],xend=ticks[2]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[3],xend=ticks[3]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[4],xend=ticks[4]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[5],xend=ticks[5]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[6],xend=ticks[6]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[7],xend=ticks[7]) +
+		 geom_segment(y=0,yend=-tick_height,x=ticks[8],xend=ticks[8]) +
+		theme(plot.title = element_text(face = "italic")) +
+	 theme(axis.title.x = element_text(angle = 0, margin = margin(t=5, r=0, b=-15, l=0), vjust = 0)) +
+	 theme(axis.title.y = element_text(angle = 90, margin = margin(-20,0,-25,-15), vjust = 0)) +
+		labs(y="", x="", caption="", title = sp_names[i])
+	)
+	}
+
+grob_xlab <- textGrob("Year", gp=gpar(fontsize=10), y = unit(0.5, "npc"),)
+grob_ylab <- textGrob("Expanded Landings (lbs)", gp=gpar(fontsize=10), 
+		x = unit(0.6, "npc"), y = unit(0.5, "npc"),
+		just = "centre", hjust = NULL, vjust = NULL, rot = 90)
 
 
+ 	pdf(file="Tutuila_landings_update_9Apr.pdf")
+	grid.arrange(p_1+expand_pretty_y(p_1)+ 
+				theme(legend.position = c(0.9,0.95), legend.title = element_blank()), 
+			p_2+expand_pretty_y(p_2), p_3+expand_pretty_y(p_3),
+				ncol=1, left = grob_ylab, bottom = grob_xlab)
+	grid.arrange(p_4+expand_pretty_y(p_4)+ 
+				theme(legend.position = c(0.9,0.95), legend.title = element_blank()), 
+				p_5+expand_pretty_y(p_5), p_7+expand_pretty_y(p_7),
+				ncol=1, left = grob_ylab, bottom = grob_xlab)
+	grid.arrange(p_6+expand_pretty_y(p_6)+ 
+				theme(legend.position = c(0.9,0.95), legend.title = element_blank()), 
+				p_8+expand_pretty_y(p_8), p_9+expand_pretty_y(p_9),
+				ncol=1, left = grob_ylab, bottom = grob_xlab)
+	grid.arrange(p_10+expand_pretty_y(p_10)+ 
+				theme(legend.position = c(0.9,0.9), legend.title = element_blank()), 
+				p_11+expand_pretty_y(p_11),
+				ncol=1, left = grob_ylab, bottom = grob_xlab)
+	dev.off()
 
 
-
-
-
-
-
-
+}
 
 
 
