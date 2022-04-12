@@ -295,193 +295,118 @@ LUKA <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 
 
 
+#  --------------------------------------------------------------------------------------------------------------
+#  --------------------------------------------------------------------------------------------------------------
+#  ----- repeat for coruscans for a contrast.
+#  TIP: if you are getting "model has more coeefficients than data", look at the fit output .txt to see what the last
+#	variable added was that caused the problem, then exclude that from the variables under consideration, run again.
 
-
-
-# ----- repeat for coruscans for a contrast.
 
 	species <- 'coruscans'
 	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
 	aic_abs_thresh <- 2
 
-## presence/absence
-##  --- Tutuila	
 
+# list the var_names like this, makes it easier to comment out
+
+	var_name = c('TYPE_OF_DAY', 
+	#	'year_fac*season',
+	#	'year_fac*tod_quarter', 
+	#	'year_fac*TYPE_OF_DAY', 
+	# 	'hours_std', 
+		'num_gear_fac', 
+	#	'prop_pelagics', 
+		'PC1','PC2',
+		'season', 
+	#	"s(yday, bs='cc')", 
+		"month",
+		'tod_quarter',
+		'shift', 
+		'wspd', 
+		"s(wdir, bs='cc')",		
+		'ENSO', 
+		'ONI', 
+		'SOI', 
+	#	"s(Moon_days, bs='cc')", 
+		'prop_unid')
+
+	
 	area <- 'tutu'
-
-	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
-			'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 
-				'tod_quarter','year_fac*tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-
 
  	ETCO_tutu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(ETCO_tutu_binom$model)
 
-  # tried to do both prop_pelagics and PC1/PC2- check which is better.
-
-	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
-			'TYPE_OF_DAY', 'season', 'wspd', 
-				'tod_quarter','year_fac*tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
- 	ETCO_tutu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_tutu_binom$model)		# 29.8%		1207.317
-
-#	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
-#			'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 
-#				'tod_quarter','year_fac*tod_quarter',			
-#			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
-#	ETCO_tutu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-#	summary(ETCO_tutu_binom$model)		# ETCO_tutu_binom$model$aic		# 18.9%	AIC 1385
-
-
-
-## positive process 
-
-	var_name = c('year_fac*tod_quarter','year_fac*season','year_fac*TYPE_OF_DAY','TYPE_OF_DAY',
-				'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-
  	ETCO_tutu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(ETCO_tutu_gamma$model)
 	
-
   	ETCO_tutu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(ETCO_tutu_LnN$model)
 
  	gam.check(ETCO_tutu_gamma$model)
 	gam.check(ETCO_tutu_LnN$model)
-
-  #  LnN looks slightly better.
+  			#  LnN looks slightly better.
 
 
 	area <- 'manu'
 
-	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
-			'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 
-				'tod_quarter','year_fac*tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-
-
  	ETCO_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(ETCO_manu_binom$model)
 
-
-## positive process 
-
-	var_name = c('year_fac*tod_quarter','year_fac*season','year_fac*TYPE_OF_DAY','TYPE_OF_DAY',
-				'num_gear_fac', 'TYPE_OF_DAY', 'season', 'wspd', 'tod_quarter',
-#			'prop_pelagics',				# 42.1, 1655.6
-			'PC1','PC2'	,				# 41.8, 1619
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
-
  	ETCO_manu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(ETCO_manu_gamma$model)
-	
-	# PC1/PC2 is better. year*tod is selected and all strata with obs are significant. But, most strata do not have obs
-	var_name = c('TYPE_OF_DAY',
-				'num_gear_fac', 'TYPE_OF_DAY', 'season', 'wspd', 'tod_quarter',
-#			'prop_pelagics',				# 
-			'PC1','PC2'	,				# 39.5%, 1625.5
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
-
- 	ETCO_manu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_manu_gamma$model)
-	
-
-
-
-var_name = c('TYPE_OF_DAY',
-				'num_gear_fac', 'TYPE_OF_DAY', 'season', 'wspd', 
-#			'tod_quarter',
-#			'prop_pelagics',				# 30.2, 781.4
-			'PC1','PC2'	,				# 30.7, 780.3
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 
-			'shift', 
-			'prop_unid')
+		# initially, AIC selected a year*tod interaction, but, there are so many missing strata, that doesn't make sense.
+		# also tried to include both tod_quarter and shift, and PC1/PC2 and prop_pelagics. 	
+		# shift = 49.2, tod = 42.1
+		# shift, PC1/2 = 39.9, prop_pelagics = 41.7
+		# tough decision... 
 
 	ETCO_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_manu_LnN$model)
+	summary(ETCO_manu_LnN$model)				# prop_pelagics = 28.2, PC1/2 = 28.5
 
-#	wants year*tod, but so many missing strata
-# Final choice for LnN: 
-
-var_name = c('TYPE_OF_DAY',
-				'num_gear_fac', 'TYPE_OF_DAY', 'season', 'wspd', 
-#			'tod_quarter',
-#			'prop_pelagics',				# 
-			'PC1','PC2'	,				# 
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 
-			'shift', 
-			'prop_unid')
-
-	ETCO_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_manu_LnN$model)
-
-
-
-  	
  	gam.check(ETCO_manu_gamma$model)			#
 	gam.check(ETCO_manu_LnN$model)			#
-
-  #  Really close!!! LnN looks slightly better.
-
+	# again, neither look that good, but LnN looks slightly better.
 
 
 	area <- 'banks'
-
-	var_name = c('year_fac*season','year_fac*tod_quarter', 'year_fac*TYPE_OF_DAY', 'hours_std', 'num_gear_fac', 
-			'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 
-				'tod_quarter','year_fac*tod_quarter',			
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-
 
  	ETCO_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(ETCO_banks_binom$model)
 
 	# lots of errors, see fit log
 	# AIC selects z ~ year_fac + PC1 + season + s(wdir, bs = "cc") + num_gear_fac
-	# however, this is obviously a crummy model. Back of N parms and see if we can get something better.
-     
-	sp_data_all <- cpue_datasets$coruscans$manu$data_all
+	# however, this is obviously a crummy model. Back off N parms and see if we can get something better.
+     		# must do this here
+		# define data to use
+		sp_data_all <- cpue_datasets$coruscans$banks$data_all
 
-	# this is better
-	run_gam <- gam(z ~ year_fac + PC1 + season + s(wdir, bs = "cc"),
+		# try specifying models manually
+		run_gam <- gam(z ~ year_fac + s(yday, bs='cc'),
 			 data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
 				wdir=c(0,360)), method='ML',na.action = na.omit)
-	summary(run_gam)
+		summary(run_gam)
+		# null model
+		run_gam <- gam(z ~ year_fac,
+			 data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
+				wdir=c(0,360)), method='ML',na.action = na.omit)
+		summary(run_gam)
 
- 	ETCO_banks_binom <- list("model" = run_gam, "sp_data_all" = sp_data_all)
+		# tough to get a good model, this is pretty crappy still: 
+		#		z ~ year_fac + PC1 + s(yday, bs = "cc") + s(wdir, bs = "cc") + ONI
+		# go with it.
 
-	# not enough data for interactions
-
-	var_name = c('TYPE_OF_DAY',
-				'num_gear_fac', 
-			'TYPE_OF_DAY', 'season', 'wspd', 'tod_quarter',
-	#		'prop_pelagics',				# 
-			'PC1','PC2'	,				# 
-			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid')
 
  	ETCO_banks_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_banks_gamma$model)		# gamma looks good
+	summary(ETCO_banks_gamma$model)
 
  	ETCO_banks_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_banks_LnN$model)		# gamma looks good
-
-  	# small sample size means model fitting getting touchy....
-
+	summary(ETCO_banks_LnN$model)
 
 	gam.check(ETCO_banks_gamma$model)			#
 	gam.check(ETCO_banks_LnN$model)			#
 
-	#  gamma actually looks better for the banks
-	
-	# make the choice....
 
-
-
-
-   #  use fitdist.r
+    #  use fitdist.r to help us decide between gamma and Ln for the positive process
 
 		fit.gamma <- fitdist(cpue_datasets$coruscans$tutu$data_pos$catch_cpue, "gamma")
 		plot(fit.gamma)
@@ -507,14 +432,163 @@ var_name = c('TYPE_OF_DAY',
 		plot(fit.lnnorm)
 		fit.lnnorm$aic	#  110.9  (graphs do not look so good)
 
+  # let's try using the gamma pos process for banks, just for development purposes 
+  
+  tutu <- list('pa' = ETCO_tutu_binom, 'pos'= ETCO_tutu_LnN)
+  manu <- list('pa' = ETCO_manu_binom, 'pos'= ETCO_manu_LnN) 
+  banks <- list('pa' = ETCO_banks_binom, 'pos'= ETCO_banks_gamma)
 
-# make a list object to hold the ETCO models that we've chosen
+  ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 
-tutu <- list('pa' = ETCO_tutu_binom, 'pos'= ETCO_tutu_LnN)
-manu <- list('pa' = ETCO_manu_binom, 'pos'= ETCO_manu_LnN)
-banks <- list('pa' = ETCO_banks_binom, 'pos'= ETCO_banks_gamma)
 
-ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
+
+
+
+#  --------------------------------------------------------------------------------------------------------------
+#  --------------------------------------------------------------------------------------------------------------
+#  ----- repeat for caranx lugubris for a contrast.
+#  TIP: if you are getting "model has more coeefficients than data", look at the fit output .txt to see what the last
+#	variable added was that caused the problem, then exclude that from the variables under consideration, run again.
+
+
+	species <- 'lugubris'
+	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
+	aic_abs_thresh <- 2
+
+
+# list the var_names like this, makes it easier to comment out
+
+	var_name = c('TYPE_OF_DAY', 
+	 #	'year_fac*season',
+	#	'year_fac*tod_quarter', 
+	#	'year_fac*TYPE_OF_DAY', 
+	 #	'hours_std', 
+		'num_gear_fac', 
+		'prop_pelagics', 
+		'PC1','PC2',
+		'season', 
+		"s(yday, bs='cc')", 
+		"month",
+		'tod_quarter',
+		'shift', 
+		'wspd', 
+		"s(wdir, bs='cc')",		
+		'ENSO', 
+		'ONI', 
+		'SOI', 
+		"s(Moon_days, bs='cc')", 
+		'prop_unid')
+
+	
+	area <- 'tutu'
+
+ 	CALU_tutu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_tutu_binom$model)
+
+ 	CALU_tutu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_tutu_gamma$model)
+	
+  	CALU_tutu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_tutu_LnN$model)
+
+ 	gam.check(CALU_tutu_gamma$model)
+	gam.check(CALU_tutu_LnN$model)
+  			#  LnN looks slightly better.
+
+
+	area <- 'manu'
+
+ 	ETCO_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(ETCO_manu_binom$model)
+
+ 	ETCO_manu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(ETCO_manu_gamma$model)
+		# initially, AIC selected a year*tod interaction, but, there are so many missing strata, that doesn't make sense.
+		# also tried to include both tod_quarter and shift, and PC1/PC2 and prop_pelagics. 	
+		# shift = 49.2, tod = 42.1
+		# shift, PC1/2 = 39.9, prop_pelagics = 41.7
+		# tough decision... 
+
+	ETCO_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(ETCO_manu_LnN$model)				# prop_pelagics = 28.2, PC1/2 = 28.5
+
+ 	gam.check(ETCO_manu_gamma$model)			#
+	gam.check(ETCO_manu_LnN$model)			#
+	# again, neither look that good, but LnN looks slightly better.
+
+
+	area <- 'banks'
+
+ 	ETCO_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(ETCO_banks_binom$model)
+
+	# lots of errors, see fit log
+	# AIC selects z ~ year_fac + PC1 + season + s(wdir, bs = "cc") + num_gear_fac
+	# however, this is obviously a crummy model. Back off N parms and see if we can get something better.
+     		# must do this here
+		# define data to use
+		sp_data_all <- cpue_datasets$coruscans$banks$data_all
+
+		# try specifying models manually
+		run_gam <- gam(z ~ year_fac + s(yday, bs='cc'),
+			 data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
+				wdir=c(0,360)), method='ML',na.action = na.omit)
+		summary(run_gam)
+		# null model
+		run_gam <- gam(z ~ year_fac,
+			 data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
+				wdir=c(0,360)), method='ML',na.action = na.omit)
+		summary(run_gam)
+
+		# tough to get a good model, this is pretty crappy still: 
+		#		z ~ year_fac + PC1 + s(yday, bs = "cc") + s(wdir, bs = "cc") + ONI
+		# go with it.
+
+
+ 	ETCO_banks_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(ETCO_banks_gamma$model)
+
+ 	ETCO_banks_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(ETCO_banks_LnN$model)
+
+	gam.check(ETCO_banks_gamma$model)			#
+	gam.check(ETCO_banks_LnN$model)			#
+
+
+    #  use fitdist.r to help us decide between gamma and Ln for the positive process
+
+		fit.gamma <- fitdist(cpue_datasets$coruscans$tutu$data_pos$catch_cpue, "gamma")
+		plot(fit.gamma)
+		fit.gamma$aic	# 1320
+
+		fit.lnnorm <- fitdist(log(cpue_datasets$coruscans$tutu$data_pos$catch_cpue), "norm")
+		plot(fit.lnnorm)		# actually looks pretty good
+		fit.lnnorm$aic	#  960
+
+		fit.gamma <- fitdist(cpue_datasets$coruscans$manu$data_pos$catch_cpue, "gamma")
+		plot(fit.gamma)
+		fit.gamma$aic	# 1803.883
+
+		fit.lnnorm <- fitdist(log(cpue_datasets$coruscans$manu$data_pos$catch_cpue), "norm")
+		plot(fit.lnnorm)
+		fit.lnnorm$aic	#  879.6185
+
+		fit.gamma <- fitdist(cpue_datasets$coruscans$banks$data_pos$catch_cpue, "gamma")
+		plot(fit.gamma)
+		fit.gamma$aic	# 194.1  (graphs look better, especially resids.)
+
+		fit.lnnorm <- fitdist(log(cpue_datasets$coruscans$banks$data_pos$catch_cpue), "norm")
+		plot(fit.lnnorm)
+		fit.lnnorm$aic	#  110.9  (graphs do not look so good)
+
+  # let's try using the gamma pos process for banks, just for development purposes 
+  
+  tutu <- list('pa' = ETCO_tutu_binom, 'pos'= ETCO_tutu_LnN)
+  manu <- list('pa' = ETCO_manu_binom, 'pos'= ETCO_manu_LnN) 
+  banks <- list('pa' = ETCO_banks_binom, 'pos'= ETCO_banks_gamma)
+
+  ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
+
 
 
 
@@ -531,7 +605,16 @@ ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 
   # save.image(paste(root_dir, "/output/09_BBS_CPUE_FIT_MODELS.RData", sep=""))
 	# save.image(paste(root_dir, "/Outputs/09_BBS_CPUE_FIT_MODELS.RData", sep=""))
-	
+  # load(paste(root_dir, "/output/09_BBS_CPUE_FIT_MODELS.RData", sep=""))	
+
+
+
+
+
+
+
+
+
 
 
 

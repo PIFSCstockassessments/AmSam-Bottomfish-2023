@@ -36,7 +36,7 @@
  # make a relational table to tell us which covariate names are factors and which are continuous
   cov_types <- data.frame(cov_name = c('year_fac', 'hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
 			'ENSO', 'Moon_days', 'wdir', 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2','yday','month'), cov_type = c('fact', 'cont','fact','fact','cont',
-			'fact','cont','fact','cont','cont','cont','cont','cont','fact','cont','cont','cont','cont','fact'))
+			'fact','cont','fact','cont','smooth','smooth','cont','cont','fact','cont','cont','cont','smooth','fact'))
 
 
  # models and data are stored in LUKA$ tutu $ pa $ pos $sp_data_all $sp_data_pos
@@ -108,17 +108,24 @@
    this_species <- get(species)			# str(this_species)		#str(sp_data_all)		#str(sp_data_pos)
    index_area <- match(area, names(this_species))					#summary(pa_model)
    sp_data_all <- this_species[[index_area]][[1]][[2]] 				#names(pa_model)		#names(pos_model)
-   pa_model <- this_species[[index_area]][[1]][[1]] 
-   sp_data_pos <- this_species[[index_area]][[2]][[2]] 
+   pa_model <- this_species[[index_area]][[1]][[1]] 					#summary(pos_model)
+   sp_data_pos <- this_species[[index_area]][[2]][[2]] 				
    pos_model <- this_species[[index_area]][[2]][[1]] 
    first_year <- min(sp_data_all$year_num)
    last_year <- max(sp_data_all$year_num)
    pos_error <- summary(pos_model)$family$family
+   pa_years <- unique(sp_data_all$year_fac)
+   pos_years <- unique(sp_data_pos$year_fac)
+
+	# sp_data_pos_Ln <- sp_data_pos		#thing <- hist(sp_data_pos$yday)		#hist(sp_data_pos$PC2)
+	# plot(pos_model, all.terms = TRUE)		#hist(sp_data_pos$prop_unid,breaks=40)
+ 	# sp_data_pos_Ln <-  sp_data_pos
+  	# plot(pos_model, all.terms = TRUE, SE=TRUE , rug = TRUE)
 
 
    # build the prediction datasets
 
-   pa_pred_grid <- data.frame(year_fac = as.factor(seq(first_year, last_year, 1)))
+   pa_pred_grid <- data.frame(year_fac = pa_years)
 
    for(i in 2:length(pa_model$var.summary)) {
  	    this_var_name <- names(pa_model$var.summary)[i]
@@ -139,15 +146,24 @@
 		rm(add_me)
 		}
 
+		# for smooth variables use mode
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'smooth') {
+		this_var_hist <- hist(sp_data_all[,names(sp_data_all)==this_var_name], plot = FALSE)
+		this_var_mode <- this_var_hist$mids[max(this_var_hist$counts)==this_var_hist$counts]
+		add_me <- data.frame(new_col = rep(this_var_mode,nrow(pa_pred_grid)))
+		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
+		pa_pred_grid <- cbind(pa_pred_grid, add_me)
+		rm(add_me)
+		}
 	  }
 
 
-   pos_pred_grid <- data.frame(year_fac = as.factor(seq(first_year, last_year, 1)))
+   pos_pred_grid <- data.frame(year_fac = pos_years)
 
    for(i in 2:length(pos_model$var.summary)) {
  	    this_var_name <- names(pos_model$var.summary)[i]
 	      
-		# for factor variables
+		# for factor variables use mode
 		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'fact') {
 		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][1],nrow(pos_pred_grid)))
 		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
@@ -155,9 +171,19 @@
 		rm(add_me)
 		}
 
-		# for continuous variables
+		# for continuous variables use median
 		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
 		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+
+		# for smooth variables use mode
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'smooth') {
+		this_var_hist <- hist(sp_data_pos[,names(sp_data_pos)==this_var_name], plot = FALSE)
+		this_var_mode <- this_var_hist$mids[max(this_var_hist$counts)==this_var_hist$counts]
+		add_me <- data.frame(new_col = rep(this_var_mode,nrow(pos_pred_grid)))
 		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
 		pos_pred_grid <- cbind(pos_pred_grid, add_me)
 		rm(add_me)
@@ -166,27 +192,36 @@
 	  }
 
 
-   # do the predictions 
-   
+
+   # do the predictions    
    pred_pa = predict.gam(pa_model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)
    pred_pos = predict.gam(pos_model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)
 
-   pred_delta <- data.frame(year = seq(first_year, last_year, 1), pa_raw = pred_pa$fit, pa_se = pred_pa$se.fit,
-					pos_raw = pred_pos$fit, pos_se = pred_pos$se.fit)
+   # put together the processes
+   pred_pa_yrs <- data.frame(year = as.numeric(as.character(pa_years)), pa_raw = pred_pa$fit, pa_se = pred_pa$se.fit)
+   pred_pos_yrs <- data.frame(year = as.numeric(as.character(pos_years)), pos_raw = pred_pos$fit, pos_se = pred_pos$se.fit)
+
+   pred_pa_yrs <- pred_pa_yrs[order(pred_pa_yrs$year),]			#str(pred_pa_yrs)
+   pred_pa_yrs <- pred_pa_yrs[order(pred_pa_yrs$year),]			#str(pred_pos_yrs)
+
+   pred_delta <- merge(x = pred_pa_yrs, y = pred_pos_yrs, by='year', all.x = TRUE)
+
 
    # correct for lognormal error if positive process was LnN
 	if (pos_error == "gaussian") {
-		MSE = summary(pos_model)$dispersion
-	#	pred_delta$pos_correct = exp(pred_delta$pos_raw+(MSE/2))
-		pred_delta$pos_correct = exp(pred_delta$pos_raw)
+		 MSE = summary(pos_model)$dispersion
+		 pred_delta$pos_correct = exp(pred_delta$pos_raw+(MSE/2))
+		# pred_delta$pos_correct = exp(pred_delta$pos_raw)
 		pred_delta$pos_se_correct = exp(pred_delta$pos_raw)*(pred_delta$pos_se)
 		}
 
-	if (pos_error == "gamma") {
+	if (pos_error == "Gamma") {
 		pred_delta$pos_correct = pred_delta$pos_raw
 		pred_delta$pos_se_correct = pred_delta$pos_se
 		}
 		
+
+
 
 	# combine the 2 distributions
 	pred_delta$delta_fit = pred_delta$pos_correct*pred_delta$pa_raw
@@ -198,6 +233,10 @@
 	pred_delta$delta_var = pred_delta$pa_se*pred_delta$pos_se_correct +
 			pred_delta$pa_se*pred_delta$pos_correct^2 +
 			pred_delta$pos_se_correct*pred_delta$pa_raw^2
+ 	# IF the species wasn't observed for a year, probability of occurence (pa_raw) will be very close to zero
+	# 	and se of the pa process will be small
+	#  I DON'T KNOW WHAT TO DO- I think in this instance, you would do a walter's large table and impute what the positive process
+	#	might be in the missing year.
 
 	# sd = sqrt(var)
 	pred_delta$delta_sd <- (pred_delta$delta_var)^(1/2)
@@ -212,17 +251,152 @@
 # END Delta 2-distribution using categorical modes  -----------------------------
 
 
-# example using these 2 functions: Luka tutuila
-  	
-	species = 'LUKA'
-	area = 'tutu'
-  	nom_luka <- predict_nominal(species, area)
-	delta_luka_modes <- predict_delta_modes(species, area)
+
+# ---------------------- Use Walter's Large Table (WLT, marginal means) to 
+#	do predictions for the delta distribution GAM objects
+
+  predict_delta_WLT <- function(species, area) {
+
+   # preliminaries
+   this_species <- get(species)			# str(this_species)		#str(sp_data_all)		#str(sp_data_pos)
+   index_area <- match(area, names(this_species))
+   sp_data_all <- this_species[[index_area]][[1]][[2]] 				#names(pa_model)		#names(pos_model)
+   pa_model <- this_species[[index_area]][[1]][[1]] 
+   sp_data_pos <- this_species[[index_area]][[2]][[2]] 
+   pos_model <- this_species[[index_area]][[2]][[1]]
+   first_year <- min(sp_data_all$year_num)
+   last_year <- max(sp_data_all$year_num)
+   pos_error <- summary(pos_model)$family$family
+   pa_years <- unique(sp_data_all$year_fac)
+   pos_years <- unique(sp_data_pos$year_fac) 
+
+   # build the prediction datasets
+
+	# presence/absence
+	# for categorical variables, do large table
+	pa_pred_grid <- expand.grid(pa_model$xlevels)			#head(pa_pred_grid)		#str(pa_pred_grid)
+ 	#  pa_pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(pa_model$xlevels)],1,paste0,collapse="_"))
+
+	# add on median values for continous variables, mode values for smooths
+	for(i in 2:length(pa_model$var.summary)) {
+ 	    this_var_name <- names(pa_model$var.summary)[i]
+	
+	# for continuous variables
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][2],nrow(pa_pred_grid)))
+		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
+		pa_pred_grid <- cbind(pa_pred_grid, add_me)
+		rm(add_me)
+		}
+
+	# for smooth variables use mode
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'smooth') {
+		this_var_hist <- hist(sp_data_all[,names(sp_data_all)==this_var_name], plot = FALSE)
+		this_var_mode <- this_var_hist$mids[max(this_var_hist$counts)==this_var_hist$counts]
+		add_me <- data.frame(new_col = rep(this_var_mode,nrow(pa_pred_grid)))
+		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
+		pa_pred_grid <- cbind(pa_pred_grid, add_me)
+		rm(add_me)
+		}
+	  }
+
+   # build the positive process prediction grid
+
+  	# categorical covariables
+	  pos_pred_grid <- expand.grid(pos_model$xlevels)			#head(pos_pred_grid)		#str(pos_pred_grid)
+ 	#  pos_pred_grid_name = data.frame(grid_name = apply(pos_pred_grid[,1:length(pos_model$xlevels)],1,paste0,collapse="_"))
+ 
+	# add on median values for continous variables, mode values for smooths
+	for(i in 2:length(pos_model$var.summary)) {
+ 	    this_var_name <- names(pos_model$var.summary)[i]
+
+		# for continuous variables use median
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+
+		# for smooth variables use mode
+		if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'smooth') {
+		this_var_hist <- hist(sp_data_pos[,names(sp_data_pos)==this_var_name], plot = FALSE)
+		this_var_mode <- this_var_hist$mids[max(this_var_hist$counts)==this_var_hist$counts]
+		add_me <- data.frame(new_col = rep(this_var_mode,nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+	  }
+
+
+   	# do the predictions    
+   	pred_pa = predict.gam(pa_model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)
+   	pred_pos = predict.gam(pos_model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)
+
+  	# put predictions back onto the prediction grids and take marginal means
+
+		# presence/absence
+		pred_pa_df <- data.frame(pa_raw = pred_pa$fit, pa_se = pred_pa$se.fit)
+   		pred_pa_yrs <- cbind(pa_pred_grid,pred_pa_df)				# head(pred_pa_yrs)	#str(pred_pa_yrs)
+		mm_pa_fit <- with(pred_pa_yrs, tapply(pa_raw, year_fac, mean))
+		mm_pa_se <- with(pred_pa_yrs, tapply(pa_se, year_fac, mean))
+		marg_means_pa <- data.frame(year = as.numeric(names(mm_pa_fit)), pa_raw = mm_pa_fit, pa_se = mm_pa_se)
+
+		# positive process
+		pred_pos_df <- data.frame(pos_raw = pred_pos$fit, pos_se = pred_pos$se.fit)
+		pred_pos_yrs <- cbind(pos_pred_grid,pred_pos_df)			# head(pred_pos_yrs)
+	
+		  # correct for lognormal error if positive process was LnN
+		  if (pos_error == "gaussian") {
+		  MSE = summary(pos_model)$dispersion
+		  pred_pos_yrs$pos_correct = exp(pred_pos_yrs$pos_raw+(MSE/2))
+		  pred_pos_yrs$pos_se_correct = exp(pred_pos_yrs$pos_raw)*(pred_pos_yrs$pos_se)
+		  }
+
+		  if (pos_error == "Gamma") {
+		  pred_pos_yrs$pos_correct = pred_pos_yrs$pos_raw
+		  pred_pos_yrs$pos_se_correct = pred_pos_yrs$pos_se
+		  }
+		
+		mm_pos_fit <- with(pred_pos_yrs, tapply(pos_correct, year_fac, mean))
+		mm_pos_se <- with(pred_pos_yrs, tapply(pos_se_correct, year_fac, mean))
+		marg_means_pos <- data.frame(year = as.numeric(names(mm_pos_fit)), pos_correct = mm_pos_fit, 
+						pos_se_correct = mm_pos_se)						#str(marg_means_pos)
+
+	# put together the processes
+  	marg_means_pos <- marg_means_pos[order(marg_means_pos$year),]			#str(pred_pa_yrs)
+   	marg_means_pa <- marg_means_pa[order(marg_means_pa$year),]			#str(pred_pos_yrs)
+   	pred_delta <- merge(x = marg_means_pa, y = marg_means_pos, by='year', all.x = TRUE)
+
+	# calculate delta predictions and se
+	pred_delta$delta_fit = pred_delta$pos_correct*pred_delta$pa_raw
+		
+	# Goodman 1960 golden rule:
+	#	for 2 independent random variables X and Y:
+	#	var(XY) = var(X)var(Y) + var(X)E(Y)^2 + Var(Y)E(X)^2
+		
+	pred_delta$delta_var = pred_delta$pa_se*pred_delta$pos_se_correct +
+			pred_delta$pa_se*pred_delta$pos_correct^2 +
+			pred_delta$pos_se_correct*pred_delta$pa_raw^2
+ 	# IF the species wasn't observed for a year, probability of occurence (pa_raw) will be very close to zero
+	# 	and se of the pa process will be small
+	#  I DON'T KNOW WHAT TO DO- I think in this instance, you would do a walter's large table and impute what the positive process
+	#	might be in the missing year.
+
+	# sd = sqrt(var)
+	pred_delta$delta_sd <- (pred_delta$delta_var)^(1/2)
+	pred_delta$species <- species
+	pred_delta$area <- area
+	pred_delta$type <- 'delta_marginal_means'
+
+	return(pred_delta)
+
+   }
 
 
 
-  str(nom_cpue_example)
-  plot(as.numeric(as.character(nom_cpue_example$year_fac)), nom_cpue_example$cpue, pch = 1)
+# ---------------------- END Walter's Large Table (WLT, marginal means) 
 
 
 
@@ -235,9 +409,81 @@
 
 
 
-summary(pa_model)
-str(pa_model)
 
+
+
+
+
+
+
+
+
+	marg_means_pos <- 
+
+
+r1<-with(dat, tapply(value, factor, mean))
+
+
+
+
+  	# add on median values for continous variables
+   	  for(i in 1:length(pos_model$var.summary)) {
+ 	    this_var_name <- names(pos_model$var.summary)[i]
+	      if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+	  }
+
+
+### predict for each grid (and mean continuous variables)
+
+pred_pa = predict.gam(fitobject$tutu$pa$model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)		#str(pred_pa)
+
+
+
+#  -------------- positive process
+
+### build the prediction grid
+
+  # categorical covariables
+	pos_pred_grid <- expand.grid(fitobject$tutu$pos$model$xlevels)			#head(pos_pred_grid)		#View(pos_pred_grid)
+	# pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(fitobject$tutu$pa$model$xlevels)],1,paste0,collapse="_"))
+
+  # add on median values for continous variables
+   for(i in 1:length(fitobject$tutu$pos$model$var.summary)) {
+ 	this_var_name <- names(fitobject$tutu$pos$model$var.summary)[i]
+	if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
+		add_me <- data.frame(new_col = rep(fitobject$tutu$pos$model$var.summary[[i]][2],nrow(pos_pred_grid)))
+		names(add_me) <- as.character(names(fitobject$tutu$pos$model$var.summary)[i]) 
+		pos_pred_grid <- cbind(pos_pred_grid, add_me)
+		rm(add_me)
+		}
+	}
+
+
+### predict for each grid (and mean continuous variables)
+
+pred_pos = predict.gam(fitobject$tutu$pos$model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)		#str(pred_pos)
+
+
+
+
+
+
+
+
+
+
+ #	pa_pred_grid <- cbind(pa_pred_grid, pred_grid_name)
+
+
+
+
+
+# extra code below
 
 
 
@@ -253,7 +499,12 @@ str(pa_model)
    sp_data_all <- this_species[[index_area]][[1]][[2]] 				#names(pa_model)		#names(pos_model)
    pa_model <- this_species[[index_area]][[1]][[1]] 
    sp_data_pos <- this_species[[index_area]][[2]][[2]] 
-   pos_model <- this_species[[index_area]][[2]][[1]] 
+   pos_model <- this_species[[index_area]][[2]][[1]]
+   first_year <- min(sp_data_all$year_num)
+   last_year <- max(sp_data_all$year_num)
+   pos_error <- summary(pos_model)$family$family
+   pa_years <- unique(sp_data_all$year_fac)
+   pos_years <- unique(sp_data_pos$year_fac) 
 
    # build the presence/absence prediction grid
 
@@ -331,13 +582,6 @@ pred_pos = predict.gam(fitobject$tutu$pos$model, newdata = pos_pred_grid, type =
 
 
  #	pa_pred_grid <- cbind(pa_pred_grid, pred_grid_name)
-
-
-
-
-
-
-
 
 
 
