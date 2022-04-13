@@ -7,31 +7,33 @@
 
 # ----- PRELIMINARIES
 #  rm(list=ls())
-  Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
 
-  # load all the libraries.
-#  library(sqldf)
+ # load libraries.
+ # library(sqldf)
   library(dplyr)
   library(this.path)
-#  library(ggfortify)		#  install.packages('ggfortify')
+ # library(ggfortify)		#  install.packages('ggfortify')
   library(data.table)		#  install.packages('data.table')
-#  library(nFactors)		#  install.packages('nFactors')
-#  library(fitdistrplus)
+ # library(nFactors)		#  install.packages('nFactors')
+ # library(fitdistrplus)
   library(mgcv)
-#  library(formula.tools)	
- # library(ggplot2)
- # library(magrittr)
- # library(gridExtra)
- # library(grid)
- # library(cowplot)
- # library(lattice)
- # library(ggplotify)
+ # library(formula.tools)	
+  library(ggplot2)
+  library(magrittr)
+  library(gridExtra)
+  library(grid)
+  library(cowplot)
+  library(lattice)
+  library(ggplotify)
 
  # establish directories using this.path::
-  root_dir <- this.path::here(.. = 1)
+ # root_dir <- this.path::here(.. = 1)
+
+ # load ggplot theme
+  source(paste0(this.path::here(.. = 1), "/Scripts/LOAD_Theme.R"))
 
  # read in prepared CPUE datasets with best fit functions
-  load(paste(root_dir, "/output/09_BBS_CPUE_FIT_MODELS.RData", sep=""))
+ # load(paste(root_dir, "/output/09_BBS_CPUE_FIT_MODELS.RData", sep=""))
 
  # make a relational table to tell us which covariate names are factors and which are continuous
   cov_types <- data.frame(cov_name = c('year_fac', 'hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
@@ -234,9 +236,8 @@
 			pred_delta$pa_se*pred_delta$pos_correct^2 +
 			pred_delta$pos_se_correct*pred_delta$pa_raw^2
  	# IF the species wasn't observed for a year, probability of occurence (pa_raw) will be very close to zero
-	# 	and se of the pa process will be small
-	#  I DON'T KNOW WHAT TO DO- I think in this instance, you would do a walter's large table and impute what the positive process
-	#	might be in the missing year.
+	# 	and se of the pa process will be small. Since there were no data to fit the positive process, the 
+	#     'NA' will carry through and there will be no CPUE estimate for that year.
 
 	# sd = sqrt(var)
 	pred_delta$delta_sd <- (pred_delta$delta_var)^(1/2)
@@ -359,10 +360,12 @@
 		  pred_pos_yrs$pos_se_correct = pred_pos_yrs$pos_se
 		  }
 		
+		mm_pos_raw <- with(pred_pos_yrs, tapply(pos_raw, year_fac, mean))
 		mm_pos_fit <- with(pred_pos_yrs, tapply(pos_correct, year_fac, mean))
+		mm_pos_se_raw <- with(pred_pos_yrs, tapply(pos_se, year_fac, mean))
 		mm_pos_se <- with(pred_pos_yrs, tapply(pos_se_correct, year_fac, mean))
-		marg_means_pos <- data.frame(year = as.numeric(names(mm_pos_fit)), pos_correct = mm_pos_fit, 
-						pos_se_correct = mm_pos_se)						#str(marg_means_pos)
+		marg_means_pos <- data.frame(year = as.numeric(names(mm_pos_fit)), pos_raw = mm_pos_raw, pos_se = mm_pos_se_raw, 
+						pos_correct = mm_pos_fit, pos_se_correct = mm_pos_se)						#str(marg_means_pos)
 
 	# put together the processes
   	marg_means_pos <- marg_means_pos[order(marg_means_pos$year),]			#str(pred_pa_yrs)
@@ -381,14 +384,13 @@
 			pred_delta$pos_se_correct*pred_delta$pa_raw^2
  	# IF the species wasn't observed for a year, probability of occurence (pa_raw) will be very close to zero
 	# 	and se of the pa process will be small
-	#  I DON'T KNOW WHAT TO DO- I think in this instance, you would do a walter's large table and impute what the positive process
-	#	might be in the missing year.
+	# Positive process is 'NA' and that will carry through the multiplication so CPUE for that year is simply missing.
 
 	# sd = sqrt(var)
 	pred_delta$delta_sd <- (pred_delta$delta_var)^(1/2)
 	pred_delta$species <- species
 	pred_delta$area <- area
-	pred_delta$type <- 'delta_marginal_means'
+	pred_delta$type <- 'delta_WLT'
 
 	return(pred_delta)
 
@@ -399,416 +401,109 @@
 # ---------------------- END Walter's Large Table (WLT, marginal means) 
 
 
+# species = 'LUKA'
 
 
+# ---------------------- Plot the predicted indices
 
+  plot_CPUE <- function(species) {
 
+  area_vector <- c("tutu","manu","banks")
+  area_proper_names <- c("Tutuila","Manu'a Islands","Banks")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	marg_means_pos <- 
-
-
-r1<-with(dat, tapply(value, factor, mean))
-
-
-
-
-  	# add on median values for continous variables
-   	  for(i in 1:length(pos_model$var.summary)) {
- 	    this_var_name <- names(pos_model$var.summary)[i]
-	      if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
-		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
-		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
-		pos_pred_grid <- cbind(pos_pred_grid, add_me)
-		rm(add_me)
-		}
-	  }
-
-
-### predict for each grid (and mean continuous variables)
-
-pred_pa = predict.gam(fitobject$tutu$pa$model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)		#str(pred_pa)
-
-
-
-#  -------------- positive process
-
-### build the prediction grid
-
-  # categorical covariables
-	pos_pred_grid <- expand.grid(fitobject$tutu$pos$model$xlevels)			#head(pos_pred_grid)		#View(pos_pred_grid)
-	# pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(fitobject$tutu$pa$model$xlevels)],1,paste0,collapse="_"))
-
-  # add on median values for continous variables
-   for(i in 1:length(fitobject$tutu$pos$model$var.summary)) {
- 	this_var_name <- names(fitobject$tutu$pos$model$var.summary)[i]
-	if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
-		add_me <- data.frame(new_col = rep(fitobject$tutu$pos$model$var.summary[[i]][2],nrow(pos_pred_grid)))
-		names(add_me) <- as.character(names(fitobject$tutu$pos$model$var.summary)[i]) 
-		pos_pred_grid <- cbind(pos_pred_grid, add_me)
-		rm(add_me)
-		}
+  for (i in 1:3) {
+	this_area <- area_vector[i]
+  	assign(paste0('nom_',this_area),predict_nominal(species,this_area))
+	assign(paste0('delta_modes_',this_area),predict_delta_modes(species,this_area))
+	assign(paste0('delta_WLT_',this_area),predict_delta_WLT(species,this_area))
 	}
 
+  # put these together in a ggplot-friendly object
 
-### predict for each grid (and mean continuous variables)
+	nom_all <- rbind(nom_tutu, nom_manu, nom_banks)
+	
+      delta_all <- rbind(delta_modes_tutu, delta_modes_manu, delta_modes_banks, delta_WLT_tutu, delta_WLT_manu, delta_WLT_banks)
+	delta_all_2 <- data.frame(year=delta_all$year, n_ints = NA, cpue = delta_all$delta_fit, cpue_sd = delta_all$delta_sd, 
+						species = delta_all$species, area = delta_all$area, type = delta_all$type)
+	nom_all_2 <- data.frame(year= nom_all$year, n_ints = nom_all$n_ints, cpue = nom_all$cpue, cpue_sd = nom_all$stdev, 
+						species = nom_all$species, area = nom_all$area, type = nom_all$type)
 
-pred_pos = predict.gam(fitobject$tutu$pos$model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)		#str(pred_pos)
-
-
-
-
-
-
-
-
-
-
- #	pa_pred_grid <- cbind(pa_pred_grid, pred_grid_name)
-
-
+	
+	all_cpue <- rbind(nom_all_2, delta_all_2)			#str(all_cpue)
+	all_cpue$species <- as.factor(all_cpue$species)
+	all_cpue$area <- as.factor(all_cpue$area)
+	all_cpue$type <- as.factor(all_cpue$type)
 
 
+   # make ggplot objects: each area and a legend
 
-# extra code below
+	CPUE_type_colors <- c("nominal"="#00467F", "delta_WLT"="#4C9C2E", "delta_modes"="#FF8300")
+	CPUE_type_shapes <- c("nominal"=as.numeric(19), "delta_WLT"=as.numeric(1), "delta_modes"=as.numeric(1))
+	CPUE_type_lines <- c("nominal"="blank", "delta_WLT"="solid", "delta_modes"="solid")
+	CPUE_type_size <- c("nominal"=as.numeric(1), "delta_WLT"=as.numeric(0), "delta_modes"=as.numeric(0))
 
+	for (i in 1:3) {
+	  this_area <- area_vector[i] 
+	  plot_me <- subset(all_cpue, area == area_vector[i])  
 
+	  max_y_axis	<- round(max(plot_me$cpue, na.rm=TRUE),0)
+	  x_ticks = seq(1985,2025,5)
+	  x_tick_height = max_y_axis/40
+	  y_ticks = seq(0,max_y_axis,1)
 
-
-# ---------------------- Use Walter's Large Table (WLT, marginal means) to 
-#	do predictions for the delta distribution GAM objects
-
-  predict_delta_WLT <- function(species, area) {
-
-   # preliminaries
-   this_species <- get(species)			# str(this_species)		#str(sp_data_all)		#str(sp_data_pos)
-   index_area <- match(area, names(this_species))
-   sp_data_all <- this_species[[index_area]][[1]][[2]] 				#names(pa_model)		#names(pos_model)
-   pa_model <- this_species[[index_area]][[1]][[1]] 
-   sp_data_pos <- this_species[[index_area]][[2]][[2]] 
-   pos_model <- this_species[[index_area]][[2]][[1]]
-   first_year <- min(sp_data_all$year_num)
-   last_year <- max(sp_data_all$year_num)
-   pos_error <- summary(pos_model)$family$family
-   pa_years <- unique(sp_data_all$year_fac)
-   pos_years <- unique(sp_data_pos$year_fac) 
-
-   # build the presence/absence prediction grid
-
-  	# categorical covariables
-	  pa_pred_grid <- expand.grid(pa_model$xlevels)			#head(pa_pred_grid)		#str(pa_pred_grid)
- 	  pa_pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(pa_model$xlevels)],1,paste0,collapse="_"))
-
-  	# add on median values for continous variables
-   	  for(i in 1:length(pa_model$var.summary)) {
- 	    this_var_name <- names(pa_model$var.summary)[i]
-	      if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
-		add_me <- data.frame(new_col = rep(pa_model$var.summary[[i]][2],nrow(pa_pred_grid)))
-		names(add_me) <- as.character(names(pa_model$var.summary)[i]) 
-		pa_pred_grid <- cbind(pa_pred_grid, add_me)
-		rm(add_me)
-		}
-	  }
-
-
-   # build the positive process prediction grid
-
-  	# categorical covariables
-	  pos_pred_grid <- expand.grid(pos_model$xlevels)			#head(pos_pred_grid)		#str(pos_pred_grid)
- 	  pos_pred_grid_name = data.frame(grid_name = apply(pos_pred_grid[,1:length(pos_model$xlevels)],1,paste0,collapse="_"))
-
-  	# add on median values for continous variables
-   	  for(i in 1:length(pos_model$var.summary)) {
- 	    this_var_name <- names(pos_model$var.summary)[i]
-	      if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
-		add_me <- data.frame(new_col = rep(pos_model$var.summary[[i]][2],nrow(pos_pred_grid)))
-		names(add_me) <- as.character(names(pos_model$var.summary)[i]) 
-		pos_pred_grid <- cbind(pos_pred_grid, add_me)
-		rm(add_me)
-		}
-	  }
-
-
-### predict for each grid (and mean continuous variables)
-
-pred_pa = predict.gam(fitobject$tutu$pa$model, newdata = pa_pred_grid, type = "response", se.fit = TRUE)		#str(pred_pa)
-
-
-
-#  -------------- positive process
-
-### build the prediction grid
-
-  # categorical covariables
-	pos_pred_grid <- expand.grid(fitobject$tutu$pos$model$xlevels)			#head(pos_pred_grid)		#View(pos_pred_grid)
-	# pred_grid_name = data.frame(grid_name = apply(pa_pred_grid[,1:length(fitobject$tutu$pa$model$xlevels)],1,paste0,collapse="_"))
-
-  # add on median values for continous variables
-   for(i in 1:length(fitobject$tutu$pos$model$var.summary)) {
- 	this_var_name <- names(fitobject$tutu$pos$model$var.summary)[i]
-	if (cov_types$cov_type[cov_types$cov_name==this_var_name] == 'cont') {
-		add_me <- data.frame(new_col = rep(fitobject$tutu$pos$model$var.summary[[i]][2],nrow(pos_pred_grid)))
-		names(add_me) <- as.character(names(fitobject$tutu$pos$model$var.summary)[i]) 
-		pos_pred_grid <- cbind(pos_pred_grid, add_me)
-		rm(add_me)
-		}
+	  assign(paste("p_",i,sep=""),
+	    ggplot(data=plot_me, aes(x=year,y=cpue, group = type)) +
+		geom_point(aes(shape=type, color=type, size=type)) +			# return point size to 1 
+		scale_shape_manual(values=CPUE_type_shapes) +
+		scale_color_manual(values=CPUE_type_colors) +
+		scale_size_manual(values=CPUE_type_size) +
+		geom_line(aes(color=type, linetype=type)) +
+		scale_linetype_manual(values=CPUE_type_lines) +
+		theme_datareport_size_comp() +
+		geom_segment(y=0,yend=0,x=0,xend=3000, color="black") +
+		geom_segment(y=0,yend=max_y_axis,x=1986,xend=1986, color="black") +
+		scale_x_continuous(limits=c(1987,2022), breaks=x_ticks) +
+		scale_y_continuous(limits=c(0,max_y_axis)) +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[1],xend=x_ticks[1],color="black") +
+ 		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[2],xend=x_ticks[2],color="black") +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[3],xend=x_ticks[3],color="black") +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[4],xend=x_ticks[4],color="black") +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[5],xend=x_ticks[5],color="black") +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[6],xend=x_ticks[6],color="black") +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[7],xend=x_ticks[7],color="black") +
+		geom_segment(y=0,yend=-x_tick_height,x=x_ticks[8],xend=x_ticks[8],color="black") +
+		geom_segment(y=y_ticks[1],yend=y_ticks[1],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[2],yend=y_ticks[2],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[3],yend=y_ticks[3],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[4],yend=y_ticks[4],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[5],yend=y_ticks[5],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[6],yend=y_ticks[6],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[7],yend=y_ticks[7],x=1986,xend=1985,color="black") +
+		geom_segment(y=y_ticks[8],yend=y_ticks[8],x=1986,xend=1985,color="black") +
+	     theme(plot.title = element_text()) +
+	     theme(axis.title.x = element_text(angle = 0, margin = margin(t=5, r=0, b=-15, l=0), vjust = 0)) +
+	     theme(axis.title.y = element_text(angle = 90, margin = margin(-20,0,-25,-15), vjust = 0)) +
+		labs(y="", x="", caption="", title = area_proper_names[i])
+	   )
 	}
-
-
-### predict for each grid (and mean continuous variables)
-
-pred_pos = predict.gam(fitobject$tutu$pos$model, newdata = pos_pred_grid, type = "response", se.fit = TRUE)		#str(pred_pos)
-
-
-
-
-
-
-
-
-
-
- #	pa_pred_grid <- cbind(pa_pred_grid, pred_grid_name)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # assign a weight for each prediction grid cell based on number of interviews
-	pa_fac_vars <- names(fitobject$tutu$pa$model$xlevels)
-	index_fac <- match(pa_fac_vars, names(fitobject$tutu$pa$sp_data_all))
-	u_strata = data.frame(grid_name = apply(fitobject$tutu$pa$sp_data_all[,index_fac],1,paste0,collapse="_"))		
-			# head(u_strata)		#str(u_strata)		#str(fitobject$tutu$pa$sp_data_all)
-	count_grid <- cbind(fitobject$tutu$pa$sp_data_all, u_strata)			#head(count_grid)		#str(count_grid)
 	
-	obs_per_strata <- data.frame(grid_name = names(table(count_grid$grid_name)),
-				n_obs = table(count_grid$grid_name))					# head(obs_per_strata)		#View(obs_per_strata)
-	obs_per_strata <- obs_per_strata[,c(-2)]
-	names(obs_per_strata)[2] <- 'n_obs'
+	grob_ylab <- textGrob("CPUE (lbs/hour)", gp=gpar(fontsize=10), 
+		x = unit(0.6, "npc"), y = unit(0.5, "npc"),
+		just = "centre", hjust = NULL, vjust = NULL, rot = 90)
 
-	pa_pred_grid_2 <- merge(x=pa_pred_grid, y=obs_per_strata, by='grid_name', all.x = TRUE)			#View(pa_pred_grid_2)
-
-	pa_pred_grid_weights <- mutate(pa_pred_grid_2, weight = (nrow(fitobject$tutu$pa$sp_data_all)/nrow(pa_pred_grid))*(1/n_obs))
-	# View(pa_pred_grid_weights)
-
-
-
-
-see_2021 <- subset(fitobject$tutu$pa$sp_data_all, year_fac == '2021')
-View(see_2021)
-write.csv(see_2021, "see_2021.csv")
-
-
-
-
-	#  put the strata weights back onto the prediction grid   # Equation 13a from Campbell 2015	
-	sim.cpue.df$strata.weight = rep(NA,nrow(sim.cpue.df))
-		for(w in 1:nrow(sim.cpue.df))
-		{
-			sim.cpue.df$strata.weight[w] = (nrow(sim.cpue.df)/nrow(obs.per.strata)) * (1/obs.per.strata$N[which(obs.per.strata$strata == sim.cpue.df$u.strata[w])]) 
-		}
-
-
-
-
-
-
-
-	obs.per.strata = as.data.frame(cbind(names(table(fitobject$tutu$pa$sp_data_all$grid_name)),		#head(obs.per.strata)
-				table(fitobject$tutu$pa$sp_data_all$grid_name)))	
-
-
-str(u.strata)
-str(fitobject$tutu$pa$sp_data_all)
-
-paste(fitobject$tutu$pa$sp_data_all[,index_fac], sep="_")
-
+	grob_xlab <- textGrob("Year", gp=gpar(fontsize=10), y = unit(0.5, "npc"),)
+	grob_main <- species
 	
-str(u.strata)
-
-
-fitobject$tutu$pa$sp_data_all
-
-
-str(fitobject$tutu$pa$model)
-
-
-
-
-for (i in 1:7) {
-print(is.factor(is.factor(fitobject$tutu$pa$model$var.summary[i]) == FALSE)
-}
-
-
-is.numeric(str(this_model$var.summary))
-pa_pred_grid <- mutate(pa_pred_grid, NEW_VAR =  5) }
-
-
-# extract what we want to know from the fitted model object
-
-pa_fac_vars <- names(fitobject$tutu$pa$model$xlevels)
-pa_fac_vars_levels <- fitobject$tutu$pa$model$xlevels
-
-pa_fac_vars <- list()
-pa_con_vars <- list()
-
-for i in 1:length(this_model$var.summary) {
-
-	if(is.factor(this_model$var.summary[i])) {
-		pa_
-
-pred_grid <- expand.grid(year_fac = as.character(levels(this_model$var.summary[1])), season = as.character(this_model$var.summary[1]))[,c(2,1)]
-View(pred_grid)
-
-month.index = expand.grid(Month = as.numeric(as.character(unique(sim.cpue.df$Month))),Year = as.numeric(as.character(unique(sim.cpue.df$Year))))[,c(2,1)]
-		month.index$nom.cpue = NA
+	# make legend
 	
+	p1_legend <- p_1 + theme(legend.position = "right", legend.title = element_blank(), legend.justification = "center")
+	leg <- get_legend(p1_legend)
 
-new.data3 = expand.grid(year_fac = as.numeric(pa_fac_vars_levels[1]), season = pa_fac_vars_levels[4], TYPE_OF_DAY = pa_fac_vars_levels[3])
-View(new.data3)
+	species_plot <- grid.arrange(p_1, p_2, p_3, leg, ncol=2,left = grob_ylab, bottom = grob_xlab, top = grob_main)
 	
+	return(list(plot = species_plot, predicted_cpue = all_cpue))
 
-
-pa_fac_vars_levels[1]
-
-pa_summary_fitobject <- summary(fitobject$tutu$pa$model)
-pa_terms <- (names(pa_summary_fitobject$pTerms.pv))
-
-
-
-pos_summary_fitobject <- summary(fitobject$tutu$pos$model)
-pos_terms <- (names(pos_summary_fitobject$pTerms.pv))
-
-
-
-
-
-pa_formula <- summary(fitobject$tutu$pa$model)
-
-
-pos_formula <- 
-
-str(this_model$var.summary)
-levels(this_model$var.summary[1])
-str(attributes(this_model$var.summary[1]))
-
-this_model$var.summary[[7]][2]
-
- 
-this_model <- LUKA$tutu$pa$model
-str(this_model)
-this_model$xlevels[1]
-
-these_data <- LUKA$tutu$pa$sp_data_all
-head(these_data)
-
-$SOI
-[1] -4.4  0.1  4.8
-
-summary(these_data$SOI)
-
-
-names(LUKA$tutu$pa)
-attr(this_model$var.summary)
-
-
-length(names(this_model$xlevels))
-length(names(this_model$xlevels))
-
-try1 <- expand.grid(year = unique(this_model$xlevels[1]), season = unique(this_model$xlevels[4]))
-
-try2 <- expand.grid(this_model$xlevels)
-
-[1]
-cov_types <- data.frame(cov_name = c('year_fac', 'hours_std', 'num_gear_fac', 'TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-			'ENSO', 'Moon_days', 'wdir', 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2'), cov_type = c('fact', 'cont','fact','fact','cont',
-			'fact','cont','fact','cont','cont','cont','cont','cont','fact','cont','cont','cont'))
-
-
-
-model_vars <- names(this_model$model)
-model_vars[1]
-
-# build the prediction grid for the categorical variables.
-length(this_model$xlevels)
-
-# for continuous variables, lists mean, median, max.
-this_model$var.summary
-
-
-new.data1 = expand.grid(Year = as.factor(this_model$xlevels[1]), V2 = data.frame(this_model$xlevels[2]), 
-				V3=data.frame(this_model$xlevels[3]))		#View(new.data1)
-
-		new.data1$Gear = rep(Mode(sim.cpue.df$Gear),nrow(new.data1))
-		new.data1$Depth = rep(Mode(sim.cpue.df$Depth),nrow(new.data1))
-		new.data1$Technology = rep(Mode(sim.cpue.df$Technology),nrow(new.data1))     
-		
-
-
-
-
-str(cpue_datasets)
-
-ls()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ }
 
 
 
@@ -830,35 +525,5 @@ ls()
 
 
 #  --------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
