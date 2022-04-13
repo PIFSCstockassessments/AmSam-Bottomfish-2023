@@ -1,15 +1,21 @@
+require(data.table)
 
-interviews = read.csv(file="Data/a_bbs_int_flat4.csv", stringsAsFactors = F)
+int1 = read.csv(file="Data/a_bbs_int_flat1.csv", stringsAsFactors = F)
+int2 = read.csv(file="Data/a_bbs_int_flat2.csv", stringsAsFactors = F)
+int3 = read.csv(file="Data/a_bbs_int_flat3.csv", stringsAsFactors = F)
+int4 = read.csv(file="Data/a_bbs_int_flat4.csv", stringsAsFactors = F)
+
+interviews <- data.table( rbind(int1,int2,int3,int4) )
 
 
-
-
-
+interviews <- interviews[,list(N=.N),by=list(INTERVIEW_PK,VESSEL_FK,SAMPLE_DATE,METHOD_FK,NUM_DAYS_FISHED)]
 
 
 interviews$SAMPLE_DATE = as.Date(interviews$SAMPLE_DATE)
 bl = read.csv("Data/AS_bl_allyears.csv", stringsAsFactors = F)
 bl$SAMPLE_DATE = as.Date(bl$SAMPLE_DATE)
+bl$YEAR <- year(bl$SAMPLE_DATE)
+
 
 duplicate_bl = data.frame()
 multiday = interviews[interviews$NUM_DAYS_FISHED > 1,]
@@ -29,4 +35,10 @@ for(i in 1:nrow(multiday)) {
 
 
 
-unique(interviews$SAMPLE_DATE)
+nrow(bl[bl$YEAR>=2000,])
+
+hist(duplicate_bl$YEAR)
+
+
+
+
