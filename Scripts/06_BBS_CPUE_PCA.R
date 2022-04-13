@@ -38,7 +38,17 @@
   load(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
 
 
- 
+		# ----  calculations for methods:
+		length(unique(bbs_3C$INTERVIEW_PK))				#3068
+		# once we exclude 86/87, how many interviews left?
+		no_8687 <- subset(bbs_3C, year_num > 1987)		#2753
+		length(unique(no_8687$INTERVIEW_PK))
+		# no area
+		summary(as.factor(no_8687$AREA_B2))
+		known_areaB2 <- subset(no_8687, AREA_B2=='Bank_E' | AREA_B2=='Bank_S' | AREA_B2=='Manua' | AREA_B2=='Tutuila')
+		length(unique(known_areaB2$INTERVIEW_PK))			#2727
+	
+
 # ---- simplify to INTERVIEW_PK, catch by species
 #	We know 1986/1987 species IDs were incomplete, so use 1988-2021 only
 

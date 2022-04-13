@@ -4,7 +4,7 @@
 #   *** data updated Oct 6, 2021 with data received from Penlong JIRA ticket 113156
 #	    should be ALL interviews, all gears, all years, all species, etc., through 2020
 #   *** data updated March 25 2022 with data received from Dios JIRA ticket 113220
-#	    should be ALL interviews, all gears, all species, etc., for 2021
+#	    should be ALL interviews, all gears, all species, etc., for just 2021
 #	Erin Bohaboy erin.bohaboy@noaa.gov
 #		includes some code written by John Syslo for the 2019 assessment
 #  --------------------------------------------------------------------------------------------------------------
@@ -90,8 +90,8 @@
    aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
 
 	# quick check
-	length(unique(aint_bbs$INTERVIEW_PK))		# 15081 interviews	(15121)
-	length(unique(aint_bbs$CATCH_PK))			# 55548 catch records	(55875)
+	length(unique(aint_bbs$INTERVIEW_PK))		# 15121 interviews
+	length(unique(aint_bbs$CATCH_PK))			# 55875 catch records
 
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 2: Basic Interview Filtering
@@ -99,9 +99,9 @@
  # -- 223 interviews from 1985 (incomplete year) and 1111 (database artifact)
    aint_bbs <- subset(aint_bbs, year_num != 1985)
    aint_bbs <- subset(aint_bbs, year_num != 1111)
-   	nrow(aint_bbs)		# 141219	(143746)
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews	(14898)
-	length(unique(aint_bbs$CATCH_PK))			# 55112 catch records	(55439)
+   	nrow(aint_bbs)		# 142496
+	length(unique(aint_bbs$INTERVIEW_PK))		# 14898 interviews
+	length(unique(aint_bbs$CATCH_PK))			# 55439 catch records
 
  # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded
 	# within these interviews. So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
