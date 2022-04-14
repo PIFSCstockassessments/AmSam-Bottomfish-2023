@@ -64,7 +64,7 @@
 
 
 
-#  --- FUNCTION 1 BEGIN ---------------------------------------------------------------------------------------
+#  --- FUNCTION BEGIN ---------------------------------------------------------------------------------------
 
 binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_thresh = NA, aic_rel_thresh = NA) {
  
@@ -197,6 +197,33 @@ binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_th
 			wdir=c(0,360), yday=c(0,366)), method='ML', na.action = na.omit)
 
 	return(list("model" = best_gam, "sp_data_all" = sp_data_all))
+
+} 
+		
+# --------------------------------------  END FUNCTION
+
+#  erin test this.
+species=
+"z ~ year_fac"
+
+#  --- FUNCTION BEGIN ---------------------------------------------------------------------------------------
+#  user specifies the formula, no model selection, model object and data returned in same format as model selection function
+
+binomial_user_formula <- function(species, area, formula) {
+ 
+# ---- preliminaries
+  
+   sp_data <- cpue_datasets[[species]]		#str(sp_data)
+   area_data <- sp_data[[area]]			#str(area_data)
+   sp_data_all <- droplevels(area_data$data_all)		#str(sp_data_all)
+
+# ---- fit the user specified model
+    formula_formula <- as.formula(formula)
+
+    run_gam <- gam(formula_formula, data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML',
+    			na.action = na.omit)
+  
+    return(list("model" = run_gam, "sp_data_all" = sp_data_all))
 
 } 
 		
