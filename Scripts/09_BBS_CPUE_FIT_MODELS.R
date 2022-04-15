@@ -68,6 +68,14 @@
 #  * use only 1 time of year covariable: season, month, or yday
 
 
+#  HINT: with interactions and categorical variables with lots of levels (e.g. month), for species/areas with little data,
+#	it's not unusual to get the error message:
+#		Error in gam(formula_formula, data = sp_data_pos_Ln, family = gaussian,  : 
+#  		Model has more coefficients than data
+#	Look in the output .txt (in out_directory) to see what the last variable was that the function tried to add, then comment it
+#	  out in the var_name then try again.
+
+
 ##################   KASMIRA example using absolute AIC threshold
 #	I am including year x season and year x tod to see if there is any evidence to support an interaction
 
@@ -463,14 +471,14 @@ LUKA <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 	#	'year_fac*tod_quarter', 
 	#	'year_fac*TYPE_OF_DAY', 
 	 #	'hours_std', 
-		'num_gear_fac', 
+	#	'num_gear_fac', 
 		'prop_pelagics', 
 		'PC1','PC2',
 		'season', 
 		"s(yday, bs='cc')", 
 		"month",
 		'tod_quarter',
-		'shift', 
+	#	'shift', 
 		'wspd', 
 		"s(wdir, bs='cc')",		
 		'ENSO', 
@@ -498,96 +506,72 @@ LUKA <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 
 	area <- 'manu'
 
- 	ETCO_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_manu_binom$model)
+ 	CALU_manu_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_manu_binom$model)
+		# num gear coefficients don't make sense. re-run by specifying
+		 user_vars = c('hours_std', 'PC1','PC2')
+		 CALU_manu_binom <- binomial_user(species, area, fit_type = 'user_input', user_vars)	
+		 
+ 	CALU_manu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_manu_gamma$model)
+		
+	CALU_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_manu_LnN$model)				# 
 
- 	ETCO_manu_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_manu_gamma$model)
-		# initially, AIC selected a year*tod interaction, but, there are so many missing strata, that doesn't make sense.
-		# also tried to include both tod_quarter and shift, and PC1/PC2 and prop_pelagics. 	
-		# shift = 49.2, tod = 42.1
-		# shift, PC1/2 = 39.9, prop_pelagics = 41.7
-		# tough decision... 
-
-	ETCO_manu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_manu_LnN$model)				# prop_pelagics = 28.2, PC1/2 = 28.5
-
- 	gam.check(ETCO_manu_gamma$model)			#
-	gam.check(ETCO_manu_LnN$model)			#
-	# again, neither look that good, but LnN looks slightly better.
-
+ 	gam.check(CALU_manu_gamma$model)			#
+	gam.check(CALU_manu_LnN$model)			#
+	# 
 
 	area <- 'banks'
 
- 	ETCO_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_banks_binom$model)
-
-	# lots of errors, see fit log
-	# AIC selects z ~ year_fac + PC1 + season + s(wdir, bs = "cc") + num_gear_fac
-	# however, this is obviously a crummy model. Back off N parms and see if we can get something better.
-     		# must do this here
-		# define data to use
-		sp_data_all <- cpue_datasets$coruscans$banks$data_all
-
-		# try specifying models manually
-		run_gam <- gam(z ~ year_fac + s(yday, bs='cc'),
-			 data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
-				wdir=c(0,360)), method='ML',na.action = na.omit)
-		summary(run_gam)
-		# null model
-		run_gam <- gam(z ~ year_fac,
-			 data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), 
-				wdir=c(0,360)), method='ML',na.action = na.omit)
-		summary(run_gam)
-
-		# tough to get a good model, this is pretty crappy still: 
-		#		z ~ year_fac + PC1 + s(yday, bs = "cc") + s(wdir, bs = "cc") + ONI
-		# go with it.
+ 	CALU_banks_binom   <-	binomial_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_banks_binom$model)
+		# seems like a lot of variables and category levels. Leave it and see how it works out.
 
 
- 	ETCO_banks_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_banks_gamma$model)
+ 	CALU_banks_gamma   <-	gamma_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_banks_gamma$model)
 
- 	ETCO_banks_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
-	summary(ETCO_banks_LnN$model)
+ 	CALU_banks_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
+	summary(CALU_banks_LnN$model)
 
-	gam.check(ETCO_banks_gamma$model)			#
-	gam.check(ETCO_banks_LnN$model)			#
+	gam.check(CALU_banks_gamma$model)			#
+	gam.check(CALU_banks_LnN$model)			#
 
 
     #  use fitdist.r to help us decide between gamma and Ln for the positive process
 
-		fit.gamma <- fitdist(cpue_datasets$coruscans$tutu$data_pos$catch_cpue, "gamma")
+		fit.gamma <- fitdist(cpue_datasets$lugubris$tutu$data_pos$catch_cpue, "gamma")
 		plot(fit.gamma)
-		fit.gamma$aic	# 1320
+		fit.gamma$aic	# 764
 
-		fit.lnnorm <- fitdist(log(cpue_datasets$coruscans$tutu$data_pos$catch_cpue), "norm")
-		plot(fit.lnnorm)		# actually looks pretty good
-		fit.lnnorm$aic	#  960
+		fit.lnnorm <- fitdist(log(cpue_datasets$lugubris$tutu$data_pos$catch_cpue), "norm")
+		plot(fit.lnnorm)		# 
+		fit.lnnorm$aic	# 995
 
-		fit.gamma <- fitdist(cpue_datasets$coruscans$manu$data_pos$catch_cpue, "gamma")
+		fit.gamma <- fitdist(cpue_datasets$lugubris$manu$data_pos$catch_cpue, "gamma")
 		plot(fit.gamma)
-		fit.gamma$aic	# 1803.883
+		fit.gamma$aic	#  1037
 
-		fit.lnnorm <- fitdist(log(cpue_datasets$coruscans$manu$data_pos$catch_cpue), "norm")
+		fit.lnnorm <- fitdist(log(cpue_datasets$lugubris$manu$data_pos$catch_cpue), "norm")
 		plot(fit.lnnorm)
-		fit.lnnorm$aic	#  879.6185
+		fit.lnnorm$aic	#  885
 
-		fit.gamma <- fitdist(cpue_datasets$coruscans$banks$data_pos$catch_cpue, "gamma")
+		fit.gamma <- fitdist(cpue_datasets$lugubris$banks$data_pos$catch_cpue, "gamma")
 		plot(fit.gamma)
-		fit.gamma$aic	# 194.1  (graphs look better, especially resids.)
+		fit.gamma$aic	# 138.9
 
-		fit.lnnorm <- fitdist(log(cpue_datasets$coruscans$banks$data_pos$catch_cpue), "norm")
+		fit.lnnorm <- fitdist(log(cpue_datasets$lugubris$banks$data_pos$catch_cpue), "norm")
 		plot(fit.lnnorm)
-		fit.lnnorm$aic	#  110.9  (graphs do not look so good)
+		fit.lnnorm$aic	#  147.8  (graphs do not look so good)
 
-  # let's try using the gamma pos process for banks, just for development purposes 
+  # mix it up and see what happens. Marc might have to simplify lugubris later.
   
-  tutu <- list('pa' = ETCO_tutu_binom, 'pos'= ETCO_tutu_LnN)
-  manu <- list('pa' = ETCO_manu_binom, 'pos'= ETCO_manu_LnN) 
-  banks <- list('pa' = ETCO_banks_binom, 'pos'= ETCO_banks_gamma)
+  tutu <- list('pa' = CALU_tutu_binom, 'pos'= CALU_tutu_gamma)
+  manu <- list('pa' = CALU_manu_binom, 'pos'= CALU_manu_LnN) 
+  banks <- list('pa' = CALU_banks_binom, 'pos'= CALU_banks_gamma)
 
-  ETCO <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
+  CALU <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 
 
 
@@ -596,7 +580,7 @@ LUKA <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
  # keep the data and model objects, save workspace for predition
 
  	all_objs <- ls()
- 	save_objs <- c("cpue_datasets","root_dir","LUKA","ETCO")
+ 	save_objs <- c("cpue_datasets","root_dir","LUKA","ETCO","CALU")
  	remove_objs <- setdiff(all_objs, save_objs)
  #   	rm(list=remove_objs)
  #	rm(save_objs)
@@ -611,6 +595,65 @@ LUKA <- list('tutu' = tutu, 'manu' = manu, 'banks'= banks)
 
 
 
+
+# more examples:
+# we want to specify the variables to use (no model selection)
+
+# BINOMIAL
+
+ species <- 'kasmira'
+ area <- 'tutu'
+
+# just the intercept
+  just_intercept_example <- binomial_user(species, area, fit_type='intercept_only')
+  summary(just_intercept_example$model)
+
+# just the year effect
+  just_year_example <- binomial_user(species, area, fit_type='year_only')
+  summary(just_year_example$model)
+
+# specify covariables
+  user_vars = c('effort_std', 'tod_quarter',"s(yday, bs='cc')")
+  specify_vars_example <- binomial_user(species, area, fit_type='user_input',user_vars)
+  summary(specify_vars_example$model)
+
+
+# GAMMA
+
+ species <- 'kasmira'
+ area <- 'tutu'
+
+# just the intercept
+  just_intercept_example <- gamma_user(species, area, fit_type='intercept_only')
+  summary(just_intercept_example$model)
+
+# just the year effect
+  just_year_example <- gamma_user(species, area, fit_type='year_only')
+  summary(just_year_example$model)
+
+# specify covariables
+  user_vars = c('PC1', 'PC2', 'tod_quarter',"s(yday, bs='cc')")
+  specify_vars_example <- gamma_user(species, area, fit_type='user_input',user_vars)
+  summary(specify_vars_example$model)
+
+
+# LN NORMAL
+
+ species <- 'kasmira'
+ area <- 'tutu'
+
+# just the intercept
+  just_intercept_example <- LnN_user(species, area, fit_type='intercept_only')
+  summary(just_intercept_example$model)
+
+# just the year effect
+  just_year_example <- LnN_user(species, area, fit_type='year_only')
+  summary(just_year_example$model)
+
+# specify covariables
+  user_vars = c('PC1', 'PC2', 'tod_quarter',"s(yday, bs='cc')")
+  specify_vars_example <- LnN_user(species, area, fit_type='user_input',user_vars)
+  summary(specify_vars_example$model)
 
 
 

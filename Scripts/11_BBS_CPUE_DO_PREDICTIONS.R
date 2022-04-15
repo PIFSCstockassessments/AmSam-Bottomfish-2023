@@ -154,7 +154,10 @@
 
 
 
-#  use the plot_CPUE function to fit the models and make plots:
+#  use the plot_CPUE function to fit the models and make plots
+#    the output [[2]] contains variance estimates, but are not included on the graphs to keep them from being too busy
+
+#	setwd(paste(root_dir, "/output/CPUE_fit_files", sep=""))
 
 	# only define the species to match the fitted object in this workspace
 	species='LUKA'
@@ -165,10 +168,8 @@
 	# look at data, note we can see the number of interviews for each area x year in n_ints
 	LUKA_PLOT[[2]]
 
-
 	# output the plot to a figure
 	ggsave(file = "luka_cpue.png", LUKA_PLOT[[1]])
-
 
 
 
@@ -185,6 +186,16 @@
 
 
 
+	species='CALU'
+	CALU_PLOT <- plot_CPUE(species)
+	# the plot will appear in this device, is also stored in the first list item of 'LUKA_PLOT'
+	#  the data are in the second list element
+
+	# look at data
+	CALU_PLOT[[2]]
+
+	# output the plot to a figure
+	ggsave(file = "calu_cpue.png", CALU_PLOT[[1]])
 
 
 

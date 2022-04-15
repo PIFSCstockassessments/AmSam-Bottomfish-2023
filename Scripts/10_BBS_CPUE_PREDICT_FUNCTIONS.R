@@ -405,6 +405,9 @@
 
 
 # ---------------------- Plot the predicted indices
+#	it would be neat to add the number of positive observations per year to each plot somehow
+#		(without it getting too busy).
+
 
   plot_CPUE <- function(species) {
 

@@ -28,13 +28,9 @@
 
 
 
-
-
-
-
-# FUNCTION 1: --------------------------------------------------------------------------------------------------------------
-# ----   PRESENCE/ABSENCE (BINOMIAL DISTRIBUTION) FORWARDS SELECTION USING ABSOLUTE CHANGE IN AIC OR RELATIVE CHANGE
-
+# FUNCTIONS 1-3 --------------------------------------------------------------------------------------------------------------
+# FORWARD SELECTION USING ABSOLUTE OR RELATIVE CHANGE IN AIC
+# The following arguments apply to the binomial and positive (gamma or LnN) processes for forward model selection.
 
 #  ARGUMENTS 		DESCRIPTIONS
 #  species			just the species name, e.g., kasmira
@@ -64,7 +60,10 @@
 
 
 
-#  --- FUNCTION BEGIN ---------------------------------------------------------------------------------------
+
+# FUNCTION 1: --------------------------------------------------------------------------------------------------------------
+# ----   PRESENCE/ABSENCE (BINOMIAL DISTRIBUTION) FORWARDS SELECTION
+
 
 binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_thresh = NA, aic_rel_thresh = NA) {
  
@@ -200,53 +199,14 @@ binomial_forwards <- function(species, area, var_name, out_directory, aic_abs_th
 
 } 
 		
-# --------------------------------------  END FUNCTION
-
-#  erin test this.
-species=
-"z ~ year_fac"
-
-#  --- FUNCTION BEGIN ---------------------------------------------------------------------------------------
-#  user specifies the formula, no model selection, model object and data returned in same format as model selection function
-
-binomial_user_formula <- function(species, area, formula) {
- 
-# ---- preliminaries
-  
-   sp_data <- cpue_datasets[[species]]		#str(sp_data)
-   area_data <- sp_data[[area]]			#str(area_data)
-   sp_data_all <- droplevels(area_data$data_all)		#str(sp_data_all)
-
-# ---- fit the user specified model
-    formula_formula <- as.formula(formula)
-
-    run_gam <- gam(formula_formula, data = sp_data_all,  family= 'binomial', knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML',
-    			na.action = na.omit)
-  
-    return(list("model" = run_gam, "sp_data_all" = sp_data_all))
-
-} 
-		
-# --------------------------------------  END FUNCTION
+# --------------------------------------  FUNCTION 1 END
 
 
 
 # --------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
-#  FUNCTION 2: gamma-distribution positive process, forwards selection based on ABSOLUTE or RELATIVE delta AIC
-
-#  SAMPLE VALUES   (remember, no effort covariable considered for positive process)
-#	species <- 'kasmira'
-#	area <- 'tutu'
-#	out_directory <- paste(root_dir, "/output/CPUE_fit_files", sep="")
-#	var_name = c('TYPE_OF_DAY', 'prop_pelagics', 'season', 'wspd', 'tod_quarter',			
-#			'ENSO', "s(Moon_days, bs='cc')", "s(wdir, bs='cc')", 'ONI', 'SOI', 'shift', 'prop_unid', 'PC1','PC2')
-#	aic_abs_thresh <- 2
-
-
-
-
-#  --- FUNCTION 2 BEGIN ------------------------------------------------------------------------------------
+#  FUNCTION 2: gamma-distribution positive process
+#
 
 gamma_forwards <- function(species, area, var_name, out_directory, aic_abs_thresh = NA, aic_rel_thresh = NA) {
  
@@ -382,7 +342,7 @@ gamma_forwards <- function(species, area, var_name, out_directory, aic_abs_thres
 
 } 
 		
-# --------------------------------------  END FUNCTION
+# --------------------------------------  END FUNCTION 2
 
 
 
@@ -390,7 +350,6 @@ gamma_forwards <- function(species, area, var_name, out_directory, aic_abs_thres
 # --------------------------------------------------------------------------------------------------------------
 #  FUNCTION 3: LnN-distribution positive process, forwards selection
 
-#  --- FUNCTION 3 BEGIN ---
 
 LnN_forwards <- function(species, area, list_vars, out_directory,  aic_abs_thresh = NA, aic_rel_thresh = NA) {
  
@@ -526,7 +485,173 @@ LnN_forwards <- function(species, area, list_vars, out_directory,  aic_abs_thres
 
 } 
 		
-# --------------------------------------  END FUNCTION
+# --------------------------------------  END FUNCTION 3
+
+
+
+# FUNCTIONS 4-6 --------------------------------------------------------------------------------------------------------------
+# The user can specify the model formula (with no model selection).
+#	the returned model object and data are in the same format as from the model selection functions
+
+# The following arguments apply.
+
+#  ARGUMENTS 		DESCRIPTIONS
+#  species			just the species name, e.g., kasmira
+#  area			tutu, manu, or banks
+#  fit_type			3 options: 'intercept_only','year_only','user_input'. What it says on the tin.
+#  user_vars		Default value is NULL. if fit_type == user_input, then user_vars is a list of the covariate names, 
+#					matching the column names in the input data, that will be in the fitted model.
+#					These must include details for smooth terms in the GAM (e.g. s(wdir, bs='cc')).
+#					This is really identical to "var_name" used in functions 1-3.
+
+
+
+#  FUNCTION 4. ---------------------------------------------------------------------------------------
+#  user specified binomial GAM
+
+binomial_user <- function(species, area, fit_type, user_vars = NULL) {
+ 
+# ---- preliminaries
+
+   sp_data <- cpue_datasets[[species]]		#str(sp_data)
+   area_data <- sp_data[[area]]			#str(area_data)
+   sp_data_all <- droplevels(area_data$data_all)		#str(sp_data_all)
+
+# ---- build the formula
+
+  if (fit_type == 'intercept_only') {
+	current_formula <- "z ~ 1"
+   	}
+
+  if (fit_type == 'year_only') {
+  	current_formula <- "z ~ year_fac"
+   	}
+
+  if (fit_type == 'user_input') {
+  	current_formula <- "z ~ year_fac"
+		for (i in 1:length(user_vars)) {
+	  	  add_var = user_vars[i]
+	  	  current_formula <- paste0(current_formula," + ",add_var)
+	  	}
+	}
+
+  formula_formula <- as.formula(current_formula)
+
+# ---- fit the model
+    
+   run_gam <- gam(formula_formula, data = sp_data_all,  family= 'binomial', 
+			knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML',
+    			na.action = na.omit)
+  
+   return(list("model" = run_gam, "sp_data_all" = sp_data_all))
+
+} 
+
+		
+# --------------------------------------  END FUNCTION 4
+
+
+#  FUNCTION 5. ---------------------------------------------------------------------------------------
+#  user specified gamma-error GAM
+
+gamma_user <- function(species, area, fit_type, user_vars = NULL) {
+ 
+# ---- preliminaries
+
+   sp_data <- cpue_datasets[[species]]				#str(sp_data)
+   area_data <- sp_data[[area]]					#str(area_data)
+   sp_data_pos <- droplevels(area_data$data_pos)		#head(sp_data_pos)
+
+# ---- build the formula
+
+  if (fit_type == 'intercept_only') {
+	current_formula <- "catch_cpue ~ 1"
+   	}
+
+  if (fit_type == 'year_only') {
+  	current_formula <- "catch_cpue ~ year_fac"
+   	}
+
+  if (fit_type == 'user_input') {
+  	current_formula <- "catch_cpue ~ year_fac"
+		for (i in 1:length(user_vars)) {
+	  	  add_var = user_vars[i]
+	  	  current_formula <- paste0(current_formula," + ",add_var)
+	  	}
+	}
+
+  formula_formula <- as.formula(current_formula)
+
+# ---- fit the model
+    
+   run_gam <- gam(formula_formula, data = sp_data_pos,  family= 'Gamma', 
+			knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML',
+    			na.action = na.omit)
+  
+   return(list("model" = run_gam, "sp_data_pos" = sp_data_pos))
+
+} 
+
+# -------------------------------------------------- END FUNCTION 5
+
+
+
+
+#  FUNCTION 6. ---------------------------------------------------------------------------------------
+#  user specified Ln gaussian-error GAM
+
+LnN_user <- function(species, area, fit_type, user_vars = NULL) {
+ 
+# ---- preliminaries
+
+   sp_data <- cpue_datasets[[species]]									#str(sp_data)
+   area_data <- sp_data[[area]]										#str(area_data)
+   sp_data_pos <- droplevels(area_data$data_pos)							#head(sp_data_pos)
+   sp_data_pos_Ln <- mutate(sp_data_pos, ln_catch_cpue = log(catch_cpue))			# head(sp_data_pos_Ln)
+
+# ---- build the formula
+
+  if (fit_type == 'intercept_only') {
+	current_formula <- "ln_catch_cpue ~ 1"
+   	}
+
+  if (fit_type == 'year_only') {
+  	current_formula <- "ln_catch_cpue ~ year_fac"
+   	}
+
+  if (fit_type == 'user_input') {
+  	current_formula <- "ln_catch_cpue ~ year_fac"
+		for (i in 1:length(user_vars)) {
+	  	  add_var = user_vars[i]
+	  	  current_formula <- paste0(current_formula," + ",add_var)
+	  	}
+	}
+
+  formula_formula <- as.formula(current_formula)
+
+# ---- fit the model
+    
+   run_gam <- gam(formula_formula, data = sp_data_pos_Ln,  family= gaussian, 
+			knots = list(Moon_days=c(0,30), wdir=c(0,360), yday=c(0,366)), method='ML',
+    			na.action = na.omit)
+  
+   return(list("model" = run_gam, "sp_data_pos_Ln" = sp_data_pos_Ln))
+
+} 
+
+# -------------------------------------------------------- END FUNCTION 6
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
