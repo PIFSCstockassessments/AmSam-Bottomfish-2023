@@ -39,6 +39,13 @@
  myData <- LUKA$tutu$pos$sp_data_pos			#head(myData)
  myModel <- glm(log(catch_cpue)~year_fac+PC2 + PC1 + ENSO + prop_unid + tod_quarter,data=myData)
  
+#   try it with prop_pelagics instead
+# myData <- LUKA$tutu$pos$sp_data_pos			#head(myData)
+# myModel <- glm(log(catch_cpue) ~ year_fac + prop_pelagics + ENSO + prop_unid + tod_quarter,data=myData)
+
+#  talk to Rob / Nicho about how to include proportion covariates like prop_unid or prop_pelagics
+ 
+
  myInfl = Influence$new(myModel)
  myInfl$calc()
 
@@ -68,7 +75,7 @@ myInfl$cdiPlot('tod_quarter')
 dev.off()
 
 
-
+myInfl$cdiPlot('prop_pelagics')
 
 
 
