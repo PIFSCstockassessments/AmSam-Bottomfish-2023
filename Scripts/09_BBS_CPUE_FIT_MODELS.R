@@ -143,12 +143,15 @@
   LUKA_tutu_LnN   <-	LnN_forwards(species, area, var_name, out_directory, aic_abs_thresh)
 	summary(LUKA_tutu_LnN$model)
  #   sp_data_pos_Ln <- LUKA_tutu_LnN$sp_data_pos_Ln
+# sp_data_pos_Ln <- LUKA$tutu$pos$sp_data_pos
  # 	plot(LUKA_tutu_LnN$model, all.terms = TRUE , rug = TRUE, residuals = TRUE, pch = 1, cex = 1)
 
  # in this example, chose between gamma and LnN
  	gam.check(LUKA_tutu_gamma$model)
-	gam.check(LUKA_tutu_LnN$model)			#
-  #  LnN looks much better.
+	gam.check(LUKA_tutu_LnN$model)			#	gam.check(LUKA$tutu$pos$model)
+  #  LnN looks much better.					#  summary(LUKA$tutu$pos$model)
+
+ # plot(LUKA$tutu$pos$model, all.terms = TRUE, select = 7, rug = TRUE, residuals = TRUE, pch = 1, cex = 1)
 
 
 ####
