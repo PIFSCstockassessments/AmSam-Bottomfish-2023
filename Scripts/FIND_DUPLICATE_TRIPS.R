@@ -38,6 +38,10 @@ for(i in 1:nrow(multiday)) {
 
 hist(duplicate_bl$YEAR)
 
+table(bl$YEAR)
+
+length(unique(bl[YEAR==2019]$BLDT_PK))
+
 a <- data.table( table(bl$YEAR))
 b <- data.table( table(interviews$YEAR))
 c <- data.table( table(multiday$YEAR) )
@@ -56,4 +60,8 @@ g[is.na(g)|g==Inf] <- 0
 
 write.csv(g,"Trips_breakdown.csv")
 
-table(bl$VESSEL_FK)
+
+table(interviews$BLDT_FK)
+
+
+
