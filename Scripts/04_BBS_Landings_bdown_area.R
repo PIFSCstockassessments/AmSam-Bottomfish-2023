@@ -10,6 +10,10 @@
 #   Updated Landings Estimates 8Apr2022 
 #	Includes 2021 expanded landings estimates and some changes were made to 2000 forward since we received the Dec14 data
 #	See comparison figure 
+#   Updated Landings Estimates 20Apr2022 
+#	Includes 2021 expanded landings estimates and corrections to the expansion calculations due to multi-day trips being
+#		multiple counted in the interview and participation data. Ask Hongguang / Toby / Marc for more details.
+#	See comparison figure.
 #   ----------------------------------------------------------------------------------------------------------------------------
 #
 #   Erin Bohaboy erin.bohaboy@noaa.gov
@@ -40,15 +44,21 @@
   # -------------------- 
   # Read in the 8Apr2022 updated through 2021
 
-	sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-	str(sp_data)
+  #	sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  #	str(sp_data)
  
+  # -------------------- 
+  # Read in the 20Apr2022 updated through 2021
+
+	sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_correctLog2.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+	str(sp_data)
+
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
   sp_data2 <- mutate(sp_data, year = substr(SPC_PK,2,5), method = substr(SPC_PK,11,11), 
 					zone = substr(SPC_PK,14,14), type = substr(SPC_PK,20,21), 
 					charter = substr(SPC_PK,22,22), process = substr(SPC_PK,23,23))
   tail(sp_data2)
-  str(sp_data2)			# updated 2021: 10315 records			#
+  str(sp_data2)			# updated updated 2021: 10318 records			# was 10315 from the 8 Apr update.
 
   #  Note:
   #		Method	4 = bottomfishing, 5 = btm/trl mix
@@ -78,7 +88,7 @@
 			FROM sp_data2
 			WHERE method in ('4','5','6','8','61')
 			"
-  sp_data3 <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3)		#  8,707 records
+  sp_data3 <- sqldf(string, stringsAsFactors=FALSE)		# str(sp_data3)		#  8,905 records
 
   #  spear and atule (landings, variance, and sample size) can be grouped to "other" and summed. We will not be breaking down
   #	groups from those gears. Use standard BBS names for the other gears
@@ -118,7 +128,7 @@
 				GROUP BY year, zone, method, SCIENTIFIC_NAME"
 		sp_data3_basic <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data3_basic)		#5447 records
   		# Check to make sure we do not gain / lose lbs or variance in this step
-  		sum(sp_data3_basic$LBS_CAUGHT, na.rm = TRUE)				# magic number = 8700717
+  		sum(sp_data3_basic$LBS_CAUGHT, na.rm = TRUE)				# magic number = 8207993
 
   # -----------------------------------------------------------------------------------
   # STEP 1: make the species identification corrections within these landings data. 
@@ -142,8 +152,9 @@
 				GROUP BY year, zone, method, SPECIES_FK"
 
 	sp_data4 <- sqldf(string, stringsAsFactors=FALSE)			# str(sp_data4)		#5751 records (some species have multiple SPECIES_FK)
-	# sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)			# MAGIC_NUMBER <- sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)	
-										# MAGIC_NUMBER2 <- sum(sp_data4$VAR_LBS_CAUGHT, na.rm = TRUE)
+	# sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)			
+	 MAGIC_NUMBER <- sum(sp_data4$LBS_CAUGHT, na.rm = TRUE)	
+	 MAGIC_NUMBER2 <- sum(sp_data4$VAR_LBS_CAUGHT, na.rm = TRUE)
 
   # ------------------
   #	1a. Variola: for 1986-2015, sum albimarginata, louti, partitian back to species
@@ -870,10 +881,6 @@
 				prop_tutu = Tutu_Tutu_lbs/tot_TBM_lbs)
 
 
-
-
-
-
 #  join tutu_landings_props onto Tutu landings records
 	string <- "SELECT tutu_landings_zeros.*, tutu_landings_props.prop_banks,
 				tutu_landings_props.prop_manu, tutu_landings_props.prop_tutu
@@ -922,10 +929,13 @@
  					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
  					"p_amboinensis","p_rubrio", "sp_data3_basic")
  	remove_objs <- setdiff(all_objs, save_objs)
- #   	rm(list=remove_objs)
- #	rm(save_objs)
- #	rm(remove_objs)
- #	rm(all_objs)
+
+ if (1 == 2) { 
+   	rm(list=remove_objs)
+ 	rm(save_objs)
+ 	rm(remove_objs)
+ 	rm(all_objs)
+	}
 
  # save.image(paste(root_dir, "/output/04_BBS_Landings_bdown_area.RData", sep=""))
 	# save.image(paste(root_dir, "/Outputs/04_BBS_Landings_bdown_area.RData", sep=""))
@@ -1003,7 +1013,7 @@ grob_ylab <- textGrob("Expanded Landings (lbs)", gp=gpar(fontsize=10),
 		just = "centre", hjust = NULL, vjust = NULL, rot = 90)
 
 
- 	pdf(file="Tutuila_landings_update_9Apr.pdf")
+ 	pdf(file="Tutuila_landings_update_20AprB.pdf")
 	grid.arrange(p_1+expand_pretty_y(p_1)+ 
 				theme(legend.position = c(0.9,0.95), legend.title = element_blank()), 
 			p_2+expand_pretty_y(p_2), p_3+expand_pretty_y(p_3),

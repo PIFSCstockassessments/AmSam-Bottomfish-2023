@@ -90,10 +90,11 @@
   	}
 
 
-    # 	--------------------->   2b. make some figures
+    # 	--------------------->   2b. make some figures (if we want to, comment out with if statement)
 		
-		pdf(paste(root_dir, "/output/", "tutu_v_manu_88_08.pdf", sep=""))
-		#pdf(paste(root_dir, "/Outputs/", "tutu_v_manu_88_08.pdf", sep=""))
+	if (1 == 2 ) {
+		pdf(paste(root_dir, "/output/", "tutu_v_manu_88_08_update.pdf", sep=""))
+		#pdf(paste(root_dir, "/Outputs/", "tutu_v_manu_88_08_update.pdf", sep=""))
 		
 		for (i in 1:11) {
 			plot_me <- subset(manu_tutu, SCIENTIFIC_NAME_PK == names(sp_names)[i] & year > 1987 & year < 2009)
@@ -118,6 +119,9 @@
 		  }
 
   		dev.off()
+	}
+
+
 
   # examine the p-values in save_coeffs
   #   slope was not different from zero for zonatus ([10])
@@ -137,6 +141,7 @@
 
     # 	--------------------->  make some figures
 
+	if (1==2) {
 		type.colors2 <-c("bbs_expansion" = "#00467F", "constant" = "#008998", "slope"="#4C9C2E")
 
  		for (i in 1:11) {
@@ -176,7 +181,7 @@
 			x = unit(0.6, "npc"), y = unit(0.5, "npc"),
 			just = "centre", hjust = NULL, vjust = NULL, rot = 90)
 
-		pdf(paste(root_dir, "/output/", "Manua_landings_reconstruct_compare_update.pdf", sep=""))
+		pdf(paste(root_dir, "/output/", "Manua_landings_reconstruct_compare_update_20Apr.pdf", sep=""))
 		#pdf(paste(root_dir, "/Outputs/", "Manua_landings_reconstruct_compare.pdf", sep=""))
 		
 		grid.arrange(p_1 + theme(legend.position = c(.1,1), legend.title = element_blank(), legend.justification = "top") + expand_pretty_y(p_1),
@@ -196,6 +201,7 @@
 
 		dev.off()
 
+	}
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
@@ -206,10 +212,13 @@
  					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
  					"p_amboinensis","p_rubrio", "sp_data3_basic")
  	remove_objs <- setdiff(all_objs, save_objs)
- #   rm(list=remove_objs)
- #	rm(save_objs)
- #	rm(remove_objs)
- #	rm(all_objs)
+ if (1 == 2) {
+    rm(list=remove_objs)
+ 	rm(save_objs)
+ 	rm(remove_objs)
+ 	rm(all_objs)
+	}
+
 
  # save.image(paste(root_dir, "/output/05_BBS_Landings_Manua_09_21.RData", sep=""))
 	#  save.image(paste(root_dir, "/Outputs/05_BBS_Landings_Manua_09_20.RData", sep=""))

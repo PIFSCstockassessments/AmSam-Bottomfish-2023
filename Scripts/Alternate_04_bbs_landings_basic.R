@@ -32,7 +32,7 @@
   # ----------------------------------
   # Read in the updated 14Dec expanded landings data
  
-  sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_2021.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+  sp_data <- read.csv(paste(root_dir, "/data/AS_BBS_SPC_correctLog2.csv", sep=""),header=T, stringsAsFactors=FALSE) 
   # str(sp_data)
 
   # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
@@ -40,7 +40,7 @@
 					zone = substr(SPC_PK,14,14), type = substr(SPC_PK,20,21), 
 					charter = substr(SPC_PK,22,22), process = substr(SPC_PK,23,23))
   head(sp_data2)
-  str(sp_data2)			# updated 2021: 10,315 records
+  str(sp_data2)			# updated 2021: 10,318 records
 
   #  Note:
   #		Method	4 = bottomfishing, 5 = btm/trl mix
@@ -100,10 +100,13 @@
  	all_objs <- ls()
  	save_objs <- c("bbs_landings_basic","root_dir")
  	remove_objs <- setdiff(all_objs, save_objs)
- #      rm(list=remove_objs)
- #	rm(save_objs)
- #	rm(remove_objs)
- #	rm(all_objs)
+ 
+ if (1==2) {
+      rm(list=remove_objs)
+ 	rm(save_objs)
+ 	rm(remove_objs)
+ 	rm(all_objs)
+ }
 
   # save.image(paste(root_dir, "/output/Alternate_04_BBS_landings_basic.RData", sep=""))
   

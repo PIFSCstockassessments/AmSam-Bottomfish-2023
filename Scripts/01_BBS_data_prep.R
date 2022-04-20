@@ -904,25 +904,34 @@
 	bbs_3C <- bbs_3C_new
 
   # clean up workspace
-  #	all_objs <- ls()
-  #	save_objs <- c("aint_bbs_all_gears","aint_bbs_filtered","bbs_3C","root_dir","bbs_3C_before_ID_correct",
-  #					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
-  #					"p_amboinensis","p_rubrio")
-  #	remove_objs <- setdiff(all_objs, save_objs)
-  #     rm(list=remove_objs)
-  #	rm(save_objs)
-  #	rm(remove_objs)
-  #	rm(all_objs)
+  	all_objs <- ls()
+  	save_objs <- c("aint_bbs_all_gears","aint_bbs_filtered","bbs_3C","root_dir","bbs_3C_before_ID_correct",
+ 					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
+  					"p_amboinensis","p_rubrio")
+  	remove_objs <- setdiff(all_objs, save_objs)
+  
+  if (1==2) {
+      rm(list=remove_objs)
+  	rm(save_objs)
+  	rm(remove_objs)
+  	rm(all_objs)
+	}
 
   # save in the output folder.
   # 	save.image(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
   # save.image(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
 	
+  #	load(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
 
 
-
-
-
+  # take a quick look at 2021 interviews
+    if (1==2) {
+		string <- " SELECT DISTINCT SAMPLE_DATE, INTERVIEW_PK, VESSEL_REGIST_NO, FISHING_METHOD 
+				FROM bbs_3C
+		  		WHERE year = 2021"
+		check2021 <- sqldf(string, stringsAsFactors=FALSE)	
+		View(check2021)
+	}
 
 
 
