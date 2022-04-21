@@ -32,67 +32,33 @@
    aint_bbs4             <- select(aint_bbs4,-SAMPLE_YEAR)
 	
    aint_bbs <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
+   aint_bbs <- data.table(aint_bbs)  
    
+   aint_bbs$YEAR        <- as.factor(  year(aint_bbs$SAMPLE_DATE)  )
+   aint_bbs$YEAR_NUM    <- as.numeric(aint_bbs$YEAR)
+   aint_bbs$EST_LBS     <- as.numeric(aint_bbs$EST_LBS)
+   aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
+   
+   aint_bbs <- aint_bbs[YEAR_NUM != 1985] # Incomplete year
+   aint_bbs <- aint_bbs[YEAR_NUM != 1111] # Database artefact
+
 #  ----------------------------------------------
-#  In the boat-based data:
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
-#	242 'Pristimpomoides filamentosus' has local name "Palu enaena, Palu sina (Opakapaka)"
 #	243 'Pristipomoides rutilans' has local name "Palu sina (Yelloweye Opakapaka)"
 #	247 'Aphareus rutilans', local name "Palu gutusiliva, Palu makomako"
-#  Problem: Pristipomoides rutilans is not a valid scientific name. In 2019 assessment and 2022 data report,
-#	we assumed P. rutilans = A. rutilans.
-#  However, P. rutilans and A. rutilans do not have similar local names in the database (even though 
-#	during both Tutuila and Manu'a fishermen workshops, fishermen agreed with the name Palu-sina for the 
-#	photo of P. flavipinnis, and Palu-'ena'ena for P. filamentosus, and palu-gutusiliva for A. rutilans, i.e.,
-#	there was no ambiguousity among the fishermen present regarding names for these 3 species).
-#  Also A. rutilans looks totally different from any Pristipomoides.
-#  So, we concluded 'P. rutilans' (SPECIES_PK 243) is definitely not A. rutilans. 
-#	It is most likely flavipinnis (Palu-sina)
-#  See Step 4 below to address likely P. flavipinnis / P. filamentosus confusion. 
+# Problem: Pristipomoides rutilans is not a valid scientific name. In 2019 assessment and 2022 data report, we assumed P. rutilans = A. rutilans.
+# However, it seems most likely that P. rutilans was actually P. flavipinnis, given they share the local name "palu sina" 
+#	Fishermen workshops confirmed the name Palu-sina for P. flavipinnis, we concluded 'P. rutilans' (SPECIES_PK 243) is P. flavipinnis 
+# Replace SPECIES_FK 243 (Pristipomoides rutilans) with 241 (Pristipomoides flavipinnis)
+   aint_bbs[SPECIES_FK==243]$SCIENTIFIC_NAME <- "Pristipomoides flavipinnis"
+   aint_bbs[SPECIES_FK==243]$SPECIES_FK      <- 241
 
-#  Replace SPECIES_FK 243 (Pristipomoides rutilans) with 241 (Pristipomoides flavipinnis)
-   aint_bbs$SCIENTIFIC_NAME[aint_bbs$SPECIES_FK==243]<-"Pristipomoides flavipinnis"
-   aint_bbs$SPECIES_FK[aint_bbs$SPECIES_FK==243]<-241
-
-   aint_bbs <- mutate(aint_bbs, SAMPLE_DATE_CH = as.character(SAMPLE_DATE))
-   aint_bbs <- mutate(aint_bbs, SAMPLE_YEAR = substr(SAMPLE_DATE_CH,1,4))
-   aint_bbs$year <- as.factor(aint_bbs$SAMPLE_YEAR)
-   aint_bbs <- mutate(aint_bbs, year_num = as.numeric(SAMPLE_YEAR))
-   aint_bbs$EST_LBS <- as.numeric(aint_bbs$EST_LBS)
-   aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
-
-	# quick check
-	length(unique(aint_bbs$INTERVIEW_PK))		# 15121 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 55875 catch records
-
-#  --------------------------------------------------------------------------------------------------------------
+	#  --------------------------------------------------------------------------------------------------------------
 #  STEP 2: Basic Interview Filtering
+# -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded
+# within these interviews. So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
 
- # -- 223 interviews from 1985 (incomplete year) and 1111 (database artifact)
-   aint_bbs <- subset(aint_bbs, year_num != 1985)
-   aint_bbs <- subset(aint_bbs, year_num != 1111)
-   	nrow(aint_bbs)		# 142496
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14898 interviews
-	length(unique(aint_bbs$CATCH_PK))			# 55439 catch records
-
- # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded
-	# within these interviews. So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
-	# CATCH_PK: '41013100004',  '80218153004',  '90506125704', '121010060005', '121011050005', '131202050005', '140526054505'	
-
-   STRING <- "SELECT * FROM aint_bbs WHERE COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0"
-   try <- sqldf(STRING, stringsAsFactors=FALSE)
-	# View(try)
-   trash_catch_recs <- try$CATCH_PK		#try$INTERVIEW_PK
-
-   string3 <- "SELECT * FROM aint_bbs WHERE CATCH_PK NOT in
-	('2004004889', '2008007210', '2009002628', '2012004605', '2012004622', '2013005789', '2014002489')"
-   aint_bbs_new <- sqldf(string3 , stringsAsFactors=FALSE)
-   	# nrow(aint_bbs_new)		# 141212 records		(143734)
-   aint_bbs_new -> aint_bbs		
-   rm(aint_bbs_new)
-
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews  (14893)
-	length(unique(aint_bbs$CATCH_PK))			# 55105 catch records (removed 7 catch records) (55431)
+   aint_bbs <- aint_bbs[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
 
  # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
    	# identify these by the CATCH_PK
@@ -385,16 +351,16 @@
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND year_num > 2015) 
+			WHERE SPECIES_FK in ('229','220') AND YEAR_NUM > 2015) 
 		  GROUP BY SPECIES_FK"
 	variola_1 <- sqldf(string, stringsAsFactors=FALSE)
 	p_louti <- variola_1$TOT_LBS[2]/(variola_1$TOT_LBS[1]+variola_1$TOT_LBS[2])
 	p_albimarginata <- 1-p_louti			# will save p_louti and p_albimarginata to adjust expanded landings estimates.
 
 	# list all interview_pk, catch_pk that included either species, 1986-2015
-	string <- "SELECT DISTINCT year_num, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
+	string <- "SELECT DISTINCT YEAR_NUM, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND year_num < 2016
+			WHERE SPECIES_FK in ('229','220') AND YEAR_NUM < 2016
 		  	"
 	variola_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(variola_2)		#View(variola_2)  #sum(variola_2$EST_LBS)
 	# 1249 catch records, 13817.48 lbs total
@@ -540,7 +506,7 @@
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND year_num > 2015) 
+			WHERE SPECIES_FK in ('242','241') AND YEAR_NUM > 2015) 
 		  GROUP BY SPECIES_FK"
 	flavi_fila_1 <- sqldf(string, stringsAsFactors=FALSE)
 	p_flavi <- flavi_fila_1$TOT_LBS[1]/(flavi_fila_1$TOT_LBS[1]+flavi_fila_1$TOT_LBS[2])
@@ -548,9 +514,9 @@
 		# in Tutuila, a fishermen said that palu-sina chases away the palu-'ena-'ena
 
 	# list all interview_pk, catch_pk that included either species, 2010-2015
-	string <- "SELECT DISTINCT year_num, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
+	string <- "SELECT DISTINCT YEAR_NUM, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND year_num < 2016 AND year_num > 2009
+			WHERE SPECIES_FK in ('242','241') AND YEAR_NUM < 2016 AND YEAR_NUM > 2009
 		  	"
 	flavi_fila_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(flavi_fila_2) #View(flavi_fila_2)  #sum(flavi_fila_2$EST_LBS)
 	# 68 catch records, 1071.118 lbs total
@@ -739,7 +705,7 @@
 	p_rubrio <- manuaemps_1$TOT_LBS[3]/(sum(manuaemps_1$TOT_LBS))
 
 	# list all interview_pk, catch_pk that included id and unid emperors, 1986-2020
-	string <- "SELECT DISTINCT year_num, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
+	string <- "SELECT DISTINCT YEAR_NUM, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
 			WHERE SPECIES_FK in ('262','261','267','260') AND AREA_B = 'Manua'
 		  	"
