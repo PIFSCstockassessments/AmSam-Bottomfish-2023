@@ -27,7 +27,6 @@
 	
   # aint_bbs4 included 2021 interviews through May. Remove these records because they are also in aint_bbs5
    aint_bbs4$SAMPLE_YEAR <- year(aint_bbs4$SAMPLE_DATE)
-   aint_bbs4$MONTH       <- month(aint_bbs4$SAMPLE_DATE)
    aint_bbs4             <- aint_bbs4[SAMPLE_YEAR < 2021]								
    aint_bbs4             <- select(aint_bbs4,-SAMPLE_YEAR)
 	
@@ -35,9 +34,42 @@
    aint_bbs <- data.table(aint_bbs)  
    
    aint_bbs$YEAR_NUM    <- as.numeric(year(aint_bbs$SAMPLE_DATE))
-   aint_bbs$YEAR        <- as.factor(YEAR_NUM)
+   aint_bbs$YEAR        <- as.factor(aint_bbs$YEAR_NUM)
+   aint_bbs$MONTH       <- as.numeric(month(aint_bbs$SAMPLE_DATE))
+   aint_bbs$HOUR        <- as.numeric(hour(aint_bbs$INTERVIEW_TIME))
    aint_bbs$EST_LBS     <- as.numeric(aint_bbs$EST_LBS)
    aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
+   
+   # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
+   aint_bbs$SEASON <- "NA"
+   aint_bbs[MONTH>=12&MONTH<=2]$SEASON <- "summer"
+   aint_bbs[MONTH>=3&MONTH<=5]$SEASON  <- "fall"
+   aint_bbs[MONTH>=6&MONTH<=8]$SEASON  <- "winter"
+   aint_bbs[MONTH>=9&MONTH<=11]$SEASON <- "spring"
+   
+   # Shifts: "morning shift" is 0500-1330, evening shift is 1400-2230 or try 6-hour blocks
+   aint_bbs$SHIFT <- "NA"
+   aint_bbs[HOUR >= 5  &  HOUR < 14]$SHIFT <- 'am' 
+   aint_bbs[HOUR >= 14 & HOUR < 23]$SHIFT  <- 'pm' 
+   aint_bbs[HOUR >= 23 & HOUR < 5]$SHIFT   <- 'other' 
+   
+   # Time of Day quarter
+   aint_bbs$TOD_QUARTER <- "NA"
+   aint_bbs[HOUR >= 0 & HOUR < 6]$TOD_QUARTER   <- '0000-0600' 
+   aint_bbs[HOUR >= 6 & HOUR < 12]$TOD_QUARTER  <- '0600-1200' 
+   aint_bbs[HOUR >= 12 & HOUR < 18]$TOD_QUARTER <- '1200-1800' 
+   aint_bbs[HOUR >= 18 & HOUR < 24]$TOD_QUARTER <- '1800-2400' 
+   
+   # reclassify the non-main ports= ASILI, GENERAL TUTUILA PORT, LEONE, VATIA
+   aint_bbs$PORT_SIMPLE <- aint_bbs$PORT_NAME
+   aint_bbs[PORT_NAME == 'ASILI'|PORT_NAME == 'GENERAL TUTUILA PORT'|PORT_NAME == 'LEONE'|PORT_NAME == 'VATIA']$PORT_SIMPLE <- "Tutuila_Other" 
+   
+   # -- convert AREA_FK (which includes specific villages) to John's slightly larger PRIMARY_AREA_FK, see map. PRIMARY_AREA_FK=30 is trash can/unknown
+   areas <- fread(paste(root_dir, "/Data/a_area.csv", sep=""), header=T)
+   aint_bbs <- merge(aint_bbs,areas,by.x="AREA_FK",by.y="AREA_PK")
+   setnames(aint_bbs,"AREA","AREA_B")
+   
+#=========================STEP 2: Basic Interview Filtering and fixes===============================
    
    aint_bbs <- aint_bbs[YEAR_NUM != 1985] # Incomplete year
    aint_bbs <- aint_bbs[YEAR_NUM != 1111] # Database artefact
@@ -53,11 +85,9 @@
    aint_bbs[SPECIES_FK==243]$SCIENTIFIC_NAME <- "Pristipomoides flavipinnis"
    aint_bbs[SPECIES_FK==243]$SPECIES_FK      <- 241
 
-	#  --------------------------------------------------------------------------------------------------------------
-#  STEP 2: Basic Interview Filtering
 
-   # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded within these interviews.
-   # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
+ # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded within these interviews.
+ # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
   aint_bbs <- aint_bbs[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
 
  # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
@@ -83,8 +113,8 @@
   #  -------  use the all_gears dataset for some figures in the data report
   aint_bbs_all_gears <- aint_bbs		
    
-  #  ------------------------  ADDITIONAL PROCESSING OF BFISH GEARS  --------------------------------
   aint_bbs <- aint_bbs[METHOD_FK==4|METHOD_FK==5] 
+  aint_bbs_filtered <- aint_bbs # save this as filtered
    
   # WATCH OUT- there were 779 interviews, 3105 catch records, that included NUM_KEPT = 0 but catch weight was recorded
 	# skimming through, it is obvious that the number of fish that must have been included in these weights was greater than 1.
@@ -92,85 +122,10 @@
 	# for weight-based CPUE, these interviews can be used.
 	# For anything numbers or weight per fish based, consider using records by SIZE_PK only, and at the least, exclude these interviews.
 
-  # save this as filtered
-	aint_bbs_filtered <- aint_bbs
-
 #  --------------------------------------------------------------------------------------------------------------
-#  STEP 3: Add area variables
 
- # -- convert AREA_FK (which includes specific villages) to John's slightly larger PRIMARY_AREA_FK, see map
- # note: PRIMARY_AREA_FK = 30 is basically the trash can / unknown area (surprisingly common).	
-  areas <- fread(paste(root_dir, "/Data/a_area.csv", sep=""), header=T)
-	bbs_2 <- merge(aint_bbs_filtered,areas,by.x="AREA_FK",by.y="AREA_PK")
-  setnames(bbs_2,"AREA","AREA_B")
-
-# -- add misc. variables
-   bbs_3C <- bbs_2
-  
-   # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
-   bbs_3C <- mutate(bbs_3C, season = as.numeric(substr(INTERVIEW_TIME, 6,7)))
-   bbs_3C$season[bbs_3C$season == 3] <- 'fall'
-   bbs_3C$season[bbs_3C$season == 4] <- 'fall'
-   bbs_3C$season[bbs_3C$season == 5] <- 'fall'
-   bbs_3C$season[bbs_3C$season == 6] <- 'winter'
-   bbs_3C$season[bbs_3C$season == 7] <- 'winter'
-   bbs_3C$season[bbs_3C$season == 8] <- 'winter'
-   bbs_3C$season[bbs_3C$season == 9] <- 'spring'
-   bbs_3C$season[bbs_3C$season == 10] <- 'spring'
-   bbs_3C$season[bbs_3C$season == 11] <- 'spring'
-   bbs_3C$season[bbs_3C$season == 12] <- 'summer'
-   bbs_3C$season[bbs_3C$season == 1] <- 'summer'
-   bbs_3C$season[bbs_3C$season == 2] <- 'summer'
-
-   bbs_3C$season <- as.factor(bbs_3C$season)
-	# summary(bbs_3C$season)
-
-  # time of day
-   # "morning shift" is 0500-1330, evening shift is 1400-2230
-   #  or try 6-hour blocks
-
-   bbs_3C <- mutate(bbs_3C, hour = as.numeric(substr(INTERVIEW_TIME, 12, 13)))
- 	# str(bbs_3C)
-   bbs_3C <- mutate(bbs_3C, shift = as.numeric(substr(INTERVIEW_TIME, 12, 13)))
-	# str(bbs_3C)
-
-   bbs_3C$shift[bbs_3C$shift >= 5 & bbs_3C$shift < 14] <- 'am' 
-   bbs_3C$shift[bbs_3C$shift >= 14 & bbs_3C$shift < 23] <- 'pm' 
-   bbs_3C$shift[bbs_3C$shift == '23'] <- 'other' 
-   bbs_3C$shift[bbs_3C$shift < 5] <- 'other' 
-
-   bbs_3C$shift <- as.factor(bbs_3C$shift)
-	# summary(bbs_3C$shift)
- 
-   bbs_3C <- mutate(bbs_3C, tod_quarter = as.numeric(substr(INTERVIEW_TIME, 12, 13)))
-	# str(bbs_3C)
-
-   bbs_3C$tod_quarter[bbs_3C$hour >= 0 & bbs_3C$hour < 6] <- '0000-0600' 
-   bbs_3C$tod_quarter[bbs_3C$hour  >= 6 & bbs_3C$hour  < 12] <- '0600-1200' 
-   bbs_3C$tod_quarter[bbs_3C$hour  >= 12 & bbs_3C$hour  < 18] <- '1200-1800' 
-   bbs_3C$tod_quarter[bbs_3C$hour  >= 18 & bbs_3C$hour  < 24] <- '1800-2400' 
-
-   bbs_3C$tod_quarter<- as.factor(bbs_3C$tod_quarter)
-	# summary(bbs_3C$tod_quarter)
-
-  # type of day as factor
-   bbs_3C$TYPE_OF_DAY <- as.factor(bbs_3C$TYPE_OF_DAY)
-
- # reclassify the non-main ports= ASILI, GENERAL TUTUILA PORT, LEONE, VATIA
-   bbs_3C$PORT_NAME <- as.factor(bbs_3C$PORT_NAME)
-  	# summary(bbs_3C$PORT_NAME)
-
-   bbs_3C <- mutate(bbs_3C, port_simple = as.character(PORT_NAME))
-   bbs_3C$port_simple[bbs_3C$PORT_NAME == 'ASILI'] <- 'Tutuila_Other'
-   bbs_3C$port_simple[bbs_3C$PORT_NAME == 'GENERAL TUTUILA PORT'] <- 'Tutuila_Other'
-   bbs_3C$port_simple[bbs_3C$PORT_NAME == 'LEONE'] <- 'Tutuila_Other'
-   bbs_3C$port_simple[bbs_3C$PORT_NAME == 'VATIA'] <- 'Tutuila_Other'
-   bbs_3C$port_simple <- as.factor(bbs_3C$port_simple)
-  	# summary(bbs_3C$port_simple)
-
-# make a copy of bbs_3C
-  bbs_3C_before_ID_correct <- bbs_3C
-
+   bbs_3C <- aint_bbs
+   bbs_3C_before_ID_correct <- bbs_3C # make a copy of bbs_3C
 
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 4: update BBS_3C to address some species identification issues.
