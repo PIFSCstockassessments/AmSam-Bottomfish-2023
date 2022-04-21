@@ -10,57 +10,29 @@
 #  --------------------------------------------------------------------------------------------------------------
 
 #  PRELIMINARIES
-#  	rm(list=ls())
-#  	Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
-  	library(sqldf)
-  	library(dplyr)
-  	# library(tidyr)
-	# library(ggplot2)
-	library(this.path)
-  	options(scipen=999)		# this option just forces R to never use scientific notation
 
-  # establish directories using this.path
-	root_dir <- this.path::here(.. = 1)
+  	library(sqldf);	library(dplyr); library(this.path); library(data.table)
+  	options(scipen=999)		              # this option just forces R to never use scientific notation
+  	root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
-#	reminder: these raw datasets contain vessel ID numbers and never go on the remote github repo
 
-   aint_bbs1 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat1.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs2 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat2.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs3 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat3.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
-   aint_bbs4 <- read.csv(paste(root_dir, "/data/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE)
-   aint_bbs5 <- read.csv(paste(root_dir, "/data/PICDR-113220 BB Creel Data_all_columns.csv", sep=""), header=T, stringsAsFactors=FALSE)
+   aint_bbs1 <- fread(paste(root_dir, "/Data/a_bbs_int_flat1.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs2 <- fread(paste(root_dir, "/Data/a_bbs_int_flat2.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs3 <- fread(paste(root_dir, "/Data/a_bbs_int_flat3.csv", sep=""), header=T, stringsAsFactors=FALSE) 			
+   aint_bbs4 <- fread(paste(root_dir, "/Data/a_bbs_int_flat4.csv", sep=""), header=T, stringsAsFactors=FALSE)
+   aint_bbs5 <- fread(paste(root_dir, "/Data/PICDR-113220 BB Creel Data_all_columns.csv", sep=""), header=T, stringsAsFactors=FALSE)
 	
-   # aint_bbs5 is 2021 data: take a quick look
-	# str(aint_bbs5)						# 2527 records
-	# length(unique(aint_bbs5$INTERVIEW_PK))		# 83 interviews			
-	#	string <- "SELECT DISTINCT INTERVIEW_PK, FISHING_METHOD, ISLAND_NAME
- 	#	FROM aint_bbs5
- 	#	"
-	#  bbs5_A <- sqldf(string, stringsAsFactors=FALSE)	
-	#  summary(as.factor(bbs5_A$FISHING_METHOD))
-   # unfortunately, only 8 BOTTOMFISHING AND 4 BTM/TRL MIX interviews, only from Tutuila
-
-  # make some changes to 2021 columns / names to match previous datasets
-	# drop var 62 ('COMMON_NAME')		#head(aint_bbs5[,62])
-	aint_bbs5 <- aint_bbs5[,-62]
-	# rename 78 (COMMON_NAME.1)
-	names(aint_bbs5)[78] <- 'COMMON_NAME'
-
+   aint_bbs5 <- aint_bbs5[,-62]       # drop var 62 ('COMMON_NAME') which is duplicated		
+	
   # aint_bbs4 included 2021 interviews through May. Remove these records because they are also in aint_bbs5
-   aint_bbs4 <- mutate(aint_bbs4, SAMPLE_YEAR = as.numeric(substr(SAMPLE_DATE,1,4)))		#nrow(aint_bbs4)
-   aint_bbs4 <- subset(aint_bbs4, SAMPLE_YEAR < 2021)								#nrow(aint_bbs4)
-   aint_bbs4 <- aint_bbs4[,-83]
+   aint_bbs4$SAMPLE_YEAR <- year(aint_bbs4$SAMPLE_DATE)
+   aint_bbs4             <- aint_bbs4[SAMPLE_YEAR < 2021]								
+   aint_bbs4             <- select(aint_bbs4,-SAMPLE_YEAR)
 	
-   # rbind will coerce variable formats in the dfs to match those before, so mis-matched shouldn't be a problem		
-   aint_bbs <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5)
-   # check just 1-4		
-   aint_bbs1_4 <- rbind(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4)
-
-   str(aint_bbs)		# 141,659 records, 82 variables  (add 2021: 142,936 records, 82 variables)
-   length(unique(aint_bbs$INTERVIEW_PK))		# 15121 interviews
-   length(unique(aint_bbs1_4$INTERVIEW_PK))		# 15038 interviews
+   aint_bbs <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
+   
 #  ----------------------------------------------
 #  In the boat-based data:
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
