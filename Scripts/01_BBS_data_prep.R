@@ -26,15 +26,14 @@
    aint_bbs5 <- aint_bbs5[,-62]       # drop var 62 ('COMMON_NAME') which is duplicated		
 	
   # aint_bbs4 included 2021 interviews through May. Remove these records because they are also in aint_bbs5
-   aint_bbs4$SAMPLE_YEAR <- year(aint_bbs4$SAMPLE_DATE)
-   aint_bbs4             <- aint_bbs4[SAMPLE_YEAR < 2021]								
-   aint_bbs4             <- select(aint_bbs4,-SAMPLE_YEAR)
+   aint_bbs4$YEAR        <- year(aint_bbs4$SAMPLE_DATE)
+   aint_bbs4             <- aint_bbs4[YEAR < 2021]								
+   aint_bbs4             <- select(aint_bbs4,-YEAR)
 	
    aint_bbs <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
    aint_bbs <- data.table(aint_bbs)  
    
-   aint_bbs$YEAR_NUM    <- as.numeric(year(aint_bbs$SAMPLE_DATE))
-   aint_bbs$YEAR        <- as.factor(aint_bbs$YEAR_NUM)
+   aint_bbs$YEAR        <- as.numeric(year(aint_bbs$SAMPLE_DATE))
    aint_bbs$MONTH       <- as.numeric(month(aint_bbs$SAMPLE_DATE))
    aint_bbs$HOUR        <- as.numeric(hour(aint_bbs$INTERVIEW_TIME))
    aint_bbs$EST_LBS     <- as.numeric(aint_bbs$EST_LBS)
@@ -71,8 +70,8 @@
    
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
-   aint_bbs <- aint_bbs[YEAR_NUM != 1985] # Incomplete year
-   aint_bbs <- aint_bbs[YEAR_NUM != 1111] # Database artefact
+   aint_bbs <- aint_bbs[YEAR != 1985] # Incomplete year
+   aint_bbs <- aint_bbs[YEAR != 1111] # Database artefact
 
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
@@ -84,7 +83,6 @@
 # Replace SPECIES_FK 243 (Pristipomoides rutilans) with 241 (Pristipomoides flavipinnis)
    aint_bbs[SPECIES_FK==243]$SCIENTIFIC_NAME <- "Pristipomoides flavipinnis"
    aint_bbs[SPECIES_FK==243]$SPECIES_FK      <- 241
-
 
  # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded within these interviews.
  # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
@@ -136,39 +134,36 @@
 #		are called velo. 'papa' is totally different (the tomato grouper, Cephalopholis sonnerati).
 #		We assume 2016-2020 BBS species identifications are reliable
  		
-# Prepare a check: total lbs surveyed in bbs_3C
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C
-		  "
-		tot_catch_check_0 <- sqldf(string, stringsAsFactors=FALSE)
-		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 442824.1
-
-# prepare a check: all variola, 1986-2021
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C
-		  WHERE SPECIES_FK in ('229','220')
-		  "
-		variola_check <- sqldf(string, stringsAsFactors=FALSE)	
-		sum_variola <- sum(variola_check$EST_LBS)				# 14100.09 lbs
-
-# calculate sum(V. louti)/sum(V. louti, V. albimarginata) for 2016-2021, all areas, bottomfishing and btm/trl mix
+# calculate proportion of Variola louti vs albimarginata for Years > 2015
   
+	Prop.Variola <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
+	Prop.Variola <- Prop.Variola[YEAR>2015&(SPECIES_FK=="220"|SPECIES_FK=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
+	Prop.Louti   <- Prop.Variola[SPECIES_FK=="229"]$EST_LBS/(Prop.Variola[SPECIES_FK=="220"]$EST_LBS+Prop.Variola[SPECIES_FK=="229"]$EST_LBS)
+
+	
+	
+	
+	
+	
+	
+	
+	#test <- bbs_3C[YEAR>2015&(SPECIES_FK=="220"|SPECIES_FK=="229"),list(EST_LBS=)	
   
   
   	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND YEAR_NUM > 2015) 
+			WHERE SPECIES_FK in ('229','220') AND YEAR > 2015) 
 		  GROUP BY SPECIES_FK"
 	variola_1 <- sqldf(string, stringsAsFactors=FALSE)
 	p_louti <- variola_1$TOT_LBS[2]/(variola_1$TOT_LBS[1]+variola_1$TOT_LBS[2])
 	p_albimarginata <- 1-p_louti			# will save p_louti and p_albimarginata to adjust expanded landings estimates.
 
 	# list all interview_pk, catch_pk that included either species, 1986-2015
-	string <- "SELECT DISTINCT YEAR_NUM, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
+	string <- "SELECT DISTINCT YEAR, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND YEAR_NUM < 2016
+			WHERE SPECIES_FK in ('229','220') AND YEAR < 2016
 		  	"
 	variola_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(variola_2)		#View(variola_2)  #sum(variola_2$EST_LBS)
 	# 1249 catch records, 13817.48 lbs total
@@ -314,7 +309,7 @@
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 			FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND YEAR_NUM > 2015) 
+			WHERE SPECIES_FK in ('242','241') AND YEAR > 2015) 
 		  GROUP BY SPECIES_FK"
 	flavi_fila_1 <- sqldf(string, stringsAsFactors=FALSE)
 	p_flavi <- flavi_fila_1$TOT_LBS[1]/(flavi_fila_1$TOT_LBS[1]+flavi_fila_1$TOT_LBS[2])
@@ -322,9 +317,9 @@
 		# in Tutuila, a fishermen said that palu-sina chases away the palu-'ena-'ena
 
 	# list all interview_pk, catch_pk that included either species, 2010-2015
-	string <- "SELECT DISTINCT YEAR_NUM, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
+	string <- "SELECT DISTINCT YEAR, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND YEAR_NUM < 2016 AND YEAR_NUM > 2009
+			WHERE SPECIES_FK in ('242','241') AND YEAR < 2016 AND YEAR > 2009
 		  	"
 	flavi_fila_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(flavi_fila_2) #View(flavi_fila_2)  #sum(flavi_fila_2$EST_LBS)
 	# 68 catch records, 1071.118 lbs total
@@ -513,7 +508,7 @@
 	p_rubrio <- manuaemps_1$TOT_LBS[3]/(sum(manuaemps_1$TOT_LBS))
 
 	# list all interview_pk, catch_pk that included id and unid emperors, 1986-2020
-	string <- "SELECT DISTINCT YEAR_NUM, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
+	string <- "SELECT DISTINCT YEAR, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
 		  	FROM bbs_3C
 			WHERE SPECIES_FK in ('262','261','267','260') AND AREA_B = 'Manua'
 		  	"
