@@ -10,8 +10,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 
 #  PRELIMINARIES
-
-  	library(sqldf);	library(dplyr); library(this.path); library(data.table)
+  	require(sqldf);	require(dplyr); require(this.path); require(data.table)
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
@@ -28,6 +27,7 @@
 	
   # aint_bbs4 included 2021 interviews through May. Remove these records because they are also in aint_bbs5
    aint_bbs4$SAMPLE_YEAR <- year(aint_bbs4$SAMPLE_DATE)
+   aint_bbs4$MONTH       <- month(aint_bbs4$SAMPLE_DATE)
    aint_bbs4             <- aint_bbs4[SAMPLE_YEAR < 2021]								
    aint_bbs4             <- select(aint_bbs4,-SAMPLE_YEAR)
 	
@@ -77,40 +77,15 @@
  # -- eliminate interviews missing a metric for effort. note: data dictionary is ambiguous, but previously, 
    #  HOURS_FISHED x NUM_GEAR was effort. I checked, for all geartypes this makes sense.
    #  discard any zero effort (note 38 BTM/TRL and BOTTOMFISHING interviews had 0 catch and 0 effort, these were probably canceled trips)
-	
-   string <- "SELECT *
-	FROM aint_bbs_new
-	WHERE HOURS_FISHED is not 0"
-   aint_bbs <- sqldf(string, stringsAsFactors=FALSE)
-
-   string <- "SELECT *
-	FROM aint_bbs
-	WHERE NUM_GEAR is not 0"
-   aint_bbs <- sqldf(string, stringsAsFactors=FALSE)
-
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14192 interviews		# 14226
-	length(unique(aint_bbs$CATCH_PK))			# 52059 catch records		# 52383
-
-	aint_bbs <- droplevels(aint_bbs)		# summary(as.factor(aint_bbs$FISHING_METHOD))
-
-  #  ------------------------------------------------------------------------------------------------
-  #  ------------------------  SAVE THIS AS THE "ALL GEARS" DATASET  --------------------------------
+  aint_bbs <- aint_bbs[HOURS_FISHED > 0 & NUM_GEAR > 0]
+  aint_bbs <- droplevels(aint_bbs)		
+  
   #  -------  use the all_gears dataset for some figures in the data report
-
-   aint_bbs_all_gears <- aint_bbs			# str(aint_bbs_all_gears)
-   rm(aint_bbs)
-
-  #  ------------------------------------------------------------------------------------------------
+  aint_bbs_all_gears <- aint_bbs		
+   
   #  ------------------------  ADDITIONAL PROCESSING OF BFISH GEARS  --------------------------------
-
-   string <- "SELECT *
-		FROM aint_bbs_all_gears
-		WHERE FISHING_METHOD in ('BOTTOMFISHING','BTM/TRL MIX')"
-	
-   aint_bbs <- sqldf(string, stringsAsFactors=FALSE)	
-	length(unique(aint_bbs$INTERVIEW_PK))		# 3066 interviews		(3068)
-	length(unique(aint_bbs$CATCH_PK))			# 21929 catch records	(21940)
-	
+  aint_bbs <- aint_bbs[METHOD_FK==4|METHOD_FK==5] 
+   
   # WATCH OUT- there were 779 interviews, 3105 catch records, that included NUM_KEPT = 0 but catch weight was recorded
 	# skimming through, it is obvious that the number of fish that must have been included in these weights was greater than 1.
 	# SO- ALWAYS USE CAUTION when talking about numbers: NUM_KEPT IS NOT a dependable record of number of fish caught.
@@ -120,63 +95,18 @@
   # save this as filtered
 	aint_bbs_filtered <- aint_bbs
 
-
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 3: Add area variables
 
  # -- convert AREA_FK (which includes specific villages) to John's slightly larger PRIMARY_AREA_FK, see map
  # note: PRIMARY_AREA_FK = 30 is basically the trash can / unknown area (surprisingly common).	
-   key <- read.csv(paste(root_dir, "/data/A_area.csv", sep=""), header=T)
-   nrow(key)	#125
+  areas <- fread(paste(root_dir, "/Data/a_area.csv", sep=""), header=T)
+	bbs_2 <- merge(aint_bbs_filtered,areas,by.x="AREA_FK",by.y="AREA_PK")
+  setnames(bbs_2,"AREA","AREA_B")
 
-   string <- "SELECT aint_bbs_filtered.*, key.PRIMARY_AREA_FK			
-	FROM aint_bbs_filtered LEFT JOIN key
-			ON aint_bbs_filtered.AREA_FK = key.AREA_PK"
-   bbs_2 <- sqldf(string, stringsAsFactors=FALSE)
-   nrow(bbs_2)	#49242	 	#nrow(aint_bbs_filtered)
-
-   bbs_2$PRIMARY_AREA_FK <- as.factor(bbs_2$PRIMARY_AREA_FK)
-   bbs_2$VESSEL_REGIST_NO <- as.factor(bbs_2$VESSEL_REGIST_NO)
-   bbs_2$FISHING_METHOD <- as.factor(bbs_2$FISHING_METHOD)
-   bbs_2$INTERVIEWER1_FK <- as.factor(bbs_2$INTERVIEWER1_FK)
-
- # -- add more area designations from metadata file 
-   B_area <- read.csv(paste(root_dir, "/data/METADATA_areas.csv", sep=""),header=T,stringsAsFactors=FALSE)
-   B_area_BBS <- subset(B_area, DATASET == "BBS")
-   B_area_BBS$AREA_RAW <- as.integer(B_area_BBS$AREA_RAW)	# View(B_area_BBS)	#head(B_area_BBS)
-
-   string <- "SELECT bbs_2.*, B_area_BBS.AREA as AREA_B, B_area_BBS.AREA_2BANKS as AREA_2banks, B_area_BBS.AREA_WIND as AREA_WIND
-	FROM bbs_2
-	LEFT JOIN B_area_BBS
-		ON bbs_2.AREA_FK = B_area_BBS.AREA_RAW"
-   bbs_3 <- sqldf(string, stringsAsFactors=FALSE)
-   bbs_3$AREA_B <- as.factor(bbs_3$AREA_B)
-   bbs_3$AREA_2banks <- as.factor(bbs_3$AREA_2banks)	# summary(bbs_3$AREA_2banks)
-	nrow(bbs_3)			# 49242	 	# nrow(aint_bbs_filtered)	#str(bbs_3)
-	# summary(bbs_3$AREA_B)
-	# summary(bbs_3$AREA_2banks)
-	# summary(bbs_3$FISHING_METHOD)
-
-   # use mutate to add another area w/ 1 Tutuila 
-   bbs_3B <- mutate(bbs_3, AREA_B2 = as.character(AREA_2banks))
-   bbs_3B$AREA_B2[bbs_3B$AREA_B2 == "Tut_North"] <- "Tutuila"
-   bbs_3B$AREA_B2[bbs_3B$AREA_B2 == "Tut_South"] <- "Tutuila"
-   bbs_3B$AREA_B2 <- as.factor(bbs_3B$AREA_B2)
-   summary(bbs_3B$AREA_B2)		# nrow(bbs_3B)
-   length(unique(bbs_3B$INTERVIEW_PK))		# 3068 interviews
-
-   # make a new copy
-   bbs_3C <- bbs_3B
-
- 
- # -- add misc. variables
-
-  # month
-   bbs_3C <- mutate(bbs_3C, month = as.numeric(substr(INTERVIEW_TIME, 6, 7)))
-   	# str(bbs_3C)
-   bbs_3C$month <- as.factor(bbs_3C$month)
-	# summary(bbs_3C$month)
-
+# -- add misc. variables
+   bbs_3C <- bbs_2
+  
    # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
    bbs_3C <- mutate(bbs_3C, season = as.numeric(substr(INTERVIEW_TIME, 6,7)))
    bbs_3C$season[bbs_3C$season == 3] <- 'fall'
