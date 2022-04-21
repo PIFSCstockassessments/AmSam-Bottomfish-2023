@@ -131,19 +131,19 @@
 #  STEP 4: update BBS_3C to address some species identification issues.
 
 # ----- 4a. Variola louti and Variola albimarginata have been confused between 1986-2015. Some fishermen in both workshops
-#		indicated that they didn't distinguish between the white-tail and yellow-tail. In Tutuila, they call the
+#		indicated that they didn't distinguish between the white-tail and yellow-tail groupers. In Tutuila, they call the
 #		yellow tail (louti) velo, and they call the white tail (albimarginata) papa. However, it seems in Manu'a both species
 #		are called velo. 'papa' is totally different (the tomato grouper, Cephalopholis sonnerati).
-#		Assume 2016-2020 BBS species identifications are reliable
+#		We assume 2016-2020 BBS species identifications are reliable
  		
-		# Prepare a check: total lbs surveyed in bbs_3C
+# Prepare a check: total lbs surveyed in bbs_3C
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C
 		  "
 		tot_catch_check_0 <- sqldf(string, stringsAsFactors=FALSE)
 		sum(tot_catch_check_0$EST_LBS, na.rm=TRUE)					# 442824.1
 
-		# prepare a check: all variola, 1986-2021
+# prepare a check: all variola, 1986-2021
 		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
 		  FROM bbs_3C
 		  WHERE SPECIES_FK in ('229','220')
@@ -151,7 +151,10 @@
 		variola_check <- sqldf(string, stringsAsFactors=FALSE)	
 		sum_variola <- sum(variola_check$EST_LBS)				# 14100.09 lbs
 
-	# calculate sum(V. louti)/sum(V. louti, V. albimarginata) for 2016-2021, all areas, bottomfishing and btm/trl mix
+# calculate sum(V. louti)/sum(V. louti, V. albimarginata) for 2016-2021, all areas, bottomfishing and btm/trl mix
+  
+  
+  
   	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
 		  FROM
 			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
