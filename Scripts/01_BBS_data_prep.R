@@ -34,8 +34,8 @@
    aint_bbs <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
    aint_bbs <- data.table(aint_bbs)  
    
-   aint_bbs$YEAR        <- as.factor(  year(aint_bbs$SAMPLE_DATE)  )
-   aint_bbs$YEAR_NUM    <- as.numeric(aint_bbs$YEAR)
+   aint_bbs$YEAR_NUM    <- as.numeric(year(aint_bbs$SAMPLE_DATE))
+   aint_bbs$YEAR        <- as.factor(YEAR_NUM)
    aint_bbs$EST_LBS     <- as.numeric(aint_bbs$EST_LBS)
    aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
    
@@ -55,105 +55,25 @@
 
 	#  --------------------------------------------------------------------------------------------------------------
 #  STEP 2: Basic Interview Filtering
-# -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded
-# within these interviews. So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
 
-   aint_bbs <- aint_bbs[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
+   # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded within these interviews.
+   # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
+  aint_bbs <- aint_bbs[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
 
  # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
-   	# identify these by the CATCH_PK
-	#  I know this is goofy, don't laugh at me
-
-   STRING <- "SELECT INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, COMMON_NAME, EST_LBS, TOT_EST_LBS
-		 FROM aint_bbs WHERE EST_LBS = 0 AND TOT_EST_LBS > 0"
-   try <- sqldf(STRING, stringsAsFactors=FALSE)
-	# View(try)
-   trash_catch_recs_2 <- try$CATCH_PK
-
-   string4 <- "SELECT * FROM aint_bbs WHERE CATCH_PK NOT in
-		('1986000010', '1986000090', '1986000091', '1986000093', '1986000094',
-		'1986000095', '1986000097', '1986000098', '1986000107', '1986000108',
-		'1986000109', '1986000133', '1986000138', '1986000142', '1986000147',
-		'1986000149', '1986000150', '1986000151', '1986000154', '1986000155',
-		'1986000156', '1986000161', '1986000162', '1986000164', '1986000169',
-		'1986000170', '1986000172', '1986000176', '1986001109', '1986001112',
-		'1986001114', '1986001116', '1986001117', '1986001118', '1986001121',
-		'1986001124', '1986001125', '1986001126', '1986001127', '1986001129',
-		'1986001130', '1986001132', '1986001134', '1986001135', '1986001136',
-		'1986001137', '1986001141', '1986001289', '1987000003', '1987000004',
-		'1987000005', '1987000006', '1987000007', '1987000009', '1987000010',
-		'1987000011', '1987000012', '1987000015', '1987000016', '1987000018',
-		'1987000019', '1987000026', '1987000027', '1987000031', '1987000032',
-		'1987000033', '1987000034', '1987000037', '1987000038', '1987000040',
-		'1987000041', '1987000043', '1987000044', '1987000049', '1987000050',
-		'1987000051', '1987000052', '1987000055', '1987000058', '1987000061',
-		'1987000064', '1987000067', '1987000069', '1987000071', '1987000072',
-		'1987000075', '1987000076', '1987000077', '1987000079', '1987000080',
-		'1987000089', '1987000090', '1987000091', '1987000095', '1987000098',
-		'1987000100', '1987000105', '1987000106', '1987000107', '1987000108',
-		'1987000115', '1987000116', '1987000126', '1987000130', '1987000142',
-		'1987000144', '1987000147', '1987000153', '1987000165', '1987000177',
-		'1988001077', '1988001084', '1988001119', '1997002158', '1997002246',
-		'1997002477', '1997002914', '1997002934', '1997003011', '1997003656',
-		'1997003671', '1997005057', '1997005852', '1998007171', '1999003454',
-		'1999004918', '1999005653', '2000003506', '2000003518', '2001000178',
-		'2001000178', '2001002719', '2002001934', '2002002056', '2014003549',
-		'2016002854', '2016004225', '2017003143', '2017003143', '2017003143',
-		'2017003203', '2017003203', '2017003473', '2017003473', '2018002608', '2019003155')"
-
-   aint_bbs_new <- sqldf(string4 , stringsAsFactors=FALSE)
-   nrow(aint_bbs_new)	# 141212 - 146 = 141066   (143734 - 146 = 143588)
-   aint_bbs_new -> aint_bbs
-   rm(aint_bbs_new)
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14858 interviews			(14893)
-	length(unique(aint_bbs$CATCH_PK))			# 54964 catch records			(55290)
+  aint_bbs <- aint_bbs[!(EST_LBS==0&TOT_EST_LBS>0)]
 
  # -- 11 interviews where TOT_EST_LBS > 0 but most other fields, including SPECIES_FK and CATCH_PK are NULL
-
-   STRING <- "SELECT INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, COMMON_NAME, EST_LBS, TOT_EST_LBS
-	 FROM aint_bbs WHERE TOT_EST_LBS > 0 AND SPECIES_FK = 'NULL'"
-   try <- sqldf(STRING, stringsAsFactors=FALSE)				#View(try)
-
-   STRING7 <- "SELECT *
-		 FROM aint_bbs WHERE INTERVIEW_PK NOT IN (930928880202, 970201990102, 981107990205, 990715213516, 
-			120113063006, 120117063006, 120119053006, 120124062506, 
-			120210180702, 120210181902, 120217143302)"
-   aint_bbs_new <- sqldf(STRING7 , stringsAsFactors=FALSE)
-   nrow(aint_bbs_new)	# 141055				(143577)
-
-   aint_bbs_new -> aint_bbs
-   rm(aint_bbs_new)
-   nrow(aint_bbs)	
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14847 interviews			(14882)
-	length(unique(aint_bbs$CATCH_PK))			# 54964 catch records			(55290)
-
+  aint_bbs <- aint_bbs[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
+  aint_bbs <- aint_bbs[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
+  
  # -- 99 interviews flagged as incomplete
-   string <- "SELECT *
-		FROM aint_bbs
-		WHERE INCOMPLETE_F is FALSE"
-	
-   aint_bbs <- sqldf(string, stringsAsFactors=FALSE)
-	length(unique(aint_bbs$INTERVIEW_PK))		# 14748 interviews			(14783)
-	length(unique(aint_bbs$CATCH_PK))			# 54150 catch records			(54476)
-
- # -- strange gear types:
-   #	BLANK 		1 trip with gear_type "BLANK" was zero catch, exclude this record
-   #	GLEANING 		???  2 gleaning trips, both caught tunas, exclude these records 
-   #	NULL    		field is actually = 'NULL'. 2 trips, one was zero catch, 1 was pelagics    
-   #	PALOLO FISHING 	4 trips, most fields missing data
-   #	UNKNOWN - BOAT BASED	4 trips, 1 caught pelagics, 3 are missing most data
-   #	VERT. LONGLINE	1 trip, caught pelagics
-
-   STRING7 <- "SELECT *
-	 FROM aint_bbs WHERE FISHING_METHOD NOT IN ('BLANK' ,'GLEANING', 'NULL', 'PALOLO FISHING', 
-					'UNKNOWN - BOAT BASED','VERT. LONGLINE')"
-   aint_bbs_new <- sqldf(STRING7 , stringsAsFactors=FALSE)
-   nrow(aint_bbs_new)	# 138448		(140970)
-	
-	length(unique(aint_bbs_new$INTERVIEW_PK))		# 14734 interviews		(14769)
-	length(unique(aint_bbs_new$CATCH_PK))		# 54135 catch records		(54461)
-
-
+  aint_bbs <- aint_bbs[INCOMPLETE_F=="F"]
+  
+ # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
+  aint_bbs <- aint_bbs[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
+                FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
+  
  # -- eliminate interviews missing a metric for effort. note: data dictionary is ambiguous, but previously, 
    #  HOURS_FISHED x NUM_GEAR was effort. I checked, for all geartypes this makes sense.
    #  discard any zero effort (note 38 BTM/TRL and BOTTOMFISHING interviews had 0 catch and 0 effort, these were probably canceled trips)
