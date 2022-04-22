@@ -14,7 +14,7 @@
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
-  	set.seed(5) # It is critical to fix the random number generation for reproducability
+  	set.seed(111) # It is critical to fix the random number generation for reproducability
   	
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
@@ -163,312 +163,40 @@ for (i in 1:length(CATCH_PK.list)){
 }	
 
 # View(bbs_3C[INTERVIEW_PK=="20817184804"])
+#Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
+#Test <- Test[YEAR<=2015&(SPECIES_FK2=="220"|SPECIES_FK2=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 
-Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
-Test <- Test[YEAR<=2015&(SPECIES_FK2=="220"|SPECIES_FK2=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
-
-  
-  	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
-		  FROM
-			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
-			FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND YEAR > 2015) 
-		  GROUP BY SPECIES_FK"
-	variola_1 <- sqldf(string, stringsAsFactors=FALSE)
-	p_louti <- variola_1$TOT_LBS[2]/(variola_1$TOT_LBS[1]+variola_1$TOT_LBS[2])
-	p_albimarginata <- 1-p_louti			# will save p_louti and p_albimarginata to adjust expanded landings estimates.
-
-	# list all interview_pk, catch_pk that included either species, 1986-2015
-	string <- "SELECT DISTINCT YEAR, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
-		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('229','220') AND YEAR < 2016
-		  	"
-	variola_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(variola_2)		#View(variola_2)  #sum(variola_2$EST_LBS)
-	# 1249 catch records, 13817.48 lbs total
-	
-	# divide interviews into those which caught just 1 of the variola species, and those which caught both
-		# add N_CATCH_PK column
-		string <- "SELECT INTERVIEW_PK, count(CATCH_PK) as N_CATCH_PK
-			FROM (SELECT DISTINCT INTERVIEW_PK, CATCH_PK
-		  		FROM variola_2)
-			GROUP BY INTERVIEW_PK
-			ORDER BY N_CATCH_PK
-			"
-		both_sp_question <- sqldf(string, stringsAsFactors=FALSE)			#View(both_sp_question)	
-
-		string <- "SELECT variola_2.*, both_sp_question.N_CATCH_PK
-					FROM variola_2 LEFT JOIN both_sp_question
-						ON variola_2.INTERVIEW_PK = both_sp_question.INTERVIEW_PK"
-		variola_2B <- sqldf(string, stringsAsFactors=FALSE)		# sum(variola_2B$EST_LBS)		#View(variola_2B)
-
-		just_1_sp <- subset(variola_2B, N_CATCH_PK == 1)			# View(just_1_sp)
-		just_1_spB <- just_1_sp[,c(2,3,6)]						# View(just_1_spB)
-			rownames(just_1_spB) <- NULL
-		both_sp <- subset(variola_2B, N_CATCH_PK == 2)				# View(both_sp)		#sum(both_sp$EST_LBS)
-		
-		#  ----- CAREFUL!!!
-		#   If we do an SQL query on 2 variables but GROUP BY only 1 variable, than only the first instance of the other variable
-		#	will be retained. This can result in lost / potentially misleading data if there are multiple values for the second variable
-		#   In this unusual case, we want to lose those CATCH_PK.
-		#   Always make sure this is happening the way we expect.
-		string <- "SELECT INTERVIEW_PK, CATCH_PK, sum(EST_LBS) as sum_variola
-			FROM both_sp
-			GROUP BY INTERVIEW_PK
-			"
-		both_sp2 <- sqldf(string, stringsAsFactors=FALSE)	#View(both_sp2)		#sum(both_sp2$sum_variola)	
-		names(both_sp2)[3] <- 'EST_LBS'				#sum(both_sp2$EST_LBS)	#156.3, we expect this to be small.
-
-		# List the CATCH_PK (eliminated in previous step) that we will drop later:
-		drop_catch_pk <- subset(both_sp, !(CATCH_PK %in% both_sp2$CATCH_PK))
-
-	variola_2C <- rbind(just_1_spB, both_sp2)						# sum(variola_2C$EST_LBS)	
-
-	# make a column of EST_LBS for each species
-	variola_3 <- mutate(variola_2C, LOUTI_LBS = round(EST_LBS*p_louti,3), 
-				ALBIMARGINATA_LBS = round(EST_LBS*p_albimarginata,3))	  #str(variola_3)	#View(variola_3)
-			# sum(variola_3$LOUTI_LBS)+sum(variola_3$ALBIMARGINATA_LBS)
-
-	# loop through variola_3. For each original CATCH_PK, we must create a new CATCH_PK&L and CATCH_PK&A for each Louti and Albimarginata
-	  # create dummy df to append to
-	  variola_4 <- data.frame(INTERVIEW_PK = 9999, CATCH_PK = 'abc', 
-				NEW_CATCH_PK = 'abc', SPECIES_FK = 'abc', SCIENTIFIC_NAME = 'abc', EST_LBS = 9999)		#str(variola_4)		
-	
-	  for (i in 1:nrow(variola_3)) {
-		 add_louti <- data.frame(INTERVIEW_PK = variola_3$INTERVIEW_PK[i],
-					CATCH_PK = variola_3$CATCH_PK[i], NEW_CATCH_PK = paste(variola_3$CATCH_PK[i],'L',sep=""), 
-					SPECIES_FK = '229', SCIENTIFIC_NAME = 'Variola louti', EST_LBS = variola_3$LOUTI_LBS[i])
-		 add_albimarginata <- data.frame(INTERVIEW_PK = variola_3$INTERVIEW_PK[i],
-					CATCH_PK = variola_3$CATCH_PK[i], NEW_CATCH_PK = paste(variola_3$CATCH_PK[i],'A',sep=""), 
-					SPECIES_FK = '220', SCIENTIFIC_NAME = 'Variola albimarginata', EST_LBS = variola_3$ALBIMARGINATA_LBS[i])
- 		variola_4 <- rbind(variola_4, add_louti, add_albimarginata)
-	    }
- 
-	  # drop dummy row 1
-	  variola_4 <- variola_4[-1,]
-
-	  # CHECK
-	  #sum(variola_4$EST_LBS)		#View(variola_4)			#str(variola_4)
-	  update_interview_pks <- unique(variola_4$INTERVIEW_PK)
-
-	# update bbs_3C with these new records
-		rownames(variola_4) <- NULL
-	
-	bbs_3C_keep1 <- subset(bbs_3C, !(CATCH_PK %in% variola_4$CATCH_PK))	
-		#str(bbs_3C_keep1)	#46516 records
-
-	# don't forget, we had to drop a CATCH_PK for interviews where both V. louti and V. albimarginata were recorded
-	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
-	#	to avoid double counting catch
-	bbs_3C_keep2 <- subset(bbs_3C_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))		#str(bbs_3C_keep2)  #46489 
-		
-	bbs_3C_update1 <- subset(bbs_3C, (CATCH_PK %in% variola_4$CATCH_PK))	#str(bbs_3C_update1)	#2726 records
-	# View(head(bbs_3C_update1))	
-
-	# keep only the first instance of each CATCH_PK (because some catch_pk had lengths)
-	bbs_3C_update2 <- bbs_3C_update1[with(bbs_3C_update1, order(CATCH_PK)), ]
-		
-	# keep only the first CATCH_PK for each INTERVIEW_PK
-	bbs_3C_update3 <- bbs_3C_update2[match(unique(bbs_3C_update2$CATCH_PK), bbs_3C_update2$CATCH_PK),]	
-		#str(bbs_3C_update3)	#1233 records
-
-	# merge on the updated CATCH_PKs
-	string <- "SELECT bbs_3C_update3.*, variola_4.NEW_CATCH_PK, variola_4.SPECIES_FK as NEW_SPECIES_FK,
-				variola_4.SCIENTIFIC_NAME as NEW_SCIENTIFIC_NAME, variola_4.EST_LBS as NEW_EST_LBS
-					FROM bbs_3C_update3 LEFT JOIN variola_4
-						ON bbs_3C_update3.CATCH_PK = variola_4.CATCH_PK"
-		bbs_3C_update4 <- sqldf(string, stringsAsFactors=FALSE)		
-			#View(bbs_3C_update4)		#sum(bbs_3C_update4$NEW_EST_LBS)			#13817.48
-
-	# use NEW_ columns in place of the original (retain same column order as bbs_3C)		#names(bbs_3C_update4)
-	bbs_3C_update4$CATCH_PK <- bbs_3C_update4$NEW_CATCH_PK
-	bbs_3C_update4$SPECIES_FK  <- bbs_3C_update4$NEW_SPECIES_FK
-	bbs_3C_update4$SCIENTIFIC_NAME  <- bbs_3C_update4$NEW_SCIENTIFIC_NAME
-	bbs_3C_update4$EST_LBS  <- bbs_3C_update4$NEW_EST_LBS
-	# drop columns 98 to 101
-	bbs_3C_update5 <- bbs_3C_update4[,1:97]   #sum(bbs_3C_update5$EST_LBS)	#13817.48
-
-	# put back together with the keep records
-	bbs_3C_new <- rbind(bbs_3C_keep2, bbs_3C_update5)		#sum(bbs_3C_new
-
-	# repeat the check: all variola, 1986-2021
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C_new
-		  WHERE SPECIES_FK in ('229','220')
-		  "
-		variola_check_2 <- sqldf(string, stringsAsFactors=FALSE)	
-		sum_variola_2 <- sum(variola_check_2$EST_LBS)				# 14100.09 lbs
-		sum_variola_2
-		sum_variola
-
-	# also check that bbs_3C still contains 3068 interviews and total lbs surveyed is the same
-	length(unique(bbs_3C$INTERVIEW_PK))
-	#nrow(bbs_3C_new)  	#we expect lost rows because we dropped lengths and some CATCH_PK
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C_new
-		  "
-		tot_catch_check <- sqldf(string, stringsAsFactors=FALSE)
-	sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442824.1
-
-	# update bbs_3C			
-	bbs_3C <- bbs_3C_new
 
 # ----- 4b. Pristipomoides filamentosus and P. flavipinnis were confused between 2010-2015. Assume 2016-2021 species is reliable.
  		 
-		# prepare a check: all flavi and fila, 1986-2020
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C
-		   WHERE SPECIES_FK in ('242','241')
-		  "
-		flavi_fila_check <- sqldf(string, stringsAsFactors=FALSE)	
-		sum_flavi_fila <- sum(flavi_fila_check$EST_LBS)		# 7577.458 lbs
+# calculate proportion of P. filamentosus vs P. flavipinnis for Years > 2015
 
-	# calculate sum(P. flavi)/sum(P. flavi, P. fila) for 2016-2021, all areas, bottomfishing and btm/trl mix
-  	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
-		  FROM
-			(SELECT DISTINCT CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
-			FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND YEAR > 2015) 
-		  GROUP BY SPECIES_FK"
-	flavi_fila_1 <- sqldf(string, stringsAsFactors=FALSE)
-	p_flavi <- flavi_fila_1$TOT_LBS[1]/(flavi_fila_1$TOT_LBS[1]+flavi_fila_1$TOT_LBS[2])
-	p_fila <- 1-p_flavi			#note, fishermen in workshops generally reported 1 filamentosus to 10 flavipinis.
-		# in Tutuila, a fishermen said that palu-sina chases away the palu-'ena-'ena
+Prop.Pristi <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Pristi <- Prop.Pristi[YEAR>2015&(SPECIES_FK=="241"|SPECIES_FK=="242"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Flavi  <- Prop.Pristi[SPECIES_FK=="241"]$EST_LBS/(Prop.Pristi[SPECIES_FK=="241"]$EST_LBS+Prop.Pristi[SPECIES_FK=="242"]$EST_LBS)
+Prop.Flavi  <- round(Prop.Flavi,3)
 
-	# list all interview_pk, catch_pk that included either species, 2010-2015
-	string <- "SELECT DISTINCT YEAR, INTERVIEW_PK, CATCH_PK, SPECIES_FK, SCIENTIFIC_NAME, EST_LBS
-		  	FROM bbs_3C
-			WHERE SPECIES_FK in ('242','241') AND YEAR < 2016 AND YEAR > 2009
-		  	"
-	flavi_fila_2 <- sqldf(string, stringsAsFactors=FALSE)	#str(flavi_fila_2) #View(flavi_fila_2)  #sum(flavi_fila_2$EST_LBS)
-	# 68 catch records, 1071.118 lbs total
-	
-	# divide interviews into those which caught just 1 of the species, and those which caught both (or 3)
-		# add N_CATCH_PK column
-		string <- "SELECT INTERVIEW_PK, count(CATCH_PK) as N_CATCH_PK
-			FROM (SELECT DISTINCT INTERVIEW_PK, CATCH_PK
-		  		FROM flavi_fila_2)
-			GROUP BY INTERVIEW_PK
-			ORDER BY N_CATCH_PK
-			"
-		both_sp_question <- sqldf(string, stringsAsFactors=FALSE)			#View(both_sp_question)	
-		# note, there is an INTERVIEW_PK with 3 species (this is probably because it originally contained P. rutilans)
+# For all interview records (using CATCH_PK variable) of P. flavipinnis or filamentosus for years between 2010 and 2015, randomly assign record as "P. flavi" proportionally to Prop.Flavi (all fish in an interview)
+CATCH_PK.list      <- unique(bbs_3C[YEAR>=2010&YEAR<=2015]$CATCH_PK)
+for (i in 1:length(CATCH_PK.list)){
+  
+  aCatch   <- bbs_3C[CATCH_PK==CATCH_PK.list[i]]
+  aSpecies <- aCatch[1,SPECIES_FK] # Just check first line of the CATCH_PK (CATCH_PK is at the species level, so all lines should be the same species)
+  
+  if(aSpecies=="241"|aSpecies=="242"){
+    
+    if(runif(n=1,0,1)<=Prop.Flavi){    
+      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "241"
+    } else {
+      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "242"  
+    }
+  }
+}	
 
-		string <- "SELECT flavi_fila_2.*, both_sp_question.N_CATCH_PK
-					FROM flavi_fila_2 LEFT JOIN both_sp_question
-						ON flavi_fila_2.INTERVIEW_PK = both_sp_question.INTERVIEW_PK"
-		flavi_fila_2B <- sqldf(string, stringsAsFactors=FALSE)		# sum(flavi_fila_2B$EST_LBS)		#View(flavi_fila_2B)
+# View(bbs_3C[INTERVIEW_PK=="100603101305"])
+# Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
+# Test <- Test[(YEAR>=2010&YEAR<=2015)&(SPECIES_FK2=="241"|SPECIES_FK2=="242"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 
-		just_1_sp <- subset(flavi_fila_2B, N_CATCH_PK == 1)			# View(just_1_sp)
-		just_1_spB <- just_1_sp[,c(2,3,6)]						# View(just_1_spB)
-			rownames(just_1_spB) <- NULL
-		both_sp <- subset(flavi_fila_2B, N_CATCH_PK > 1)				# View(both_sp)		#sum(both_sp$EST_LBS)
-		
-		#  ----- CAREFUL!!!
-		#   As in step 4a. with Variola, this is an unconventional way to use an SQL GROUP BY query.
-		string <- "SELECT INTERVIEW_PK, CATCH_PK, sum(EST_LBS) as sum_flavi_fila
-			FROM both_sp
-			GROUP BY INTERVIEW_PK
-			"
-		both_sp2 <- sqldf(string, stringsAsFactors=FALSE)			#View(both_sp2)	
-		names(both_sp2)[3] <- 'EST_LBS'						#sum(both_sp2$EST_LBS)		#113.669 lbs
-
-		# these are the CATCH_PK that we drop all together
-		drop_catch_pk <- subset(both_sp, !(CATCH_PK %in% both_sp2$CATCH_PK))
-
-	flavi_fila_2C <- rbind(just_1_spB, both_sp2)						# sum(variola_2C$EST_LBS)	
-
-	# make a column of EST_LBS for each species
-	flavi_fila_3 <- mutate(flavi_fila_2C, FLAVI_LBS = round(EST_LBS*p_flavi,3), 
-				FILA_LBS = round(EST_LBS*p_fila,3))	  #str(flavi_fila_3)	#View(flavi_fila_3)
-			# sum(flavi_fila_3$FILA_LBS)+sum(flavi_fila_3$FLAVI_LBS)
-
-	# loop through flavi_fila_3. For each original CATCH_PK, we must create a new CATCH_PK&FL and CATCH_PK&FI
-	  # create dummy df to append to
-	  flavi_fila_4 <- data.frame(INTERVIEW_PK = 9999, CATCH_PK = 'abc', 
-				NEW_CATCH_PK = 'abc', SPECIES_FK = 'abc', SCIENTIFIC_NAME = 'abc', EST_LBS = 9999)		#str(variola_4)		
-	
-	  for (i in 1:nrow(flavi_fila_3)) {
-		 add_flavi <- data.frame(INTERVIEW_PK = flavi_fila_3$INTERVIEW_PK[i],
-					CATCH_PK = flavi_fila_3$CATCH_PK[i], NEW_CATCH_PK = paste(flavi_fila_3$CATCH_PK[i],'FL',sep=""), 
-					SPECIES_FK = '241', SCIENTIFIC_NAME = 'Pristipomoides flavipinnis', 
-					EST_LBS = flavi_fila_3$FLAVI_LBS[i])
-		 add_fila <- data.frame(INTERVIEW_PK = flavi_fila_3$INTERVIEW_PK[i],
-					CATCH_PK = flavi_fila_3$CATCH_PK[i], NEW_CATCH_PK = paste(flavi_fila_3$CATCH_PK[i],'FI',sep=""), 
-					SPECIES_FK = '242', SCIENTIFIC_NAME = 'Pristipomoides filamentosus', 
-					EST_LBS = flavi_fila_3$FILA_LBS[i])
- 		flavi_fila_4 <- rbind(flavi_fila_4, add_flavi, add_fila)
-	    }
- 
-
-
-	  # drop dummy row 1
-	  flavi_fila_4 <- flavi_fila_4[-1,]
-	  
-	  # CHECK IT
-	  #sum(flavi_fila_4$EST_LBS)		# 1071.118 lbs
-	  update_interview_pks <- unique(flavi_fila_4$INTERVIEW_PK)
-
-	# update bbs_3C with these new records
-		rownames(flavi_fila_4) <- NULL
-	
-	bbs_3C_keep1 <- subset(bbs_3C, !(CATCH_PK %in% flavi_fila_4$CATCH_PK))	
-		#str(bbs_3C_keep1)	#48791 records		#str(bbs_3C)		#48791 + 164 = 48955
-
-	# don't forget, we had to drop a CATCH_PK for interviews where both fila and flavi (and rutilans) were recorded
-	#	because we summed that catch under just 1 CATCH_PK per interview. eliminate those catch_pk that we dropped now
-	#	to avoid double counting catch
-	bbs_3C_keep2 <- subset(bbs_3C_keep1, !(CATCH_PK %in% drop_catch_pk$CATCH_PK))		#str(bbs_3C_keep2)  #48748 
-		
-	bbs_3C_update1 <- subset(bbs_3C, (CATCH_PK %in% flavi_fila_4$CATCH_PK))	#str(bbs_3C_update1)	#164 records
-	# View(head(bbs_3C_update1))	
-
-	# keep only the first instance of each CATCH_PK (because some catch_pk had lengths)
-	bbs_3C_update2 <- bbs_3C_update1[with(bbs_3C_update1, order(CATCH_PK)), ]
-		
-	# keep only the first CATCH_PK for each INTERVIEW_PK
-	bbs_3C_update3 <- bbs_3C_update2[match(unique(bbs_3C_update2$CATCH_PK), bbs_3C_update2$CATCH_PK),]	
-		#str(bbs_3C_update3)	#65 records
-
-	# merge on the updated CATCH_PKs
-	string <- "SELECT bbs_3C_update3.*, flavi_fila_4.NEW_CATCH_PK, flavi_fila_4.SPECIES_FK as NEW_SPECIES_FK,
-				flavi_fila_4.SCIENTIFIC_NAME as NEW_SCIENTIFIC_NAME, flavi_fila_4.EST_LBS as NEW_EST_LBS
-					FROM bbs_3C_update3 LEFT JOIN flavi_fila_4
-						ON bbs_3C_update3.CATCH_PK = flavi_fila_4.CATCH_PK"
-		bbs_3C_update4 <- sqldf(string, stringsAsFactors=FALSE)		
-			#View(bbs_3C_update4)		#sum(bbs_3C_update4$NEW_EST_LBS)			#1071.118
-
-	# use NEW_ columns in place of the original (retain same column order as bbs_3C)		#names(bbs_3C_update4)
-	bbs_3C_update4$CATCH_PK <- bbs_3C_update4$NEW_CATCH_PK
-	bbs_3C_update4$SPECIES_FK  <- bbs_3C_update4$NEW_SPECIES_FK
-	bbs_3C_update4$SCIENTIFIC_NAME  <- bbs_3C_update4$NEW_SCIENTIFIC_NAME
-	bbs_3C_update4$EST_LBS  <- bbs_3C_update4$NEW_EST_LBS
-	# drop columns 98 to 101
-	bbs_3C_update5 <- bbs_3C_update4[,1:97]   #sum(bbs_3C_update5$EST_LBS)	#1071.118
-
-	# put back together with the keep records
-	bbs_3C_new <- rbind(bbs_3C_keep2, bbs_3C_update5)		#sum(bbs_3C_new
-
-	# repeat the check: all flavi and fila, 1986-2020
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C_new
-		  WHERE SPECIES_FK in ('242','241')
-		  "
-		flavi_fila_check_2 <- sqldf(string, stringsAsFactors=FALSE)	
-		sum_flavi_fila_2 <- sum(flavi_fila_check_2$EST_LBS)				# 7577.458 lbs
-		sum_flavi_fila
-		sum_flavi_fila_2
-
-	# also check that bbs_3C still contains 3068 interviews, correct total catch
-	length(unique(bbs_3C$INTERVIEW_PK))
-	#nrow(bbs_3C_new)  	#we expect lost rows because we dropped lengths and some CATCH_PK
-		string <- "SELECT DISTINCT CATCH_PK, EST_LBS
-		  FROM bbs_3C_new
-		  "
-		tot_catch_check <- sqldf(string, stringsAsFactors=FALSE)
-		sum(tot_catch_check$EST_LBS, na.rm=TRUE)					# 442824.1 lbs
-
-	# update bbs_3C			
-	bbs_3C <- bbs_3C_new
 
 
 # ----- 4c. Lethrinidae in Manu'a:
