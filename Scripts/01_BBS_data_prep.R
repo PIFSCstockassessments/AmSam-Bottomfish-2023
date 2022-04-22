@@ -6,6 +6,7 @@
 #   *** data updated March 25 2022 with data received from Dios JIRA ticket 113220
 #	    should be ALL interviews, all gears, all species, etc., for just 2021
 #	Erin Bohaboy erin.bohaboy@noaa.gov
+#  modified by Marc Nadon marc.nadon@noaa.gov
 #		includes some code written by John Syslo for the 2019 assessment
 #  --------------------------------------------------------------------------------------------------------------
 
