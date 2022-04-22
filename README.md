@@ -1,9 +1,13 @@
 The repo folder structure is: 
 
 /Data (all data files, available in the "01_ASSESSMENT_DATA" folder (unzip content in /Data folder) 
+
 /Scripts (all R scripts)
+
 /Outputs (outputs from R scripts)
+
 /SS3 models (SS3 files)
+
 
 ## Github Disclaimer
 
