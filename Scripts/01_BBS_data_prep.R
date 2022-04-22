@@ -14,6 +14,8 @@
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
+  	set.seed(5) # It is critical to fix the random number generation for reproducability
+  	
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
 
@@ -139,16 +141,32 @@
 	Prop.Variola <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
 	Prop.Variola <- Prop.Variola[YEAR>2015&(SPECIES_FK=="220"|SPECIES_FK=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
 	Prop.Louti   <- Prop.Variola[SPECIES_FK=="229"]$EST_LBS/(Prop.Variola[SPECIES_FK=="220"]$EST_LBS+Prop.Variola[SPECIES_FK=="229"]$EST_LBS)
+  Prop.Louti   <- round(Prop.Louti,3)
+	
+# For all interview records (using CATCH_PK variable) of V. louti or albimarginata for years <= 2015, randomly assign record as "V. louti" proportionally to Prop.Louti (all fish in an interview)
 
-	
-	
-	
-	
-	
-	
-	
-	#test <- bbs_3C[YEAR>2015&(SPECIES_FK=="220"|SPECIES_FK=="229"),list(EST_LBS=)	
+bbs_3C$SPECIES_FK2 <- bbs_3C$SPECIES_FK # Create a "corrected" SPECIES_FK2 field
+CATCH_PK.list      <- unique(bbs_3C[YEAR<=2015]$CATCH_PK)
+for (i in 1:length(CATCH_PK.list)){
   
+  aCatch   <- bbs_3C[CATCH_PK==CATCH_PK.list[i]]
+  aSpecies <- aCatch[1,SPECIES_FK] # Just check first line of the CATCH_PK (CATCH_PK is at the species level, so all lines should be the same species)
+  
+  if(aSpecies=="220"|aSpecies=="229"){
+    
+    if(runif(n=1,0,1)<=Prop.Louti){    
+    bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "229"
+    } else {
+    bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "220"  
+    }
+  }
+}	
+
+# View(bbs_3C[INTERVIEW_PK=="20817184804"])
+
+Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
+Test <- Test[YEAR<=2015&(SPECIES_FK2=="220"|SPECIES_FK2=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
+
   
   	string <- "SELECT SPECIES_FK, SCIENTIFIC_NAME, SUM(EST_LBS) as TOT_LBS
 		  FROM
