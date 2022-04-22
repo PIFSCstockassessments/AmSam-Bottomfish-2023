@@ -70,6 +70,12 @@
    aint_bbs <- merge(aint_bbs,areas,by.x="AREA_FK",by.y="AREA_PK")
    setnames(aint_bbs,"AREA","AREA_B")
    
+   #--- Add some species-specific fields
+   species  <- fread(paste(root_dir, "/Data/a_species.csv", sep=""), header=T)
+   species  <- select(species,SPECIES_PK,FAMILY)
+   species$SPECIES_PK <- as.character(species$SPECIES_PK)
+   aint_bbs <- merge(aint_bbs,species,by.x="SPECIES_FK",by.y="SPECIES_PK")
+   
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
    aint_bbs <- aint_bbs[YEAR != 1985] # Incomplete year
@@ -197,8 +203,6 @@ for (i in 1:length(CATCH_PK.list)){
 # Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
 # Test <- Test[(YEAR>=2010&YEAR<=2015)&(SPECIES_FK2=="241"|SPECIES_FK2=="242"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 
-
-
 # ----- 4c. Lethrinidae in Manu'a:
 #   Manu'a fishermen said they catch the red-ear emperor (L. rubrioperculatus) all the time ("100% of trips")
 #   However: 1) catch of all identified and unidentified emperors in Manu'a is really small. 
@@ -209,6 +213,43 @@ for (i in 1:length(CATCH_PK.list)){
 #   This will result in more of the unidentified emperors and bottomfish going to rubrioperculatus in the later break-down steps.
 #   In Tutuila, fishermen used different names for filoa based on size: -paa when bigger, -ele ele when small, so possible that species
 #		identifications have been confused. The fishermen said paomumu come in schools, so if you hit it, you will catch a lot.
+
+
+# calculate proportion of P. filamentosus vs P. flavipinnis for Years > 2015
+
+Prop.Emp    <- bbs_3C[AREA_B=="Manua",list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Emp    <- Prop.Emp[YEAR>2015&(SPECIES_FK=="241"|SPECIES_FK=="242"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Emp    <- Prop.Emp[SPECIES_FK=="241"]$EST_LBS/(Prop.Pristi[SPECIES_FK=="241"]$EST_LBS+Prop.Pristi[SPECIES_FK=="242"]$EST_LBS)
+Prop.Emp    <- round(Prop.Emp,3)
+
+# For all interview records (using CATCH_PK variable) of P. flavipinnis or filamentosus for years between 2010 and 2015, randomly assign record as "P. flavi" proportionally to Prop.Flavi (all fish in an interview)
+CATCH_PK.list      <- unique(bbs_3C[YEAR>=2010&YEAR<=2015]$CATCH_PK)
+for (i in 1:length(CATCH_PK.list)){
+  
+  aCatch   <- bbs_3C[CATCH_PK==CATCH_PK.list[i]]
+  aSpecies <- aCatch[1,SPECIES_FK] # Just check first line of the CATCH_PK (CATCH_PK is at the species level, so all lines should be the same species)
+  
+  if(aSpecies=="241"|aSpecies=="242"){
+    
+    if(runif(n=1,0,1)<=Prop.Flavi){    
+      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "241"
+    } else {
+      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "242"  
+    }
+  }
+}	
+
+
+
+
+
+
+
+
+
+
+
+
 
 		# Investigate: list total catch, by species, for Lethrinidae in Manu'a Islands
 
