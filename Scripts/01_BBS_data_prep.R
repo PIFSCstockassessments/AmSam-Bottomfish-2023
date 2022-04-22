@@ -200,10 +200,10 @@ for (i in 1:length(CATCH_PK.list)){
 
 
 # ----- 4c. Lethrinidae in Manu'a:
-#   The Manu'a fishermen told us they catch the red-ear emperor (rubrioperculatus) all the time (like, 100% of trips)
-#   There are two problems: 1) catch of all identified and unidentified emperors in Manu'a is really small. 
-#	2) among the catch of emperors that was recorded, rubrioperculatus was observed in only 3 years, and was about as common as
-#		L. amboinensis (which is rare in Tutuila). The irregular appearence of identified rubrioperculatus will cause the species to
+#   Manu'a fishermen said they catch the red-ear emperor (L. rubrioperculatus) all the time ("100% of trips")
+#   However: 1) catch of all identified and unidentified emperors in Manu'a is really small. 
+#	  and 2) among the catch of emperors that was recorded, rubrioperculatus was observed in only 3 years, and was about as common as
+#		L. amboinensis (which is rare in Tutuila). The irregular appearance of identified rubrioperculatus will cause the species to
 #		be broken out from unidentified emperors in only small amounts in the 5-year average smoothed break-down.		
 #   We address problem 2 here: assume time series average observed proportions of identified emperors, Manu'a only, applies to all Lethrinidae in Manu'a  
 #   This will result in more of the unidentified emperors and bottomfish going to rubrioperculatus in the later break-down steps.
