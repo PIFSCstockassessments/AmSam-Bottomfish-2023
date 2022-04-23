@@ -257,6 +257,6 @@ saveRDS(bbs_3C,file=paste(paste0(root_dir, "/Outputs/CPUE_processed.rds")))
   
 
 
-
-
+unique(aint_bbs$COMMON_NAME)
+aint_bbs[COMMON_NAME=="Fishes (unknown)"&METHOD_FK=="5"]
 
