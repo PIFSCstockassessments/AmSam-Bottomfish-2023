@@ -219,7 +219,7 @@ for (i in 1:length(CATCH_PK.list)){
 #		identifications have been confused. The fishermen said paomumu come in schools, so if you hit it, you will catch a lot.
 
 
-# calculate proportion of P. filamentosus vs P. flavipinnis for Years > 2015
+# calculate proportion of L. rubrioperculatus (267) in the Manuas, where they barely appear
 
 Prop.Emp    <- bbs_3C[AREA_B=="Manua",list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Emp    <- Prop.Emp[FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
