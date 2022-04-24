@@ -135,6 +135,10 @@ ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop
 
 
 
+
+
+
+
 # Use the species proportion information calculated above to split group catch into species components
 Z <- select(Z,SPECIES_FK,Year,PERIOD,EST_LBS)
 
