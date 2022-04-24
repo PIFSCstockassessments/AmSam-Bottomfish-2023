@@ -13,10 +13,14 @@ SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey2.csv")
 SKEY            <- SKEY[,-(2:6)]
 Z               <- merge(Z,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
+Z[SPECIES_FK==109]$SPECIES_FK <- 110 # Merge Trevallies and Jacks
+
 # Define the time PERIOD used to calculate species proportions
- #Z$PERIOD <- "All_Years" 
-Z$PERIOD <- Z$YEAR-(Z$YEAR%%10) 
-Z[SPECIES_FK==109] <- 110 # Merge Trevallies and Jacks
+Z$PERIOD <- 999
+Z[YEAR>1985&YEAR<=1995]$PERIOD <- 1995
+Z[YEAR>1995&YEAR<=2005]$PERIOD  <- 2005
+Z[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
+Z[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
 
 # Establish list of taxonomic groups (groups that are only composed of species)
@@ -119,11 +123,14 @@ Final  <- rbind(FinalB,FinalC)
 
 Final <- Final[,list(Prop=sum(Prop)),by=list(GROUP_FK,PERIOD,AREA_C,SPECIES_FK)]
 
+#write.xlsx(Final,file="prop_table_test.xlsx")
 
+# Some graphical exploration of species proportion evolution
 
-
-
-
+Test <- Final[SPECIES_FK==111|SPECIES_FK==229|SPECIES_FK==231|SPECIES_FK==239|SPECIES_FK==241|SPECIES_FK==242|SPECIES_FK==245|
+                 SPECIES_FK==247|SPECIES_FK==248|SPECIES_FK==267]
+ggplot(data=Test[GROUP_FK==200&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES_FK)))
+ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES_FK)))
 
 
 
