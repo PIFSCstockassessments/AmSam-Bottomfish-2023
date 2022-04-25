@@ -14,6 +14,8 @@ SKEY            <- SKEY[,-(2:6)]
 Z               <- merge(Z,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 Z[SPECIES_FK==109]$SPECIES_FK <- 110 # Merge Trevallies and Jacks
+Z[SPECIES_FK==280]$SPECIES_FK <- 210 # Merge Inshore groupers and groupers
+
 
 # Define the time PERIOD used to calculate species proportions
 Z$PERIOD <- 999
@@ -26,10 +28,10 @@ Z[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 Z[AREA_C=="Bank"]$AREA_C <- "Tutuila"
 
 # Establish list of taxonomic groups (groups that are only composed of species)
-Group.listA <- c("Jacks_110","Prist_Etelis_240","Emperors_260","Inshore_groupers_380","Inshore_snappers_390")
+Group.listA <- c("Jacks_110","Groupers_210","Prist_Etelis_240","Emperors_260","Inshore_groupers_380","Inshore_snappers_390")
 
 # 2nd tier list (groups that are composed of species and one of the subgroups in listA)
-Group.listB <- c("Groupers_210","Deep_snappers_230")
+Group.listB <- c("Deep_snappers_230")
 
 # 3rd tier list (group that is composed of species and all of the subgroups above)
 Group.listC <- c("Bottomfishes_200")
