@@ -154,8 +154,22 @@ PT <- readRDS(paste0(root_dir, "/Outputs/BBS_Prop_Table.rds"))
 
 
 
+# Use the species proportion information calculated above to split group catch into species components
+Z <- select(Z,SPECIES_FK,Year,PERIOD,EST_LBS)
 
+X <- Z[SPECIES_FK==109|SPECIES_FK==110|SPECIES_FK==200|SPECIES_FK==210|SPECIES_FK==230|SPECIES_FK==240|SPECIES_FK==260|SPECIES_FK==380|SPECIES_FK==390]
 
+X <- merge(X,Final,by.x=c("SPECIES_FK","PERIOD"),by.y=c("GROUP_FK","PERIOD"),allow.cartesian=T)
+X$SPECIES_FK <- X$SPECIES_FK.y
+X$EST_LBS        <- X$EST_LBS*X$Prop
+X <- select(X,SPECIES_FK,Year,EST_LBS)
+X$Source <- "Group-level"
+
+Y <- select(Z,-PERIOD )
+Y <- Y[SPECIES_FK!=109&SPECIES_FK!=110&SPECIES_FK!=200&SPECIES_FK!=210&SPECIES_FK!=230&SPECIES_FK!=240&SPECIES_FK!=260&SPECIES_FK!=380&SPECIES_FK!=390]
+Y$Source <- "Species-level"
+
+X <- rbind(X,Y)
 
 
 
