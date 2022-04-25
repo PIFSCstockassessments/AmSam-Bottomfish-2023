@@ -22,7 +22,7 @@ Z[YEAR>1995&YEAR<=2005]$PERIOD  <- 2005
 Z[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
 Z[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
-# Merge banks and Tutuila, since mose bank trips are surveyed by the same surveyors in Tutuila
+# Merge banks and Tutuila, since most bank trips are surveyed by the same surveyors in Tutuila
 Z[AREA_C=="Bank"]$AREA_C <- "Tutuila"
 
 # Establish list of taxonomic groups (groups that are only composed of species)
@@ -135,6 +135,11 @@ ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop
 
 # Output table for further use
 saveRDS(Final,file="Outputs\\BBS_Prop_Table.rds")
+
+
+
+
+
 
 
 
