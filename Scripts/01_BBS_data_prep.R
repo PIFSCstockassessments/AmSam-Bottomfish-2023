@@ -82,6 +82,11 @@
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
 
+   # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
+   A[AREA_C=="Unk"&ISLAND_FK=="TTL"]$AREA_C <- "Tutuila"
+   A[AREA_C=="Unk"&ISLAND_FK=="MNA"]$AREA_C <- "Manua"
+   
+  
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
 #	243 'Pristipomoides rutilans' has local name "Palu sina (Yelloweye Opakapaka)"
@@ -256,9 +261,7 @@ saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_processed.rds")))
 	
   
 
-unique(B$ISLAND_FK)
 
-nrow( B[ISLAND_FK=="TTL"&AREA_C=="Bank"]  )
 
 
 
