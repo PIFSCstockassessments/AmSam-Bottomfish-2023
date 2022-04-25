@@ -4,10 +4,11 @@ require(sqldf);	require(dplyr); require(this.path); require(data.table)
 root_dir <- this.path::here(.. = 1)
 
 D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"),header=T, stringsAsFactors=FALSE) 
-S <- fread(paste0(root_dir, "/Data/a_species.csv"),header=T, stringsAsFactors=FALSE)
+
+S                 <- fread(paste0(root_dir, "/Data/a_species.csv"),header=T, stringsAsFactors=FALSE)
 S$SCIENTIFIC_NAME <- paste(S$GENUS,S$SCIENTIFIC_NAME)
-S <- select(S,FAMILY,SPECIES_PK,SCIENTIFIC_NAME)
-S$SPECIES_PK <- paste0("S",S$SPECIES_PK) 
+S                 <- select(S,FAMILY,SPECIES_PK,SCIENTIFIC_NAME)
+S$SPECIES_PK      <- paste0("S",S$SPECIES_PK) 
 
 # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
 D <- mutate(D,YEAR = as.numeric(substr(SPC_PK,2,5)), METHOD = substr(SPC_PK,11,11), 
@@ -143,6 +144,24 @@ D <- merge(D.LBS,D.VAR,by=c("YEAR","ZONE","METHOD","SPECIES_FK"))
 
 # Remove the zero catch strata
 D <- D[LBS_CAUGHT>0]
+
+#======================Break down taxonomic groups into species componets using proportion table from 03_BBS_proptables.R===============================
+
+PT <- readRDS(paste0(root_dir, "/Outputs/BBS_Prop_Table.rds")) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   
 
