@@ -145,7 +145,7 @@ D <- merge(D.LBS,D.VAR,by=c("YEAR","ZONE","METHOD","SPECIES_FK"))
 # Remove the zero catch strata
 D <- D[LBS_CAUGHT>0]
 
-#======================Break down taxonomic groups into species componets using proportion table from 03_BBS_proptables.R===============================
+#======================Break down taxonomic groups into species components using proportion table from 03_BBS_proptables.R===============================
 
 PT <- readRDS(paste0(root_dir, "/Outputs/BBS_Prop_Table.rds")) 
 
