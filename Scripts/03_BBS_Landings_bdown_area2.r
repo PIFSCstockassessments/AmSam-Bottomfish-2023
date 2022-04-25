@@ -4,8 +4,10 @@ require(sqldf);	require(dplyr); require(this.path); require(data.table)
 root_dir <- this.path::here(.. = 1)
 
 D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"),header=T, stringsAsFactors=FALSE) 
-S <- fread(paste0(root_dir, "/Data/all_species_names.csv"),header=T, stringsAsFactors=FALSE)
-S <- select(S,SPECIES_FK,SCIENTIFIC_NAME)
+S <- fread(paste0(root_dir, "/Data/a_species.csv"),header=T, stringsAsFactors=FALSE)
+S$SCIENTIFIC_NAME <- paste(S$GENUS,S$SCIENTIFIC_NAME)
+S <- select(S,SPECIES_PK,SCIENTIFIC_NAME)
+D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
 D <- mutate(D,YEAR = as.numeric(substr(SPC_PK,2,5)), METHOD = substr(SPC_PK,11,11), 
@@ -43,8 +45,24 @@ D <- D[METHOD=="4"|METHOD=="5"|METHOD=="6"|METHOD=="8"|METHOD=="61"]
 D[SPECIES_FK == 109]$SPECIES_FK <- 110
 D[SPECIES_FK == 380]$SPECIES_FK <- 210
 
+# Select only necessary columns
+
+D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK,SCIENTIFIC_NAME)]
+
+# Fix Variola louti (229) and V. albimarginata (220) issue (species IDed together from 1986 to 2015)
+
+D[YEAR<=2015&(SPECIES_FK==229|SPECIES_FK==220)]$SPECIES_FK      <- "220" # Assign all records to V. albimarginata (for now)
+D[YEAR<=2015&(SPECIES_FK==229|SPECIES_FK==220)]$SCIENTIFIC_NAME <- "Variola albimarginata" # Assign all records to V. albimarginata (for now)
 
 
+
+D <- D[YEAR<=2015&(SPECIES_FK==229|SPECIES_FK==220),list(),by=list()]
+
+
+
+
+
+View(D[SCIENTIFIC_NAME=="Variola louti"])
 
 
 
