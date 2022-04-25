@@ -33,54 +33,54 @@
    aint_bbs4             <- aint_bbs4[YEAR < 2021]								
    aint_bbs4             <- select(aint_bbs4,-YEAR)
 	
-   aint_bbs <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
-   aint_bbs <- data.table(aint_bbs)  
+   A <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
+   A <- data.table(A)  
    
-   aint_bbs$YEAR        <- as.numeric(year(aint_bbs$SAMPLE_DATE))
-   aint_bbs$MONTH       <- as.numeric(month(aint_bbs$SAMPLE_DATE))
-   aint_bbs$HOUR        <- as.numeric(hour(aint_bbs$INTERVIEW_TIME))
-   aint_bbs$EST_LBS     <- as.numeric(aint_bbs$EST_LBS)
-   aint_bbs$TOT_EST_LBS <- as.numeric(aint_bbs$TOT_EST_LBS)
+   A$YEAR        <- as.numeric(year(A$SAMPLE_DATE))
+   A$MONTH       <- as.numeric(month(A$SAMPLE_DATE))
+   A$HOUR        <- as.numeric(hour(A$INTERVIEW_TIME))
+   A$EST_LBS     <- as.numeric(A$EST_LBS)
+   A$TOT_EST_LBS <- as.numeric(A$TOT_EST_LBS)
    
    # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
-   aint_bbs$SEASON <- "NA"
-   aint_bbs[MONTH>=12&MONTH<=2]$SEASON <- "summer"
-   aint_bbs[MONTH>=3&MONTH<=5]$SEASON  <- "fall"
-   aint_bbs[MONTH>=6&MONTH<=8]$SEASON  <- "winter"
-   aint_bbs[MONTH>=9&MONTH<=11]$SEASON <- "spring"
+   A$SEASON <- "NA"
+   A[MONTH>=12&MONTH<=2]$SEASON <- "summer"
+   A[MONTH>=3&MONTH<=5]$SEASON  <- "fall"
+   A[MONTH>=6&MONTH<=8]$SEASON  <- "winter"
+   A[MONTH>=9&MONTH<=11]$SEASON <- "spring"
    
    # Shifts: "morning shift" is 0500-1330, evening shift is 1400-2230 or try 6-hour blocks
-   aint_bbs$SHIFT <- "NA"
-   aint_bbs[HOUR >= 5  &  HOUR < 14]$SHIFT <- 'am' 
-   aint_bbs[HOUR >= 14 & HOUR < 23]$SHIFT  <- 'pm' 
-   aint_bbs[HOUR >= 23 & HOUR < 5]$SHIFT   <- 'other' 
+   A$SHIFT <- "NA"
+   A[HOUR >= 5  &  HOUR < 14]$SHIFT <- 'am' 
+   A[HOUR >= 14 & HOUR < 23]$SHIFT  <- 'pm' 
+   A[HOUR >= 23 & HOUR < 5]$SHIFT   <- 'other' 
    
    # Time of Day quarter
-   aint_bbs$TOD_QUARTER <- "NA"
-   aint_bbs[HOUR >= 0 & HOUR < 6]$TOD_QUARTER   <- '0000-0600' 
-   aint_bbs[HOUR >= 6 & HOUR < 12]$TOD_QUARTER  <- '0600-1200' 
-   aint_bbs[HOUR >= 12 & HOUR < 18]$TOD_QUARTER <- '1200-1800' 
-   aint_bbs[HOUR >= 18 & HOUR < 24]$TOD_QUARTER <- '1800-2400' 
+   A$TOD_QUARTER <- "NA"
+   A[HOUR >= 0 & HOUR < 6]$TOD_QUARTER   <- '0000-0600' 
+   A[HOUR >= 6 & HOUR < 12]$TOD_QUARTER  <- '0600-1200' 
+   A[HOUR >= 12 & HOUR < 18]$TOD_QUARTER <- '1200-1800' 
+   A[HOUR >= 18 & HOUR < 24]$TOD_QUARTER <- '1800-2400' 
    
    # reclassify the non-main ports= ASILI, GENERAL TUTUILA PORT, LEONE, VATIA
-   aint_bbs$PORT_SIMPLE <- aint_bbs$PORT_NAME
-   aint_bbs[PORT_NAME == 'ASILI'|PORT_NAME == 'GENERAL TUTUILA PORT'|PORT_NAME == 'LEONE'|PORT_NAME == 'VATIA']$PORT_SIMPLE <- "Tutuila_Other" 
+   A$PORT_SIMPLE <- A$PORT_NAME
+   A[PORT_NAME == 'ASILI'|PORT_NAME == 'GENERAL TUTUILA PORT'|PORT_NAME == 'LEONE'|PORT_NAME == 'VATIA']$PORT_SIMPLE <- "Tutuila_Other" 
    
    # -- convert AREA_FK (which includes specific villages) to John's slightly larger PRIMARY_AREA_FK, see map. PRIMARY_AREA_FK=30 is trash can/unknown
    areas <- fread(paste(root_dir, "/Data/a_area.csv", sep=""), header=T)
-   aint_bbs <- merge(aint_bbs,areas,by.x="AREA_FK",by.y="AREA_PK")
-   setnames(aint_bbs,"AREA","AREA_B")
+   A <- merge(A,areas,by.x="AREA_FK",by.y="AREA_PK")
+   setnames(A,"AREA","AREA_B")
    
    #--- Add some species-specific fields
    species  <- fread(paste(root_dir, "/Data/a_species.csv", sep=""), header=T)
    species  <- select(species,SPECIES_PK,FAMILY)
    species$SPECIES_PK <- as.character(species$SPECIES_PK)
-   aint_bbs <- merge(aint_bbs,species,by.x="SPECIES_FK",by.y="SPECIES_PK")
+   A <- merge(A,species,by.x="SPECIES_FK",by.y="SPECIES_PK")
    
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
-   aint_bbs <- aint_bbs[YEAR != 1985] # Incomplete year
-   aint_bbs <- aint_bbs[YEAR != 1111] # Database artefact
+   A <- A[YEAR != 1985] # Incomplete year
+   A <- A[YEAR != 1111] # Database artefact
 
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
@@ -90,38 +90,38 @@
 # However, it seems most likely that P. rutilans was actually P. flavipinnis, given they share the local name "palu sina" 
 #	Fishermen workshops confirmed the name Palu-sina for P. flavipinnis, we concluded 'P. rutilans' (SPECIES_PK 243) is P. flavipinnis 
 # Replace SPECIES_FK 243 (Pristipomoides rutilans) with 241 (Pristipomoides flavipinnis)
-   aint_bbs[SPECIES_FK==243]$SCIENTIFIC_NAME <- "Pristipomoides flavipinnis"
-   aint_bbs[SPECIES_FK==243]$SPECIES_FK      <- 241
+   A[SPECIES_FK==243]$SCIENTIFIC_NAME <- "Pristipomoides flavipinnis"
+   A[SPECIES_FK==243]$SPECIES_FK      <- 241
 
  # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded within these interviews.
  # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
-  aint_bbs <- aint_bbs[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
+  A <- A[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
 
  # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
-  aint_bbs <- aint_bbs[!(EST_LBS==0&TOT_EST_LBS>0)]
+  A <- A[!(EST_LBS==0&TOT_EST_LBS>0)]
 
  # -- 11 interviews where TOT_EST_LBS > 0 but most other fields, including SPECIES_FK and CATCH_PK are NULL
-  aint_bbs <- aint_bbs[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
-  aint_bbs <- aint_bbs[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
+  A <- A[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
+  A <- A[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
   
  # -- 99 interviews flagged as incomplete
-  aint_bbs <- aint_bbs[INCOMPLETE_F=="F"]
+  A <- A[INCOMPLETE_F=="F"]
   
  # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
-  aint_bbs <- aint_bbs[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
+  A <- A[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
                 FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
   
  # -- eliminate interviews missing a metric for effort. note: data dictionary is ambiguous, but previously, 
    #  HOURS_FISHED x NUM_GEAR was effort. I checked, for all geartypes this makes sense.
    #  discard any zero effort (note 38 BTM/TRL and BOTTOMFISHING interviews had 0 catch and 0 effort, these were probably canceled trips)
-  aint_bbs <- aint_bbs[HOURS_FISHED > 0 & NUM_GEAR > 0]
-  aint_bbs <- droplevels(aint_bbs)		
+  A <- A[HOURS_FISHED > 0 & NUM_GEAR > 0]
+  A <- droplevels(A)		
   
   #  -------  use the all_gears dataset for some figures in the data report
-  aint_bbs_all_gears <- aint_bbs		
+  aint_bbs_all_gears <- A		
    
-  aint_bbs <- aint_bbs[METHOD_FK==4|METHOD_FK==5] 
-  aint_bbs_filtered <- aint_bbs # save this as filtered
+  A <- A[METHOD_FK==4|METHOD_FK==5] 
+  aint_bbs_filtered <- A # save this as filtered
    
   # WATCH OUT- there were 779 interviews, 3105 catch records, that included NUM_KEPT = 0 but catch weight was recorded
 	# skimming through, it is obvious that the number of fish that must have been included in these weights was greater than 1.
@@ -131,11 +131,11 @@
 
 #  --------------------------------------------------------------------------------------------------------------
 
-   bbs_3C <- aint_bbs
-   bbs_3C_before_ID_correct <- bbs_3C # make a copy of bbs_3C
+   B <- A
+   B_before_ID_correct <- B # make a copy of B
 
 #  --------------------------------------------------------------------------------------------------------------
-#  STEP 4: update BBS_3C to address some species identification issues.
+#  STEP 4: update B to address some species identification issues.
 
 # ----- 4a. Variola louti and Variola albimarginata have been confused between 1986-2015. Some fishermen in both workshops
 #		indicated that they didn't distinguish between the white-tail and yellow-tail groupers. In Tutuila, they call the
@@ -145,32 +145,32 @@
  		
 # calculate proportion of Variola louti vs albimarginata for Years > 2015
   
-	Prop.Variola <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
+	Prop.Variola <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
 	Prop.Variola <- Prop.Variola[YEAR>2015&(SPECIES_FK=="220"|SPECIES_FK=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
 	Prop.Louti   <- Prop.Variola[SPECIES_FK=="229"]$EST_LBS/(Prop.Variola[SPECIES_FK=="220"]$EST_LBS+Prop.Variola[SPECIES_FK=="229"]$EST_LBS)
   Prop.Louti   <- round(Prop.Louti,3)
 	
 # For all interview records (using CATCH_PK variable) of V. louti or albimarginata for years <= 2015, randomly assign record as "V. louti" proportionally to Prop.Louti (all fish in an interview)
 
-bbs_3C$SPECIES_FK2 <- bbs_3C$SPECIES_FK # Create a "corrected" SPECIES_FK2 field
-CATCH_PK.list      <- unique(bbs_3C[YEAR<=2015]$CATCH_PK)
+B$SPECIES_FK2 <- B$SPECIES_FK # Create a "corrected" SPECIES_FK2 field
+CATCH_PK.list      <- unique(B[YEAR<=2015]$CATCH_PK)
 for (i in 1:length(CATCH_PK.list)){
   
-  aCatch   <- bbs_3C[CATCH_PK==CATCH_PK.list[i]]
+  aCatch   <- B[CATCH_PK==CATCH_PK.list[i]]
   aSpecies <- aCatch[1,SPECIES_FK] # Just check first line of the CATCH_PK (CATCH_PK is at the species level, so all lines should be the same species)
   
   if(aSpecies=="220"|aSpecies=="229"){
     
     if(runif(n=1,0,1)<=Prop.Louti){    
-    bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "229"
+    B[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "229"
     } else {
-    bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "220"  
+    B[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "220"  
     }
   }
 }	
 
-# View(bbs_3C[INTERVIEW_PK=="20817184804"])
-#Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
+# View(B[INTERVIEW_PK=="20817184804"])
+#Test <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
 #Test <- Test[YEAR<=2015&(SPECIES_FK2=="220"|SPECIES_FK2=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 #Prop.Louti; Test[SPECIES_FK2=="229"]$EST_LBS/sum(Test$EST_LBS)
 
@@ -179,30 +179,30 @@ for (i in 1:length(CATCH_PK.list)){
  		 
 # calculate proportion of P. filamentosus vs P. flavipinnis for Years > 2015
 
-Prop.Pristi <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Pristi <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Pristi <- Prop.Pristi[YEAR>2015&(SPECIES_FK=="241"|SPECIES_FK=="242"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Flavi  <- Prop.Pristi[SPECIES_FK=="241"]$EST_LBS/(Prop.Pristi[SPECIES_FK=="241"]$EST_LBS+Prop.Pristi[SPECIES_FK=="242"]$EST_LBS)
 Prop.Flavi  <- round(Prop.Flavi,3)
 
 # For all interview records (using CATCH_PK variable) of P. flavipinnis or filamentosus for years between 2010 and 2015, randomly assign record as "P. flavi" proportionally to Prop.Flavi (all fish in an interview)
-CATCH_PK.list      <- unique(bbs_3C[YEAR>=2010&YEAR<=2015]$CATCH_PK)
+CATCH_PK.list      <- unique(B[YEAR>=2010&YEAR<=2015]$CATCH_PK)
 for (i in 1:length(CATCH_PK.list)){
   
-  aCatch   <- bbs_3C[CATCH_PK==CATCH_PK.list[i]]
+  aCatch   <- B[CATCH_PK==CATCH_PK.list[i]]
   aSpecies <- aCatch[1,SPECIES_FK] # Just check first line of the CATCH_PK (CATCH_PK is at the species level, so all lines should be the same species)
   
   if(aSpecies=="241"|aSpecies=="242"){
     
     if(runif(n=1,0,1)<=Prop.Flavi){    
-      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "241"
+      B[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "241"
     } else {
-      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "242"  
+      B[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "242"  
     }
   }
 }	
 
-# View(bbs_3C[INTERVIEW_PK=="100603101305"])
-# Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
+# View(B[INTERVIEW_PK=="100603101305"])
+# Test <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK2,SCIENTIFIC_NAME)]
 # Test <- Test[(YEAR>=2010&YEAR<=2015)&(SPECIES_FK2=="241"|SPECIES_FK2=="242"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 # Prop.Flavi; Test[SPECIES_FK2=="241"]$EST_LBS/sum(Test$EST_LBS)
  
@@ -221,38 +221,45 @@ for (i in 1:length(CATCH_PK.list)){
 
 # calculate proportion of L. rubrioperculatus (267) in the Manuas, where they barely appear
 
-Prop.Emp    <- bbs_3C[AREA_B=="Manua",list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Emp    <- B[AREA_B=="Manua",list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Emp    <- Prop.Emp[FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Rub    <- Prop.Emp[SPECIES_FK=="267"]$EST_LBS/sum(Prop.Emp[SPECIES_FK!="260"]$EST_LBS)
 Prop.Rub    <- round(Prop.Rub,3)
 
 # For all interview records (using CATCH_PK variable) containing "emperors - 260" ID in Manua (all years), randomly assign record as to L. rubrio according to its proportion in 1986-2010
-CATCH_PK.list      <- unique(bbs_3C[AREA_B=="Manua"]$CATCH_PK)
+CATCH_PK.list      <- unique(B[AREA_B=="Manua"]$CATCH_PK)
 for (i in 1:length(CATCH_PK.list)){
   
-  aCatch   <- bbs_3C[CATCH_PK==CATCH_PK.list[i]]
+  aCatch   <- B[CATCH_PK==CATCH_PK.list[i]]
   aSpecies <- aCatch[1,SPECIES_FK] # Just check first line of the CATCH_PK (CATCH_PK is at the species level, so all lines should be the same species)
   
   if(aSpecies=="260"){
     
     if(runif(n=1,0,1)<=Prop.Rub){    
-      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "267"
+      B[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "267"
     } else {
-      bbs_3C[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "260"  
+      B[CATCH_PK==CATCH_PK.list[i]]$SPECIES_FK2 <- "260"  
     }
   }
 }	
 
 
-# Test <- bbs_3C[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,AREA_B,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK2,SCIENTIFIC_NAME)]
+# Test <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,AREA_B,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK2,SCIENTIFIC_NAME)]
 # Test <- Test[AREA_B=="Manua"&FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 # Prop.Rub; Test[SPECIES_FK2=="267"]$EST_LBS/sum(Test$EST_LBS)
 
 
 # save in the output folder.
-saveRDS(bbs_3C,file=paste(paste0(root_dir, "/Outputs/CPUE_processed.rds")))
+saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_processed.rds")))
 
 #save.image(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
 	
   
+
+unique(B$ISLAND_FK)
+
+nrow( B[ISLAND_FK=="TTL"&AREA_C=="Bank"]  )
+
+
+
 
