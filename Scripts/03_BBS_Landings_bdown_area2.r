@@ -22,6 +22,10 @@ D[is.na(VAR_LBS_CAUGHT)]$VAR_LBS_CAUGHT <- 0 # IS this necessary? Does it have a
 D[ZONE=='1']$ZONE<-'Tutuila'			# note banks trips are included in Tutuila expansion
 D[ZONE=='2']$ZONE<-'Manua'
 
+
+D[SPECIES_FK=="S109"]$SPECIES_FK <- "S110" # Merge Trevallies and Jacks
+D[SPECIES_FK=="S280"]$SPECIES_FK <- "S210" # Merge Inshore groupers and groupers
+
 #  Note:
 #		Method	4 = bottomfishing, 5 = btm/trl mix
 #		Zone	1 = Tutuila, 2 = Manua
@@ -144,39 +148,43 @@ D <- merge(D.LBS,D.VAR,by=c("YEAR","ZONE","METHOD","SPECIES_FK"))
 
 # Remove the zero catch strata
 D <- D[LBS_CAUGHT>0]
-
+D$SPECIES_FK <- as.character(D$SPECIES_FK)
 #======================Break down taxonomic groups into species components using proportion table from 03_BBS_proptables.R===============================
 
-PT <- readRDS(paste0(root_dir, "/Outputs/BBS_Prop_Table.rds")) 
+PT            <- readRDS(paste0(root_dir, "/Outputs/BBS_Prop_Table.rds"))  # Species composition of groups, by group x period x region
+PT$GROUP_FK   <- paste0("S",PT$GROUP_FK)
+PT$SPECIES_FK <- paste0("S",PT$SPECIES_FK)
 
+D$PERIOD <- 999 # Add time period that matches the one used for prop table (PT)
+D[YEAR>1985&YEAR<=1995]$PERIOD  <- 1995
+D[YEAR>1995&YEAR<=2005]$PERIOD  <- 2005
+D[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
+D[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
+X <- D[SPECIES_FK=="S109"|SPECIES_FK=="S110"|SPECIES_FK=="S200"|SPECIES_FK=="S210"|SPECIES_FK=="S230"|SPECIES_FK=="S240"|SPECIES_FK=="S260"|SPECIES_FK=="S380"|SPECIES_FK=="S390"]
 
-
-
-
-# Use the species proportion information calculated above to split group catch into species components
-Z <- select(Z,SPECIES_FK,Year,PERIOD,EST_LBS)
-
-X <- Z[SPECIES_FK==109|SPECIES_FK==110|SPECIES_FK==200|SPECIES_FK==210|SPECIES_FK==230|SPECIES_FK==240|SPECIES_FK==260|SPECIES_FK==380|SPECIES_FK==390]
-
-X <- merge(X,Final,by.x=c("SPECIES_FK","PERIOD"),by.y=c("GROUP_FK","PERIOD"),allow.cartesian=T)
+X            <- merge(X,PT,by.x=c("SPECIES_FK","PERIOD","ZONE"),by.y=c("GROUP_FK","PERIOD","AREA_C"),allow.cartesian=T)
 X$SPECIES_FK <- X$SPECIES_FK.y
-X$EST_LBS        <- X$EST_LBS*X$Prop
-X <- select(X,SPECIES_FK,Year,EST_LBS)
-X$Source <- "Group-level"
+X$LBS_CAUGHT <- X$LBS_CAUGHT*X$Prop
+X            <- select(X,-SPECIES_FK.y,-Prop,-PERIOD)
+X$SOURCE     <- "Group-level"
 
-Y <- select(Z,-PERIOD )
-Y <- Y[SPECIES_FK!=109&SPECIES_FK!=110&SPECIES_FK!=200&SPECIES_FK!=210&SPECIES_FK!=230&SPECIES_FK!=240&SPECIES_FK!=260&SPECIES_FK!=380&SPECIES_FK!=390]
-Y$Source <- "Species-level"
+Y        <- select(D,-PERIOD )
+Y        <- Y[SPECIES_FK!="S109"|SPECIES_FK!="S110"|SPECIES_FK!="S200"|SPECIES_FK!="S210"|SPECIES_FK!="S230"|SPECIES_FK!="S240"|SPECIES_FK!="S260"|SPECIES_FK!="S380"|SPECIES_FK!="S390"]
+Y$SOURCE <- "Species-level"
 
 X <- rbind(X,Y)
 
+# Check for all BMUS
+T <- X[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="S249"|
+         SPECIES_FK=="S248"|SPECIES_FK=="S267"|SPECIES_FK=="S231"|SPECIES_FK=="S242"|
+         SPECIES_FK=="S241"|SPECIES_FK=="S245"|SPECIES_FK=="S229",
+       list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,SOURCE)]
 
+ggplot()+geom_area(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1)+theme_bw()
+ggplot()+geom_area(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1)+theme_bw()
 
-
-
-
-
+F <- T[,list(LBS=sum(LBS_CAUGHT)),by=list(YEAR)]
   
 
 
