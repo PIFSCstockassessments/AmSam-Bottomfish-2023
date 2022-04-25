@@ -22,6 +22,8 @@ Z[YEAR>1995&YEAR<=2005]$PERIOD  <- 2005
 Z[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
 Z[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
+# Merge banks and Tutuila, since mose bank trips are surveyed by the same surveyors in Tutuila
+Z[AREA_C=="Bank"]$AREA_C <- "Tutuila"
 
 # Establish list of taxonomic groups (groups that are only composed of species)
 Group.listA <- c("Jacks_110","Prist_Etelis_240","Emperors_260","Inshore_groupers_380","Inshore_snappers_390")
@@ -122,18 +124,17 @@ Final  <- rbind(FinalB,FinalC)
 
 
 Final <- Final[,list(Prop=sum(Prop)),by=list(GROUP_FK,PERIOD,AREA_C,SPECIES_FK)]
-
-#write.xlsx(Final,file="prop_table_test.xlsx")
+Final <- Final[order(GROUP_FK,PERIOD,AREA_C,SPECIES_FK)]
 
 # Some graphical exploration of species proportion evolution
-
 Test <- Final[SPECIES_FK==111|SPECIES_FK==229|SPECIES_FK==231|SPECIES_FK==239|SPECIES_FK==241|SPECIES_FK==242|SPECIES_FK==245|
                  SPECIES_FK==247|SPECIES_FK==248|SPECIES_FK==267]
 ggplot(data=Test[GROUP_FK==200&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES_FK)))
 ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES_FK)))
 
 
-
+# Output table for further use
+saveRDS(Final,file="Outputs\\BBS_Prop_Table.rds")
 
 
 
@@ -245,7 +246,6 @@ M <- rbind(K,M)
 
 # Graph
 ggplot()+geom_line(data=M,aes(x=year,y=EST_LBS,col=Source),size=1)+facet_wrap(~TaxonName,scales="free_y")
-
 
 
 
