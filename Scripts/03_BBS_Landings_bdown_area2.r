@@ -6,14 +6,20 @@ root_dir <- this.path::here(.. = 1)
 D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"),header=T, stringsAsFactors=FALSE) 
 S <- fread(paste0(root_dir, "/Data/a_species.csv"),header=T, stringsAsFactors=FALSE)
 S$SCIENTIFIC_NAME <- paste(S$GENUS,S$SCIENTIFIC_NAME)
-S <- select(S,SPECIES_PK,SCIENTIFIC_NAME)
+S <- select(S,FAMILY,SPECIES_PK,SCIENTIFIC_NAME)
+S$SPECIES_PK <- paste0("S",S$SPECIES_PK) 
 
 # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
 D <- mutate(D,YEAR = as.numeric(substr(SPC_PK,2,5)), METHOD = substr(SPC_PK,11,11), 
                    ZONE = substr(SPC_PK,14,14), TYPE = substr(SPC_PK,20,21), 
                    CHARTER = substr(SPC_PK,22,22), PROCESS = substr(SPC_PK,23,23))
 
-D[is.na(VAR_LBS_CAUGHT)] <- 0 # IS this necessary? Does it have an impact?
+D$SPECIES_FK <- paste0("S",D$SPECIES_FK) # Add a letter so column names can be reference in steps below
+
+D[is.na(VAR_LBS_CAUGHT)]$VAR_LBS_CAUGHT <- 0 # IS this necessary? Does it have an impact?
+
+D[ZONE=='1']$ZONE<-'Tutuila'			# note banks trips are included in Tutuila expansion
+D[ZONE=='2']$ZONE<-'Manua'
 
 #  Note:
 #		Method	4 = bottomfishing, 5 = btm/trl mix
@@ -30,10 +36,7 @@ D[is.na(VAR_LBS_CAUGHT)] <- 0 # IS this necessary? Does it have an impact?
 #	Although it might not be entirely statistically sound, Hongguang says to sum the P. rutilans with P. flavi for now.
 #		so just replace SPECIES_FK = 243 with 241 now
 
-D[SPECIES_FK==243]$SPECIES_FK<-241
-
-D[ZONE=='1']$ZONE<-'Tutuila'			# note banks trips are included in Tutuila expansion
-D[ZONE=='2']$ZONE<-'Manua'
+D[SPECIES_FK=="S243"]$SPECIES_FK<-"S241"
 
 # retain all gear types that catch identified BMUS: '4','5','6','8','61' (bfishing, btm/trl mix, spear no tanks, atule-mixed, spear tanks)
 #		note that catch of identified BMUS with gears other than bfishing and btm/trl mix are rare, but we retain those gears for landings
@@ -43,20 +46,19 @@ D <- D[METHOD=="4"|METHOD=="5"|METHOD=="6"|METHOD=="8"|METHOD=="61"]
 
 # No distinction in our group break down between Grouper (210) and Inshore grouper (380)
 # No distinction between Jacks (110) and Trevallies (109)
-D[SPECIES_FK == 109]$SPECIES_FK <- 110
-D[SPECIES_FK == 380]$SPECIES_FK <- 210
+D[SPECIES_FK == "S109"]$SPECIES_FK <- "S110"
+D[SPECIES_FK == "S380"]$SPECIES_FK <- "S210"
 
 # Select only necessary columns
 
 D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)]
 
 #==================Fix Variola louti (229) and V. albimarginata (220) issue (species IDed together from 1986 to 2015)======================
-D[YEAR<=2015&(SPECIES_FK==229|SPECIES_FK==220)]$SPECIES_FK <- 99999 # Assign all records to a dummy species code (for now)
+D[YEAR<=2015&(SPECIES_FK=="S229"|SPECIES_FK=="S220")]$SPECIES_FK <- "S99999" # Assign all records to a dummy species code (for now)
 
 D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)] # Sum records together
-D$SPECIES_FK <- paste0("S",D$SPECIES_FK) # Add a letter so column names can be reference in steps below
 
-# Re-assign 1986-2015 "V. albi" to both V. louti and V. albi, based on the 2016-2021 occurence ratio obtained in 01_BBS_data_prep.r
+# Re-assign 1986-2015 "S99999" to both V. louti and V. albi, based on the 2016-2021 occurence ratio obtained in 01_BBS_data_prep.r
 # These ratios are: V. louti 0.236 and V.albimarginata 0.764
 
 Prop.Louti <- 0.236; Prop.Albi <- 1-Prop.Louti
@@ -77,26 +79,71 @@ D.VAR                  <- melt.data.table(D.VAR,id.vars=1:3,variable.name="SPECI
 
 # Merge back catch and variance
 D <- merge(D.LBS,D.VAR,by=c("YEAR","ZONE","METHOD","SPECIES_FK"))
+D$SPECIES_FK <- as.character(D$SPECIES_FK)
 
+#==================Fix Pristipomoides flavipinnis (241) and P. filamentosus (242) issue (species IDed together from 2010 to 2015)======================
+D[(YEAR>=2010&YEAR<=2015)&(SPECIES_FK=="S241"|SPECIES_FK=="S242")]$SPECIES_FK <- "S99999" # Assign all records to a dummy species code (for now)
 
-D <- D[YEAR<=2015&(SPECIES_FK==229|SPECIES_FK==220),list(),by=list()]
+D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)] # Sum records together
 
-D <- D[order(YEAR,ZONE,METHOD,SPECIES_FK)]
-Dtest <- Dtest[order(YEAR,ZONE,METHOD,SPECIES_FK)]
+# Re-assign 2010-2015 "S99999" to both P. flavi and P. filamen, based on the 2016-2021 occurrence ratio obtained in 01_BBS_data_prep.r
+# These ratios are: P. flavi 0.934 and P. filamentosus 0.
 
-unique(D$SPECIES_FK)
+Prop.Flavi <- 0.934; Prop.Filam <- 1-Prop.Flavi
 
-View(D[SPECIES_FK==229])
+# For the catch
+D.LBS                             <- dcast(D,YEAR+ZONE+METHOD~SPECIES_FK,value.var="LBS_CAUGHT",fill=0)
+D.LBS[YEAR>=2010&YEAR<=2015]$S241 <- D.LBS[YEAR>=2010&YEAR<=2015]$S99999*Prop.Flavi  # Assign Prop.louti proportion to Variola catch
+D.LBS[YEAR>=2010&YEAR<=2015]$S242 <- D.LBS[YEAR>=2010&YEAR<=2015]$S99999*Prop.Filam # Assign Prop.louti proportion to Variola catch
+D.LBS                             <- select(D.LBS,-S99999) # Get rid of Variolas column
+D.LBS                             <- melt.data.table(D.LBS,id.vars=1:3,variable.name="SPECIES_FK",value.name="LBS_CAUGHT")
 
+# For the variance
+D.VAR                             <- dcast(D,YEAR+ZONE+METHOD~SPECIES_FK,value.var="VAR_LBS_CAUGHT",fill=0)
+D.VAR[YEAR>=2010&YEAR<=2015]$S241 <- D.VAR[YEAR>=2010&YEAR<=2015]$S99999*Prop.Flavi  # Assign Prop.louti proportion to Variola catch
+D.VAR[YEAR>=2010&YEAR<=2015]$S242 <- D.VAR[YEAR>=2010&YEAR<=2015]$S99999*Prop.Filam # Assign Prop.louti proportion to Variola catch
+D.VAR                             <- select(D.VAR,-S99999) # Get rid of Variolas column
+D.VAR                             <- melt.data.table(D.VAR,id.vars=1:3,variable.name="SPECIES_FK",value.name="VAR_LBS_CAUGHT")
 
-View(D[SCIENTIFIC_NAME=="Variola louti"])
+# Merge back catch and variance
+D <- merge(D.LBS,D.VAR,by=c("YEAR","ZONE","METHOD","SPECIES_FK"))
+D$SPECIES_FK <- as.character(D$SPECIES_FK)
 
+# Remove the zero catch strata
+D <- D[LBS_CAUGHT>0]
 
+#===============Fix L. rubrioperculatus (267) in the Manuas I. issue (fisher say it's common, barely recorded, lots of unidentified emperors)===============
+D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK") # Add family info so we can select all Emperors quickly
 
+D[ZONE=="Manua"&FAMILY=="Lethrinidae"]$SPECIES_FK <- "S99999" # Assign all emperor records to a dummy species code (for now)
 
+D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)] # Sum records together
 
-D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
+# Re-assign Manuas "S99999" to L. rubrioperculatus, based on the 1986-2010 occurrence ratio obtained in 01_BBS_data_prep.r
+# This ratio is: 0.32
 
+Prop.Rubrio <- 0.32; Prop.OtherEmps <- 1-Prop.Rubrio
+
+# For the catch
+D.LBS                             <- dcast(D,YEAR+ZONE+METHOD~SPECIES_FK,value.var="LBS_CAUGHT",fill=0)
+D.LBS[ZONE=="Manua"]$S267 <- D.LBS[ZONE=="Manua"]$S99999*Prop.Rubrio    # Assign Prop.Rubrio proportion to LERU catch
+D.LBS[ZONE=="Manua"]$S260 <- D.LBS[ZONE=="Manua"]$S99999*Prop.OtherEmps # Assign Prop.OtherEmps proportion to other emperor catch
+D.LBS                             <- select(D.LBS,-S99999) # Get rid of Variolas column
+D.LBS                             <- melt.data.table(D.LBS,id.vars=1:3,variable.name="SPECIES_FK",value.name="LBS_CAUGHT")
+
+# For the variance
+D.VAR                             <- dcast(D,YEAR+ZONE+METHOD~SPECIES_FK,value.var="VAR_LBS_CAUGHT",fill=0)
+D.VAR[ZONE=="Manua"]$S267 <- D.VAR[ZONE=="Manua"]$S99999*Prop.Rubrio    # Assign Prop.Rubrio proportion to LERU catch
+D.VAR[ZONE=="Manua"]$S260 <- D.VAR[ZONE=="Manua"]$S99999*Prop.OtherEmps # Assign Prop.OtherEmps proportion to other emperor catch
+D.VAR                             <- select(D.VAR,-S99999) # Get rid of Variolas column
+D.VAR                             <- melt.data.table(D.VAR,id.vars=1:3,variable.name="SPECIES_FK",value.name="VAR_LBS_CAUGHT")
+
+# Merge back catch and variance
+D <- merge(D.LBS,D.VAR,by=c("YEAR","ZONE","METHOD","SPECIES_FK"))
+
+# Remove the zero catch strata
+D <- D[LBS_CAUGHT>0]
 
   
+
 
