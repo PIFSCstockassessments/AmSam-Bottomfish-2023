@@ -182,7 +182,7 @@ T <- X[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="S24
        list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,SOURCE)]
 
 ggplot()+geom_area(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1)+theme_bw()
-ggplot()+geom_area(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1)+theme_bw()
+ggplot()+geom_bar(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1,position="stack",stat="identity")+theme_bw()
 
 F <- T[,list(LBS=sum(LBS_CAUGHT)),by=list(YEAR)]
   
