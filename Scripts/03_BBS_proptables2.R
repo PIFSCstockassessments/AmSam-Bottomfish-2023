@@ -162,8 +162,6 @@ Y$Source <- "Species-level"
 
 X <- rbind(X,Y)
 
-# Select species and plot
-#T <- S[SCIENTIFIC_NAME2=="Aprion virescens"]
 
 # Check for all BMUS
 T <- X[SPECIES_FK==247|SPECIES_FK==239|SPECIES_FK==111|SPECIES_FK==249|
