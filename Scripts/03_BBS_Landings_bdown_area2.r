@@ -1,7 +1,8 @@
-require(sqldf);	require(dplyr); require(this.path); require(data.table)
+	require(dplyr); require(this.path); require(data.table); require(ggplot2)
 
 # establish directories using this.path::
 root_dir <- this.path::here(.. = 1)
+options(scipen = 999)
 
 D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"),header=T, stringsAsFactors=FALSE) 
 
@@ -161,8 +162,7 @@ D[YEAR>1995&YEAR<=2005]$PERIOD  <- 2005
 D[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
 D[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
-X <- D[SPECIES_FK=="S109"|SPECIES_FK=="S110"|SPECIES_FK=="S200"|SPECIES_FK=="S210"|SPECIES_FK=="S230"|SPECIES_FK=="S240"|SPECIES_FK=="S260"|SPECIES_FK=="S380"|SPECIES_FK=="S390"]
-
+X            <- D[SPECIES_FK=="S109"|SPECIES_FK=="S110"|SPECIES_FK=="S200"|SPECIES_FK=="S210"|SPECIES_FK=="S230"|SPECIES_FK=="S240"|SPECIES_FK=="S260"|SPECIES_FK=="S380"|SPECIES_FK=="S390"]
 X            <- merge(X,PT,by.x=c("SPECIES_FK","PERIOD","ZONE"),by.y=c("GROUP_FK","PERIOD","AREA_C"),allow.cartesian=T)
 X$SPECIES_FK <- X$SPECIES_FK.y
 X$LBS_CAUGHT <- X$LBS_CAUGHT*X$Prop
@@ -173,18 +173,40 @@ Y        <- select(D,-PERIOD )
 Y        <- Y[SPECIES_FK!="S109"|SPECIES_FK!="S110"|SPECIES_FK!="S200"|SPECIES_FK!="S210"|SPECIES_FK!="S230"|SPECIES_FK!="S240"|SPECIES_FK!="S260"|SPECIES_FK!="S380"|SPECIES_FK!="S390"]
 Y$SOURCE <- "Species-level"
 
-X <- rbind(X,Y)
+Z <- rbind(X,Y)
 
-# Check for all BMUS
-T <- X[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="S249"|
-         SPECIES_FK=="S248"|SPECIES_FK=="S267"|SPECIES_FK=="S231"|SPECIES_FK=="S242"|
-         SPECIES_FK=="S241"|SPECIES_FK=="S245"|SPECIES_FK=="S229",
-       list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,SOURCE)]
+# Add a BMUS classification to simplify further summary code
+Z$BMUS <- "F"
+Z[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="S249"|
+    SPECIES_FK=="S248"|SPECIES_FK=="S267"|SPECIES_FK=="S231"|SPECIES_FK=="S242"|
+    SPECIES_FK=="S241"|SPECIES_FK=="S245"|SPECIES_FK=="S229"]$BMUS <- "T"
 
-ggplot()+geom_area(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1)+theme_bw()
-ggplot()+geom_bar(data=T,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1,position="stack",stat="identity")+theme_bw()
+# Check group-derived vs species-derived BMUS catch
+T1 <- Z[BMUS=="T",list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,SOURCE)]
+ggplot()+geom_bar(data=T1,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1,position="stack",stat="identity")+theme_bw()
 
-F <- T[,list(LBS=sum(LBS_CAUGHT)),by=list(YEAR)]
-  
+# Check total BMUS catch by year
+T2 <- T[,list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR)]
+
+# Check catch in both AREAs
+T3 <- Z[BMUS=="T",list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,ZONE)]
+ggplot(data=T3)+geom_bar(aes(x=YEAR,y=LBS_CAUGHT,fill=ZONE),stat="identity",position="stack")
+
+# Further testing  
+ggplot(data=F)+geom_bar(aes(x=YEAR,y=LBS_CAUGHT),stat="identity")+facet_wrap(~SPECIES_FK)
+test <- D[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="S249"|
+            SPECIES_FK=="S248"|SPECIES_FK=="S267"|SPECIES_FK=="S231"|SPECIES_FK=="S242"|
+            SPECIES_FK=="S241"|SPECIES_FK=="S245"|SPECIES_FK=="S229",list(LBS_RAW=sum(LBS_CAUGHT)),by=list(YEAR,SPECIES_FK)]
+test2 <- select(F,-VAR_LBS_CAUGHT,-SD)
+
+test3 <- merge(test,test2,by=c("YEAR","SPECIES_FK"))
+ggplot(data=test3[SPECIES_FK=="S267"])+geom_line(aes(x=YEAR,y=LBS_CAUGHT),col="blue")+geom_line(aes(x=YEAR,y=LBS_RAW),col="red")
+
+# Save BMUS catch to file
+F <- Z[BMUS=="T",list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(SPECIES_FK,YEAR)]
+F$SD <- sqrt(F$VAR_LBS_CAUGHT)
+
+saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_Final.rds"))
+
 
 
