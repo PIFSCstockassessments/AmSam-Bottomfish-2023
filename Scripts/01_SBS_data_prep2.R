@@ -3,7 +3,7 @@ options(scipen = 999)
 
 # establish directories using this.path::
 root_dir <- this.path::here(.. = 1)
-set.seed(1111) # It is critical to fix the random number generation for reproducability
+set.seed(11111) # It is critical to fix the random number generation for reproducability
 
 # ----------- STEP 1: read in the complete "flatview" datafile for AmSam Shore based survey, 
 #				do some data manipulation
@@ -114,7 +114,7 @@ Final <- select(Final,-PERIOD) # We don't use time periods for the shore-based p
 Final <- Final[,list(Prop=sum(Prop)),by=list(GROUP_FK,SPECIES_FK)]
 Final <- Final[order(GROUP_FK,SPECIES_FK)]
 
-saveRDS(Final,paste(root_dir, "/Outputs/SBS_Prop_Table.rds"))
+saveRDS(Final,paste0(root_dir, "//Outputs//SBS_Prop_Table.rds"))
 
 
 
