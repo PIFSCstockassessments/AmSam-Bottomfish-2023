@@ -27,6 +27,7 @@
    library(httr)
    library(dplyr)
    library(this.path)
+   library(data.table)
 
 #  originally I was downloading the .nc s through R
 #	but something is wrong now. Instead, download the .ncs using the web interface, put them in the working directory,
@@ -211,8 +212,8 @@ windsort <- wind[order(wind$location, wind$dt_char), ]
 windsort2 <- mutate(windsort, wdir = 180 + (180/pi)*(atan2(uwind, vwind)))
 
 # save it
-wind_6h <- windsort2
+wind_6h <- as.data.table(windsort2)
 
-saveRDS(wind_6h,paste0(root_dir, "/Data/CPUE_Winds.rds"))
+saveRDS(wind_6h,paste0(root_dir, "/Outputs/CPUE_Winds.rds"))
 	
 
