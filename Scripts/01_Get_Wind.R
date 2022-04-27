@@ -43,9 +43,6 @@
 # establish directories using this.path
 	root_dir <- this.path::here(.. = 1)
 
-setwd(paste(root_dir, "/data/Winds",sep=""))
-
-
 # -------------   accessed Oct26, 2021
 #  use version 2.1 (2.0 is deprecated) for 2019+
 
@@ -57,23 +54,21 @@ setwd(paste(root_dir, "/data/Winds",sep=""))
 # 	write_disk("winds_recent.nc", overwrite=TRUE))
 # 	systime_f <- Sys.time()
 # 	systime_f - systime_i
-#	nc <- nc_open("winds_recent.nc")
 
-uwnd <- ncvar_get(nc,nc$var[[1]])
-v1 <- nc$var[[1]]
-vwnd <- ncvar_get(nc,nc$var[[2]])
-v2 <- nc$var[[2]]
+		nc   <- nc_open("Data/Winds/winds_recent.nc")
+    uwnd <- ncvar_get(nc,nc$var[[1]])
+    v1   <- nc$var[[1]]
+    vwnd <- ncvar_get(nc,nc$var[[2]])
+    v2   <- nc$var[[2]]
 
-dim(uwnd)		#remember: lon, lat, time
+    dim(uwnd)		#remember: lon, lat, time
 
-dates <- as.POSIXlt(v1$dim[[3]]$vals,origin='1970-01-01',tz='GMT') 
+    dates <- as.POSIXlt(v1$dim[[3]]$vals,origin='1970-01-01',tz='GMT') 
+    lon   <- v1$dim[[1]]$vals 
+    lat   <- v1$dim[[2]]$vals
 
-lon <- v1$dim[[1]]$vals 
-lat <- v1$dim[[2]]$vals
 
-
-# index the lon and lat that I want
-#  this is goofy, but the only way I know how to do it is to look at the lon and lat objects
+# index the lon and lat that I want. This is goofy, but the only way I know how to do it is to look at the lon and lat objects
 #		pick the index for the lon and lat closest to target
 # chosen grid: Tutu: -14.375, 189.375, Manu: -14.375, 190.625
 # tutu: lon[2], lat[3]
@@ -81,30 +76,28 @@ lat <- v1$dim[[2]]$vals
 
 # extract an array from the netcdf for each variable
 
-tutu_uwind <- as.numeric(uwnd[2,3,])
-tutu_vwind <- as.numeric(vwnd[2,3,])
+    tutu_uwind <- as.numeric(uwnd[2,3,])
+    tutu_vwind <- as.numeric(vwnd[2,3,])
 
-# calculated windspeed by 6 hour intervals, THEN average over day
-tutu1 <- data.frame('dt' = dates, 'uwind' = tutu_uwind, 'vwind' = tutu_vwind, 'location' = 'tutu')
-str(tutu1)
-tutu2 <- mutate(tutu1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
-head(tutu2)
+  # calculated windspeed by 6 hour intervals, THEN average over day
+    tutu1 <- data.frame('dt' = dates, 'uwind' = tutu_uwind, 'vwind' = tutu_vwind, 'location' = 'tutu')
+    tutu2 <- mutate(tutu1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+    head(tutu2)
 
-#  save
-tutu_19_21 <- tutu2
+  #  save
+    tutu_19_21 <- tutu2
 
 
 # ---------------- repeat for the Manu'as
-
-manu_uwind <- as.numeric(uwnd[7,3,])
-manu_vwind <- as.numeric(vwnd[7,3,])
+    manu_uwind <- as.numeric(uwnd[7,3,])
+    manu_vwind <- as.numeric(vwnd[7,3,])
 
 # calculated windspeed by 6 hour intervals, THEN average over day
-manu1 <- data.frame('dt' = dates, 'uwind' = manu_uwind, 'vwind' = manu_vwind, 'location' = 'manu')
-manu2 <- mutate(manu1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+    manu1 <- data.frame('dt' = dates, 'uwind' = manu_uwind, 'vwind' = manu_vwind, 'location' = 'manu')
+    manu2 <- mutate(manu1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
 
 #  save
-manu_19_21 <- manu2
+    manu_19_21 <- manu2
 
 
 #  -----------------------
@@ -118,13 +111,11 @@ manu_19_21 <- manu2
 #  Tutu 88-89
 #  https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-0.nc?uwnd%5B(1988-01-01):1:(1989-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D,vwnd%5B(1988-01-01):1:(1989-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D
 
-	rm(nc)
-	nc <- nc_open("tutu_88_89.nc")
-	dim(nc)
+	nc   <- nc_open("Data/Winds/tutu_88_89.nc")
 	uwnd <- ncvar_get(nc,nc$var[[1]])
-	v1 <- nc$var[[1]]
+	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
-	v2 <- nc$var[[2]]
+	v2   <- nc$var[[2]]
 
 	dates <- as.POSIXlt(v1$dim[[3]]$vals,origin='1970-01-01',tz='GMT') 
 
@@ -133,7 +124,6 @@ manu_19_21 <- manu2
 
 	# make a dataframe with date, uwnd, vwind, location, save it
 	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'tutu')
-	str(wind_1)
 	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
 
 	#  save
@@ -142,24 +132,18 @@ manu_19_21 <- manu2
 
 #  Tutu 90-94
 #  https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-0.nc?uwnd%5B(1990-01-01):1:(1994-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D,vwnd%5B(1990-01-01):1:(1994-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D
-
-	rm(nc)
-	nc <- nc_open("tutu_90_94.nc")
+	nc   <- nc_open("Data/Winds/tutu_90_94.nc")
 	uwnd <- ncvar_get(nc,nc$var[[1]])
-	v1 <- nc$var[[1]]
+	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
-	v2 <- nc$var[[2]]
+	v2   <- nc$var[[2]]
 
 	dates <- as.POSIXlt(v1$dim[[3]]$vals,origin='1970-01-01',tz='GMT') 
-	head(dates)
-	tail(dates)
-
-	lon <- v1$dim[[1]]$vals 
-	lat <- v1$dim[[2]]$vals
+	lon   <- v1$dim[[1]]$vals 
+	lat   <- v1$dim[[2]]$vals
 
 	# make a dataframe with date, uwnd, vwind, location, save it
 	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'tutu')
-	str(wind_1)
 	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
 
 	#  save
@@ -167,24 +151,19 @@ manu_19_21 <- manu2
 
 
 #  Tutu 95-18
-
-	rm(nc)
-	nc <- nc_open("tutu_95_18.nc")
+	nc   <- nc_open("Data/Winds/tutu_95_18.nc")
 	uwnd <- ncvar_get(nc,nc$var[[1]])
-	v1 <- nc$var[[1]]
+	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
-	v2 <- nc$var[[2]]
+	v2   <- nc$var[[2]]
 
 	dates <- as.POSIXlt(v1$dim[[3]]$vals,origin='1970-01-01',tz='GMT') 
-	head(dates)
-	tail(dates)
-
+	
 	# lon <- v1$dim[[1]]$vals 
 	# lat <- v1$dim[[2]]$vals
 
 	# make a dataframe with date, uwnd, vwind, location, save it
 	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'tutu')
-	str(wind_1)
 	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
 
 	#  save
@@ -194,23 +173,19 @@ manu_19_21 <- manu2
 #  https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-0.nc?uwnd%5B(1988-01-01):1:(2018-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(190.625):1:(190.625)%5D,vwnd%5B(1988-01-01):1:(2018-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(190.625):1:(190.625)%5D
 #  Melanie downloaded it for me.
 
-	rm(nc)
-	nc <- nc_open("manu_88_18.nc")
+	nc   <- nc_open("Data/Winds/manu_88_18.nc")
 	uwnd <- ncvar_get(nc,nc$var[[1]])
-	v1 <- nc$var[[1]]
+	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
-	v2 <- nc$var[[2]]
+	v2   <- nc$var[[2]]
 
 	dates <- as.POSIXlt(v1$dim[[3]]$vals,origin='1970-01-01',tz='GMT') 
-	head(dates)
-	tail(dates)
-
+	
 	lon <- v1$dim[[1]]$vals 
 	lat <- v1$dim[[2]]$vals
 
 	# make a dataframe with date, uwnd, vwind, location, save it
 	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'manu')
-	str(wind_1)
 	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
 
 	#  save
@@ -226,57 +201,18 @@ head(tutu_88_89)
 head(tutu_90_94)
 head(tutu_95_18)
 
-wind <- rbind(manu_19_21, manu_88_18, tutu_19_21,
-			tutu_88_89, tutu_90_94, tutu_95_18)
-str(wind)
-
+wind     <- rbind(manu_19_21, manu_88_18, tutu_19_21,tutu_88_89, tutu_90_94, tutu_95_18)
 windsort <- wind[order(wind$location, wind$dt_char), ]
-head(windsort)
-tail(windsort)
 
 #  calculate wind direction in degrees.
 # x and y are rotated for math (I confirmed this with Melanie)
 # zonal = e-w = u (y), meriodinal = n-s = v (x)
 
 windsort2 <- mutate(windsort, wdir = 180 + (180/pi)*(atan2(uwind, vwind)))
-#  head(windsort2)
-#  View(windsort2[1:500,])
 
 # save it
 wind_6h <- windsort2
-str(wind_6h)
 
-
- # clean up workspace
- #	all_objs <- ls()
- #	save_objs <- c("wind_6h","root_dir")
- #	remove_objs <- setdiff(all_objs, save_objs)
- #      rm(list=remove_objs)
- #	rm(save_objs)
- #	rm(remove_objs)
- #	rm(all_objs)
-
- # 	save.image(paste(root_dir, "/data/01_Get_Wind.RData", sep=""))
- # 	save.image(paste(root_dir, "/Data/01_Get_Wind.RData", sep=""))
+saveRDS(wind_6h,paste0(root_dir, "/Data/CPUE_Winds.rds"))
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#  --------------------------------------------------------------------------------------------------------------
 
