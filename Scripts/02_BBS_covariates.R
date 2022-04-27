@@ -6,14 +6,10 @@
 #  PRELIMINARIES
   	require(sqldf); require(dplyr);	require(this.path);	require(lunar); require(data.table)
     options(scipen=999)		# this option just forces R to never use scientific notation
-
-# establish directories using this.path
-  	root_dir <- this.path::here(.. = 1)
-
-  # read in 01_BBS_data_prep.RData
+    root_dir <- this.path::here(.. = 1)
+  
     B <- readRDS(paste(root_dir, "/Outputs/CPUE_processed.rds", sep=""))
-   #load(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
-   
+
 #  --------------------------------------------------------------------------------------------------------------
 #  add some posix CT variables and moon phase, use require lunar
 #  American Samoa is UTC - 11
@@ -21,20 +17,17 @@
     B <- mutate(B, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
     B <- mutate(B, INTERVIEW_TIME_UTC = INTERVIEW_TIME_LOCAL + 11*60*60)
     B <- mutate(B, MOON_RADIANS = lunar.phase(as.Date(SAMPLE_DATE), shift = 11))
-
-     #  2pi radians = 29.53 days, so...
-    B <- mutate(B, MOON_DAYS = round(MOON_RADIANS* (29.53/(2*pi)) ,digits=0) )
+    B <- mutate(B, MOON_DAYS = round(MOON_RADIANS* (29.53/(2*pi)) ,digits=0) )  #  2pi radians = 29.53 days, so...
 
 #  --------------------------------------------------------------------------------------------------------------
 #  ENVIRONMENTAL DATA: WINDS
 #    do this working with interview only
 #    Note: Pago Pago is 14.28 deg S, 170.7 deg W (-14.28, -170.7).
 
-  
    INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,AREA_WIND)]
    W   <- readRDS(paste0(root_dir, "//Outputs/CPUE_Winds.rds")) # load 6 hour wind_data (from Get_Wind.R script).
     
-    # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
+   # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
 
   # MANU'A ISLANDS
   #	note: they didn't routinely record the interview time in the Manua's until 2003
@@ -136,107 +129,21 @@
    # -- merge tutuila and manu'a interviews w/ winds back into the B dataset
 
 	INT.W <- rbind(INT.W.TUT, INT.W.MAN)
+	INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=wspd,WINDDIR=wdir,)
 	B     <- merge(B,INT.W,by="INTERVIEW_PK",all.x=T)
 
 #  --------------------------------------------------------------------------------------------------------------
 #  ENVIRONMENTAL DATA: LARGE SCALE INDICES
 
   # load largescale indices
-   ENSO <- read.csv(paste(root_dir, "/data/ENSO.csv", sep=""), header=TRUE, stringsAsFactors=FALSE)
-   ONI <- read.csv(paste(root_dir, "/data/ONI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
-   SOI <- read.csv(paste(root_dir, "/data/SOI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
+   ENSO <- fread(paste0(root_dir, "/data/ENSO.csv"), header=TRUE, stringsAsFactors=FALSE)
+   ONI  <- fread(paste0(root_dir, "/data/ONI.csv"),header=TRUE, stringsAsFactors=FALSE)
+   SOI  <- fread(paste0(root_dir, "/data/SOI.csv"),header=TRUE, stringsAsFactors=FALSE)
 
-   #ENSO <- read.csv(paste(root_dir, "/Data/ENSO.csv", sep=""), header=TRUE, stringsAsFactors=FALSE)
-   #ONI <- read.csv(paste(root_dir, "/Data/ONI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
-   #SOI <- read.csv(paste(root_dir, "/Data/SOI.csv", sep=""),header=TRUE, stringsAsFactors=FALSE)
+   B <- merge(B,ENSO,by=c("YEAR","MONTH"),all.x=T)
+   B <- merge(B,ONI,by=c("YEAR","MONTH"),all.x=T)
+   B <- merge(B,SOI,by=c("YEAR","MONTH"),all.x=T)
    
-   
-  # do the merge in 3 steps
-   string <- "SELECT B.*, ENSO.ENSO
-		FROM B 
-		LEFT JOIN ENSO 
-			ON B.year_num = ENSO.Year
-				AND B.month = ENSO.month_num
-		"
-   bbs_ENSO <- sqldf(string, stringsAsFactors=FALSE)
-	# str(bbs_ENSO)
 
-   string <- "SELECT bbs_ENSO.*, SOI.SOI
-		FROM bbs_ENSO 
-		LEFT JOIN SOI 
-			ON bbs_ENSO.year_num = SOI.Year
-				AND bbs_ENSO.month = SOI.month_num
-		"
-   bbs_ENSO_SOI <- sqldf(string, stringsAsFactors=FALSE)
-	# str(bbs_ENSO_SOI)
- 
-   string <- "SELECT bbs_ENSO_SOI.*, ONI.ONI
-		FROM bbs_ENSO_SOI
-		LEFT JOIN ONI 
-			ON bbs_ENSO_SOI.year_num = ONI.Year
-				AND bbs_ENSO_SOI.month = ONI.month_num
-		"
-   bbs_ENSO_SOI_ONI <- sqldf(string, stringsAsFactors=FALSE)
-		# str(bbs_ENSO_SOI_ONI)  # names(bbs_ENSO_SOI_ONI)
-   rm(B)				#str(B)
-   B <- bbs_ENSO_SOI_ONI
-
-
-#  Final effort step
-# --- add effort as num_gear x hours_fished
-	B <- mutate(B, effort = HOURS_FISHED*NUM_GEAR)			#nrow(B)
-
-   length(unique(B$INTERVIEW_PK))		# 3068 interviews
-
-  # clean up workspace
-  #	all_objs <- ls()
-  #	save_objs <- c("aint_bbs_all_gears","aint_bbs_filtered","B","root_dir","B_before_ID_correct",
-  #					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
-  #					"p_amboinensis","p_rubrio")
-  #	remove_objs <- setdiff(all_objs, save_objs)
-  #  	rm(list=remove_objs)
-  #	rm(save_objs)
-  #	rm(remove_objs)
-  #	rm(all_objs)
-
-  # save.image(paste(root_dir, "/output/02_BBS_covariates.RData", sep=""))
-	# save.image(paste(root_dir, "/Outputs/02_BBS_covariates.RData", sep=""))
+   saveRDS(paste0(root_dir, "/Outputs/CPUE_Final.rds"))
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#  --------------------------------------------------------------------------------------------------------------
