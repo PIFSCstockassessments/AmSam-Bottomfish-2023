@@ -9,8 +9,8 @@ set.seed(11111) # It is critical to fix the random number generation for reprodu
 #				do some data manipulation
 
 D <- fread(paste(root_dir, "/Data/AmSam_SBS_Sep10.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-R <- read.csv(paste(root_dir, "/Data/sb_route_simple.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-M <- read.csv(paste(root_dir, "/Data/sb_gear_simple.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+R <- fread(paste(root_dir, "/Data/sb_route_simple.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+M <- fread(paste(root_dir, "/Data/sb_gear_simple.csv", sep=""),header=T, stringsAsFactors=FALSE) 
 
 names(D) <- toupper(names(D)) # Capitalize all headers
 setnames(D,"EST_WHOLE_LBS","EST_LBS")

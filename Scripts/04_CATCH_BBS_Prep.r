@@ -218,7 +218,7 @@ test <- D[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="
 test2 <- select(F,-VAR_LBS_CAUGHT,-SD)
 
 
-saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_BBS_Final.rds"))
+saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_BBS_A.rds"))
 
 
 

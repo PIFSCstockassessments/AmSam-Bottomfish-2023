@@ -6,8 +6,8 @@ root_dir <- this.path::here(.. = 1)
 
 # Read in the expanded landings data
 D <- fread(paste0(root_dir, "/Data/SPC_AS_SBS.csv"),header=T, stringsAsFactors=FALSE) 
-R <- read.csv(paste0(root_dir, "/Data/sb_route_simple.csv"),header=T, stringsAsFactors=FALSE) 
-M <- read.csv(paste0(root_dir, "/Data/sb_gear_simple.csv"),header=T, stringsAsFactors=FALSE)
+R <- fread(paste0(root_dir, "/Data/sb_route_simple.csv"),header=T, stringsAsFactors=FALSE) 
+M <- fread(paste0(root_dir, "/Data/sb_gear_simple.csv"),header=T, stringsAsFactors=FALSE)
 S <- fread(paste0(root_dir, "/Data/a_species.csv"), header=T, stringsAsFactors=FALSE) 
 
 S$SCINAME    <- paste(S$GENUS,S$SCIENTIFIC_NAME)

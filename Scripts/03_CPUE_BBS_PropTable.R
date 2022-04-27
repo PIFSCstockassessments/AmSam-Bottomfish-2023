@@ -2,7 +2,7 @@ require(data.table); require(ggplot2); require(gridExtra); require(directlabels)
 
 options(scipen = 999)
 
-Z <- readRDS("Outputs\\CPUE_processed.rds")
+Z <- readRDS("Outputs\\CPUE_B.rds")
 Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_FK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
 Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_FK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]
 Z$SPECIES_FK <- as.numeric(Z$SPECIES_FK)
