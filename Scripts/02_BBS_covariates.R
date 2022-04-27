@@ -4,182 +4,139 @@
 #  --------------------------------------------------------------------------------------------------------------
 
 #  PRELIMINARIES
-#  	rm(list=ls())
-  	Sys.setenv(TZ = "UTC")		# setting system time to UTC avoids bugs in sqldf
-  	library(sqldf)
-  	library(dplyr)
-  #	library(tidyr)
-  #	library(ggplot2)
-	library(this.path)
-	library(lunar)
-  	options(scipen=999)		# this option just forces R to never use scientific notation
+  	require(sqldf); require(dplyr);	require(this.path);	require(lunar); require(data.table)
+    options(scipen=999)		# this option just forces R to never use scientific notation
 
-  # establish directories using this.path
-	root_dir <- this.path::here(.. = 1)
+# establish directories using this.path
+  	root_dir <- this.path::here(.. = 1)
 
   # read in 01_BBS_data_prep.RData
-   load(paste(root_dir, "/output/01_BBS_data_prep.RData", sep=""))
+    B <- readRDS(paste(root_dir, "/Outputs/CPUE_processed.rds", sep=""))
    #load(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
    
-
 #  --------------------------------------------------------------------------------------------------------------
-#  add some posix CT variables and moon phase, use library lunar
+#  add some posix CT variables and moon phase, use require lunar
 #  American Samoa is UTC - 11
 
-   bbs_3C <- mutate(bbs_3C, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
-   bbs_3C <- mutate(bbs_3C, INTERVIEW_TIME_UTC = INTERVIEW_TIME_LOCAL + 11*60*60)
-   bbs_3C <- mutate(bbs_3C, Moon_radians = lunar.phase(as.Date(SAMPLE_DATE), shift = 11))
+    B <- mutate(B, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
+    B <- mutate(B, INTERVIEW_TIME_UTC = INTERVIEW_TIME_LOCAL + 11*60*60)
+    B <- mutate(B, MOON_RADIANS = lunar.phase(as.Date(SAMPLE_DATE), shift = 11))
 
-  #  2pi radians = 29.53 days, so...
-   bbs_3C <- mutate(bbs_3C, Moon_days = round(Moon_radians* (29.53/(2*pi)) ,digits=0) )
-
+     #  2pi radians = 29.53 days, so...
+    B <- mutate(B, MOON_DAYS = round(MOON_RADIANS* (29.53/(2*pi)) ,digits=0) )
 
 #  --------------------------------------------------------------------------------------------------------------
 #  ENVIRONMENTAL DATA: WINDS
 #    do this working with interview only
 #    Note: Pago Pago is 14.28 deg S, 170.7 deg W (-14.28, -170.7).
 
-   string <- "SELECT DISTINCT INTERVIEW_PK, year_num, INTERVIEW_TIME_LOCAL, INTERVIEW_TIME_UTC, AREA_WIND
-		FROM bbs_3C"
-   list_ints <- sqldf(string, stringsAsFactors=FALSE)		# View(list_ints)
-	# str(list_ints)
-
-  # load 6 hour wind_data. Created in Get_Wind.R script.
-   load(paste(root_dir, "/data/01_Get_Wind.RData", sep=""))
-   #load(paste(root_dir, "/Data/01_Get_Wind.RData", sep=""))
-   
+  
+   INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,AREA_WIND)]
+   W   <- readRDS(paste0(root_dir, "//Outputs/CPUE_Winds.rds")) # load 6 hour wind_data (from Get_Wind.R script).
     
-  # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
+    # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
 
   # MANU'A ISLANDS
   #	note: they didn't routinely record the interview time in the Manua's until 2003
   #		so, interview time appears to always be set to midnight local time, 11 am UTC.	
 
-   ints_manu <- subset(list_ints, AREA_WIND == 'manu')		
-   ints_manu <- ints_manu[order(ints_manu$INTERVIEW_TIME_UTC),] 		# str(ints_manu)	# 849 interviews
-   wind_manu <- subset(wind_6h, location == 'manu')
-   wind_manu <- wind_manu[order(wind_manu$dt),]			#View(wind_manu[1:100,])
-
-  #  remove 1986 and 1987 from the interview list because we don't have wind data before 1988
-   ints_manu <- subset(ints_manu, year_num > 1987)			#str(ints_manu)
+   INT.MAN <- INT[AREA_WIND == 'manu']		
+   INT.MAN <- INT.MAN[order(INTERVIEW_TIME_UTC)] 
+   W.MAN   <- W[location == 'manu']
+   W.MAN   <- W.MAN[order(dt)]	
+   INT.MAN <- INT.MAN[YEAR > 1987]	# Remove 1986 and 1987 from the interview list because we don't have wind data before 1988
 
   # findInterval will return the vector of indices for the closest without being under. I.e., the most recent dt.
-   index_mat <- findInterval(ints_manu$INTERVIEW_TIME_UTC,wind_manu$dt)
-   	# str(index_mat)
-
-   ints_manu <- mutate(ints_manu, 'wind_index' = index_mat)
+   INDEX.MAT <- findInterval(INT.MAN$INTERVIEW_TIME_UTC,W.MAN$dt)
+   INT.MAN   <- mutate(INT.MAN, 'WIND_INDEX' = INDEX.MAT)
   
   # make columns for the previous and next windtimes (with dummy datetime)
-   ints_manu <- mutate(ints_manu, 'previous_windtime' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
-   ints_manu <- mutate(ints_manu, 'next_windtime' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
+   INT.MAN <- mutate(INT.MAN, 'PREV_WINDTIME' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
+   INT.MAN <- mutate(INT.MAN, 'NEXT_WINDTIME' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
 
   # fetch the previous (index_mat above) and next windtimes (index_mat + 1).
-   for (i in 1:nrow(ints_manu)) {
-		lookup_i <- ints_manu$wind_index[i]
-		ints_manu$previous_windtime[i] <- wind_manu[lookup_i,1]
-		ints_manu$next_windtime[i] <- wind_manu[(lookup_i+1),1]	
+   for (i in 1:nrow(INT.MAN)) {
+		lookup_i                 <- INT.MAN$WIND_INDEX[i]
+		INT.MAN[i]$PREV_WINDTIME <- W.MAN[lookup_i,1]
+		INT.MAN[i]$NEXT_WINDTIME <- W.MAN[(lookup_i+1),1]	
 		}
 
   # calculate hours since last, hours till next windtime. 
-   int_manu_2 <- mutate(ints_manu, 'm_since_previous' = (as.numeric(INTERVIEW_TIME_UTC - previous_windtime)/60),
-				'm_to_next' = (as.numeric(next_windtime - INTERVIEW_TIME_UTC)))
-	# View(int_manu_2)
-
+   INT.MAN <- mutate(INT.MAN, 'M_SINCE_PREV' = (as.numeric(INTERVIEW_TIME_UTC - PREV_WINDTIME)/60),
+				'M_TO_NEXT' = (as.numeric(NEXT_WINDTIME - INTERVIEW_TIME_UTC)))
+	
   # add empty column to note the index to use
-   int_manu_3 <- mutate(int_manu_2, 'use_windtime_index' = -999)
-	#  View(int_manu_3)
-
-   for (i in 1:nrow(int_manu_3)) {
-		ifelse(int_manu_3$m_since_previous[i] < int_manu_3$m_to_next[i],
-			int_manu_3$use_windtime_index[i] <- int_manu_3$wind_index[i],
-			int_manu_3$use_windtime_index[i] <- int_manu_3$wind_index[i]+1)
+   INT.MAN <- mutate(INT.MAN, "USE_WINDTIME_INDEX"= -999)
+	
+   for (i in 1:nrow(INT.MAN)) {
+		ifelse(INT.MAN$M_SINCE_PREV[i] < INT.MAN$M_TO_NEXT[i],
+			INT.MAN$USE_WINDTIME_INDEX[i] <- INT.MAN$WIND_INDEX[i],
+			INT.MAN$USE_WINDTIME_INDEX[i] <- INT.MAN$WIND_INDEX[i]+1)
 	}
 
   # now we have the index of winds to use, pull in the data.
-   int_winds_manu <- mutate(int_manu_3, wspd = 999, wdir = 999, uwind = 999, vwind = 999)
-	# View(int_winds_manu)
- 
-   for (i in 1:nrow(int_winds_manu)) {
-		wind_i <- int_winds_manu$use_windtime_index[i]
-		int_winds_manu$wspd[i] <- wind_manu$wspd[wind_i]
-		int_winds_manu$wdir[i] <- wind_manu$wdir[wind_i]
-		int_winds_manu$uwind[i] <- wind_manu$uwind[wind_i]
-		int_winds_manu$vwind[i] <- wind_manu$vwind[wind_i]
+   INT.W.MAN <- mutate(INT.MAN, wspd = 999, wdir = 999, uwind = 999, vwind = 999)
+	
+   for (i in 1:nrow(INT.W.MAN)) {
+		wind_i <- INT.W.MAN$USE_WINDTIME_INDEX[i]
+		INT.W.MAN$wspd[i]  <- W.MAN$wspd[wind_i]
+		INT.W.MAN$wdir[i]  <- W.MAN$wdir[wind_i]
+		INT.W.MAN$uwind[i] <- W.MAN$uwind[wind_i]
+		INT.W.MAN$vwind[i] <- W.MAN$vwind[wind_i]
 		}
 
 
   # TUTUILA
+   
+   INT.TUT <- INT[AREA_WIND == 'tutu']		
+   INT.TUT <- INT.TUT[order(INTERVIEW_TIME_UTC)] 
+   W.TUT   <- W[location == 'tutu']
+   W.TUT   <- W.TUT[order(dt)]	
+   INT.TUT <- INT.TUT[YEAR > 1987]	# Remove 1986 and 1987 from the interview list because we don't have wind data before 1988
+   
+   # findInterval will return the vector of indices for the closest without being under. I.e., the most recent dt.
+   INDEX.MAT <- findInterval(INT.TUT$INTERVIEW_TIME_UTC,W.TUT$dt)
+   INT.TUT   <- mutate(INT.TUT, 'WIND_INDEX' = INDEX.MAT)
+   
+   # make columns for the previous and next windtimes (with dummy datetime)
+   INT.TUT <- mutate(INT.TUT, 'PREV_WINDTIME' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
+   INT.TUT <- mutate(INT.TUT, 'NEXT_WINDTIME' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
+   
+   # fetch the previous (index_mat above) and next windtimes (index_mat + 1).
+   for (i in 1:nrow(INT.TUT)) {
+     lookup_i                 <- INT.TUT$WIND_INDEX[i]
+     INT.TUT[i]$PREV_WINDTIME <- W.TUT[lookup_i,1]
+     INT.TUT[i]$NEXT_WINDTIME <- W.TUT[(lookup_i+1),1]	
+   }
+   
+   # calculate hours since last, hours till next windtime. 
+   INT.TUT <- mutate(INT.TUT, 'M_SINCE_PREV' = (as.numeric(INTERVIEW_TIME_UTC - PREV_WINDTIME)/60),
+                     'M_TO_NEXT' = (as.numeric(NEXT_WINDTIME - INTERVIEW_TIME_UTC)))
+   
+   # add empty column to note the index to use
+   INT.TUT <- mutate(INT.TUT, "USE_WINDTIME_INDEX"= -999)
+   
+   for (i in 1:nrow(INT.TUT)) {
+     ifelse(INT.TUT$M_SINCE_PREV[i] < INT.TUT$M_TO_NEXT[i],
+            INT.TUT$USE_WINDTIME_INDEX[i] <- INT.TUT$WIND_INDEX[i],
+            INT.TUT$USE_WINDTIME_INDEX[i] <- INT.TUT$WIND_INDEX[i]+1)
+   }
+   
+   # now we have the index of winds to use, pull in the data.
+   INT.W.TUT <- mutate(INT.TUT, wspd = 999, wdir = 999, uwind = 999, vwind = 999)
+   
+   for (i in 1:nrow(INT.W.TUT)) {
+     wind_i <- INT.W.TUT$USE_WINDTIME_INDEX[i]
+     INT.W.TUT$wspd[i]  <- W.TUT$wspd[wind_i]
+     INT.W.TUT$wdir[i]  <- W.TUT$wdir[wind_i]
+     INT.W.TUT$uwind[i] <- W.TUT$uwind[wind_i]
+     INT.W.TUT$vwind[i] <- W.TUT$vwind[wind_i]
+   }
+   
+   # -- merge tutuila and manu'a interviews w/ winds back into the B dataset
 
-   ints_tutu <- subset(list_ints, AREA_WIND == 'tutu')		
-   ints_tutu <- ints_tutu[order(ints_tutu$INTERVIEW_TIME_UTC),] 
-   wind_tutu <- subset(wind_6h, location == 'tutu')
-   wind_tutu <- wind_tutu[order(wind_tutu$dt),]			#View(wind_tutu[1:100,])
-   ints_tutu <- subset(ints_tutu, year_num > 1987)
-
-  # findInterval will return the vector of indices for the closest without being under. I.e., the most recent dt.
-   rm(index_mat)
-   index_mat <- findInterval(ints_tutu$INTERVIEW_TIME_UTC,wind_tutu$dt)
-   ints_tutu <- mutate(ints_tutu, 'wind_index' = index_mat)
-	# View(ints_tutu)		#str(ints_tutu)
-
-  # make columns for the previous and next windtimes
-   ints_tutu <- mutate(ints_tutu, 'previous_windtime' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
-   ints_tutu <- mutate(ints_tutu, 'next_windtime' = as.POSIXct("1980-01-25 07:00:00", tz = 'UTC'))
-
- # fetch the previous (index_mat above) and next windtimes (index_mat + 1).
-   for (i in 1:nrow(ints_tutu)) {
-		lookup_i <- ints_tutu$wind_index[i]
-		ints_tutu$previous_windtime[i] <- wind_tutu[lookup_i,1]
-		ints_tutu$next_windtime[i] <- wind_tutu[(lookup_i+1),1]	
-		}
-
-  # calculate hours since last, hours till next windtime. 
-   int_tutu_2 <- mutate(ints_tutu, 'm_since_previous' = (as.numeric(INTERVIEW_TIME_UTC - previous_windtime)/60),
-				'm_to_next' = (as.numeric(next_windtime - INTERVIEW_TIME_UTC)))
-		# View(int_tutu_2)
-
-  # add empty column to note the index to use
-   int_tutu_3 <- mutate(int_tutu_2, 'use_windtime_index' = -999)
-	#  View(int_tutu_3)
-
-   for (i in 1:nrow(int_tutu_3)) {
-		ifelse(int_tutu_3$m_since_previous[i] < int_tutu_3$m_to_next[i],
-			int_tutu_3$use_windtime_index[i] <- int_tutu_3$wind_index[i],
-			int_tutu_3$use_windtime_index[i] <- int_tutu_3$wind_index[i]+1)
-	}
-
-  # now we have the index of winds to use, pull in the data.
-   int_winds_tutu <- mutate(int_tutu_3, wspd = 999, wdir = 999, uwind = 999, vwind = 999)
-	# View(int_winds_tutu)
- 
-   for (i in 1:nrow(int_winds_tutu)) {
-		wind_i <- int_winds_tutu$use_windtime_index[i]
-		int_winds_tutu$wspd[i] <- wind_tutu$wspd[wind_i]
-		int_winds_tutu$wdir[i] <- wind_tutu$wdir[wind_i]
-		int_winds_tutu$uwind[i] <- wind_tutu$uwind[wind_i]
-		int_winds_tutu$vwind[i] <- wind_tutu$vwind[wind_i]
-		}
-
-# -- merge tutuila and manu'a interviews w/ winds back into the bbs_3C dataset
-
-	# head(int_winds_tutu)
-	# head(int_winds_manu)
-	# head(int_winds)
-   int_winds <- rbind(int_winds_tutu, int_winds_manu)
-	# names(bbs_3C)		#nrow(bbs_3C_2)		#str(int_winds)
-
-   string <- "SELECT bbs_3C.*, int_winds.wspd, int_winds.wdir, int_winds.uwind, int_winds.vwind
-		FROM bbs_3C
-		LEFT JOIN int_winds 
-			ON bbs_3C.INTERVIEW_PK = int_winds.INTERVIEW_PK
-		"
-
-  bbs_3C_2 <- sqldf(string, stringsAsFactors=FALSE)
-	# names(bbs_3C_2)
-
-  bbs_3C <- bbs_3C_2
-	# str(bbs_3C)			 # 49162 obs. of  105 variables:
-
+	INT.W <- rbind(INT.W.TUT, INT.W.MAN)
+	B     <- merge(B,INT.W,by="INTERVIEW_PK",all.x=T)
 
 #  --------------------------------------------------------------------------------------------------------------
 #  ENVIRONMENTAL DATA: LARGE SCALE INDICES
@@ -195,11 +152,11 @@
    
    
   # do the merge in 3 steps
-   string <- "SELECT bbs_3C.*, ENSO.ENSO
-		FROM bbs_3C 
+   string <- "SELECT B.*, ENSO.ENSO
+		FROM B 
 		LEFT JOIN ENSO 
-			ON bbs_3C.year_num = ENSO.Year
-				AND bbs_3C.month = ENSO.month_num
+			ON B.year_num = ENSO.Year
+				AND B.month = ENSO.month_num
 		"
    bbs_ENSO <- sqldf(string, stringsAsFactors=FALSE)
 	# str(bbs_ENSO)
@@ -221,19 +178,19 @@
 		"
    bbs_ENSO_SOI_ONI <- sqldf(string, stringsAsFactors=FALSE)
 		# str(bbs_ENSO_SOI_ONI)  # names(bbs_ENSO_SOI_ONI)
-   rm(bbs_3C)				#str(bbs_3C)
-   bbs_3C <- bbs_ENSO_SOI_ONI
+   rm(B)				#str(B)
+   B <- bbs_ENSO_SOI_ONI
 
 
 #  Final effort step
 # --- add effort as num_gear x hours_fished
-	bbs_3C <- mutate(bbs_3C, effort = HOURS_FISHED*NUM_GEAR)			#nrow(bbs_3C)
+	B <- mutate(B, effort = HOURS_FISHED*NUM_GEAR)			#nrow(B)
 
-   length(unique(bbs_3C$INTERVIEW_PK))		# 3068 interviews
+   length(unique(B$INTERVIEW_PK))		# 3068 interviews
 
   # clean up workspace
   #	all_objs <- ls()
-  #	save_objs <- c("aint_bbs_all_gears","aint_bbs_filtered","bbs_3C","root_dir","bbs_3C_before_ID_correct",
+  #	save_objs <- c("aint_bbs_all_gears","aint_bbs_filtered","B","root_dir","B_before_ID_correct",
   #					"p_louti", "p_albimarginata","p_flavi","p_fila","p_elongatus",
   #					"p_amboinensis","p_rubrio")
   #	remove_objs <- setdiff(all_objs, save_objs)
