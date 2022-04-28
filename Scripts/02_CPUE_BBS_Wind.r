@@ -8,14 +8,7 @@
 #	https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-1-NRT.html (2019-2020)
 #	
 #	When I tried to update these data, there were troubles with the ERDDAP server. See long e-mail chain w/ 
-#		Melanie Abacassis and Russell Price
-#	  FYI- the https is just a proxy for the ERDDAP. In Russell's words:
-#		"when a request for data is issued to the Tomcat server (which runs ERDDAP), Tomcat then hands that request off to a 
-#		background process that executes it. Tomcat doesn't monitor that process, and has no control over it once it is initiated. 
-#		If the connection with the initiating client times out, it doesn't matter. The back-end task keeps running, using CPU and 
-#		memory. [...] The more processes that are running, using up memory and CPU, the slower everything runs. Even though some 
-#		of those processes would no longer be able to return results to the client (due to communications timeout), they keep 
-#		running until completion. They become, for want of a better term, "zombies": shambling onwards without purpose."
+#	Melanie Abecassis and Russell Price
 
 #  --------------------------------------------------------------------------------------------------------------
    require(ncdf4); require(httr); require(dplyr); require(this.path); require(data.table)
@@ -63,10 +56,9 @@
     tutu_vwind <- as.numeric(vwnd[2,3,])
 
   # calculated windspeed by 6 hour intervals, THEN average over day
-    tutu1 <- data.frame('dt' = dates, 'uwind' = tutu_uwind, 'vwind' = tutu_vwind, 'location' = 'tutu')
-    tutu2 <- mutate(tutu1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
-    head(tutu2)
-
+    tutu1 <- data.frame('DT' = dates, 'UWIND' = tutu_uwind, 'VWIND' = tutu_vwind, 'LOCATION' = 'Tutuila')
+    tutu2 <- mutate(tutu1, WSPD = sqrt((UWIND)^2 + (VWIND)^2), dt_char = as.character(DT)) 
+    
   #  save
     tutu_19_21 <- tutu2
 
@@ -75,8 +67,8 @@
     manu_vwind <- as.numeric(vwnd[7,3,])
 
 # calculated windspeed by 6 hour intervals, THEN average over day
-    manu1 <- data.frame('dt' = dates, 'uwind' = manu_uwind, 'vwind' = manu_vwind, 'location' = 'manu')
-    manu2 <- mutate(manu1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+    manu1 <- data.frame('DT' = dates, 'UWIND' = manu_uwind, 'VWIND' = manu_vwind, 'LOCATION' = 'Manua')
+    manu2 <- mutate(manu1, WSPD = sqrt((UWIND)^2 + (VWIND)^2), dt_char = as.character(DT)) 
 
 #  save
     manu_19_21 <- manu2
@@ -100,9 +92,9 @@
 	lon <- v1$dim[[1]]$vals 
 	lat <- v1$dim[[2]]$vals
 
-	# make a dataframe with date, uwnd, vwind, location, save it
-	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'tutu')
-	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+	# make a dataframe with date, uwnd, VWIND, LOCATION, save it
+	wind_1 <- data.frame('DT' = dates, 'UWIND' = uwnd, 'VWIND' = vwnd, 'LOCATION' = 'Tutuila')
+	wind_2 <- mutate(wind_1, WSPD = sqrt((UWIND)^2 + (VWIND)^2), dt_char = as.character(DT)) 
 
 	#  save
 	tutu_88_89 <- wind_2
@@ -119,9 +111,9 @@
 	lon   <- v1$dim[[1]]$vals 
 	lat   <- v1$dim[[2]]$vals
 
-	# make a dataframe with date, uwnd, vwind, location, save it
-	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'tutu')
-	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+	# make a dataframe with date, uwnd, VWIND, LOCATION, save it
+	wind_1 <- data.frame('DT' = dates, 'UWIND' = uwnd, 'VWIND' = vwnd, 'LOCATION' = 'Tutuila')
+	wind_2 <- mutate(wind_1, WSPD = sqrt((UWIND)^2 + (VWIND)^2), dt_char = as.character(DT)) 
 
 	#  save
 	tutu_90_94 <- wind_2
@@ -138,9 +130,9 @@
 	# lon <- v1$dim[[1]]$vals 
 	# lat <- v1$dim[[2]]$vals
 
-	# make a dataframe with date, uwnd, vwind, location, save it
-	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'tutu')
-	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+	# make a dataframe with date, uwnd, VWIND, LOCATION, save it
+	wind_1 <- data.frame('DT' = dates, 'UWIND' = uwnd, 'VWIND' = vwnd, 'LOCATION' = 'Tutuila')
+	wind_2 <- mutate(wind_1, WSPD = sqrt((UWIND)^2 + (VWIND)^2), dt_char = as.character(DT)) 
 
 	#  save
 	tutu_95_18 <- wind_2
@@ -160,21 +152,21 @@
 	lon <- v1$dim[[1]]$vals 
 	lat <- v1$dim[[2]]$vals
 
-	# make a dataframe with date, uwnd, vwind, location, save it
-	wind_1 <- data.frame('dt' = dates, 'uwind' = uwnd, 'vwind' = vwnd, 'location' = 'manu')
-	wind_2 <- mutate(wind_1, wspd = sqrt((uwind)^2 + (vwind)^2), dt_char = as.character(dt)) 
+	# make a dataframe with date, uwnd, VWIND, LOCATION, save it
+	wind_1 <- data.frame('DT' = dates, 'UWIND' = uwnd, 'VWIND' = vwnd, 'LOCATION' = 'Manua')
+	wind_2 <- mutate(wind_1, WSPD = sqrt((UWIND)^2 + (VWIND)^2), dt_char = as.character(DT)) 
 
 	#  save
 	manu_88_18 <- wind_2
 
 #  rbind all the datasets
 wind     <- rbind(manu_19_21, manu_88_18, tutu_19_21,tutu_88_89, tutu_90_94, tutu_95_18)
-windsort <- wind[order(wind$location, wind$dt_char), ]
+windsort <- wind[order(wind$LOCATION, wind$dt_char), ]
 
 #  calculate wind direction in degrees.
 # x and y are rotated for math (I confirmed this with Melanie)
 # zonal = e-w = u (y), meriodinal = n-s = v (x)
-windsort2 <- mutate(windsort, wdir = 180 + (180/pi)*(atan2(uwind, vwind)))
+windsort2 <- mutate(windsort, wdir = 180 + (180/pi)*(atan2(UWIND, VWIND)))
 
 # save it
 W <- as.data.table(windsort2)
@@ -187,7 +179,7 @@ W <- as.data.table(windsort2)
 #    do this working with interview only
 #    Note: Pago Pago is 14.28 deg S, 170.7 deg W (-14.28, -170.7).
 B   <- readRDS(paste(root_dir, "/Outputs/CPUE_A.rds", sep=""))
-INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,AREA_WIND)]
+INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,AREA_C)]
 
 # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
 
@@ -195,14 +187,14 @@ INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TI
 #	note: they didn't routinely record the interview time in the Manua's until 2003
 #		so, interview time appears to always be set to midnight local time, 11 am UTC.	
 
-INT.MAN <- INT[AREA_WIND == 'manu']		
+INT.MAN <- INT[AREA_C == 'Manua']		
 INT.MAN <- INT.MAN[order(INTERVIEW_TIME_UTC)] 
-W.MAN   <- W[location == 'manu']
-W.MAN   <- W.MAN[order(dt)]	
+W.MAN   <- W[LOCATION == 'Manua']
+W.MAN   <- W.MAN[order(DT)]	
 INT.MAN <- INT.MAN[YEAR > 1987]	# Remove 1986 and 1987 from the interview list because we don't have wind data before 1988
 
-# findInterval will return the vector of indices for the closest without being under. I.e., the most recent dt.
-INDEX.MAT <- findInterval(INT.MAN$INTERVIEW_TIME_UTC,W.MAN$dt)
+# findInterval will return the vector of indices for the closest without being under. I.e., the most recent DT.
+INDEX.MAT <- findInterval(INT.MAN$INTERVIEW_TIME_UTC,W.MAN$DT)
 INT.MAN   <- mutate(INT.MAN, 'WIND_INDEX' = INDEX.MAT)
 
 # make columns for the previous and next windtimes (with dummy datetime)
@@ -230,27 +222,27 @@ for (i in 1:nrow(INT.MAN)) {
 }
 
 # now we have the index of winds to use, pull in the data.
-INT.W.MAN <- mutate(INT.MAN, wspd = 999, wdir = 999, uwind = 999, vwind = 999)
+INT.W.MAN <- mutate(INT.MAN, WSPD = 999, wdir = 999, UWIND = 999, VWIND = 999)
 
 for (i in 1:nrow(INT.W.MAN)) {
   wind_i <- INT.W.MAN$USE_WINDTIME_INDEX[i]
-  INT.W.MAN$wspd[i]  <- W.MAN$wspd[wind_i]
+  INT.W.MAN$WSPD[i]  <- W.MAN$WSPD[wind_i]
   INT.W.MAN$wdir[i]  <- W.MAN$wdir[wind_i]
-  INT.W.MAN$uwind[i] <- W.MAN$uwind[wind_i]
-  INT.W.MAN$vwind[i] <- W.MAN$vwind[wind_i]
+  INT.W.MAN$UWIND[i] <- W.MAN$UWIND[wind_i]
+  INT.W.MAN$VWIND[i] <- W.MAN$VWIND[wind_i]
 }
 
 
 # TUTUILA
 
-INT.TUT <- INT[AREA_WIND == 'tutu']		
+INT.TUT <- INT[AREA_C == 'Tutuila']		
 INT.TUT <- INT.TUT[order(INTERVIEW_TIME_UTC)] 
-W.TUT   <- W[location == 'tutu']
-W.TUT   <- W.TUT[order(dt)]	
+W.TUT   <- W[LOCATION == 'Tutuila']
+W.TUT   <- W.TUT[order(DT)]	
 INT.TUT <- INT.TUT[YEAR > 1987]	# Remove 1986 and 1987 from the interview list because we don't have wind data before 1988
 
-# findInterval will return the vector of indices for the closest without being under. I.e., the most recent dt.
-INDEX.MAT <- findInterval(INT.TUT$INTERVIEW_TIME_UTC,W.TUT$dt)
+# findInterval will return the vector of indices for the closest without being under. I.e., the most recent DT.
+INDEX.MAT <- findInterval(INT.TUT$INTERVIEW_TIME_UTC,W.TUT$DT)
 INT.TUT   <- mutate(INT.TUT, 'WIND_INDEX' = INDEX.MAT)
 
 # make columns for the previous and next windtimes (with dummy datetime)
@@ -278,20 +270,20 @@ for (i in 1:nrow(INT.TUT)) {
 }
 
 # now we have the index of winds to use, pull in the data.
-INT.W.TUT <- mutate(INT.TUT, wspd = 999, wdir = 999, uwind = 999, vwind = 999)
+INT.W.TUT <- mutate(INT.TUT, WSPD = 999, wdir = 999, UWIND = 999, VWIND = 999)
 
 for (i in 1:nrow(INT.W.TUT)) {
   wind_i <- INT.W.TUT$USE_WINDTIME_INDEX[i]
-  INT.W.TUT$wspd[i]  <- W.TUT$wspd[wind_i]
+  INT.W.TUT$WSPD[i]  <- W.TUT$WSPD[wind_i]
   INT.W.TUT$wdir[i]  <- W.TUT$wdir[wind_i]
-  INT.W.TUT$uwind[i] <- W.TUT$uwind[wind_i]
-  INT.W.TUT$vwind[i] <- W.TUT$vwind[wind_i]
+  INT.W.TUT$UWIND[i] <- W.TUT$UWIND[wind_i]
+  INT.W.TUT$VWIND[i] <- W.TUT$VWIND[wind_i]
 }
 
 # -- merge tutuila and manu'a interviews w/ winds back into the B dataset
 
 INT.W <- rbind(INT.W.TUT, INT.W.MAN)
-INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=wspd,WINDDIR=wdir,)
+INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=WSPD,WINDDIR=wdir,)
 B     <- merge(B,INT.W,by="INTERVIEW_PK",all.x=T)
 
 

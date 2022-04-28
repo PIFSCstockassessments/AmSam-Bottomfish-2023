@@ -6,17 +6,18 @@ root_dir <- this.path::here(.. = 1)
 
 # Read in the expanded landings data
 D <- fread(paste0(root_dir, "/Data/SPC_AS_SBS.csv"),header=T, stringsAsFactors=FALSE) 
-R <- fread(paste0(root_dir, "/Data/sb_route_simple.csv"),header=T, stringsAsFactors=FALSE) 
-M <- fread(paste0(root_dir, "/Data/sb_gear_simple.csv"),header=T, stringsAsFactors=FALSE)
-S <- fread(paste0(root_dir, "/Data/a_species.csv"), header=T, stringsAsFactors=FALSE) 
-
-S$SCINAME    <- paste(S$GENUS,S$SCIENTIFIC_NAME)
+R <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   );  R <- R[DATASET=="SBS"]
+R <- select(R,AREA_ID,AREA_C)
+M <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="METHODS") );  M <- M[DATASET=="SBS"]
+M <- select(M,METHOD_ID,METHOD_C)
+S <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
+S <- select(S,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
+S$SPECIES_PK <- as.character(S$SPECIES_PK)
 S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
-S            <- select(S,SPECIES_PK,FAMILY,SCINAME)
+S            <- select(S,SPECIES_PK,FAMILY,SCIENTIFIC_NAME)
 
-
-R$ROUTE     <- as.character(R$ROUTE)
-M$METHOD_FK <- as.character((M$METHOD_FK))
+R$AREA_ID   <- as.character(R$AREA_ID)
+M$METHOD_ID <- as.character((M$METHOD_ID))
 
 # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
 #	watch out- this is a little different from the BBS. See "american samoa SB mysql formulas.docx":
@@ -39,11 +40,11 @@ D$SPECIES_FK                     <- paste0("S",D$SPECIES_FK)
 D[SPECIES_FK=="S243"]$SPECIES_FK <- "S241" # Fix P. rutilans
 
 # Simplify gears and routes
-D <- merge(D,R,by="ROUTE")
-D <- merge(D,M,by.x="METHOD",by.y="METHOD_FK")
+D <- merge(D,R,by.x="ROUTE",by.y="AREA_ID")
+D <- merge(D,M,by.x="METHOD",by.y="METHOD_ID")
 D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
-setnames(D,"AREA_SIMPLE","ZONE")
+setnames(D,"AREA_C","ZONE")
 
 D[is.na(VAR_EXP_LBS)]$VAR_EXP_LBS <- 0 # Is this necessary?
 

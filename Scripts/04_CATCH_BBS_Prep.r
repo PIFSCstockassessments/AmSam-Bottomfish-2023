@@ -1,22 +1,22 @@
-	require(dplyr); require(this.path); require(data.table); require(ggplot2)
+require(dplyr); require(this.path); require(data.table); require(ggplot2)
 
-# establish directories using this.path::
 root_dir <- this.path::here(.. = 1)
 options(scipen = 999)
 
 D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"),header=T, stringsAsFactors=FALSE) 
 
-S                 <- fread(paste0(root_dir, "/Data/a_species.csv"),header=T, stringsAsFactors=FALSE)
-S$SCIENTIFIC_NAME <- paste(S$GENUS,S$SCIENTIFIC_NAME)
-S                 <- select(S,FAMILY,SPECIES_PK,SCIENTIFIC_NAME)
+# Add more species info
+S                 <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
+S                 <- select(S,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
 S$SPECIES_PK      <- paste0("S",S$SPECIES_PK) 
+D$SPECIES_FK      <- paste0("S",D$SPECIES_FK) 
+D                 <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
+
 
 # follow Toby's instructions to break the unique key SPC_PK into the interview details we need
 D <- mutate(D,YEAR = as.numeric(substr(SPC_PK,2,5)), METHOD = substr(SPC_PK,11,11), 
                    ZONE = substr(SPC_PK,14,14), TYPE = substr(SPC_PK,20,21), 
                    CHARTER = substr(SPC_PK,22,22), PROCESS = substr(SPC_PK,23,23))
-
-D$SPECIES_FK <- paste0("S",D$SPECIES_FK) # Add a letter so column names can be reference in steps below
 
 D[is.na(VAR_LBS_CAUGHT)]$VAR_LBS_CAUGHT <- 0 # IS this necessary? Does it have an impact?
 
@@ -192,7 +192,7 @@ T1 <- Z[BMUS=="T",list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,SOURCE)]
 ggplot()+geom_bar(data=T1,aes(x=YEAR,y=LBS_CAUGHT,fill=SOURCE),size=1,position="stack",stat="identity")+theme_bw()
 
 # Check total BMUS catch by year
-T2 <- T[,list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR)]
+T2 <- T1[,list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR)]
 
 # Check catch in both AREAs
 T3 <- Z[BMUS=="T",list(LBS_CAUGHT=sum(LBS_CAUGHT)),by=list(YEAR,ZONE)]

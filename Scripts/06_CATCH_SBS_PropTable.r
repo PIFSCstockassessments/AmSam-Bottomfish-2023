@@ -9,16 +9,18 @@ set.seed(11111) # It is critical to fix the random number generation for reprodu
 #				do some data manipulation
 
 D <- fread(paste(root_dir, "/Data/AmSam_SBS_Sep10.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-R <- fread(paste(root_dir, "/Data/sb_route_simple.csv", sep=""),header=T, stringsAsFactors=FALSE) 
-M <- fread(paste(root_dir, "/Data/sb_gear_simple.csv", sep=""),header=T, stringsAsFactors=FALSE) 
+R <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   );  R <- R[DATASET=="SBS"]
+R <- select(R,AREA_ID,AREA_NAME,AREA_C)
+M <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="METHODS") );  M <- M[DATASET=="SBS"]
+M <- select(M,METHOD_ID,METHOD_C)
 
 names(D) <- toupper(names(D)) # Capitalize all headers
 setnames(D,"EST_WHOLE_LBS","EST_LBS")
 
 D$YEAR      <- year(D$SAMPLE_DATE)
-D$ROUTE     <- as.character(D$ROUTE)
+D$ROUTE_FK  <- as.character(D$ROUTE_FK)
 D$EST_LBS   <- as.numeric(D$EST_LBS)
-M$METHOD_FK <- as.character((M$METHOD_FK))
+M$METHOD_ID <- as.character((M$METHOD_ID))
 
 # fix P. rutilans
 D[SPECIES_FK==243]$SPECIES_FK      <-241
@@ -33,11 +35,10 @@ D <- D[CATCH_PK!="NULL"]
 D <- D[!(COMMON_NAME=="No Catch"&EST_LBS>0)]
 
 # Simplify gears and routes
-D <- merge(D,R,by.x=c("ROUTE_FK","ROUTE_NAME"),by.y=c("ROUTE","ROUTE_NAME"))
-D <- merge(D,M,by=c("METHOD_FK","FISHING_METHOD"))
+D <- merge(D,R,by.x=c("ROUTE_FK","ROUTE_NAME"),by.y=c("AREA_ID","AREA_NAME"))
+D <- merge(D,M,by.x="METHOD_FK",by.y="METHOD_ID")
 
 # Simplify dataset
-
 D <- D[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,SPECIES_FK)]
 
 # calculate proportion of Variola louti vs albimarginata for Years > 2015
@@ -74,7 +75,7 @@ Prop.Louti; Test[SPECIES_FK2=="229"]$EST_LBS/sum(Test$EST_LBS)
 # ============= Calculate species proportion table for shore-based surveys (see 02_BBS_proptable code)=============================
 
 # Append species group association table
-SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey2.csv")
+SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey.csv")
 SKEY$SPECIES_PK <- as.character(SKEY$SPECIES_PK)
 SKEY            <- SKEY[,-(2:6)]
 D               <- merge(D,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")

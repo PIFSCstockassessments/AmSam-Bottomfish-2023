@@ -1,14 +1,13 @@
 require(data.table); require(ggplot2); require(gridExtra); require(directlabels);require(openxlsx);  require(dplyr);require(stringr)
-
 options(scipen = 999)
 
 Z <- readRDS("Outputs\\CPUE_B.rds")
-Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_FK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
-Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_FK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]
+Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_PK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
+Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]
 Z$SPECIES_FK <- as.numeric(Z$SPECIES_FK)
 
 # Append species group association table
-SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey2.csv")
+SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey.csv")
 #SKEY$SPECIES_PK <- as.character(SKEY$SPECIES_PK)
 SKEY            <- SKEY[,-(2:6)]
 Z               <- merge(Z,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
