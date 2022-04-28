@@ -14,7 +14,6 @@
   	require(sqldf);	require(dplyr); require(this.path); require(data.table); require(lunar)
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 1) # establish directories using this.path
-
   	set.seed(111) # It is critical to fix the random number generation for reproducability
   	
 #  --------------------------------------------------------------------------------------------------------------
@@ -34,13 +33,25 @@
    aint_bbs4             <- select(aint_bbs4,-YEAR)
 	
    A <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
-   A <- data.table(A)  
+  
+   # -- 99 interviews flagged as incomplete
+   A <- A[INCOMPLETE_F=="F"]
+   
+   # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
+   A <- A[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
+            FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
+   
+   # Important the EST_LBS field is repeated over several SPECIES_FK individual fish measurement (do not some catch across CATCH_PK).
+   # This steps gets rid of the size information so that there is 1 EST_LBS per CATCH_PK
+   A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
+                                               INTERVIEW_TIME,PORT_NAME,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
    
    A$YEAR        <- as.numeric(year(A$SAMPLE_DATE))
    A$MONTH       <- as.numeric(month(A$SAMPLE_DATE))
    A$HOUR        <- as.numeric(hour(A$INTERVIEW_TIME))
    A$EST_LBS     <- as.numeric(A$EST_LBS)
    A$TOT_EST_LBS <- as.numeric(A$TOT_EST_LBS)
+   A$AREA_FK     <- as.character(A$AREA_FK)
    
    # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
    A$SEASON <- "NA"
@@ -66,10 +77,12 @@
    A$PORT_SIMPLE <- A$PORT_NAME
    A[PORT_NAME == 'ASILI'|PORT_NAME == 'GENERAL TUTUILA PORT'|PORT_NAME == 'LEONE'|PORT_NAME == 'VATIA']$PORT_SIMPLE <- "Tutuila_Other" 
    
-   # Convert AREA_FK (which includes specific villages) to John's slightly larger PRIMARY_AREA_FK, see map. PRIMARY_AREA_FK=30 is trash can/unknown
-   areas <- fread(paste(root_dir, "/Data/a_area.csv", sep=""), header=T)
-   A <- merge(A,areas,by.x="AREA_FK",by.y="AREA_PK")
-   setnames(A,"AREA","AREA_B")
+   # Add more detailed area informations
+   AREAS <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   )
+   AREAS <- AREAS[DATASET=="BBS"]
+   AREAS <- select(AREAS,AREA_ID,AREA_A,AREA_C,AREA_C)
+   AREAS$AREA_ID <- as.character(AREAS$AREA_ID)
+   A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID")
    
    #  Add some posix CT variables and moon phase, use require lunar package. Note: American Samoa is UTC -11.
    A <- mutate(A, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
@@ -78,30 +91,30 @@
    A <- mutate(A, MOON_DAYS = round(MOON_RADIANS* (29.53/(2*pi)) ,digits=0) )  #  2pi radians = 29.53 days, so...
    
    # Add some large-scale environmental indices
-   ENSO <- fread(paste0(root_dir, "/data/ENSO.csv"), header=TRUE, stringsAsFactors=FALSE)
-   ONI  <- fread(paste0(root_dir, "/data/ONI.csv"),header=TRUE, stringsAsFactors=FALSE)
-   SOI  <- fread(paste0(root_dir, "/data/SOI.csv"),header=TRUE, stringsAsFactors=FALSE)
+   ENSO <- fread(paste0(root_dir, "/Data/ENSO.csv"), header=TRUE, stringsAsFactors=FALSE)
+   ONI  <- fread(paste0(root_dir, "/Data/ONI.csv"),header=TRUE, stringsAsFactors=FALSE)
+   SOI  <- fread(paste0(root_dir, "/Data/SOI.csv"),header=TRUE, stringsAsFactors=FALSE)
    
    A <- merge(A,ENSO,by=c("YEAR","MONTH"),all.x=T)
    A <- merge(A,ONI,by=c("YEAR","MONTH"),all.x=T)
    A <- merge(A,SOI,by=c("YEAR","MONTH"),all.x=T)
    
    # Add some species-specific fields
-   species  <- fread(paste(root_dir, "/Data/a_species.csv", sep=""), header=T)
-   species  <- select(species,SPECIES_PK,FAMILY)
-   species$SPECIES_PK <- as.character(species$SPECIES_PK)
-   A <- merge(A,species,by.x="SPECIES_FK",by.y="SPECIES_PK")
-   
+   SPECIES <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
+   SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
+   SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
+   A <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
+
+
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
 
    # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
-   A[AREA_C=="Unk"&ISLAND_FK=="TTL"]$AREA_C <- "Tutuila"
-   A[AREA_C=="Unk"&ISLAND_FK=="MNA"]$AREA_C <- "Manua"
+   A[AREA_C=="Unk"&ISLAND_NAME=="Tutuila"]$AREA_C <- "Tutuila"
+   A[AREA_C=="Unk"&ISLAND_NAME=="Manua"]$AREA_C   <- "Manua"
    
-  
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
 #	243 'Pristipomoides rutilans' has local name "Palu sina (Yelloweye Opakapaka)"
@@ -115,7 +128,7 @@
 
  # -- 7 CATCH_PK where COMMON_NAME = 'No Catch' and TOT_EST_LBS > 0. In all instances, there were other species caught and recorded within these interviews.
  # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
-  A <- A[!(COMMON_NAME=="No Catch"&TOT_EST_LBS>0)]
+  A <- A[!(FAMILY=="No Catch"&TOT_EST_LBS>0)]
 
  # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
   A <- A[!(EST_LBS==0&TOT_EST_LBS>0)]
@@ -124,35 +137,20 @@
   A <- A[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
   A <- A[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
   
- # -- 99 interviews flagged as incomplete
-  A <- A[INCOMPLETE_F=="F"]
-  
- # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
-  A <- A[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
-                FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
   
  # -- eliminate interviews missing a metric for effort. note: data dictionary is ambiguous, but previously, 
    #  HOURS_FISHED x NUM_GEAR was effort. I checked, for all geartypes this makes sense.
    #  discard any zero effort (note 38 BTM/TRL and BOTTOMFISHING interviews had 0 catch and 0 effort, these were probably canceled trips)
   A <- A[HOURS_FISHED > 0 & NUM_GEAR > 0]
-  A <- droplevels(A)		
-  
-  #  -------  use the all_gears dataset for some figures in the data report
-  aint_bbs_all_gears <- A		
-   
+ 
+ # Filter for the two bottomfishing methods 
   A <- A[METHOD_FK==4|METHOD_FK==5] 
-  aint_bbs_filtered <- A # save this as filtered
-   
+  
   # WATCH OUT- there were 779 interviews, 3105 catch records, that included NUM_KEPT = 0 but catch weight was recorded
 	# skimming through, it is obvious that the number of fish that must have been included in these weights was greater than 1.
 	# SO- ALWAYS USE CAUTION when talking about numbers: NUM_KEPT IS NOT a dependable record of number of fish caught.
 	# for weight-based CPUE, these interviews can be used.
 	# For anything numbers or weight per fish based, consider using records by SIZE_PK only, and at the least, exclude these interviews.
-
-#  --------------------------------------------------------------------------------------------------------------
-
-   B <- A
-   B_before_ID_correct <- B # make a copy of B
 
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 4: update B to address some species identification issues.
@@ -162,9 +160,10 @@
 #		yellow tail (louti) velo, and they call the white tail (albimarginata) papa. However, it seems in Manu'a both species
 #		are called velo. 'papa' is totally different (the tomato grouper, Cephalopholis sonnerati).
 #		We assume 2016-2020 BBS species identifications are reliable
- 		
-# calculate proportion of Variola louti vs albimarginata for Years > 2015
+
+  B <- A
   
+# calculate proportion of Variola louti vs albimarginata for Years > 2015
 	Prop.Variola <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,SPECIES_FK,SCIENTIFIC_NAME)]
 	Prop.Variola <- Prop.Variola[YEAR>2015&(SPECIES_FK=="220"|SPECIES_FK=="229"),list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
 	Prop.Louti   <- Prop.Variola[SPECIES_FK=="229"]$EST_LBS/(Prop.Variola[SPECIES_FK=="220"]$EST_LBS+Prop.Variola[SPECIES_FK=="229"]$EST_LBS)
@@ -241,13 +240,13 @@ for (i in 1:length(CATCH_PK.list)){
 
 # calculate proportion of L. rubrioperculatus (267) in the Manuas, where they barely appear
 
-Prop.Emp    <- B[AREA_B=="Manua",list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK,SCIENTIFIC_NAME)]
+Prop.Emp    <- B[AREA_C=="Manua",list(EST_LBS=max(EST_LBS)),by=list(YEAR,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Emp    <- Prop.Emp[FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK,SCIENTIFIC_NAME)]
 Prop.Rub    <- Prop.Emp[SPECIES_FK=="267"]$EST_LBS/sum(Prop.Emp[SPECIES_FK!="260"]$EST_LBS)
 Prop.Rub    <- round(Prop.Rub,3)
 
 # For all interview records (using CATCH_PK variable) containing "emperors - 260" ID in Manua (all years), randomly assign record as to L. rubrio according to its proportion in 1986-2010
-CATCH_PK.list      <- unique(B[AREA_B=="Manua"]$CATCH_PK)
+CATCH_PK.list      <- unique(B[AREA_C=="Manua"]$CATCH_PK)
 for (i in 1:length(CATCH_PK.list)){
   
   aCatch   <- B[CATCH_PK==CATCH_PK.list[i]]
@@ -264,18 +263,12 @@ for (i in 1:length(CATCH_PK.list)){
 }	
 
 
-# Test <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,AREA_B,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK2,SCIENTIFIC_NAME)]
-# Test <- Test[AREA_B=="Manua"&FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
+# Test <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,AREA_C,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK2,SCIENTIFIC_NAME)]
+# Test <- Test[AREA_C=="Manua"&FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 # Prop.Rub; Test[SPECIES_FK2=="267"]$EST_LBS/sum(Test$EST_LBS)
-
 
 # save in the output folder.
 saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
-
-#save.image(paste(root_dir, "/Outputs/01_BBS_data_prep.RData", sep=""))
-	
-  
-
 
 
 
