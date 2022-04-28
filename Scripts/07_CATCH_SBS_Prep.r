@@ -138,6 +138,6 @@ test3 <- merge(test,test2,by=c("YEAR","SPECIES_FK"))
 ggplot(data=test3[SPECIES_FK=="S229"])+geom_line(aes(x=YEAR,y=EXP_LBS),col="blue")+geom_line(aes(x=YEAR,y=LBS_RAW),col="red")
 
 # Save BMUS catch to file
-saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_SBS_Final.rds"))
+saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_SBS_A.rds"))
 
 
