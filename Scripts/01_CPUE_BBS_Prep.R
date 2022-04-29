@@ -11,7 +11,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 
 #  PRELIMINARIES
-  	require(dplyr); require(this.path); require(data.table); require(lunar)
+  	require(dplyr); require(this.path); require(data.table); require(lunar); require(openxlsx)
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 1) # establish directories using this.path
   	set.seed(111) # It is critical to fix the random number generation for reproducability
@@ -91,20 +91,14 @@
    A <- mutate(A, MOON_DAYS = round(MOON_RADIANS* (29.53/(2*pi)) ,digits=0) )  #  2pi radians = 29.53 days, so...
    
    # Add some large-scale environmental indices
-   ENSO <- fread(paste0(root_dir, "/Data/ENSO.csv"), header=TRUE, stringsAsFactors=FALSE)
-   ONI  <- fread(paste0(root_dir, "/Data/ONI.csv"),header=TRUE, stringsAsFactors=FALSE)
-   SOI  <- fread(paste0(root_dir, "/Data/SOI.csv"),header=TRUE, stringsAsFactors=FALSE)
-   
-   A <- merge(A,ENSO,by=c("YEAR","MONTH"),all.x=T)
-   A <- merge(A,ONI,by=c("YEAR","MONTH"),all.x=T)
-   A <- merge(A,SOI,by=c("YEAR","MONTH"),all.x=T)
+   ENV  <- read.xlsx(paste0(root_dir, "/Data/Environmental data.xlsx"))
+   A    <- merge(A,ENV,by=c("YEAR","MONTH"),all.x=T)
    
    # Add some species-specific fields
    SPECIES <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
    SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
    SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
-   A <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
-
+   A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
