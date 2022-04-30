@@ -1,9 +1,14 @@
 require(this.path)
 
 
-# Necessary folders
-
-
+# Creates outputs folder structure, if necessary
+root_dir <- this.path::here(..=1)
+dir.create(file.path(root_dir, "Outputs"))
+dir.create(file.path(root_dir, "Outputs/Graphs"))
+dir.create(file.path(root_dir, "Outputs/Graphs/Size"))
+dir.create(file.path(root_dir, "Outputs/LBSPR"))
+dir.create(file.path(root_dir, "Outputs/LBSPR/Graphs"))
+dir.create(file.path(root_dir, "Outputs/LBSPR/Temp size"))
 
 
 source(paste0(this.path::here(.. = 1),"/Scripts/01_CPUE_BBS_Prep.r"));       rm(list=ls()) 
