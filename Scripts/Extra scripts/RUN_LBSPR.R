@@ -3,70 +3,11 @@
 require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify); require(dplyr); require(this.path)
 root_dir <- this.path::here(..=2)
 
+# Get size structure data
+SIZDAT  <- readRDS(paste0(root_dir,"/Outputs/SIZE_Final.rds"))
+SIZDAT  <- SIZDAT[,!"EFFN"]
+LH      <- data.table(  read.xlsx(paste0(root_dir,"/Data/LH parameters.xlsx")) )
 
-# Format: # Species,Option,Linf,K,CVLinf,M,Amax,L50,L95,Note
-LH.List <- list()
-l <- 1
-#APRU
-Sp <- "APRU"
-LH.List[[l]] <- list(Sp,"Option1", 84.8,0.125,0.1,0.22,30,46.9,51.9,"StepwiseLH, 86.65 TL cm L99(BBS), M from Then"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option2", 84.8,0.125,0.1,0.11,30,46.9,51.9,"StepwiseLH, 86.65 TL cm L99(BBS), M from Nadon"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",105.7,0.160,0.1,0.20,16,46.9,51.9,"Fry2006, M from Fry2006/N (amax=16)"); l<-l+1
-#LH.List[[l]] <- list(Sp,"Option1",122.9,0.163,0.1,0.20,16,46.9,51.9,"Ralston1988, M from Fry2006/Nadon2012,Lmat from StepWise"); l<-l+1
-
-#APVI
-Sp <- "APVI"
-LH.List[[l]] <- list(Sp,"Option1",72.0,0.15,0.1,0.200,32,44.8,45.5,"StepwiseLH, M from Then"); l<-l+1 
-LH.List[[l]] <- list(Sp,"Option2",72.0,0.33,0.1,0.200,32,44.8,45.5,"O'Malley2021, M from Then"); l<-l+1   
-LH.List[[l]] <- list(Sp,"Option3",72.0,0.33,0.1,0.101,32,44.8,45.5,"O'Malley2021, M from Nadon, Lmat from Everson1989"); l<-l+1
-
-#CALU
-Sp <- "CALU"
-LH.List[[l]] <- list(Sp,"Option1",78.2,0.22,0.1,0.57,11,38,43,"StepwiseLH, 75.9 TL cm L99(BBS), M from Then"); l<-l+1 
-LH.List[[l]] <- list(Sp,"Option2",82.2,0.12,0.1,0.50,12,38,43,"Menezes1968 (Brazil), M from Fry 2016/Then"); l<-l+1   
-LH.List[[l]] <- list(Sp,"Option3",82.2,0.12,0.1,0.27,12,38,43,"Menezes1968 (Brazil), M from Fry 2016/Nadon, Lmat Garcia-Cagide1994 (Cuba)"); l<-l+1
-
-#ETCO
-Sp <- "ETCO"
-LH.List[[l]] <- list(Sp,"Option1",82.1,0.133,0.1,0.12,55,54.7,59.7,"Uehara2020 (Japan), M from Then"); l<-l+1   
-LH.List[[l]] <- list(Sp,"Option2",82.1,0.133,0.1,0.06,55,54.7,59.7,"Uehara2020 (Japan), M from Nadon, Lmat from Reed 2021 (Hawaii)"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",91.5,0.118,0.1,0.21,32,50.3,53.3,"StepwiseLH from L99 of 93.2 FL cm (BBS), M from Then"); l<-l+1   
-
-#LERU
-Sp <- "LERU"
-LH.List[[l]] <- list(Sp,"Option1",31.5,0.800,0.1,0.40, 8,22.6,25.5,"Trianni 2011 (Mariana), M from Nadon, Lmat Trianni, avg of two locations"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option2",38.3,0.415,0.1,0.47,13,22.6,25.5,"Ebisawa 2009 (Japan), M from Then"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",38.3,0.415,0.1,0.25,13,22.6,25.5,"Ebisawa 2009 (Japan), M from Nadon"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option4",34.2,0.412,0.1,0.40,16,22.6,25.5,"StepwiseLH, M from Then"); l<-l+1
-
-#LUKA
-Sp <- "LUKA"
-LH.List[[l]] <- list(Sp,"Option1",29.0,0.45,0.1,0.40,15,21.3,24.3,"StepwiseLH from an L99 of 33.2 TL cm from UVS"); l<-l+1 
-LH.List[[l]] <- list(Sp,"Option2",33.0,0.29,0.1,0.40, 8,21.3,24.3,"Morales-Nin 1990 (Hawaii), M from Amax=8 (Nadon), Lmat StepwiseLH from L99 33.2 TL cm (Divers) +3 cm for L95"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",33.0,0.29,0.1,0.73, 8,21.3,24.3,"Morales-Nin 1990 (Hawaii), M from Amax=8 (Then)"); l<-l+1   
-
-#PRFL
-Sp <- "PRFL"       
-LH.List[[l]] <- list(Sp,"Option1",41.2,0.47,0.1,0.230,28,27.0,32.0,"O'Malley 2019 (Mariana), M from Amax=28 (Then)"); l<-l+1   
-LH.List[[l]] <- list(Sp,"Option2",41.2,0.47,0.1,0.111,28,27.0,32.0,"O'Malley 2019 (Mariana), M from Amax=28 (Nadon), Lmat from Brouard 1985 (Vanuatu)"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",48.3,0.24,0.1,0.290,22,27.0,32.0,"StepwiseLH from an L99 of 52.2 FL (biosampling), M from Then"); l<-l+1 
-
-#PRZO
-Sp <- "PRZO"
-LH.List[[l]] <- list(Sp,"Option1",36.9,0.29,0.1,0.22,30,23.6,26.6,"Schemmel 2022 (Guam), M from Amax=30 (Then)"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option2",36.9,0.29,0.1,0.11,30,23.6,26.6,"Schemmel 2022 (Guam), M from Amax=30 (Nadon), Lmat from Schemmel 2022 (Guam)"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",42.5,0.38,0.1,0.25,26,23.6,26.6,"Andrews 2021 (Hawaii), M from Amax=26 (Then)"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option4",40.2,0.29,0.1,0.32,20,23.6,26.6,"Andrews 2021 (Hawaii), M from Amax=20 (Then)"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option5",39.9,0.29,0.1,0.32,20,25.6,28.6,"StepwiseLH from L99 of 44.5 FL cm from BBS, M from Amax=20 (Then)"); l<-l+1
-
-#VALO
-Sp <- "VALO"
-LH.List[[l]] <- list(Sp,"Option1",43.5,0.26,0.1,0.44,14,25.8,28.8,"Schemmel 2022, M from Amax=14 (Then)"); l<-l+1   
-LH.List[[l]] <- list(Sp,"Option2",43.5,0.26,0.1,0.23,14,25.8,28.8,"Schemmel 2022, M from Amax=14 (Nadon), Lmat from Schemmel 2022"); l<-l+1
-LH.List[[l]] <- list(Sp,"Option3",43.3,0.23,0.1,0.33,19,25.8,28.8,"StepwiseLH with L99 of 45.8 FL cm (biosamp), M from Amax=19 (Then)"); l<-l+1 
-
-
-LH <- rbindlist(LH.List)
 colnames(LH) <- c("SPECIES","OPTION","LINF","K","CVLINF","M","AMAX","L50","L95","NOTE")
 
 N_OPTIONS           <- data.table( table(LH$SPECIES) )
@@ -74,9 +15,6 @@ colnames(N_OPTIONS) <- c("SPECIES","N_OPTIONS")
 Species.List        <- data.table(SPECIES=c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO"))
 Species.List        <- merge(Species.List,N_OPTIONS,by="SPECIES")
 
-# Get size structure data
-SIZDAT  <- readRDS(paste0(root_dir,"/Outputs/SIZE_Final.rds"))
-SIZDAT  <- SIZDAT[,!"EFFN"]
 
 OUT.List <- data.table()
 for(i in 1:nrow(Species.List)){
