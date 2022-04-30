@@ -219,7 +219,10 @@ for(i in 1:length(Species.List)){
 }
 
 # Export size structure to single RDS file
-  SizeData <- rbindlist(GList)
+ SizeData <- rbindlist(GList)
+ SizeData$N <- as.numeric(SizeData$N)
+ SizeData$LENGTH_BIN_START <- as.numeric(as.character(SizeData$LENGTH_BIN_START))
+ 
  saveRDS(SizeData,paste0(root_dir,"/Outputs/SIZE_Final.rds"))
 
 
