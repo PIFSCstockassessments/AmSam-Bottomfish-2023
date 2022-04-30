@@ -85,7 +85,9 @@ for(i in 1:nrow(Species.List)){
   N_Options <- Species.List[i]$N_OPTIONS 
   
   DAT         <- SIZDAT[SPECIES==Sp]
-  BinWidth    <- unique(DAT$LENGTH_BIN_START)[2] 
+  
+  BinWidth <- diff(unique(DAT$LENGTH_BIN_START))
+  BinWidth <- as.numeric(names(table(BinWidth)[1]))
   
   # Add a few larger size bins to help LBSPR run
   
@@ -143,9 +145,6 @@ for(i in 1:nrow(Species.List)){
     if(length(US_Atoll>0))
       LenUS_Atoll <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Atoll.csv"),dataType="freq", header=TRUE)
     
-    if(length(US_NWHI>0))
-      LenUS_NWHI  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_NWHI.csv"),dataType="freq", header=TRUE)
-    
     if(length(US_Main>0))
       LenUS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Main.csv"),dataType="freq", header=TRUE)
     
@@ -153,17 +152,14 @@ for(i in 1:nrow(Species.List)){
     myFit_BBMain   <- LBSPRfit(MyPars, LenBBS_Main)
     myFit_BSMain   <- LBSPRfit(MyPars, LenBS_Main)
     if(length(US_Atoll>0)) myFit_UVSAtoll <- LBSPRfit(MyPars, LenUS_Atoll)
-    if(length(US_NWHI>0))  myFit_UVSNWHI  <- LBSPRfit(MyPars, LenUS_NWHI)
     if(length(US_Main>0))  myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
     
     # Outputs
     if(Sp=="APVI"|Sp=="LUKA"){
       OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50),
                    cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*aLH$M,myFit_BSMain@SPR,myFit_BSMain@SL50),
-                   cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*aLH$M,myFit_UVSMain@SPR,myFit_UVSMain@SL50),
-                   cbind("UVS_Atoll",myFit_UVSNWHI@Years,myFit_UVSNWHI@FM*aLH$M,myFit_UVSNWHI@SPR,myFit_UVSAtoll@SL50),
-                   cbind("UVS_NWHI", myFit_UVSAtoll@Years,myFit_UVSAtoll@FM*aLH$M,myFit_UVSAtoll@SPR,myFit_UVSNWHI@SL50)
-      )
+                   cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*aLH$M,myFit_UVSMain@SPR,myFit_UVSMain@SL50)
+                 )
     } else {
       OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50),
                    cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*aLH$M,myFit_BSMain@SPR,myFit_BSMain@SL50))
