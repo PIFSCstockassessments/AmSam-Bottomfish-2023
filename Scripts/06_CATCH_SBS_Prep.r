@@ -5,7 +5,7 @@ options(scipen = 999)
 root_dir <- this.path::here(.. = 1)
 
 # Read in the expanded landings data
-D <- fread(paste0(root_dir, "/Data/SPC_AS_SBS.csv"),header=T, stringsAsFactors=FALSE) 
+D <- fread(file=paste0(root_dir, "/Data/SPC_AS_SBS.csv"),stringsAsFactors=FALSE) 
 R <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   );  R <- R[DATASET=="SBS"]
 R <- select(R,AREA_ID,AREA_C)
 M <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="METHODS") );  M <- M[DATASET=="SBS"]

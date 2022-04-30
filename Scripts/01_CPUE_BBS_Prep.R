@@ -37,6 +37,9 @@
    # -- 99 interviews flagged as incomplete
    A <- A[INCOMPLETE_F=="F"]
    
+   # 389 interviews with EST_LBS and CATCH_PK == NA
+   A <- A[CATCH_PK!="NULL"]
+   
    # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
    A <- A[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
             FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]

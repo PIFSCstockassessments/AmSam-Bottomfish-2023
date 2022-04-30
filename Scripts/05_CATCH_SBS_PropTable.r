@@ -17,6 +17,7 @@ M <- select(M,METHOD_ID,METHOD_C)
 names(D) <- toupper(names(D)) # Capitalize all headers
 setnames(D,"EST_WHOLE_LBS","EST_LBS")
 
+D           <- D[CATCH_PK!="NULL"]
 D$YEAR      <- year(D$SAMPLE_DATE)
 D$ROUTE_FK  <- as.character(D$ROUTE_FK)
 D$EST_LBS   <- as.numeric(D$EST_LBS)
@@ -29,7 +30,6 @@ D[SPECIES_FK==243]$SCIENTIFIC_NAME <-'Pristipomoides flavipinnis'
 # keep only 1990 to 2020 (to match SB expanded landings from Hongguang). 
 D <- D[YEAR>=1990]
 
-D <- D[CATCH_PK!="NULL"]
 
 # No catch + Est_LBS >0 - delete
 D <- D[!(COMMON_NAME=="No Catch"&EST_LBS>0)]
