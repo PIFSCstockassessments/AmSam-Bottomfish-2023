@@ -1,7 +1,8 @@
 #devtools::install_github("AdrianHordyk/LBSPR")
 
-require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify); require(dplyr)
-rm(list=ls())
+require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify); require(dplyr); require(this.path)
+root_dir <- this.path::here(..=2)
+
 
 # Format: # Species,Option,Linf,K,CVLinf,M,Amax,L50,L95,Note
 LH.List <- list()
@@ -73,53 +74,49 @@ colnames(N_OPTIONS) <- c("SPECIES","N_OPTIONS")
 Species.List        <- data.table(SPECIES=c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO"))
 Species.List        <- merge(Species.List,N_OPTIONS,by="SPECIES")
 
+# Get size structure data
+SIZDAT  <- readRDS(paste0(root_dir,"/Outputs/SIZE_Final.rds"))
+SIZDAT  <- SIZDAT[,!"EFFN"]
+
 OUT.List <- data.table()
 for(i in 1:nrow(Species.List)){
   
   Sp        <- Species.List[i]$SPECIES
   N_Options <- Species.List[i]$N_OPTIONS 
   
-  # Reshape size structure data to go into LBSPR
-  DAT             <- data.table(  read.csv(paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"))   )
-  DAT             <- DAT[,!"EFFN"]
-  colnames(DAT)   <- gsub("X","",colnames(DAT))
-  setnames(DAT,"YEAR","year")
-  
-  BinWidth        <- as.numeric(colnames(DAT)[5])-as.numeric(colnames(DAT)[4])
-  
+  DAT         <- SIZDAT[SPECIES==Sp]
+  BinWidth    <- unique(DAT$LENGTH_BIN_START)[2] 
   
   # Add a few larger size bins to help LBSPR run
-  LASTBIN <- as.numeric( colnames(DAT)[length(DAT)] )
-  DAT     <- cbind(DAT,0,0)
-  setnames(DAT,c("V2","V3"),as.character(c(LASTBIN+BinWidth,LASTBIN+2*BinWidth)))
-  DAT[,5:length(DAT)] <- rapply(DAT[,5:length(DAT)],as.integer,how="replace") 
+  
+  DAT     <- rbind(DAT, data.table(SPECIES="FAKE",DATASET="FAKE",YEAR=2000,AREA_C="FAKE",LENGTH_BIN_START=seq(0,max(DAT$LENGTH_BIN_START)+2*BinWidth,by=BinWidth),N=0) )
+  DAT     <- dcast(DAT,SPECIES+DATASET+AREA_C+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
+  DAT     <- melt(DAT,id.vars=1:4,variable.name="LENGTH",value.name="N")
+  DAT     <- DAT[SPECIES!="FAKE"]
   
   # Continue
-  DAT        <- melt(DAT, id.vars=1:3,variable.name="length",value.name="COUNT")
-  DAT        <- dcast(DAT,DATASET+AREA_B+length~year,value.var="COUNT",fill=0)
-  DAT$length <- as.numeric(as.character(DAT$length))
-  DAT$length <- DAT$length+(BinWidth/2) #Convert lengths to mid-points
+  DAT        <- dcast(DAT,SPECIES+DATASET+AREA_C+LENGTH~YEAR,value.var="N",fill=0)
+  DAT$LENGTH <- as.numeric(as.character(DAT$LENGTH))
+  DAT$LENGTH <- DAT$LENGTH+(BinWidth/2) #Convert lengths to mid-points
+  DAT$SPECIES <- NULL
   
   # Split datasets and regions
-  BBS_Main <- DAT[DATASET=="BBS"&AREA_B=="Main",!c("DATASET","AREA_B")]
-  BS_Main  <- DAT[DATASET=="Biosampling"&AREA_B=="Main",!c("DATASET","AREA_B")]
-  US_Atoll <- DAT[DATASET=="UVS"&AREA_B=="Atoll",!c("DATASET","AREA_B")]
-  US_NWHI  <- DAT[DATASET=="UVS"&AREA_B=="NWHI",!c("DATASET","AREA_B")]
-  US_Main  <- DAT[DATASET=="UVS"&AREA_B=="Main",!c("DATASET","AREA_B")]
+  BBS_Main <- DAT[DATASET=="BBS"&AREA_C=="Main",!c("DATASET","AREA_C")]
+  BS_Main  <- DAT[DATASET=="Biosampling"&AREA_C=="Main",!c("DATASET","AREA_C")]
+  US_Atoll <- DAT[DATASET=="UVS"&AREA_C=="Atoll",!c("DATASET","AREA_C")]
+  US_Main  <- DAT[DATASET=="UVS"&AREA_C=="Main",!c("DATASET","AREA_C")]
   
   # Remove empty years
   BBS_Main <- BBS_Main[,c(which(colSums(BBS_Main) != 0)),with=F]
   BS_Main  <- BS_Main[,c(which(colSums(BS_Main) != 0)),with=F]
   US_Atoll <- US_Atoll[,c(which(colSums(US_Atoll) != 0)),with=F]
-  US_NWHI  <- US_NWHI[,c(which(colSums(US_NWHI) != 0)),with=F]
   US_Main  <- US_Main[,c(which(colSums(US_Main) != 0)),with=F]
   
   # Save to csv files (easier integration with LBSPR)
-  Drive <- paste0("Outputs/LBSPR/Temp size/",Sp)
+  Drive <- paste0(root_dir,"/Outputs/LBSPR/Temp size/",Sp)
   write.csv(BBS_Main,paste0(Drive,"_BBS_Main.csv"),row.names=F)
   write.csv(BS_Main,paste0(Drive,"_BS_Main.csv"),row.names=F)
   write.csv(US_Atoll,paste0(Drive,"_UVS_Atoll.csv"),row.names=F)
-  write.csv(US_NWHI,paste0(Drive,"_UVS_NWHI.csv"),row.names=F)
   write.csv(US_Main,paste0(Drive,"_UVS_Main.csv"),row.names=F)
   
   for(j in 1:N_Options){
@@ -187,7 +184,7 @@ for(i in 1:nrow(Species.List)){
     
    
     # Create some graphs
-    Drive2 <- paste0("Outputs/LBSPR/Graphs/",Sp,"_",Option.Name)
+    Drive2 <- paste0(root_dir,"/Outputs/LBSPR/Graphs/",Sp,"_",Option.Name)
     
     aFit1  <- as.ggplot(plotSize(myFit_BBMain))
     aFit2  <- as.ggplot(plotSize(myFit_BSMain))
@@ -212,8 +209,8 @@ Final <- select(Final,SPECIES,OPTION,DATASET,YEAR,SL50,F,SPR,NOTE)
 Summary1 <- Final[OPTION=="Option1"&YEAR>=2010&DATASET!="UVS_NWHI",list(SPR=mean(SPR)),by=list(SPECIES,DATASET)]
 Summary2 <- dcast(Summary1,SPECIES~DATASET,value.var="SPR")
 
-write.xlsx(Summary2,"Outputs/LBSPR/Graphs/LBSPR_Summary.xlsx")
-write.xlsx(Final,"Outputs/LBSPR/Graphs/LBSPR_Results.xlsx")
+write.xlsx(Summary2,paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Summary.xlsx"))
+write.xlsx(Final,paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Results.xlsx"))
 
 aPlot <- ggplot(data=Summary1)+
            geom_hline(aes(yintercept=0.3),col="red",size=1)+
@@ -221,7 +218,7 @@ aPlot <- ggplot(data=Summary1)+
            geom_point(aes(x=SPECIES,y=SPR,fill=DATASET),shape=21,size=5)+
            theme_bw()
 
-ggsave(aPlot,file="Outputs/LBSPR/Graphs/LBSPR_Results.png",width=20,height=8,unit="cm")
+ggsave(aPlot,file=paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Results.png"),width=20,height=8,unit="cm")
 
 
 
