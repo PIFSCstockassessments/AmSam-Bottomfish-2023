@@ -8,7 +8,7 @@ set.seed(11111) # It is critical to fix the random number generation for reprodu
 # ----------- STEP 1: read in the complete "flatview" datafile for AmSam Shore based survey, 
 #				do some data manipulation
 
-D <- fread(paste0(root_dir, "/Data/AmSam_SBS_Sep10.csv"),header=T, stringsAsFactors=FALSE) 
+D <- fread(paste0(root_dir, "/Data/AmSam_SBS_Sep10.csv"), stringsAsFactors=FALSE) 
 R <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   );  R <- R[DATASET=="SBS"]
 R <- select(R,AREA_ID,AREA_NAME,AREA_C)
 M <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="METHODS") );  M <- M[DATASET=="SBS"]
