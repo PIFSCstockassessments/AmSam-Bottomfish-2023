@@ -2,6 +2,10 @@ require(this.path)
 
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
+# Necessary folders
+
+
+
 
 source(paste0(root_dir,"/Scripts/01_CPUE_BBS_Prep.r"))
 source(paste0(root_dir,"/Scripts/02_CPUE_BBS_Wind.r"))
