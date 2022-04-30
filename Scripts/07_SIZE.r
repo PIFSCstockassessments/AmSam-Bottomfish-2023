@@ -145,7 +145,8 @@ D[AREA_C=="Manua"]$RW <- 0.2
 
 # Statistics
 Species.List <- unique(D$SPECIES)
-NList <- list()
+NList   <- list()
+GList   <- list()
 L99List <- list()
 for(i in 1:length(Species.List)){
    
@@ -196,25 +197,30 @@ for(i in 1:length(Species.List)){
    #plot(SAMPSIZE$YEAR,SAMPSIZE$EFFN)
    
    # Calculate abundance-at-length
-   G <- G[,list(N=.N),by=list(AREA_C,DATASET,YEAR,LENGTH_BIN_START)]
-   G <- G[order(AREA_C,DATASET,YEAR,LENGTH_BIN_START)]
+   G <- G[,list(N=.N),by=list(SPECIES,AREA_C,DATASET,YEAR,LENGTH_BIN_START)]
+   G <- G[order(SPECIES,AREA_C,DATASET,YEAR,LENGTH_BIN_START)]
    
    # Add full range of size bins, if any are missing, by temporarily inserting fake data with full range
    BINS       <- seq(min(G$LENGTH_BIN_START),max(G$LENGTH_BIN_START),by=BIN_SIZE)
-   TEMP       <- data.table(cbind(DATASET="FAKE",AREA_C="FAKE",YEAR=2222,LENGTH_BIN_START=BINS,N=0))
-   TEMP[,3:5] <- rapply(TEMP[,3:5], as.numeric, how="replace") 
+   TEMP       <- data.table(cbind(SPECIES="FAKE",DATASET="FAKE",AREA_C="FAKE",YEAR=2222,LENGTH_BIN_START=BINS,N=0))
+   TEMP[,3:5] <- rapply(TEMP[,4:6], as.numeric, how="replace") 
    G          <- rbind(G,TEMP)
    
    # Continue
-   G <- dcast.data.table(G,DATASET+AREA_C+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
-   
+   G <- dcast.data.table(G,SPECIES+DATASET+AREA_C+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
    G <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
-   G <- select(G[DATASET!="FAKE"],DATASET,AREA_C,YEAR,EFFN,4:ncol(G))
+   G <- select(G,SPECIES,DATASET,YEAR,AREA_C,EFFN,4:(length(G)-1))
+   G <- melt(G,id.vars=1:5,value.name="N",variable.name="LENGTH_BIN_START")
+   G <- G[DATASET!="FAKE"]
    
    NList[[i]] <- NB 
-   write.csv(G,paste0(root_dir,"/Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)
-   
+   GList[[i]] <- G
 }
+
+# Export size structure to single RDS file
+  SizeData <- rbindlist(GList)
+ saveRDS(SizeData,paste0(root_dir,"/Outputs/SIZE_Final.rds"))
+
 
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
