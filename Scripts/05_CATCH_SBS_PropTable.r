@@ -75,9 +75,9 @@ Prop.Louti; Test[SPECIES_FK2=="229"]$EST_LBS/sum(Test$EST_LBS)
 # ============= Calculate species proportion table for shore-based surveys (see 02_BBS_proptable code)=============================
 
 # Append species group association table
-SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey.csv")
+SKEY            <- data.table(  read.xlsx(paste0(root_dir,"\\Data\\METADATA.xlsx"),sheet="ALLSPECIES")  )
 SKEY$SPECIES_PK <- as.character(SKEY$SPECIES_PK)
-SKEY            <- SKEY[,-(2:6)]
+SKEY            <- SKEY[,-(2:7)]
 D               <- merge(D,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 D[SPECIES_FK==109]$SPECIES_FK <- 110 # Merge Trevallies and Jacks

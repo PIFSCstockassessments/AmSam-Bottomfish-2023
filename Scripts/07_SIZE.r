@@ -4,15 +4,15 @@ require(data.table); require(openxlsx); require(dplyr); require(openxlsx); requi
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
 # Load metadata tables (Area, Method, Species)
-A            <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   )
+A            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="AREAS")   )
 A            <- select(A,DATASET,AREA_ID,AREA_A,AREA_C,AREA_C)
-M            <- data.table(read.xlsx("DATA//METADATA.xlsx",sheet="METHODS"))
+M            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="METHODS") )
 M            <- select(M,DATASET,METHOD_ID,METHOD_C)
 M$METHOD_ID  <- as.character(M$METHOD_ID)
 S            <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="BMUS")   )
 S            <- select(S,SPECIES_PK,SPECIES,SCIENTIFIC_NAME,FAMILY,LMAX,TL_TO_FL)
-S$LMAX       <- S$LMAX/10
 S$SPECIES_PK <- as.character(S$SPECIES_PK)
+S$LMAX       <- S$LMAX/10
 
 # ===============Boat-based creel survey sizes======================================================================      
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
@@ -54,7 +54,7 @@ BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 BB$DATASET               <- "BBS"
 
 # ===============Biosampling program sizes======================================================================      
-BIO              <- data.table(read.xlsx("DATA\\BIOSAMPLING.xlsx",sheet="RAW",colNames=TRUE))
+BIO              <- data.table(   read.xlsx(paste0(root_dir,"/Data/BIOSAMPLING.xlsx"),sheet="RAW",colNames=TRUE)   )
 names(BIO)       <- toupper(names(BIO))
 BIO$FISHEDDATE   <- as.Date(BIO$FISHEDDATE,origin="1899-12-30")
 BIO$YEAR         <- year(BIO$FISHEDDATE)
@@ -67,12 +67,12 @@ BIO     <- merge(BIO,M, by.x=c("FISHEDMETHOD","DATASET"),by.y=c("METHOD_ID","DAT
 
 setnames(BIO,c("NUMPIECES","LENGTH_CM"),c("COUNT","LENGTH_FL"))
 
-BIO                       <- BS[!is.na(LENGTH_FL)]
+BIO                       <- BIO[!is.na(LENGTH_FL)]
 BIO[AREA_C=="N/A"]$AREA_C <- "Tutuila" # Assign N/A to Tutuila (only a few lengths)
 BIO$COUNT     <- 1
 
 # ===============Diver survey sizes======================================================================      
-load("DATA\\ALL_REA_FISH_RAW.rdata")
+load(paste0(root_dir,"/Data/ALL_REA_FISH_RAW.rdata"))
 US <- rapply(df, as.character, classes="factor", how="replace")
 US <- data.table(US)
 US <- US[REGION=="SAMOA"]
@@ -136,7 +136,6 @@ if(Combine_BB_BIO==T) D[DATASET=="Biosampling"|DATASET=="BBIO"]$DATASET <- "BIO 
 D[AREA_C=="Atoll"]$YEAR <- 2022
 
 # Add some LH info
-S$LMAX <- S$LMAX/10
 LH <- select(S,SPECIES,LMAX)
 D  <- merge(D,LH,by="SPECIES")
 
@@ -152,7 +151,7 @@ for(i in 1:length(Species.List)){
    
    Sp        <- Species.List[i]
    BIN_SIZE  <- BIN.LIST[SPECIES==Sp]$BINWIDTH
-   E  <- D[SPECIES==Sp&LENGTH_FL>0]
+   E         <- D[SPECIES==Sp&LENGTH_FL>0]
    
    # Filter YEARs with low N
    NB         <- data.table( table(E$DATASET,E$YEAR,E$AREA_C) )
@@ -162,7 +161,7 @@ for(i in 1:length(Species.List)){
    G          <- merge(E,NB2,by=c("DATASET","YEAR","AREA_C"))
    NB$SPECIES <- Sp
    
-   Fld <- "Outputs/Graphs/Size/"
+   Fld <- paste0(root_dir,"/Outputs/Graphs/Size/")
    if(nrow(G[DATASET=="Biosampling"])>0){
       ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
       ggsave(paste0(Fld,Sp,"_Freq_","BIO",".png"),width=20,height=10,unit="cm")}
@@ -213,18 +212,18 @@ for(i in 1:length(Species.List)){
    G <- select(G[DATASET!="FAKE"],DATASET,AREA_C,YEAR,EFFN,4:ncol(G))
    
    NList[[i]] <- NB 
-   write.csv(G,paste0("Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)
+   write.csv(G,paste0(root_dir,"/Outputs/SS3_Inputs/",Sp,"/SIZE_",Sp,".csv"),row.names=F)
    
 }
 
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_C+DATASET~YEAR,value.var="N",fill=0)
-write.xlsx(Summary,"Outputs//Graphs//SIZE//Size_N_YEAR.xlsx")
+write.xlsx(Summary,paste0(root_dir,"/Outputs//Graphs//SIZE//Size_N_YEAR.xlsx"))
 
 L99Summary <- do.call(rbind.data.frame, L99List)
 L99Summary <- dcast.data.table(L99Summary,SPECIES~DATASET,value.var="L99",fill=NA)
-write.xlsx(L99Summary,"Outputs//Graphs//SIZE//L99.xlsx")
+write.xlsx(L99Summary,paste0(root_dir,"/Outputs//Graphs//SIZE//L99.xlsx"))
 
 
 

@@ -1,20 +1,20 @@
 require(data.table); require(ggplot2); require(gridExtra); require(directlabels);require(openxlsx);  require(dplyr);require(stringr)
 options(scipen = 999)
+root_dir <- this.path::here(.. = 1) 
 
-Z <- readRDS("Outputs\\CPUE_B.rds")
+Z <- readRDS(paste0(root_dir,"\\Outputs\\CPUE_B.rds"))
 Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_PK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
 Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]
 Z$SPECIES_FK <- as.numeric(Z$SPECIES_FK)
 
 # Append species group association table
-SKEY            <- fread(file="Data\\AmSam_BBS-SBS_GroupKey.csv")
+SKEY <- data.table(  read.xlsx(paste0(root_dir,"\\Data\\METADATA.xlsx"),sheet="ALLSPECIES")  )
 #SKEY$SPECIES_PK <- as.character(SKEY$SPECIES_PK)
-SKEY            <- SKEY[,-(2:6)]
+SKEY            <- SKEY[,-(2:7)]
 Z               <- merge(Z,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 Z[SPECIES_FK==109]$SPECIES_FK <- 110 # Merge Trevallies and Jacks
 Z[SPECIES_FK==280]$SPECIES_FK <- 210 # Merge Inshore groupers and groupers
-
 
 # Define the time PERIOD used to calculate species proportions
 Z$PERIOD <- 999
@@ -135,7 +135,7 @@ ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop
 
 
 # Output table for further use
-saveRDS(Final,file="Outputs\\BBS_Prop_Table.rds")
+saveRDS(Final,file=paste0(root_dir,"\\Outputs\\BBS_Prop_Table.rds"))
 
 
 

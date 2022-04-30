@@ -165,7 +165,7 @@
 	
 # For all interview records (using CATCH_PK variable) of V. louti or albimarginata for years <= 2015, randomly assign record as "V. louti" proportionally to Prop.Louti (all fish in an interview)
 
-B$SPECIES_FK2 <- B$SPECIES_FK # Create a "corrected" SPECIES_FK2 field
+B$SPECIES_FK2      <- B$SPECIES_FK # Create a "corrected" SPECIES_FK2 field
 CATCH_PK.list      <- unique(B[YEAR<=2015]$CATCH_PK)
 for (i in 1:length(CATCH_PK.list)){
   

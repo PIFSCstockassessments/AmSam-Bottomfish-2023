@@ -35,7 +35,7 @@
 # 	systime_f <- Sys.time()
 # 	systime_f - systime_i
 
-		nc    <- nc_open("Data/Winds/winds_recent.nc")
+		nc    <- nc_open(paste0(root_dir,"/Data/Winds/winds_recent.nc"))
     uwnd  <- ncvar_get(nc,nc$var[[1]])
     v1    <- nc$var[[1]]
     vwnd  <- ncvar_get(nc,nc$var[[2]])
@@ -81,7 +81,7 @@
 #  Tutu 88-89
 #  https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-0.nc?uwnd%5B(1988-01-01):1:(1989-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D,vwnd%5B(1988-01-01):1:(1989-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D
 
-	nc   <- nc_open("Data/Winds/tutu_88_89.nc")
+	nc   <- nc_open(paste0(root_dir,"/Data/Winds/tutu_88_89.nc"))
 	uwnd <- ncvar_get(nc,nc$var[[1]])
 	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
@@ -101,7 +101,7 @@
 
 #  Tutu 90-94
 #  https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-0.nc?uwnd%5B(1990-01-01):1:(1994-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D,vwnd%5B(1990-01-01):1:(1994-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(189.375):1:(189.375)%5D
-	nc   <- nc_open("Data/Winds/tutu_90_94.nc")
+	nc   <- nc_open(paste0(root_dir,"/Data/Winds/tutu_90_94.nc"))
 	uwnd <- ncvar_get(nc,nc$var[[1]])
 	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
@@ -119,7 +119,7 @@
 	tutu_90_94 <- wind_2
 
 #  Tutu 95-18
-	nc   <- nc_open("Data/Winds/tutu_95_18.nc")
+	nc   <- nc_open(paste0(root_dir,"/Data/Winds/tutu_95_18.nc"))
 	uwnd <- ncvar_get(nc,nc$var[[1]])
 	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
@@ -141,7 +141,7 @@
 #  https://oceanwatch.pifsc.noaa.gov/erddap/griddap/ccmp-daily-v2-0.nc?uwnd%5B(1988-01-01):1:(2018-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(190.625):1:(190.625)%5D,vwnd%5B(1988-01-01):1:(2018-12-31)%5D%5B(-14.375):1:(-14.375)%5D%5B(190.625):1:(190.625)%5D
 #  Melanie downloaded it for me.
 
-	nc   <- nc_open("Data/Winds/manu_88_18.nc")
+	nc   <- nc_open(paste0(root_dir,"/Data/Winds/manu_88_18.nc"))
 	uwnd <- ncvar_get(nc,nc$var[[1]])
 	v1   <- nc$var[[1]]
 	vwnd <- ncvar_get(nc,nc$var[[2]])
@@ -178,7 +178,7 @@ W <- as.data.table(windsort2)
 #  ENVIRONMENTAL DATA: WINDS
 #    do this working with interview only
 #    Note: Pago Pago is 14.28 deg S, 170.7 deg W (-14.28, -170.7).
-B   <- readRDS(paste(root_dir, "/Outputs/CPUE_A.rds", sep=""))
+B   <- readRDS(paste0(root_dir, "/Outputs/CPUE_A.rds"))
 INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,AREA_C)]
 
 # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
