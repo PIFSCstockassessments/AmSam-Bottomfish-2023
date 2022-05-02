@@ -44,7 +44,7 @@ D <- merge(D,R,by.x="ROUTE",by.y="AREA_ID")
 D <- merge(D,M,by.x="METHOD",by.y="METHOD_ID")
 D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
-setnames(D,"AREA_C","ZONE")
+#setnames(D,"AREA_C","ZONE")
 
 D[is.na(VAR_EXP_LBS)]$VAR_EXP_LBS <- 0 # Is this necessary?
 
@@ -54,12 +54,12 @@ D[SPECIES_FK == "S380"]$SPECIES_FK <- "S210"  # Groupers and Inshore groupers
 D[SPECIES_FK == "S390"]$SPECIES_FK <- "S230"  # Deep snappers and inshore snappers (integrate here given how little deep snappers there are)
 
 # Select a reduced number of fields and sum catch in these
-D <- D[,list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(SPECIES_FK,YEAR)]
+D <- D[,list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(SPECIES_FK,YEAR,AREA_C)]
 
 #==================Fix Variola louti (229) and V. albimarginata (220) issue (species IDed together from 1986 to 2015)======================
 D[YEAR<=2015&(SPECIES_FK=="S229"|SPECIES_FK=="S220")]$SPECIES_FK <- "S99999" # Assign all records to a dummy species code (for now)
 
-D <- D[,list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(YEAR,SPECIES_FK)] # Sum records together
+D <- D[,list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(SPECIES_FK,YEAR,AREA_C)] # Sum records together
 
 # Re-assign 1986-2015 "S99999" to both V. louti and V. albi, based on the 2016-2021 occurence ratio obtained in 01_SBS_data_prep.r
 # These ratios are: V. louti 0.383 and V.albimarginata 0.617
@@ -67,21 +67,21 @@ D <- D[,list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(YEAR,SPE
 Prop.Louti <- 0.383; Prop.Albi <- 1-Prop.Louti
 
 # For the catch
-D.LBS                  <- dcast(D,YEAR~SPECIES_FK,value.var="EXP_LBS",fill=0)
+D.LBS                  <- dcast(D,YEAR+AREA_C~SPECIES_FK,value.var="EXP_LBS",fill=0)
 D.LBS[YEAR<=2015]$S220 <- D.LBS[YEAR<=2015]$S99999*Prop.Albi  # Assign Prop.louti proportion to Variola catch
 D.LBS[YEAR<=2015]$S229 <- D.LBS[YEAR<=2015]$S99999*Prop.Louti # Assign Prop.louti proportion to Variola catch
 D.LBS                  <- select(D.LBS,-S99999) # Get rid of Variolas column
-D.LBS                  <- melt.data.table(D.LBS,id.vars=1,variable.name="SPECIES_FK",value.name="EXP_LBS")
+D.LBS                  <- melt.data.table(D.LBS,id.vars=1:2,variable.name="SPECIES_FK",value.name="EXP_LBS")
 
 # For the variance
-D.VAR                  <- dcast(D,YEAR~SPECIES_FK,value.var="VAR_EXP_LBS",fill=0)
+D.VAR                  <- dcast(D,YEAR+AREA_C~SPECIES_FK,value.var="VAR_EXP_LBS",fill=0)
 D.VAR[YEAR<=2015]$S220 <- D.VAR[YEAR<=2015]$S99999*Prop.Albi  # Assign Prop.louti proportion to Variola catch
 D.VAR[YEAR<=2015]$S229 <- D.VAR[YEAR<=2015]$S99999*Prop.Louti # Assign Prop.louti proportion to Variola catch
 D.VAR                  <- select(D.VAR,-S99999) # Get rid of Variolas column
-D.VAR                  <- melt.data.table(D.VAR,id.vars=1,variable.name="SPECIES_FK",value.name="VAR_EXP_LBS")
+D.VAR                  <- melt.data.table(D.VAR,id.vars=1:2,variable.name="SPECIES_FK",value.name="VAR_EXP_LBS")
 
 # Merge back catch and variance
-D            <- merge(D.LBS,D.VAR,by=c("YEAR","SPECIES_FK"))
+D            <- merge(D.LBS,D.VAR,by=c("YEAR","AREA_C","SPECIES_FK"))
 D$SPECIES_FK <- as.character(D$SPECIES_FK)
 
 #======================Break down taxonomic groups into species components using proportion table from 03_BBS_proptables.R===============================
@@ -115,8 +115,8 @@ D[SPECIES_FK=="S247"|SPECIES_FK=="S239"|SPECIES_FK=="S111"|SPECIES_FK=="S249"|
     SPECIES_FK=="S241"|SPECIES_FK=="S245"|SPECIES_FK=="S229"]$BMUS <- "T"
 
 # Final data, saved for export
-F <- Z[BMUS=="T",list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(SPECIES_FK,YEAR)]
-F$SD <- sqrt(F$VAR_EXP_LBS)
+F <- Z[BMUS=="T",list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list(SPECIES_FK,YEAR,AREA_C)]
+F$SD.LBS <- sqrt(F$VAR_EXP_LBS)
 
 # Check group-derived vs species-derived BMUS catch
 T1 <- Z[BMUS=="T",list(EXP_LBS=sum(EXP_LBS)),by=list(YEAR,SOURCE)]
@@ -137,7 +137,10 @@ test2 <- select(F,-VAR_EXP_LBS,-SD)
 test3 <- merge(test,test2,by=c("YEAR","SPECIES_FK"))
 ggplot(data=test3[SPECIES_FK=="S229"])+geom_line(aes(x=YEAR,y=EXP_LBS),col="blue")+geom_line(aes(x=YEAR,y=LBS_RAW),col="red")
 
-# Save BMUS catch to file
+# Save BMUS catch to files
+F$SOURCE <- "SBS"
+F        <- select(F,SOURCE,SPECIES_FK,YEAR,AREA_C,LBS=EXP_LBS,SD.LBS)
+
 saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_SBS_A.rds"))
 
 
