@@ -263,8 +263,11 @@ G <- G[!(ZONE=="Manua"&YEAR>=2009)] # Remove old Manua catch
 G <- rbind(G,E)  
 
 # Save final boat-based catch file
-saveRDS(G,file=paste0(root_dir, "/Outputs/CATCH_BBS_A.rds"))
 
+G$SOURCE <- "SBS"
+G$SD.LBS <- sqrt(G$VAR_LBS_CAUGHT)
+G        <- select(G,SOURCE,SPECIES_FK,YEAR,AREA_C=ZONE,LBS=LBS_CAUGHT,SD.LBS)
+saveRDS(G,file=paste0(root_dir, "/Outputs/CATCH_BBS_A.rds"))
 
 
 
