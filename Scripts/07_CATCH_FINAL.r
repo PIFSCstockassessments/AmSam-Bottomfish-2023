@@ -8,7 +8,7 @@ B <- readRDS(paste0(root_dir,"\\Outputs\\CATCH_SBS_A.rds")) # Shore-based catch
 
 S <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS")
 S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
-S <- select(S,SPECIES_FK=SPECIES_PK,SPECIES)
+S <- select(S,SPECIES_FK=SPECIES_PK,SPECIES,SCIENTIFIC_NAME)
 
 # Load historic data from Excel document
 D <- data.table()
@@ -34,4 +34,22 @@ ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="
 
 F <- E[YEAR>=1986,list(LBS=sum(LBS)),by=list(SPECIES,YEAR)]
 F <- F[order(SPECIES,YEAR)]
-write.xlsx(F,"MarcCatch.xlsx")
+
+
+# Compare this catch to Erin's original scripts
+
+ER <- readRDS(paste0(root_dir,"/Outputs/ErinCatch.rds"))
+ER <- merge(ER,S,by="SCIENTIFIC_NAME")
+ER <- select(ER,SPECIES,YEAR,LBS)
+ER$SOURCE<- "Erin"
+F$SOURCE <- "Marc"
+
+G <- rbind(ER,F)
+
+ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES)
+
+
+
+
+
+
