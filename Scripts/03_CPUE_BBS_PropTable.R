@@ -14,7 +14,7 @@ SKEY            <- SKEY[,-(2:7)]
 Z               <- merge(Z,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 Z[SPECIES_FK==109]$SPECIES_FK <- 110 # Merge Trevallies and Jacks
-Z[SPECIES_FK==280]$SPECIES_FK <- 210 # Merge Inshore groupers and groupers
+Z[SPECIES_FK==380]$SPECIES_FK <- 210 # Merge Inshore groupers and groupers
 
 # Define the time PERIOD used to calculate species proportions
 Z$PERIOD <- 999
