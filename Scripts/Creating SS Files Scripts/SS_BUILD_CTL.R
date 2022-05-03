@@ -1,5 +1,5 @@
 #  --------------------------------------------------------------------------------------------------------------
-#   AMERICAN SAMOA BOTTOMFISH - INITIAL SS FILE CREATION
+#   AMERICAN SAMOA BOTTOMFISH - INITIAL SS CONTROL FILE CREATION
 #	Use example model files (from https://github.com/nmfs-stock-synthesis/user-examples) as templates 
 #   for adding in American Samoa model parameter information
 #	Megumi Oshima megumi.oshima@noaa.gov
