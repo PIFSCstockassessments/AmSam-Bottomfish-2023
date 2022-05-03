@@ -46,7 +46,7 @@ F$SOURCE <- "Marc"
 
 G <- rbind(ER,F)
 
-ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES)
+ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES,scales="free_y")
 
 
 
