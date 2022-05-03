@@ -3,7 +3,7 @@ options(scipen = 999)
 
 # establish directories using this.path::
 root_dir <- this.path::here(.. = 1)
-set.seed(11111) # It is critical to fix the random number generation for reproducability
+set.seed(999) # It is critical to fix the random number generation for reproducability
 
 # ----------- STEP 1: read in the complete "flatview" datafile for AmSam Shore based survey, 
 #				do some data manipulation
