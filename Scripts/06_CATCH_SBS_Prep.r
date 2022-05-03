@@ -133,7 +133,7 @@ ggplot(data=T3)+geom_bar(aes(x=YEAR,y=EXP_LBS),stat="identity",position="stack")
 ggplot(data=F)+geom_bar(aes(x=YEAR,y=EXP_LBS),stat="identity")+facet_wrap(~SPECIES_FK)
 
 test  <- D[BMUS=="T",list(LBS_RAW=sum(EXP_LBS)),by=list(YEAR,SPECIES_FK)]
-test2 <- select(F,-VAR_EXP_LBS,-SD)
+test2 <- select(F,-VAR_EXP_LBS,-SD.LBS)
 test3 <- merge(test,test2,by=c("YEAR","SPECIES_FK"))
 ggplot(data=test3[SPECIES_FK=="S229"])+geom_line(aes(x=YEAR,y=EXP_LBS),col="blue")+geom_line(aes(x=YEAR,y=LBS_RAW),col="red")
 
