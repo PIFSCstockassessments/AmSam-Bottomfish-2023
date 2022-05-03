@@ -50,13 +50,7 @@ D[SPECIES_FK=="S243"]$SPECIES_FK<-"S241"
 
 D <- D[METHOD=="4"|METHOD=="5"|METHOD=="6"|METHOD=="8"|METHOD=="61"]
 
-# No distinction in our group break down between Grouper (210) and Inshore grouper (380)
-# No distinction between Jacks (110) and Trevallies (109)
-D[SPECIES_FK == "S109"]$SPECIES_FK <- "S110"
-D[SPECIES_FK == "S380"]$SPECIES_FK <- "S210"
-
 # Select only necessary columns
-
 D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)]
 
 #==================Fix Variola louti (229) and V. albimarginata (220) issue (species IDed together from 1986 to 2015)======================
