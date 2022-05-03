@@ -3,7 +3,7 @@ require(dplyr); require(this.path); require(data.table); require(ggplot2);requir
 root_dir <- this.path::here(.. = 1)
 options(scipen = 999)
 
-D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"),header=T, stringsAsFactors=FALSE) 
+D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"), stringsAsFactors=FALSE) 
 
 # Add more species info
 S                 <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
@@ -25,7 +25,7 @@ D[ZONE=='2']$ZONE<-'Manua'
 
 
 D[SPECIES_FK=="S109"]$SPECIES_FK <- "S110" # Merge Trevallies and Jacks
-D[SPECIES_FK=="S280"]$SPECIES_FK <- "S210" # Merge Inshore groupers and groupers
+D[SPECIES_FK=="S380"]$SPECIES_FK <- "S210" # Merge Inshore groupers and groupers
 
 #  Note:
 #		Method	4 = bottomfishing, 5 = btm/trl mix
@@ -264,7 +264,7 @@ G <- rbind(G,E)
 
 # Save final boat-based catch file
 
-G$SOURCE <- "SBS"
+G$SOURCE <- "BBS"
 G$SD.LBS <- sqrt(G$VAR_LBS_CAUGHT)
 G        <- select(G,SOURCE,SPECIES_FK,YEAR,AREA_C=ZONE,LBS=LBS_CAUGHT,SD.LBS)
 saveRDS(G,file=paste0(root_dir, "/Outputs/CATCH_BBS_A.rds"))
