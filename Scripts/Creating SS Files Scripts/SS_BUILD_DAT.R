@@ -6,9 +6,9 @@
 #  
 #  --------------------------------------------------------------------------------------------------------------
 
-library(r4ss)
-library(tidyverse)
-library(this.path)
+require(r4ss)
+require(tidyverse)
+require(this.path)
 
 root_dir <- this.path::here(.. = 2)
 ## specify species that you are creating files for. 
