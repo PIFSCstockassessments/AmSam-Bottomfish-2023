@@ -259,10 +259,14 @@ for (i in 1:length(CATCH_PK.list)){
   }
 }	
 
-
 # Test <- B[,list(EST_LBS=max(EST_LBS)),by=list(YEAR,AREA_C,INTERVIEW_PK,CATCH_PK,FAMILY,SPECIES_FK2,SCIENTIFIC_NAME)]
 # Test <- Test[AREA_C=="Manua"&FAMILY=="Lethrinidae",list(EST_LBS=sum(EST_LBS)),by=list(SPECIES_FK2)]
 # Prop.Rub; Test[SPECIES_FK2=="267"]$EST_LBS/sum(Test$EST_LBS)
+
+# Remove old species unique ID with the corrected one
+B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME)
+setnames(B,"SPECIES_FK2","SPECIES_FK")
+B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 # save in the output folder.
 saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
