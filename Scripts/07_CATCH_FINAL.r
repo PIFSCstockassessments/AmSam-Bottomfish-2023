@@ -1,5 +1,5 @@
 require(dplyr); require(this.path); require(data.table);  require(openxlsx); require(ggplot2)
-
+options(scipen=999)		
 
 root_dir <- this.path::here(..=1)
 
@@ -44,11 +44,14 @@ ER <- select(ER,SPECIES,YEAR,LBS)
 ER$SOURCE<- "Erin"
 F$SOURCE <- "Marc"
 
-G <- rbind(ER,F)
+G <- data.table( rbind(ER,F) )
+
+TOT <- G[,list(LBS=round(sum(LBS),0)),by=list(YEAR,SOURCE)]
+TOT <- dcast(TOT,YEAR~SOURCE,value.var="LBS")
+
 
 ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES,scales="free_y")
-
-
+ggplot(data=TOT,aes(x=YEAR))+geom_line(aes(y=Marc),col="blue")+geom_line(aes(y=Erin),col="red")
 
 
 
