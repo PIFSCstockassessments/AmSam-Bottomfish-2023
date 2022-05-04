@@ -223,7 +223,7 @@ for(i in 1:length(Species.List)){
  SizeData$LENGTH_BIN_START <- as.numeric(as.character(SizeData$LENGTH_BIN_START))
 
  SizeData <- SizeData[AREA_C!="Atoll"]
- SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,N)
+ SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
  saveRDS(SizeData,paste0(root_dir,"/Outputs/SIZE_Final.rds"))
 
 
