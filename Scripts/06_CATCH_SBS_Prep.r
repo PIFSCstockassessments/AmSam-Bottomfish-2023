@@ -39,6 +39,10 @@ D$YEAR                           <- D$YEAR+1947
 D$SPECIES_FK                     <- paste0("S",D$SPECIES_FK)
 D[SPECIES_FK=="S243"]$SPECIES_FK <- "S241" # Fix P. rutilans
 
+# Remove P. zonatus from the shore-based catch (they don't occur this shallow)
+D <- D[SPECIES_FK!="S245"]
+
+
 # Simplify gears and routes
 D <- merge(D,R,by.x="ROUTE",by.y="AREA_ID")
 D <- merge(D,M,by.x="METHOD",by.y="METHOD_ID")
@@ -119,7 +123,7 @@ F <- Z[BMUS=="T",list(EXP_LBS=sum(EXP_LBS),VAR_EXP_LBS=sum(VAR_EXP_LBS)),by=list
 F$SD.LBS <- sqrt(F$VAR_EXP_LBS)
 
 # Check group-derived vs species-derived BMUS catch
-T1 <- Z[BMUS=="T",list(EXP_LBS=sum(EXP_LBS)),by=list(YEAR,SOURCE)]
+T1 <- Z[BMUS=="T"&SPECIES_FK=="S229",list(EXP_LBS=sum(EXP_LBS)),by=list(YEAR,SOURCE)]
 ggplot()+geom_bar(data=T1,aes(x=YEAR,y=EXP_LBS,fill=SOURCE),size=1,position="stack",stat="identity")+theme_bw()
 
 # Check total BMUS catch by year
@@ -133,7 +137,7 @@ ggplot(data=T3)+geom_bar(aes(x=YEAR,y=EXP_LBS),stat="identity",position="stack")
 ggplot(data=F)+geom_bar(aes(x=YEAR,y=EXP_LBS),stat="identity")+facet_wrap(~SPECIES_FK)
 
 test  <- D[BMUS=="T",list(LBS_RAW=sum(EXP_LBS)),by=list(YEAR,SPECIES_FK)]
-test2 <- select(F,-VAR_EXP_LBS,-SD)
+test2 <- select(F,-VAR_EXP_LBS,-SD.LBS)
 test3 <- merge(test,test2,by=c("YEAR","SPECIES_FK"))
 ggplot(data=test3[SPECIES_FK=="S229"])+geom_line(aes(x=YEAR,y=EXP_LBS),col="blue")+geom_line(aes(x=YEAR,y=LBS_RAW),col="red")
 
@@ -142,5 +146,6 @@ F$SOURCE <- "SBS"
 F        <- select(F,SOURCE,SPECIES_FK,YEAR,AREA_C,LBS=EXP_LBS,SD.LBS)
 
 saveRDS(F,file=paste0(root_dir,"/Outputs/CATCH_SBS_A.rds"))
+
 
 

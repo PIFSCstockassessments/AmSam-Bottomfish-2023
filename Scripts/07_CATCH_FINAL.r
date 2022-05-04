@@ -1,5 +1,5 @@
 require(dplyr); require(this.path); require(data.table);  require(openxlsx); require(ggplot2)
-
+options(scipen=999)		
 
 root_dir <- this.path::here(..=1)
 
@@ -32,11 +32,18 @@ E <- merge(E,S,by="SPECIES_FK")
 
 ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
 
-F <- E[YEAR>=1986,list(LBS=sum(LBS)),by=list(SPECIES,YEAR)]
-F <- F[order(SPECIES,YEAR)]
+
+
+# Save final catch file
+Z <- E[,list(LBS=round(sum(LBS),0)),by=list(SPECIES,YEAR)]
+Z <- Z[order(SPECIES,YEAR)]
+saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
+
 
 
 # Compare this catch to Erin's original scripts
+F <- E[YEAR>=1986,list(LBS=sum(LBS)),by=list(SPECIES,YEAR)]
+F <- F[order(SPECIES,YEAR)]
 
 ER <- readRDS(paste0(root_dir,"/Outputs/ErinCatch.rds"))
 ER <- merge(ER,S,by="SCIENTIFIC_NAME")
@@ -44,11 +51,14 @@ ER <- select(ER,SPECIES,YEAR,LBS)
 ER$SOURCE<- "Erin"
 F$SOURCE <- "Marc"
 
-G <- rbind(ER,F)
+G <- data.table( rbind(ER,F) )
 
-ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES)
+TOT <- G[,list(LBS=round(sum(LBS),0)),by=list(YEAR,SOURCE)]
+TOT <- dcast(TOT,YEAR~SOURCE,value.var="LBS")
 
 
+ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES,scales="free_y")
+ggplot(data=TOT,aes(x=YEAR))+geom_line(aes(y=Marc),col="blue")+geom_line(aes(y=Erin),col="red")
 
 
 

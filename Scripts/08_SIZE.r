@@ -27,15 +27,20 @@ S$LMAX       <- S$LMAX/10
 
  BB            <- BB[!is.na(LEN_MM)&!(is.na(SIZ_LBS)|SIZ_LBS=="NULL")]
  BB$YEAR       <- year(BB$SAMPLE_DATE)
- BB            <- select(BB,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,LEN_MM,SIZ_LBS)
+ BB$LEN_MM     <- as.numeric(BB$LEN_MM)
+ BB$SIZ_LBS    <- as.numeric(BB$SIZ_LBS)
  BB$AREA_FK    <- as.character((BB$AREA_FK))
  BB$METHOD_FK  <- as.character((BB$METHOD_FK))
  BB$LEN_MM     <- as.numeric(BB$LEN_MM)
  BB$SIZ_LBS    <- as.numeric(BB$SIZ_LBS)
 
- #Merge metadata tables
- BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID")
- BB <- merge(BB,M[DATASET=="BBS"],by.x="METHOD_FK",by.y="METHOD_ID")
+ BB[LEN_MM==0]$LEN_MM   <- NA
+ BB[SIZ_LBS==0]$SIZ_LBS <- NA
+ BB                     <- select(BB,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,LEN_MM,SIZ_LBS)
+ 
+  #Merge metadata tables
+ BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID",all.x=T)
+ BB <- merge(BB,M[DATASET=="BBS"],by.x="METHOD_FK",by.y="METHOD_ID",all.x=T)
  BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
  
  # Simplify this dataset
@@ -54,6 +59,13 @@ BB[AREA_C=="Unk"]$AREA_C <- BB[AREA_C=="Unk"]$ISLAND_NAME
 BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 BB$DATASET               <- "BBS"
 
+# Quick pattern check on mean length and mean weight stability
+Test <- BB[METHOD_C=="Bottomfishing",list(MW=mean(LBS),ML=mean(LENGTH_FL)),by=list(SPECIES,YEAR)]
+ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=MW),col="red")+geom_line(aes(y=ML),col="blue")+facet_wrap(~SPECIES)
+
+
+
+
 # ===============Biosampling program sizes======================================================================      
 BIO              <- data.table(   read.xlsx(paste0(root_dir,"/Data/BIOSAMPLING.xlsx"),sheet="RAW",colNames=TRUE)   )
 names(BIO)       <- toupper(names(BIO))
@@ -62,9 +74,9 @@ BIO$YEAR         <- year(BIO$FISHEDDATE)
 BIO              <- select(BIO,YEAR,FISHEDAREA,FISHEDMETHOD,SCIENTIFIC_NAME=SCIENTIFICNAME,NUMPIECES,LENGTH_CM,WEIGHT_G)
 BIO$DATASET      <- "Biosampling"
 
-BIO     <- merge(BIO,A, by.x=c("FISHEDAREA","DATASET"),by.y=c("AREA_ID","DATASET"))
+BIO     <- merge(BIO,A, by.x=c("FISHEDAREA","DATASET"),by.y=c("AREA_ID","DATASET"),all.x=T)
+BIO     <- merge(BIO,M, by.x=c("FISHEDMETHOD","DATASET"),by.y=c("METHOD_ID","DATASET"),all.x=T)
 BIO     <- merge(BIO,S,by="SCIENTIFIC_NAME")
-BIO     <- merge(BIO,M, by.x=c("FISHEDMETHOD","DATASET"),by.y=c("METHOD_ID","DATASET"))
 
 setnames(BIO,c("NUMPIECES","LENGTH_CM"),c("COUNT","LENGTH_FL"))
 
