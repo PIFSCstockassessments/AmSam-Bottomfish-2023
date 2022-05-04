@@ -37,7 +37,6 @@ F <- F[order(SPECIES,YEAR)]
 
 
 # Compare this catch to Erin's original scripts
-
 ER <- readRDS(paste0(root_dir,"/Outputs/ErinCatch.rds"))
 ER <- merge(ER,S,by="SCIENTIFIC_NAME")
 ER <- select(ER,SPECIES,YEAR,LBS)
