@@ -37,8 +37,8 @@ D <- D[YEAR>=1990]
 D <- D[!(COMMON_NAME=="No Catch"&EST_LBS>0)]
 
 # Simplify gears and routes
-D <- merge(D,R,by.x=c("ROUTE_FK","ROUTE_NAME"),by.y=c("AREA_ID","AREA_NAME"))
-D <- merge(D,M,by.x="METHOD_FK",by.y="METHOD_ID")
+D <- merge(D,R,by.x=c("ROUTE_FK","ROUTE_NAME"),by.y=c("AREA_ID","AREA_NAME"),all.x=T)
+D <- merge(D,M,by.x="METHOD_FK",by.y="METHOD_ID",all.x=T)
 
 # Simplify dataset
 D <- D[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,SPECIES_FK)]
