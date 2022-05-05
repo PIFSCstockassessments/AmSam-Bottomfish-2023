@@ -44,8 +44,8 @@ D <- D[SPECIES_FK!="S245"]
 
 
 # Simplify gears and routes
-D <- merge(D,R,by.x="ROUTE",by.y="AREA_ID")
-D <- merge(D,M,by.x="METHOD",by.y="METHOD_ID")
+D <- merge(D,R,by.x="ROUTE",by.y="AREA_ID",all.x=T)
+D <- merge(D,M,by.x="METHOD",by.y="METHOD_ID",all.x=T)
 D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 #setnames(D,"AREA_C","ZONE")
