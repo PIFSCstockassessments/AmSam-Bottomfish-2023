@@ -3,6 +3,14 @@
 require(data.table); require(openxlsx); require(dplyr); require(openxlsx); require(ggplot2);require(gridExtra);require(grid); options(scipen=999)
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
+# Options
+Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
+Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
+MinN           <- 40 # Minimum sample size to do size frequency
+AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
+BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
+                       BINWIDTH=c(5,5,5,5,5,3,2,5,5,5,5)) # in cm
+
 # Load metadata tables (Area, Method, Species)
 A            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="AREAS")   )
 A            <- select(A,DATASET,AREA_ID,AREA_A,AREA_C,AREA_C)
@@ -36,15 +44,15 @@ S$LMAX       <- S$LMAX/10
 
  BB[LEN_MM==0]$LEN_MM   <- NA
  BB[SIZ_LBS==0]$SIZ_LBS <- NA
- BB                     <- select(BB,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,LEN_MM,SIZ_LBS)
+ BB                     <- select(BB,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,LEN_MM,SIZ_LBS)
  
   #Merge metadata tables
  BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID",all.x=T)
- BB <- merge(BB,M[DATASET=="BBS"],by.x="METHOD_FK",by.y="METHOD_ID",all.x=T)
+ BB <- merge(BB,M[DATASET=="BBS"],by.x=c("METHOD_FK","DATASET"),by.y=c("METHOD_ID","DATASET"),all.x=T)
  BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
  
  # Simplify this dataset
- BB <- select(BB,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,COUNT=NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
+ BB <- select(BB,DATASET,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
  
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
@@ -57,14 +65,18 @@ BB <- BB[!(SPECIES_FK=="229"&YEAR<2015)]
 # Assign AREA_B N/As to islands
 BB[AREA_C=="Unk"]$AREA_C <- BB[AREA_C=="Unk"]$ISLAND_NAME
 BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
-BB$DATASET               <- "BBS"
 
 # Quick pattern check on mean length and mean weight stability
 Test <- BB[METHOD_C=="Bottomfishing",list(MW=mean(LBS),ML=mean(LENGTH_FL)),by=list(SPECIES,YEAR)]
 ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=MW),col="red")+geom_line(aes(y=ML),col="blue")+facet_wrap(~SPECIES)
 
+# Final options for BBS data
+table(BB$METHOD_C,BB$SCIENTIFIC_NAME)
+BB <- BB[METHOD_C=="Bottomfishing"]  # This filters a few spearfishing records for some species. Main impact is for VALO with 51 records removed.
 
+BB <- BB[!is.na(LENGTH_FL)]
 
+BB <- select(BB,DATASET,SPECIES,YEAR,AREA_C,LENGTH_FL)
 
 # ===============Biosampling program sizes======================================================================      
 BIO              <- data.table(   read.xlsx(paste0(root_dir,"/Data/BIOSAMPLING.xlsx"),sheet="RAW",colNames=TRUE)   )
@@ -82,7 +94,8 @@ setnames(BIO,c("NUMPIECES","LENGTH_CM"),c("COUNT","LENGTH_FL"))
 
 BIO                       <- BIO[!is.na(LENGTH_FL)]
 BIO[AREA_C=="N/A"]$AREA_C <- "Tutuila" # Assign N/A to Tutuila (only a few lengths)
-BIO$COUNT     <- 1
+
+BIO <- select(BIO,DATASET,SPECIES,YEAR,AREA_C,LENGTH_FL)
 
 # ===============Diver survey sizes======================================================================      
 load(paste0(root_dir,"/Data/ALL_REA_FISH_RAW.rdata"))
@@ -92,8 +105,9 @@ US <- US[REGION=="SAMOA"]
 US <- US[METHOD!="nSPC-CCR"&METHOD!="SPC"]
 US <- US[EXCLUDE_FLAG!=-1]
 US <- subset(US,select=-c(LW_A,LW_B))
+US <- US[COUNT==1]
 
-US         <- subset(US,select=c("OBS_YEAR","REGION","ISLAND","DEPTH_BIN","SITE","LATITUDE","LONGITUDE","SITEVISITID","REP","METHOD","TAXONNAME","SPECIES","OBS_TYPE","COUNT","SIZE_"))                
+US         <- subset(US,select=c("OBS_YEAR","REGION","ISLAND","DEPTH_BIN","SITE","LATITUDE","LONGITUDE","SITEVISITID","REP","METHOD","TAXONNAME","SPECIES","OBS_TYPE","SIZE_"))                
 US[DEPTH_BIN=="Shallow"]$DEPTH_BIN <- "SHALLOW"
 setnames(US,c("TAXONNAME","SIZE_"),c("SCIENTIFIC_NAME","LENGTH_TL"))
 US$DATASET <- "UVS"
@@ -114,47 +128,24 @@ US <- US[SPECIES=="VALO"|SPECIES=="LERU"|SPECIES=="APVI"|SPECIES=="LUKA"]
 US$LENGTH_FL <- US$LENGTH_TL*US$TL_TO_FL
 
 # Save data
-US <- select(US,DATASET,YEAR=OBS_YEAR,AREA_C,SITE,SITEVISITID,REP,SCIENTIFIC_NAME,SPECIES,METHOD_C=METHOD,OBS_TYPE,LENGTH_FL,COUNT)
+table(US$SPECIES,US$AREA_C)
+US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 
 #================Put size data together===============================================
-
-# Options
-Combine_BB_BIO <- F # Combine biosampling and creel survey lengths
-Combine_Areas <- T # Combine Tutuila, Manua, and the Banks
-MinN          <- 30 # Minimum sample size to do size frequency
-BIN.LIST      <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),BINWIDTH=c(5,5,5,5,5,3,2,5,5,5,5)) # in cm
-
-table(US$SPECIES,US$AREA_C)
-
-#US[AREA_C=="Atoll"]$YEAR <- 9999 # Put all the Atoll data into a non-specific year, for further analyses (while separting it from other areas)
-if(Combine_Areas==T) US[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
-US <- select(US,DATASET,YEAR,AREA_C,SPECIES,METHOD_C,COUNT,LENGTH_FL)
-
-# Load biosampling sizes
-if(Combine_Areas==T) BIO[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
-BIO                       <- select(BIO,DATASET,YEAR,AREA_C,SPECIES,METHOD_C,COUNT,LENGTH_FL)
-BIO                       <- BIO[(SPECIES=="VALO"&METHOD_C=="Spear")|(SPECIES!="VALO"&METHOD_C=="Bottomfishing")] # Removes some misIDed PRFI and PRFL caught by spear
-
-# Load BBS sizes
-if(Combine_Areas==T) BB[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
-BB <- select(BB,DATASET,YEAR,AREA_C,SPECIES,METHOD_C,COUNT,LENGTH_FL)
-BB <- BB[!is.na(LENGTH_FL)]
-BB <- BB[METHOD_C=="Bottomfishing"]
-
-# Merge DATASETs
 D <- rbind(US,BIO,BB)
-if(Combine_BB_BIO==T) D[DATASET=="Biosampling"|DATASET=="BBIO"]$DATASET <- "BIO and BBIO"
 
-# Merge all years for Atoll and NWHI
+if(Combine_BB_BIO==T) D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BIO and BBS"
+
+# Merge all years for Atoll
 D[AREA_C=="Atoll"]$YEAR <- 2022
 
 # Add some LH info
 LH <- select(S,SPECIES,LMAX)
 D  <- merge(D,LH,by="SPECIES")
+D  <- D[LENGTH_FL<=LMAX]
 
 # Add region weights
-D$RW <- 0.8
-D[AREA_C=="Manua"]$RW <- 0.2
+D <- merge(D,AW,by="AREA_C")
 
 # Statistics
 Species.List <- unique(D$SPECIES)
@@ -175,6 +166,14 @@ for(i in 1:length(Species.List)){
    G          <- merge(E,NB2,by=c("DATASET","YEAR","AREA_C"))
    NB$SPECIES <- Sp
    
+   # Effective Sample size by YEAR
+   SAMPSIZE      <- G[,list(N=.N),by=list(DATASET,YEAR,AREA_C,WEIGHT)]
+   SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$WEIGHT
+   SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(DATASET,YEAR)]
+   G             <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
+   
+   if(Combine_Areas==T)  G[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
+   
    Fld <- paste0(root_dir,"/Outputs/Graphs/Size/")
    if(nrow(G[DATASET=="Biosampling"])>0){
       ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
@@ -184,45 +183,33 @@ for(i in 1:length(Species.List)){
       ggplot(data=G[DATASET=="UVS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
       ggsave(paste0(Fld,Sp,"_Freq_","US",".png"),width=20,height=10,unit="cm")}
    
-   if(nrow(G[DATASET=="BBIO"])>0){
-      ggplot(data=G[DATASET=="BBIO"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+   if(nrow(G[DATASET=="BIO"])>0){
+      ggplot(data=G[DATASET=="BIO"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
       ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"),width=20,height=10,unit="cm")}
    
-   if(nrow(G[DATASET=="BIO and BBIO"])>0){
-      ggplot(data=G[DATASET=="BIO and BBIO"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
-      ggsave(paste0(Fld,Sp,"_Freq_","BIO and BBIO",".png"),width=20,height=10,unit="cm")}
+   if(nrow(G[DATASET=="BIO and BBS"])>0){
+      ggplot(data=G[DATASET=="BIO and BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+      ggsave(paste0(Fld,Sp,"_Freq_","BIO and BBS",".png"),width=20,height=10,unit="cm")}
    
-   # Prepare DATASET for SS3
-   # Obtain mean weight and mean length per trip
-   #BINS      <- seq(from=0,ceiling(max(G$LMAX)),by=BIN_SIZE)
-   #BINS      <- cbind(BINS,seq(1,28,by=1))
-   G         <- G[LENGTH_FL<=LMAX]
-   
+   # L99 to use for StepwiseLH tool, if needed
    L99List[[i]] <- G[,list(L99=round(quantile(LENGTH_FL,0.99),1)),by=list(SPECIES,DATASET)]
    
+   # Prepare DATASET for SS3
    # Add length bin lower ends to DATASET
    G$LENGTH_BIN_START <- G$LENGTH_FL-(G$LENGTH_FL%%BIN_SIZE)
-   
-   # Effective Sample size by YEAR
-   SAMPSIZE      <- G[,list(N=.N),by=list(DATASET,YEAR,AREA_C,RW)]
-   SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$RW
-   SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(DATASET,YEAR)]
-   #plot(SAMPSIZE$YEAR,SAMPSIZE$EFFN)
-   
+  
    # Calculate abundance-at-length
-   G <- G[,list(N=.N),by=list(SPECIES,AREA_C,DATASET,YEAR,LENGTH_BIN_START)]
+   G <- G[,list(N=.N),by=list(SPECIES,AREA_C,EFFN,DATASET,YEAR,LENGTH_BIN_START)]
    G <- G[order(SPECIES,AREA_C,DATASET,YEAR,LENGTH_BIN_START)]
    
    # Add full range of size bins, if any are missing, by temporarily inserting fake data with full range
    BINS       <- seq(min(G$LENGTH_BIN_START),max(G$LENGTH_BIN_START),by=BIN_SIZE)
-   TEMP       <- data.table(cbind(SPECIES="FAKE",DATASET="FAKE",AREA_C="FAKE",YEAR=2222,LENGTH_BIN_START=BINS,N=0))
+   TEMP       <- data.table(cbind(SPECIES="FAKE",DATASET="FAKE",AREA_C="FAKE",EFFN=0,YEAR=2222,LENGTH_BIN_START=BINS,N=0))
    TEMP[,3:5] <- rapply(TEMP[,4:6], as.numeric, how="replace") 
    G          <- rbind(G,TEMP)
    
    # Continue
-   G <- dcast.data.table(G,SPECIES+DATASET+AREA_C+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
-   G <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
-   G <- select(G,SPECIES,DATASET,YEAR,AREA_C,EFFN,4:(length(G)-1))
+   G <- dcast.data.table(G,SPECIES+DATASET+AREA_C+EFFN+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
    G <- melt(G,id.vars=1:5,value.name="N",variable.name="LENGTH_BIN_START")
    G <- G[DATASET!="FAKE"]
    
@@ -231,10 +218,12 @@ for(i in 1:length(Species.List)){
 }
 
 # Export size structure to single RDS file
- SizeData <- rbindlist(GList)
+ SizeData   <- rbindlist(GList)
  SizeData$N <- as.numeric(SizeData$N)
  SizeData$LENGTH_BIN_START <- as.numeric(as.character(SizeData$LENGTH_BIN_START))
- 
+
+ SizeData <- SizeData[AREA_C!="Atoll"]
+ SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
  saveRDS(SizeData,paste0(root_dir,"/Outputs/SIZE_Final.rds"))
 
 
@@ -246,6 +235,7 @@ write.xlsx(Summary,paste0(root_dir,"/Outputs//Graphs//SIZE//Size_N_YEAR.xlsx"))
 L99Summary <- do.call(rbind.data.frame, L99List)
 L99Summary <- dcast.data.table(L99Summary,SPECIES~DATASET,value.var="L99",fill=NA)
 write.xlsx(L99Summary,paste0(root_dir,"/Outputs//Graphs//SIZE//L99.xlsx"))
+
 
 
 
