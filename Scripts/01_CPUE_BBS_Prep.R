@@ -47,7 +47,7 @@
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is 1 EST_LBS per CATCH_PK
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
-                                               INTERVIEW_TIME,PORT_NAME,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
+                                               INTERVIEW_TIME,PORT_NAME,VESSEL_FK,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
    
    A$YEAR        <- as.numeric(year(A$SAMPLE_DATE))
    A$MONTH       <- as.numeric(month(A$SAMPLE_DATE))
@@ -85,7 +85,7 @@
    AREAS <- AREAS[DATASET=="BBS"]
    AREAS <- select(AREAS,AREA_ID,AREA_A,AREA_C,AREA_C)
    AREAS$AREA_ID <- as.character(AREAS$AREA_ID)
-   A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID")
+   A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T)
    
    #  Add some posix CT variables and moon phase, use require lunar package. Note: American Samoa is UTC -11.
    A <- mutate(A, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
@@ -101,7 +101,7 @@
    SPECIES <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
    SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
    SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
-   A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
+   A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
 
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
@@ -111,6 +111,7 @@
    # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
    A[AREA_C=="Unk"&ISLAND_NAME=="Tutuila"]$AREA_C <- "Tutuila"
    A[AREA_C=="Unk"&ISLAND_NAME=="Manua"]$AREA_C   <- "Manua"
+   A[is.na(AREA_C)]$AREA_C                        <- A[is.na(AREA_C)]$ISLAND_NAME
    
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
@@ -267,6 +268,12 @@ for (i in 1:length(CATCH_PK.list)){
 B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME)
 setnames(B,"SPECIES_FK2","SPECIES_FK")
 B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
+
+
+# Select only used variables
+B <- select(B,INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_FK,METHOD_FK,
+            HOURS_FISHED,NUM_GEAR,SPECIES_FK,FAMILY,SCIENTIFIC_NAME,EST_LBS)
+
 
 # save in the output folder.
 saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
