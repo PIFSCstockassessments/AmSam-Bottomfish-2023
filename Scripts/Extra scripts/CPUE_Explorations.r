@@ -6,25 +6,22 @@ root_dir <- this.path::here(.. = 2) # establish directories using this.path
 B <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
 
 # How many interviews?
-I <- B[,list(ONES=1),by=list(YEAR,INTERVIEW_PK,METHOD_FK,BMUS)] # 3048 interviews
-I <- dcast(I,INTERVIEW_PK+METHOD_FK~BMUS,value.var="ONES")
+I <- B[,list(ONES=1),by=list(YEAR,INTERVIEW_PK,METHOD_FK,BMUS)] 
+I <- dcast(I,INTERVIEW_PK+YEAR+METHOD_FK~BMUS,value.var="ONES",fill=0) # 3048 interviews (Method 4 or 5)
 
+nrow(I[METHOD_FK==4])/(nrow(I[METHOD_FK==4])+nrow(I[METHOD_FK==5])) # 75% of interviews are Bottomfishing
+I <- I[METHOD_FK==4]
 
-
-
-
-
-I[IS.BMUS==1|IS.BMUS.GROUP==1]
-
-
-table(B$METHOD_FK)
+I$BOTH            <- ifelse(I$BMUS_Containing_Group==1&I$BMUS_Species==1,1,0)
+I2                <- I[BMUS_Containing_Group==1|BMUS_Species==1,list(GROUP=sum(BMUS_Containing_Group),BSPECIES=sum(BMUS_Species),BOTH=sum(BOTH)),by=list(YEAR)]
+I2$N_ONLY_SPECIES <- I2$BSPECIES-I2$BOTH
+ggplot(data=I2,aes(x=YEAR,y=N_ONLY_SPECIES))+geom_line()
+       # If we filtered for only interviews where ALL the BMUS catch is identified at the species level, we would get only about 10 to 30 interviews per year pre-2016.
 
 # Explore the number of vessels with a registration number
-Test <- B[,list(N=.N),by=list(INTERVIEW_PK,VESSEL_REGIST_NO)]
-Test <- data.table(  table(Test$VESSEL_REGIST_NO)  )
-Test[V1=="NULL"]$N/sum(Test$N) # 15% of interviews contain vessel_regist_no == NULL
-
-
+VE <- B[METHOD_FK==4,list(N=.N),by=list(INTERVIEW_PK,VESSEL_REGIST_NO)]
+VE <- data.table(  table(VE$VESSEL_REGIST_NO)  )
+VE[V1=="NULL"]$N/sum(VE$N) # 20% of bfish interviews contain vessel_regist_no == NULL
 
 
 # Explore patterns related to how many METHODS are contained with a single INTERVIEW_PK
