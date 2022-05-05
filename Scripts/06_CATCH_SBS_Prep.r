@@ -48,8 +48,6 @@ D <- merge(D,R,by.x="ROUTE",by.y="AREA_ID",all.x=T)
 D <- merge(D,M,by.x="METHOD",by.y="METHOD_ID",all.x=T)
 D <- merge(D,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
-#setnames(D,"AREA_C","ZONE")
-
 D[is.na(VAR_EXP_LBS)]$VAR_EXP_LBS <- 0 # Is this necessary?
 
 # rename duplicate group SPECIES_FK in cases of complete union:
