@@ -11,3 +11,6 @@ unique(C$METHOD_FK)
 
 
 nrow(C[METHOD_FK==5])
+
+
+unique(C$VESSEL_FK)
