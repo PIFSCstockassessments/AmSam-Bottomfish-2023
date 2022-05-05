@@ -274,7 +274,8 @@ B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
 B <- select(B,INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_FK,METHOD_FK,
             HOURS_FISHED,NUM_GEAR,SPECIES_FK,FAMILY,SCIENTIFIC_NAME,EST_LBS)
 
-# save in the output folder.
+
+# save in nullfile()# save in the output folder.
 saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
 
 
