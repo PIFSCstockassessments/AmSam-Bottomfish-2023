@@ -271,18 +271,18 @@ setnames(B,"SPECIES_FK2","SPECIES_FK")
 B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 # Add information as whether the record is a BMUS or part of a multi-species group that could contain BMUS
-B$BMUS <- "No"
+B$BMUS <- "Non_BMUS"
 B[SPECIES_FK=="247"|SPECIES_FK=="239"|SPECIES_FK=="111"|SPECIES_FK=="249"|
     SPECIES_FK=="248"|SPECIES_FK=="267"|SPECIES_FK=="231"|SPECIES_FK=="242"|
-    SPECIES_FK=="241"|SPECIES_FK=="245"|SPECIES_FK=="229"]$BMUS <- "Yes"
+    SPECIES_FK=="241"|SPECIES_FK=="245"|SPECIES_FK=="229"]$BMUS <- "BMUS_Species"
 
 B[SPECIES_FK=="109"|SPECIES_FK=="110"|SPECIES_FK=="200"|SPECIES_FK=="210"|
     SPECIES_FK=="230"|SPECIES_FK=="240"|SPECIES_FK=="260"|SPECIES_FK=="380"|
-    SPECIES_FK=="390"]$BMUS <- "Group"
+    SPECIES_FK=="390"]$BMUS <- "BMUS_Containing_Group"
 
 # Add proportion unidentified per INTERVIEW_PK
-SUM.GROUP   <- B[IS.BMUS.GROUP==1,list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
-SUM.BMUS    <- B[IS.BMUS==1,list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
+SUM.GROUP   <- B[BMUS=="BMUS-Containing Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
+SUM.BMUS    <- B[BMUS=="BMUS Species",list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
 P           <- merge(SUM.GROUP,SUM.BMUS,by="INTERVIEW_PK")
 P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3) 
 P           <- select(P,INTERVIEW_PK,PROP_UNID)
