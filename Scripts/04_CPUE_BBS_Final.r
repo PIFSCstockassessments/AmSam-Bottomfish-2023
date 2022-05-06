@@ -15,7 +15,6 @@ C <- C[HOURS_FISHED>0&(NUM_GEAR>0&NUM_GEAR<20)]; length(unique(C$INTERVIEW_PK))
 table(C$TYPE_OF_DAY,exclude=NULL)
 table(C$MONTH,exclude=NULL)
 table(C$PROP_UNID,exclude=NULL) # Note: the NAs are interviews with no BMUS or potential group BMUS catch
-table(C$VESSEL_REGIST_NO,exclude=NULL) # Note: 2957 records from "NULL or UNREG" vessels out of 16302 obs.
 table(C$AREA_C)
 
 # Check the range of catch values
