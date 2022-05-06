@@ -87,6 +87,11 @@
    AREAS$AREA_ID <- as.character(AREAS$AREA_ID)
    A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T)
    
+   # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
+   length(unique(A[AREA_FK==0|AREA_FK==99|AREA_FK==100|is.na(AREA_C)]$INTERVIEW_PK)) #135 interviews can be salvaged by assigning the island to the area
+   A[AREA_C=="Unk"|is.na(AREA_C)]$AREA_C <- A[AREA_C=="Unk"|is.na(AREA_C)]$ISLAND_NAME
+   A <- A[AREA_C!="Imports/Filter"]
+   
    #  Add some posix CT variables and moon phase, use require lunar package. Note: American Samoa is UTC -11.
    A <- mutate(A, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
    A <- mutate(A, INTERVIEW_TIME_UTC = INTERVIEW_TIME_LOCAL + 11*60*60)
@@ -109,11 +114,6 @@
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
 
-   # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
-   A[AREA_C=="Unk"&ISLAND_NAME=="Tutuila"]$AREA_C <- "Tutuila"
-   A[AREA_C=="Unk"&ISLAND_NAME=="Manua"]$AREA_C   <- "Manua"
-   A[is.na(AREA_C)]$AREA_C                        <- A[is.na(AREA_C)]$ISLAND_NAME
-   
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
 #	243 'Pristipomoides rutilans' has local name "Palu sina (Yelloweye Opakapaka)"
