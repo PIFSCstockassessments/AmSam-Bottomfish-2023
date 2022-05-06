@@ -60,7 +60,7 @@ plotnScree(results)
 for(i in 1:variables) if(NF$Eigenvalues[i]>=1&(NF$Eigenvalues[i]>=NF$Pred.eig[i])){PC_KEEP<-i}else{break} 
 
 # Add first four principal components back in dataset
-E <- cbind(D[,1],PCA$x[,1:4],PC_KEEP)
+E <- cbind(D[,1],PCA$x[,1:4])
 
 # Save this record
 saveRDS(E,paste0(root_dir,"/Outputs/CPUE_PCA.rds"))
