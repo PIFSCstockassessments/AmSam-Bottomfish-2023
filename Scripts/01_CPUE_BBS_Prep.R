@@ -49,12 +49,13 @@
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
                                                INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
    
-   A$YEAR        <- as.numeric(year(A$SAMPLE_DATE))
-   A$MONTH       <- as.numeric(month(A$SAMPLE_DATE))
-   A$HOUR        <- as.numeric(hour(A$INTERVIEW_TIME))
-   A$EST_LBS     <- as.numeric(A$EST_LBS)
-   A$TOT_EST_LBS <- as.numeric(A$TOT_EST_LBS)
-   A$AREA_FK     <- as.character(A$AREA_FK)
+   A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
+   A$MONTH        <- as.numeric(month(A$SAMPLE_DATE))
+   A$HOUR         <- as.numeric(hour(A$INTERVIEW_TIME))
+   A$EST_LBS      <- as.numeric(A$EST_LBS)
+   A$TOT_EST_LBS  <- as.numeric(A$TOT_EST_LBS)
+   A$AREA_FK      <- as.character(A$AREA_FK)
+   A$INTERVIEW_PK <- as.character(A$INTERVIEW_PK)
    
    # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
    A$SEASON <- "NA"
