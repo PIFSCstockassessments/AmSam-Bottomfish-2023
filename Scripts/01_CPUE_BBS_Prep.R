@@ -47,18 +47,19 @@
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is 1 EST_LBS per CATCH_PK
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
-                                               INTERVIEW_TIME,PORT_NAME,VESSEL_FK,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
+                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
    
-   A$YEAR        <- as.numeric(year(A$SAMPLE_DATE))
-   A$MONTH       <- as.numeric(month(A$SAMPLE_DATE))
-   A$HOUR        <- as.numeric(hour(A$INTERVIEW_TIME))
-   A$EST_LBS     <- as.numeric(A$EST_LBS)
-   A$TOT_EST_LBS <- as.numeric(A$TOT_EST_LBS)
-   A$AREA_FK     <- as.character(A$AREA_FK)
+   A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
+   A$MONTH        <- as.numeric(month(A$SAMPLE_DATE))
+   A$HOUR         <- as.numeric(hour(A$INTERVIEW_TIME))
+   A$EST_LBS      <- as.numeric(A$EST_LBS)
+   A$TOT_EST_LBS  <- as.numeric(A$TOT_EST_LBS)
+   A$AREA_FK      <- as.character(A$AREA_FK)
+   A$INTERVIEW_PK <- as.character(A$INTERVIEW_PK)
    
    # season: 12-1-2 = summer, 3-4-5 = fall, 6-7-8 = winter, 9-10-11 = spring
    A$SEASON <- "NA"
-   A[MONTH>=12&MONTH<=2]$SEASON <- "summer"
+   A[MONTH>=12|MONTH<=2]$SEASON <- "summer"
    A[MONTH>=3&MONTH<=5]$SEASON  <- "fall"
    A[MONTH>=6&MONTH<=8]$SEASON  <- "winter"
    A[MONTH>=9&MONTH<=11]$SEASON <- "spring"
@@ -67,7 +68,7 @@
    A$SHIFT <- "NA"
    A[HOUR >= 5  &  HOUR < 14]$SHIFT <- 'am' 
    A[HOUR >= 14 & HOUR < 23]$SHIFT  <- 'pm' 
-   A[HOUR >= 23 & HOUR < 5]$SHIFT   <- 'other' 
+   A[HOUR >= 23 | HOUR < 5]$SHIFT   <- 'other' 
    
    # Time of Day quarter
    A$TOD_QUARTER <- "NA"
@@ -87,6 +88,11 @@
    AREAS$AREA_ID <- as.character(AREAS$AREA_ID)
    A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T)
    
+   # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
+   length(unique(A[AREA_FK==0|AREA_FK==99|AREA_FK==100|is.na(AREA_C)]$INTERVIEW_PK)) #135 interviews can be salvaged by assigning the island to the area
+   A[AREA_C=="Unk"|is.na(AREA_C)]$AREA_C <- A[AREA_C=="Unk"|is.na(AREA_C)]$ISLAND_NAME
+   A <- A[AREA_C!="Imports/Filter"]
+   
    #  Add some posix CT variables and moon phase, use require lunar package. Note: American Samoa is UTC -11.
    A <- mutate(A, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
    A <- mutate(A, INTERVIEW_TIME_UTC = INTERVIEW_TIME_LOCAL + 11*60*60)
@@ -102,17 +108,13 @@
    SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
    SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
    A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
+   
 
 #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
 
-   # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
-   A[AREA_C=="Unk"&ISLAND_NAME=="Tutuila"]$AREA_C <- "Tutuila"
-   A[AREA_C=="Unk"&ISLAND_NAME=="Manua"]$AREA_C   <- "Manua"
-   A[is.na(AREA_C)]$AREA_C                        <- A[is.na(AREA_C)]$ISLAND_NAME
-   
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
 #	243 'Pristipomoides rutilans' has local name "Palu sina (Yelloweye Opakapaka)"
@@ -269,16 +271,31 @@ B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME)
 setnames(B,"SPECIES_FK2","SPECIES_FK")
 B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
+# Add information as whether the record is a BMUS or part of a multi-species group that could contain BMUS
+B$BMUS <- "Non_BMUS"
+B[SPECIES_FK=="247"|SPECIES_FK=="239"|SPECIES_FK=="111"|SPECIES_FK=="249"|
+    SPECIES_FK=="248"|SPECIES_FK=="267"|SPECIES_FK=="231"|SPECIES_FK=="242"|
+    SPECIES_FK=="241"|SPECIES_FK=="245"|SPECIES_FK=="229"]$BMUS <- "BMUS_Species"
+
+B[SPECIES_FK=="109"|SPECIES_FK=="110"|SPECIES_FK=="200"|SPECIES_FK=="210"|
+    SPECIES_FK=="230"|SPECIES_FK=="240"|SPECIES_FK=="260"|SPECIES_FK=="380"|
+    SPECIES_FK=="390"]$BMUS <- "BMUS_Containing_Group"
+
+# Add proportion unidentified per INTERVIEW_PK
+SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
+SUM.BMUS    <- B[BMUS=="BMUS_Species",list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
+P           <- merge(SUM.GROUP,SUM.BMUS,by="INTERVIEW_PK")
+P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3) 
+P           <- select(P,INTERVIEW_PK,PROP_UNID)
+B           <- merge(B,P,by="INTERVIEW_PK",all.x=T)
 
 # Select only used variables
-B <- select(B,INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_FK,METHOD_FK,
-            HOURS_FISHED,NUM_GEAR,SPECIES_FK,FAMILY,SCIENTIFIC_NAME,EST_LBS)
+B <- select(B,INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_REGIST_NO,METHOD_FK,
+            HOURS_FISHED,NUM_GEAR,PROP_UNID,BMUS,SPECIES_FK,FAMILY,SCIENTIFIC_NAME,EST_LBS)
 
+B <- B[order(SAMPLE_DATE,INTERVIEW_TIME_LOCAL,INTERVIEW_PK)]
 
 # save in nullfile()# save in the output folder.
 saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
-
-
-
 
 
