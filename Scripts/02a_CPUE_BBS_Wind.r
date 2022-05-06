@@ -284,10 +284,9 @@ for (i in 1:nrow(INT.W.TUT)) {
 
 INT.W <- rbind(INT.W.TUT, INT.W.MAN)
 INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=WSPD,WINDDIR=wdir,)
-B     <- merge(B,INT.W,by="INTERVIEW_PK",all.x=T)
 
 
-saveRDS(B,paste0(root_dir, "/Outputs/CPUE_B.rds"))
+saveRDS(INT.W,paste0(root_dir, "/Outputs/WIND.rds"))
 
 	
 
