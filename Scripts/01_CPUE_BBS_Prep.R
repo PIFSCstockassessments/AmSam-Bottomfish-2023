@@ -109,8 +109,7 @@
    SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
    A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
    
-
-#=========================STEP 2: Basic Interview Filtering and fixes===============================
+ #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
@@ -145,6 +144,20 @@
  
  # Filter for the two bottomfishing methods 
   A <- A[METHOD_FK==4|METHOD_FK==5] 
+  
+  # Make sure HOURS_FISHED is available and exclude some extreme NUM_GEAR values
+  A <- A[HOURS_FISHED>0&(NUM_GEAR>0&NUM_GEAR<20)]; length(unique(C$INTERVIEW_PK))
+  
+  # Check that covariates don't have NAs or other weird values
+  table(A$TYPE_OF_DAY,exclude=NULL)
+  table(A$MONTH,exclude=NULL)
+  table(A$PROP_UNID,exclude=NULL) # Note: the NAs are interviews with no BMUS or potential group BMUS catch
+  table(A$AREA_C)
+  
+  # Check the range of catch values
+  range(A$EST_LBS)
+  A[EST_LBS==687.348] # 10 hours fishing, unidentified snappers (Code 230)
+  
   
   # WATCH OUT- there were 779 interviews, 3105 catch records, that included NUM_KEPT = 0 but catch weight was recorded
 	# skimming through, it is obvious that the number of fish that must have been included in these weights was greater than 1.
