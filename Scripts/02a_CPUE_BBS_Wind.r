@@ -286,7 +286,7 @@ INT.W <- rbind(INT.W.TUT, INT.W.MAN)
 INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=WSPD,WINDDIR=wdir,)
 
 
-saveRDS(INT.W,paste0(root_dir, "/Outputs/WIND.rds"))
+saveRDS(INT.W,paste0(root_dir, "/Outputs/CPUE_WIND.rds"))
 
 	
 
