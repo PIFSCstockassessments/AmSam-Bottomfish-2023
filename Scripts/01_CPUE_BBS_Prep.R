@@ -281,8 +281,8 @@ B[SPECIES_FK=="109"|SPECIES_FK=="110"|SPECIES_FK=="200"|SPECIES_FK=="210"|
     SPECIES_FK=="390"]$BMUS <- "BMUS_Containing_Group"
 
 # Add proportion unidentified per INTERVIEW_PK
-SUM.GROUP   <- B[BMUS=="BMUS-Containing Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
-SUM.BMUS    <- B[BMUS=="BMUS Species",list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
+SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
+SUM.BMUS    <- B[BMUS=="BMUS_Species",list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
 P           <- merge(SUM.GROUP,SUM.BMUS,by="INTERVIEW_PK")
 P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3) 
 P           <- select(P,INTERVIEW_PK,PROP_UNID)
