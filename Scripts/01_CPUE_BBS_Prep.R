@@ -297,18 +297,29 @@ B[SPECIES_FK=="109"|SPECIES_FK=="110"|SPECIES_FK=="200"|SPECIES_FK=="210"|
 # Add proportion unidentified per INTERVIEW_PK
 SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
 SUM.BMUS    <- B[BMUS=="BMUS_Species",list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
-P           <- merge(SUM.GROUP,SUM.BMUS,by="INTERVIEW_PK")
+P           <- merge(SUM.GROUP,SUM.BMUS,by="INTERVIEW_PK",all=T)
+P[is.na(P)] <- 0
 P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3) 
 P           <- select(P,INTERVIEW_PK,PROP_UNID)
 B           <- merge(B,P,by="INTERVIEW_PK",all.x=T)
 
-# Select only used variables
-B <- select(B,INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_REGIST_NO,METHOD_FK,
-            HOURS_FISHED,NUM_GEAR,PROP_UNID,BMUS,SPECIES_FK,FAMILY,SCIENTIFIC_NAME,EST_LBS)
+length(unique(B[is.na(PROP_UNID)]$INTERVIEW_PK)) # 166 interviews that don't contain a BMUS or BMUS-containing group
+B[is.na(PROP_UNID)]$PROP_UNID <- 0 # Assign zero for these interviews
+
+
+# Collapse data and select only used variables
+
+B <- B[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_REGIST_NO,METHOD_FK,
+            HOURS_FISHED,NUM_GEAR,PROP_UNID,BMUS,SPECIES_FK,FAMILY,SCIENTIFIC_NAME)]
+
 
 B <- B[order(SAMPLE_DATE,INTERVIEW_TIME_LOCAL,INTERVIEW_PK)]
 
 # save in nullfile()# save in the output folder.
+length(unique(B$INTERVIEW_PK))
+length(unique(B[METHOD_FK==4]$INTERVIEW_PK))
+length(unique(B[METHOD_FK==5]$INTERVIEW_PK))
+
 saveRDS(B,file=paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
 
 
