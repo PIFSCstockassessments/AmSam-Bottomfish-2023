@@ -63,5 +63,6 @@ for(i in 1:variables) if(NF$Eigenvalues[i]>=1&(NF$Eigenvalues[i]>=NF$Pred.eig[i]
 E <- cbind(D[,1],PCA$x[,1:4])
 
 # Save this record
+length(unique(C$INTERVIEW_PK))
 saveRDS(E,paste0(root_dir,"/Outputs/CPUE_PCA.rds"))
 
