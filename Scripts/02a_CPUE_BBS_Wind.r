@@ -285,7 +285,7 @@ for (i in 1:nrow(INT.W.TUT)) {
 INT.W <- rbind(INT.W.TUT, INT.W.MAN)
 INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=WSPD,WINDDIR=wdir,)
 
-
+length(unique(INT.W$INTERVIEW_PK)) # 2329 interviews, since seems to be missing Banks and others
 saveRDS(INT.W,paste0(root_dir, "/Outputs/CPUE_WIND.rds"))
 
 	
