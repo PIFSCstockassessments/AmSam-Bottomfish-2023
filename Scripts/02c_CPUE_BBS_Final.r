@@ -8,6 +8,9 @@ C <- readRDS(paste0(root_dir, "/Outputs/CPUE_A.rds")); length(unique(C$INTERVIEW
 # Only select Bottomfishing (Method_FK==4) trips. Given that BTM includes hours spent trolling.
 C <- C[METHOD_FK==4]; length(unique(C$INTERVIEW_PK))
 
+# Remove years 1986-1987, most data collected in groups.
+C <- C[YEAR>=1988]
+
 # Add windspeed information
 W <- readRDS(paste0(root_dir,"/Outputs/CPUE_WIND.rds"))
 C <- merge(C,W,by="INTERVIEW_PK",all.x=T)
@@ -51,7 +54,8 @@ C$YEAR         <- fct_reorder(C$YEAR,as.numeric(C$YEAR),min)
 C$TYPE_OF_DAY  <- as.factor(C$TYPE_OF_DAY)
 C$AREA_C       <- as.factor(C$AREA_C)
 C$PRES         <- ifelse(C$CPUE>0,1,0)
-
+C$MONTH        <- as.factor(C$MONTH)
+C$SPECIES_FK   <- as.character(C$SPECIES_FK)
 
 length(unique(C$INTERVIEW_PK))
 saveRDS(C,paste0(root_dir,"/Outputs/CPUE_B.rds"))
