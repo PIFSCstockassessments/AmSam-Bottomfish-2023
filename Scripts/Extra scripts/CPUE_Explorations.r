@@ -29,8 +29,12 @@ ME <- B[,list(ONES=1),by=list(INTERVIEW_PK,METHOD_FK)]
 ME <- ME[,list(N=sum(ONES)),by=list(INTERVIEW_PK)]   
 ME[N>1] # This shows an INTERVIEW_PK always contains a single METHOD   
 
+# Explore pattern between hours_fished and cpue
+HF <- B[METHOD_FK==4&HOURS_FISHED<=24,list(EST_LBS=mean(EST_LBS)),by=list(HOURS_FISHED)]
+ggplot(data=HF,aes(x=HOURS_FISHED,y=EST_LBS))+geom_point()+geom_smooth(span=0.7)
 
-
+NG <- B[METHOD_FK==4&NUM_GEAR<=8,list(EST_LBS=mean(EST_LBS)),by=list(NUM_GEAR)]
+ggplot(data=NG,aes(x=NUM_GEAR,y=EST_LBS))+geom_point()+geom_smooth(span=0.7)
 
 
 
