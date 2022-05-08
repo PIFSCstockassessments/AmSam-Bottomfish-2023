@@ -114,5 +114,34 @@ Final   <- rbind(Final,NOMI)
 ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STAND,color=MODEL),se=F,span=0.3)+
   scale_color_brewer(palette = "Set2")+theme_bw()
 
-#ggplot(data=D,aes(x=FYEAR))+geom_point(aes(y=PERC),color="blue",size=1)+geom_point(aes(y=PERC1),color="red",size=1)+
-#  geom_smooth(aes(y=PERC),span=0.3,col="blue")+geom_smooth(aes(y=PERC1),span=0.3,col="red")+theme_bw()
+# Put model results together in a table
+P.Results <- list(); B.Results <- list()
+for(i in 1:length(P.Models)){
+  
+  aP.Table         <- data.table()
+  aP.Model         <- P.Models[[i]]
+  aP.Table$Formula <- as.character(summary(aP.Model)$formula[3])
+  aP.Table$AIC     <- AIC(aP.Model)
+
+  aB.Table         <- data.table()
+  aB.Model         <- B.Models[[i]]
+  aB.Table$Formula <- as.character(summary(aB.Model)$formula[3])
+  aB.Table$AIC     <- AIC(aB.Model)
+
+  P.Results[[i]] <- aP.Table
+  B.Results[[i]] <- aB.Table
+
+}
+
+P.Final <- rbindlist(P.Results)
+B.Final <- rbindlist(B.Results)
+
+P.Final$DELT.AIC <- 0
+P.Final[2:nrow(P.Final),]$DELT.AIC <- diff(P.Final$AIC)
+
+B.Final$DELT.AIC <- 0
+B.Final[2:nrow(B.Final),]$DELT.AIC <- diff(B.Final$AIC)
+
+
+
+
