@@ -14,7 +14,7 @@ C <- C[NUM_GEAR<=6]
 C <- C[HOURS_FISHED<=24]
 
 # Select species and area 
-Sp <- "LUKA"
+Sp <- "APVI"
 Ar <- "Tutuila"
 
 # Run selections
