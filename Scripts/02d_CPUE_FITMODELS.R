@@ -14,15 +14,16 @@ C <- C[NUM_GEAR<=6]
 C <- C[HOURS_FISHED<=24]
 
 # Select species and area 
-Sp <- "PRFL"
+Sp <- "LUKA"
 Ar <- "Tutuila"
 
 # Run selections
 if(Ar=="Tutuila") D <- C[AREA_C=="Tutuila"|AREA_C=="Bank"] 
 if(Ar=="Manua")   D <- C[AREA_C=="Manua"]
-length(unique(D$INTERVIEW_PK))
 
 D <- D[SPECIES==Sp]
+
+nrow(D); nrow(D[CPUE>0]) # Check interview counts
 
 # Remove years with no catches of this species (model can't make prediction for these years)
 YR.CATCH <- D[,list(CPUE=sum(CPUE)),by=YEAR]
@@ -41,33 +42,30 @@ D <- droplevels(D)
 
 # Run standardization analyses - old data - This step can take a while.
 P.Models      <- list()
-P.Models[[1]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR, method="REML")
-P.Models[[2]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3), method="REML")
-P.Models[[3]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH, method="REML")
-P.Models[[4]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C, method="REML")
-P.Models[[5]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY, method="REML")
-P.Models[[6]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID), method="REML")
-P.Models[[7]] <- bam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2), method="REML")
+P.Models[[1]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR, method="REML")
+P.Models[[2]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3), method="REML")
+P.Models[[3]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH, method="REML")
+P.Models[[4]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C, method="REML")
+P.Models[[5]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY, method="REML")
+P.Models[[6]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID), method="REML")
+P.Models[[7]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2), method="REML")
 
 B.Models      <- list()
-B.Models[[1]] <- bam(data=D,PRES~YEAR,family=binomial(link="logit"), method="REML")
-B.Models[[2]] <- bam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
-B.Models[[3]] <- bam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
-B.Models[[4]] <- bam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C,family=binomial(link="logit"), method="REML")
-B.Models[[5]] <- bam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
-B.Models[[6]] <- bam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID),family=binomial(link="logit"), method="REML")
-B.Models[[7]] <- bam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2),family=binomial(link="logit"), method="REML")
-
-aP.Model <- P.Models[[4]]
+B.Models[[1]] <- gam(data=D,PRES~YEAR,family=binomial(link="logit"), method="REML")
+B.Models[[2]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
+B.Models[[3]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
+B.Models[[4]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C,family=binomial(link="logit"), method="REML")
+B.Models[[5]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
+B.Models[[6]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID),family=binomial(link="logit"), method="REML")
+B.Models[[7]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2),family=binomial(link="logit"), method="REML")
 
 Results <- list()
 for(i in 1:length(B.Models)){
   
-  aB.Model <- B.Models[[i]]
-  
   # Create Walter's large table and run predictions
   WLT <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  )
   setnames(WLT,c("YEAR","MONTH","AREA_C","N"))
+  WLT <- select(WLT,-N)
   
   # Add median for continuous variables
   WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
@@ -76,33 +74,36 @@ for(i in 1:length(B.Models)){
   WLT$TYPE_OF_DAY  <- "WD"
   WLT$PC1          <- median(D$PC1)
   WLT$PC2          <- median(D$PC2)
-  
-  
+
   # Predict expected values for all level combinations
-  POSCPUE     <- predict.bam(aP.Model,newdata=WLT)
+  aP.Model    <- P.Models[[i]]
+  POSCPUE     <- predict.gam(aP.Model,newdata=WLT)
   WLT         <- cbind(WLT,POSCPUE)
   WLT$POSCPUE <- exp(WLT$POSCPUE)
   
   # Predict expected probabilities
-  PROBCPUE     <- predict.bam(aB.Model,newdata=WLT)
+  aB.Model     <- B.Models[[i]]
+  PROBCPUE     <- predict.gam(aB.Model,newdata=WLT)
   WLT          <- cbind(WLT,PROBCPUE)
   WLT$PROBCPUE <- inv.logit(WLT$PROBCPUE)
   
   # Put back together
-  WLT$SDCPUE <- WLT$POSCPUE*WLT$PROBCPUE
+  WLT$CPUE <- WLT$POSCPUE*WLT$PROBCPUE
   
   # Give AREAS proportional geographical weights
   RW  <- data.table(AREA_C=c("Tutuila","Bank","Manua"),WEIGHT=c(0.79,0.08,0.13))
   WLT <- merge(WLT,RW,by="AREA_C")
   
-  WLT1 <- WLT[,list(SDCPUE=sum(SDCPUE*WEIGHT)),by=list(YEAR,MONTH)] # Sum abundance in all region, by regional weight
-  WLT1 <- WLT1[,list(SDCPUE=mean(SDCPUE)),by=list(YEAR)] # Average all 12 months per year
+  WLT1 <- WLT[,list(CPUE=sum(CPUE*WEIGHT),POSCPUE=mean(POSCPUE*WEIGHT),PROBCPUE=mean(PROBCPUE*WEIGHT)),by=list(YEAR,MONTH)] # Sum abundance in all region, by regional weight
+  WLT1 <- WLT1[,list(CPUE=mean(CPUE),POSCPUE=mean(POSCPUE),PROBCPUE=mean(PROBCPUE)),by=list(YEAR)] # Average all 12 months per year
   
   WLT1$YEAR <- as.numeric(WLT1$YEAR)
   
-  WLT1$STAND  <- WLT1$SDCPUE/mean(WLT1$SDCPUE)*100
-  WLT1        <- select(WLT1,-SDCPUE)
-  WLT1$MODEL  <- paste0("Model",i)
+  WLT1$STD.CPUE     <- WLT1$CPUE/mean(WLT1$CPUE)*100
+  WLT1$STD.POSCPUE  <- WLT1$POSCPUE/mean(WLT1$POSCPUE)*100
+  WLT1$STD.PROBCPUE <- WLT1$PROBCPUE/mean(WLT1$PROBCPUE)*100
+  WLT1              <- select(WLT1,-CPUE,-POSCPUE,-PROBCPUE)
+  WLT1$MODEL        <- paste0("Model",i)
   
   Results[[i]] <- WLT1
   
@@ -111,8 +112,16 @@ for(i in 1:length(B.Models)){
 Final   <- rbindlist(Results)
 Final   <- rbind(Final,NOMI)
 
-ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STAND,color=MODEL),se=F,span=0.3)+
+ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STD.PROBCPUE,color=MODEL),se=F,span=0.3)+
   scale_color_brewer(palette = "Set2")+theme_bw()
+
+ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STD.POSCPUE,color=MODEL),se=F,span=0.3)+
+  scale_color_brewer(palette = "Set2")+theme_bw()
+
+ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STD.CPUE,color=MODEL),se=F,span=0.3)+
+  scale_color_brewer(palette = "Set2")+theme_bw()
+
+
 
 # Put model results together in a table
 P.Results <- list(); B.Results <- list()
