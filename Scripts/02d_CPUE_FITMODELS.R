@@ -32,28 +32,39 @@ YR.CATCH <- select(YR.CATCH,-CPUE)
 D        <- merge(D,YR.CATCH,by="YEAR")
 D        <- droplevels(D)
 
+# Add data weights so that each YxMxR strata have the same weight in the GAM models
+WGHT                     <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  )
+setnames(WGHT,c("YEAR","MONTH","AREA_C","N"))
+WGHT$Nobs_Nstrata        <- sum(WGHT$N)/nrow(WGHT[N>0]) # Add the Nobs / Nstrata ratio
+WGHT$STAT.W              <- WGHT$Nobs_Nstrata * 1/WGHT$N
+WGHT[STAT.W==Inf]$STAT.W <- 0
+WGHT                     <- WGHT[order(YEAR,MONTH,AREA_C)]
+WGHT                     <- select(WGHT,YEAR,MONTH,AREA_C,STAT.W)
+
+D <- merge(D,WGHT,by=c("YEAR","MONTH","AREA_C"))
+
 # Run standardization analyses - old data - This step can take a while.
 P.Models      <- list()
-P.Models[[1]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR, method="REML")
-P.Models[[2]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3), method="REML")
-P.Models[[3]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH, method="REML")
-P.Models[[4]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C, method="REML")
-P.Models[[5]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY, method="REML")
-P.Models[[6]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID), method="REML")
-P.Models[[7]] <- gam(data=D[CPUE>0],log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2), method="REML")
+P.Models[[1]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR, method="REML")
+P.Models[[2]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3), method="REML")
+P.Models[[3]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH, method="REML")
+P.Models[[4]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2), method="REML")
+P.Models[[5]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID), method="REML")
+P.Models[[6]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+AREA_C, method="REML")
+P.Models[[7]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+AREA_C+TYPE_OF_DAY, method="REML")
 
 B.Models      <- list()
-B.Models[[1]] <- gam(data=D,PRES~YEAR,family=binomial(link="logit"), method="REML")
-B.Models[[2]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
-B.Models[[3]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
-B.Models[[4]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C,family=binomial(link="logit"), method="REML")
-B.Models[[5]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
-B.Models[[6]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID),family=binomial(link="logit"), method="REML")
-B.Models[[7]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2),family=binomial(link="logit"), method="REML")
+B.Models[[1]] <- gam(data=D,weights=STAT.W,PRES~YEAR,family=binomial(link="logit"), method="REML")
+B.Models[[2]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
+B.Models[[3]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
+B.Models[[4]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2),family=binomial(link="logit"), method="REML")
+B.Models[[5]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID),family=binomial(link="logit"), method="REML")
+B.Models[[6]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+AREA_C,family=binomial(link="logit"), method="REML")
+B.Models[[7]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+AREA_C+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
 
-Model.Names <- data.table(MODEL=as.factor(c("YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+AREA","+TYPE_OF_DAY","+PROP_UNID","+PC1+PC2")),ORDER=c(1,2,3,4,5,6,7))
+Model.Names       <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+AREA","+TYPE_OF_DAY","+PROP_UNID","+PC1+PC2")),ORDER=c(1,2,3,4,5,6,7,8))
 Model.Names$MODEL <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
-Model.Names <- select(Model.Names,-ORDER)
+Model.Names       <- select(Model.Names,-ORDER)
 
 Results <- list()
 for(i in 1:length(B.Models)){
@@ -65,7 +76,7 @@ for(i in 1:length(B.Models)){
   WLT       <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  )
   setnames(WLT,c("YEAR","MONTH","AREA_C","N"))
   WLT       <- select(WLT,-N)
-  WLT$MODEL <- Model.Names[i]
+  WLT$MODEL <- Model.Names[i+1]
   
   
   # Add median for continuous variables
@@ -120,9 +131,10 @@ Final         <- rbind(Final,NOMI)
 # Melt all types of cpue
 Final <- melt(Final,id.var=1:2,variable.name="CPUE_TYPE",value.name="CPUE")
 
-p1 <- ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL),se=F,span=0.2)+
-      scale_color_manual(values=c("red", "blue", "green","orange","darkblue","darkgreen","purple","black"))+
-      facet_wrap(~CPUE_TYPE)+theme_bw()
+p1 <- ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL,linetype=MODEL),se=F,span=0.2)+facet_wrap(~CPUE_TYPE)+theme_bw()+
+         scale_linetype_manual(values=c("dashed","solid","solid","solid","solid","solid","solid","solid"))+
+         #scale_color_manual(values=c("red", "blue", "green","orange","darkblue","darkgreen","purple","black"))+
+         scale_color_brewer(palette="Dark2")
 
 # Put model results together in a table
 P.Results <- list(); B.Results <- list()
