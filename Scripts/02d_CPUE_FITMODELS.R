@@ -30,15 +30,7 @@ YR.CATCH <- D[,list(CPUE=sum(CPUE)),by=YEAR]
 YR.CATCH <- YR.CATCH[CPUE>0]
 YR.CATCH <- select(YR.CATCH,-CPUE)
 D        <- merge(D,YR.CATCH,by="YEAR")
-
-# Nominal CPUE
-NOMI       <- D[,list(CPUE=mean(CPUE/HOURS_FISHED/NUM_GEAR)),by=list(YEAR)]
-NOMI$STAND <- NOMI$CPUE/mean(NOMI$CPUE)*100
-NOMI$MODEL <- "NOMI"
-NOMI       <- select(NOMI,-CPUE)
-NOMI$YEAR  <- as.numeric(as.character((NOMI$YEAR)))
-
-D <- droplevels(D)
+D        <- droplevels(D)
 
 # Run standardization analyses - old data - This step can take a while.
 P.Models      <- list()
@@ -59,13 +51,22 @@ B.Models[[5]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA
 B.Models[[6]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID),family=binomial(link="logit"), method="REML")
 B.Models[[7]] <- gam(data=D,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+AREA_C+TYPE_OF_DAY+s(PROP_UNID)+s(PC1)+s(PC2),family=binomial(link="logit"), method="REML")
 
+Model.Names <- data.table(MODEL=as.factor(c("YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+AREA","+TYPE_OF_DAY","+PROP_UNID","+PC1+PC2")),ORDER=c(1,2,3,4,5,6,7))
+Model.Names$MODEL <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
+Model.Names <- select(Model.Names,-ORDER)
+
 Results <- list()
 for(i in 1:length(B.Models)){
   
+  aP.Model    <- P.Models[[i]]
+  aB.Model     <- B.Models[[i]]
+  
   # Create Walter's large table and run predictions
-  WLT <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  )
+  WLT       <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  )
   setnames(WLT,c("YEAR","MONTH","AREA_C","N"))
-  WLT <- select(WLT,-N)
+  WLT       <- select(WLT,-N)
+  WLT$MODEL <- Model.Names[i]
+  
   
   # Add median for continuous variables
   WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
@@ -74,15 +75,13 @@ for(i in 1:length(B.Models)){
   WLT$TYPE_OF_DAY  <- "WD"
   WLT$PC1          <- median(D$PC1)
   WLT$PC2          <- median(D$PC2)
-
+  
   # Predict expected values for all level combinations
-  aP.Model    <- P.Models[[i]]
   POSCPUE     <- predict.gam(aP.Model,newdata=WLT)
   WLT         <- cbind(WLT,POSCPUE)
   WLT$POSCPUE <- exp(WLT$POSCPUE)
   
   # Predict expected probabilities
-  aB.Model     <- B.Models[[i]]
   PROBCPUE     <- predict.gam(aB.Model,newdata=WLT)
   WLT          <- cbind(WLT,PROBCPUE)
   WLT$PROBCPUE <- inv.logit(WLT$PROBCPUE)
@@ -94,34 +93,36 @@ for(i in 1:length(B.Models)){
   RW  <- data.table(AREA_C=c("Tutuila","Bank","Manua"),WEIGHT=c(0.79,0.08,0.13))
   WLT <- merge(WLT,RW,by="AREA_C")
   
-  WLT1 <- WLT[,list(CPUE=sum(CPUE*WEIGHT),POSCPUE=mean(POSCPUE*WEIGHT),PROBCPUE=mean(PROBCPUE*WEIGHT)),by=list(YEAR,MONTH)] # Sum abundance in all region, by regional weight
-  WLT1 <- WLT1[,list(CPUE=mean(CPUE),POSCPUE=mean(POSCPUE),PROBCPUE=mean(PROBCPUE)),by=list(YEAR)] # Average all 12 months per year
+  WLT1 <- WLT[,list(TOTCPUE=sum(CPUE*WEIGHT),POSCPUE=mean(POSCPUE*WEIGHT),PROBCPUE=mean(PROBCPUE*WEIGHT)),by=list(MODEL,YEAR,MONTH)] # Sum abundance in all region, by regional weight
+  WLT1 <- WLT1[,list(TOTCPUE=mean(TOTCPUE),POSCPUE=mean(POSCPUE),PROBCPUE=mean(PROBCPUE)),by=list(MODEL,YEAR)] # Average all 12 MONTHs per year
   
-  WLT1$YEAR <- as.numeric(WLT1$YEAR)
-  
-  WLT1$STD.CPUE     <- WLT1$CPUE/mean(WLT1$CPUE)*100
-  WLT1$STD.POSCPUE  <- WLT1$POSCPUE/mean(WLT1$POSCPUE)*100
-  WLT1$STD.PROBCPUE <- WLT1$PROBCPUE/mean(WLT1$PROBCPUE)*100
-  WLT1              <- select(WLT1,-CPUE,-POSCPUE,-PROBCPUE)
-  WLT1$MODEL        <- paste0("Model",i)
+  WLT1$YEAR     <- as.numeric(WLT1$YEAR)
+  WLT1$TOTCPUE  <- WLT1$TOTCPUE/mean(WLT1$TOTCPUE)*100
+  WLT1$POSCPUE  <- WLT1$POSCPUE/mean(WLT1$POSCPUE)*100
+  WLT1$PROBCPUE <- WLT1$PROBCPUE/mean(WLT1$PROBCPUE)*100
   
   Results[[i]] <- WLT1
-  
 }
 
 Final   <- rbindlist(Results)
-Final   <- rbind(Final,NOMI)
 
-ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STD.PROBCPUE,color=MODEL),se=F,span=0.3)+
-  scale_color_brewer(palette = "Set2")+theme_bw()
+# Add nominal CPUE information
+NOMI1         <- D[PRES>0,list(POSCPUE=mean(CPUE/HOURS_FISHED/NUM_GEAR)),by=list(YEAR)]
+NOMI          <- D[,list(TOTCPUE=mean(CPUE/HOURS_FISHED/NUM_GEAR),PROBCPUE=mean(PRES/HOURS_FISHED/NUM_GEAR)),by=list(YEAR)]
+NOMI          <- merge(NOMI,NOMI1,by="YEAR")
+NOMI$TOTCPUE  <- NOMI$TOTCPUE/mean(NOMI$TOTCPUE)*100
+NOMI$PROBCPUE <- NOMI$PROBCPUE/mean(NOMI$PROBCPUE)*100
+NOMI$POSCPUE  <- NOMI$POSCPUE/mean(NOMI$POSCPUE)*100
+NOMI$MODEL    <- "NOMI"
+NOMI$YEAR     <- as.numeric(as.character((NOMI$YEAR)))
+Final         <- rbind(Final,NOMI)
 
-ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STD.POSCPUE,color=MODEL),se=F,span=0.3)+
-  scale_color_brewer(palette = "Set2")+theme_bw()
+# Melt all types of cpue
+Final <- melt(Final,id.var=1:2,variable.name="CPUE_TYPE",value.name="CPUE")
 
-ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=STD.CPUE,color=MODEL),se=F,span=0.3)+
-  scale_color_brewer(palette = "Set2")+theme_bw()
-
-
+p1 <- ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL),se=F,span=0.2)+
+      scale_color_manual(values=c("red", "blue", "green","orange","darkblue","darkgreen","purple","black"))+
+      facet_wrap(~CPUE_TYPE)+theme_bw()
 
 # Put model results together in a table
 P.Results <- list(); B.Results <- list()
@@ -130,12 +131,12 @@ for(i in 1:length(P.Models)){
   aP.Table         <- data.table()
   aP.Model         <- P.Models[[i]]
   aP.Table$Formula <- as.character(summary(aP.Model)$formula[3])
-  aP.Table$AIC     <- AIC(aP.Model)
+  aP.Table$AIC     <- round(AIC(aP.Model),1)
 
   aB.Table         <- data.table()
   aB.Model         <- B.Models[[i]]
   aB.Table$Formula <- as.character(summary(aB.Model)$formula[3])
-  aB.Table$AIC     <- AIC(aB.Model)
+  aB.Table$AIC     <- round(AIC(aB.Model),1)
 
   P.Results[[i]] <- aP.Table
   B.Results[[i]] <- aB.Table
@@ -146,10 +147,11 @@ P.Final <- rbindlist(P.Results)
 B.Final <- rbindlist(B.Results)
 
 P.Final$DELT.AIC <- 0
-P.Final[2:nrow(P.Final),]$DELT.AIC <- diff(P.Final$AIC)
+P.Final[2:nrow(P.Final),]$DELT.AIC <- round(diff(P.Final$AIC),1)
 
 B.Final$DELT.AIC <- 0
-B.Final[2:nrow(B.Final),]$DELT.AIC <- diff(B.Final$AIC)
+B.Final[2:nrow(B.Final),]$DELT.AIC <- round(diff(B.Final$AIC),1)
+
 
 
 
