@@ -43,7 +43,7 @@ WGHT                     <- select(WGHT,-N,-Nobs_Nstrata)
 if(Ar=="Tutuila") D <- merge(D,WGHT,by=c("YEAR","MONTH","AREA_C"))
 if(Ar=="Manua")   D <- merge(D,WGHT,by=c("YEAR","MONTH"))
 
-# Run standardization analyses - old data - This step can take a while.
+# Run standardization models 
 P.Models      <- list()
 P.Models[[1]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR, method="REML")
 P.Models[[2]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3), method="REML")
@@ -67,6 +67,7 @@ if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HO
 Model.Names$MODEL             <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
 Model.Names                   <- select(Model.Names,-ORDER)
 
+# Generate standardized CPUE trends for all models
 Results <- list()
 for(i in 1:length(B.Models)){
   
