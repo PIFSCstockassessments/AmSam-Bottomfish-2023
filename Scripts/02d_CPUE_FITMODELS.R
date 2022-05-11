@@ -15,7 +15,7 @@ C <- C[HOURS_FISHED<=24]
 
 # Select species and area 
 Sp <- "APVI"
-Ar <- "Tutuila"
+Ar <- "Manua"
 
 # Run selections
 if(Ar=="Tutuila") D <- C[AREA_C=="Tutuila"|AREA_C=="Bank"] 
@@ -62,7 +62,7 @@ B.Models[[5]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,
 B.Models[[6]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+AREA_C,family=binomial(link="logit"), method="REML")
 B.Models[[7]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+AREA_C+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
 
-Model.Names       <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+AREA","+TYPE_OF_DAY","+PROP_UNID","+PC1+PC2")),ORDER=c(1,2,3,4,5,6,7,8))
+Model.Names       <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+PROP_UNID","+AREA","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6,7,8))
 Model.Names$MODEL <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
 Model.Names       <- select(Model.Names,-ORDER)
 
@@ -131,10 +131,13 @@ Final         <- rbind(Final,NOMI)
 # Melt all types of cpue
 Final <- melt(Final,id.var=1:2,variable.name="CPUE_TYPE",value.name="CPUE")
 
-p1 <- ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL,linetype=MODEL),se=F,span=0.2)+facet_wrap(~CPUE_TYPE)+theme_bw()+
-         scale_linetype_manual(values=c("dashed","solid","solid","solid","solid","solid","solid","solid"))+
-         #scale_color_manual(values=c("red", "blue", "green","orange","darkblue","darkgreen","purple","black"))+
-         scale_color_brewer(palette="Dark2")
+p1 <- ggplot(data=Final,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL,linetype=MODEL),se=F,size=0.4)+theme_bw()+
+       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("TOTCPUE"="Combined CPUE","POSCPUE"="Positive-only CPUE","PROBCPUE"="Probability CPUE")))+
+       scale_linetype_manual(values=c("dashed","solid","solid","solid","solid","solid","solid","solid"))+scale_color_brewer(palette="Dark2")+
+       theme(legend.text=element_text(size=6),legend.key.height = unit(0.2, 'cm'))+labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")
+  
+ ggsave(p1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Trends.png"),height=2,width=8,unit="in")
+
 
 # Put model results together in a table
 P.Results <- list(); B.Results <- list()
@@ -164,7 +167,14 @@ P.Final[2:nrow(P.Final),]$DELT.AIC <- round(diff(P.Final$AIC),1)
 B.Final$DELT.AIC <- 0
 B.Final[2:nrow(B.Final),]$DELT.AIC <- round(diff(B.Final$AIC),1)
 
+Final.Table <- rbind(B.Final,P.Final)
 
+# Add table to excel worksheet
+wb <- loadWorkbook(paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx"))
+addWorksheet(wb, sheetName = paste0(Sp,"_",Ar))
+writeData(wb, sheet = paste0(Sp,"_",Ar), Final.Table, colNames = T)
+setColWidths(wb,widths="auto",sheet=paste0(Sp,"_",Ar),cols=1:10)
+saveWorkbook(wb,paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx"),overwrite = T)
 
-
-
+# Print results
+windows(width=12,height=3);p1;View(Final.Table)
