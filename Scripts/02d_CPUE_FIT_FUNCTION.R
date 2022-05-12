@@ -4,23 +4,24 @@ Standardize_CPUE <- function(Sp, Ar,minYr,maxYr) {
   
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
-C <- readRDS(paste0(root_dir,"/Outputs/CPUE_B.rds")); length(unique(C$INTERVIEW_PK))
+C <- readRDS(paste0(root_dir,"/Outputs/CPUE_C.rds")); length(unique(C$INTERVIEW_PK))
 S <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS")  )
 S <- select(S,SPECIES_PK,SPECIES)
 S$SPECIES_PK <- as.character(S$SPECIES_PK)
 C <- merge(C,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 C <- select(C,-SPECIES_FK)
+length(unique(C$INTERVIEW_PK))
 
 # Last filters
-C <- C[NUM_GEAR<=6]
-C <- C[HOURS_FISHED<=24]
-C <- C[as.numeric(YEAR)>=minYr&as.numeric(YEAR)<=maxYr]
+C <- C[NUM_GEAR<=6]; length(unique(C$INTERVIEW_PK))
+C <- C[HOURS_FISHED<=24]; length(unique(C$INTERVIEW_PK))
+C <- C[as.numeric(YEAR)>=minYr&as.numeric(YEAR)<=maxYr]; length(unique(C$INTERVIEW_PK))
 
 D <- C[SPECIES==Sp]
 
 # Run selections
 if(Ar=="Tutuila") D <- D[AREA_C=="Tutuila"|AREA_C=="Bank"] 
-if(Ar=="Manua")   D <- D[AREA_C=="Manua"]
+if(Ar=="Manua")   D <- D[AREA_C=="Manua"&YEAR<=2008]
 
 nrow(D); nrow(D[CPUE>0]) # Check interview counts
 
@@ -63,21 +64,19 @@ P.Models[[1]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR, method="REML")
 P.Models[[2]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3), method="REML")
 P.Models[[3]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH, method="REML")
 P.Models[[4]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2), method="REML")
-P.Models[[5]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID), method="REML")
-P.Models[[6]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY, method="REML")
-if(Ar=="Tutuila") P.Models[[7]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY+AREA_C, method="REML")
+P.Models[[5]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+TYPE_OF_DAY, method="REML")
+if(Ar=="Tutuila") P.Models[[6]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+TYPE_OF_DAY+AREA_C, method="REML")
 
 B.Models      <- list()
 B.Models[[1]] <- gam(data=D,weights=W.B,PRES~YEAR,family=binomial(link="logit"), method="REML")
 B.Models[[2]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
 B.Models[[3]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
 B.Models[[4]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2),family=binomial(link="logit"), method="REML")
-B.Models[[5]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID),family=binomial(link="logit"), method="REML")
-B.Models[[6]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
-if(Ar=="Tutuila") B.Models[[7]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"), method="REML")
+B.Models[[5]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
+if(Ar=="Tutuila") B.Models[[6]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"), method="REML")
 
-if(Ar=="Tutuila") Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+PROP_UNID","+TYPE_OF_DAY","+AREA")),ORDER=c(1,2,3,4,5,6,7,8))
-if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+PROP_UNID","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6,7))
+if(Ar=="Tutuila") Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+TYPE_OF_DAY","+AREA")),ORDER=c(1,2,3,4,5,6,7))
+if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6))
 Model.Names$MODEL             <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
 Model.Names                   <- select(Model.Names,-ORDER)
 
@@ -98,7 +97,6 @@ for(i in 1:length(B.Models)){
   # Add median for continuous variables
   WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
   WLT$NUM_GEAR     <- median(D$NUM_GEAR)
-  WLT$PROP_UNID    <- median(D$PROP_UNID)
   WLT$TYPE_OF_DAY  <- "WD"
   WLT$PC1          <- median(D$PC1)
   WLT$PC2          <- median(D$PC2)
@@ -118,7 +116,7 @@ for(i in 1:length(B.Models)){
   
   # Give AREAS proportional geographical weights
   if(Ar=="Tutuila"){
-   RW  <- data.table(AREA_C=c("Tutuila","Bank","Manua"),WEIGHT=c(0.91,0.09))
+   RW  <- data.table(AREA_C=c("Tutuila","Bank"),WEIGHT=c(0.91,0.09))
    WLT <- merge(WLT,RW,by="AREA_C")
   } else { WLT$WEIGHT=1.0 } # Give Manua a weight of "1"
   
