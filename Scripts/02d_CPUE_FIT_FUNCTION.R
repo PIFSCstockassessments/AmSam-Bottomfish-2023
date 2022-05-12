@@ -1,4 +1,4 @@
-Standardize_CPUE <- function(Sp, Ar) {
+Standardize_CPUE <- function(Sp, Ar,minYr,maxYr) {
   
   require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot)
   
@@ -14,12 +14,13 @@ C <- select(C,-SPECIES_FK)
 # Last filters
 C <- C[NUM_GEAR<=6]
 C <- C[HOURS_FISHED<=24]
+C <- C[as.numeric(YEAR)>=minYr&as.numeric(YEAR)<=maxYr]
+
+D <- C[SPECIES==Sp]
 
 # Run selections
-if(Ar=="Tutuila") D <- C[AREA_C=="Tutuila"|AREA_C=="Bank"] 
-if(Ar=="Manua")   D <- C[AREA_C=="Manua"]
-
-D <- D[SPECIES==Sp]
+if(Ar=="Tutuila") D <- D[AREA_C=="Tutuila"|AREA_C=="Bank"] 
+if(Ar=="Manua")   D <- D[AREA_C=="Manua"]
 
 nrow(D); nrow(D[CPUE>0]) # Check interview counts
 
@@ -30,37 +31,50 @@ YR.CATCH <- select(YR.CATCH,-CPUE)
 D        <- merge(D,YR.CATCH,by="YEAR")
 D        <- droplevels(D)
 
+# Add data point weights so that each YxMxR strata have the same weight in the GAM binomial models
+if(Ar=="Tutuila"){ WGHT.B <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  ); setnames(WGHT.B,c("YEAR","MONTH","AREA_C","N")) }
+if(Ar=="Manua")  { WGHT.B <- data.table(  table(D$YEAR,D$MONTH)  )         ; setnames(WGHT.B,c("YEAR","MONTH","N"))          }
+
+WGHT.B$Nobs_Nstrata   <- sum(WGHT.B$N)/nrow(WGHT.B[N>0]) # Add the Nobs / Nstrata ratio
+WGHT.B$W.B            <- WGHT.B$Nobs_Nstrata * 1/WGHT.B$N
+WGHT.B[W.B==Inf]$W.B  <- 0
+WGHT.B                <- WGHT.B[order(YEAR,MONTH)]
+WGHT.B                <- select(WGHT.B,-N,-Nobs_Nstrata)
+
 # Add data weights so that each YxMxR strata have the same weight in the GAM models
-if(Ar=="Tutuila"){ WGHT <- data.table(  table(D$YEAR,D$MONTH,D$AREA_C)  ); setnames(WGHT,c("YEAR","MONTH","AREA_C","N")) }
-if(Ar=="Manua")  { WGHT <- data.table(  table(D$YEAR,D$MONTH)  )         ; setnames(WGHT,c("YEAR","MONTH","N"))          }
+if(Ar=="Tutuila"){ WGHT.P <- data.table(  table(D[CPUE>0]$YEAR,D[CPUE>0]$MONTH,D[CPUE>0]$AREA_C)  ); setnames(WGHT.P,c("YEAR","MONTH","AREA_C","N")) }
+if(Ar=="Manua")  { WGHT.P <- data.table(  table(D[CPUE>0]$YEAR,D[CPUE>0]$MONTH)  )                 ; setnames(WGHT.P,c("YEAR","MONTH","N"))          }
 
-WGHT$Nobs_Nstrata        <- sum(WGHT$N)/nrow(WGHT[N>0]) # Add the Nobs / Nstrata ratio
-WGHT$STAT.W              <- WGHT$Nobs_Nstrata * 1/WGHT$N
-WGHT[STAT.W==Inf]$STAT.W <- 0
-WGHT                     <- WGHT[order(YEAR,MONTH)]
-WGHT                     <- select(WGHT,-N,-Nobs_Nstrata)
+WGHT.P$Nobs_Nstrata   <- sum(WGHT.P$N)/nrow(WGHT.P[N>0]) # Add the Nobs / Nstrata ratio (note: I use the number of strata with at least 1 interview)
+WGHT.P$W.P            <- WGHT.P$Nobs_Nstrata * 1/WGHT.P$N
+WGHT.P[W.P==Inf]$W.P  <- 0
+WGHT.P                <- WGHT.P[order(YEAR,MONTH)]
+WGHT.P                <- select(WGHT.P,-N,-Nobs_Nstrata)
 
-if(Ar=="Tutuila") D <- merge(D,WGHT,by=c("YEAR","MONTH","AREA_C"))
-if(Ar=="Manua")   D <- merge(D,WGHT,by=c("YEAR","MONTH"))
+if(Ar=="Tutuila"){ D <- merge(D,WGHT.B,by=c("YEAR","MONTH","AREA_C"),all.x=T)
+                   D <- merge(D,WGHT.P,by=c("YEAR","MONTH","AREA_C"),all.x=T) }
+
+if(Ar=="Manua"){   D <- merge(D,WGHT.B,by=c("YEAR","MONTH"),all.x=T)
+                   D <- merge(D,WGHT.P,by=c("YEAR","MONTH"),all.x=T) }
 
 # Run standardization models 
 P.Models      <- list()
-P.Models[[1]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR, method="REML")
-P.Models[[2]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3), method="REML")
-P.Models[[3]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH, method="REML")
-P.Models[[4]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2), method="REML")
-P.Models[[5]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID), method="REML")
-P.Models[[6]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY, method="REML")
-if(Ar=="Tutuila") P.Models[[7]] <- gam(data=D[CPUE>0],weights=STAT.W,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY+AREA_C, method="REML")
+P.Models[[1]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR, method="REML")
+P.Models[[2]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3), method="REML")
+P.Models[[3]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH, method="REML")
+P.Models[[4]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2), method="REML")
+P.Models[[5]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID), method="REML")
+P.Models[[6]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY, method="REML")
+if(Ar=="Tutuila") P.Models[[7]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY+AREA_C, method="REML")
 
 B.Models      <- list()
-B.Models[[1]] <- gam(data=D,weights=STAT.W,PRES~YEAR,family=binomial(link="logit"), method="REML")
-B.Models[[2]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
-B.Models[[3]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
-B.Models[[4]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2),family=binomial(link="logit"), method="REML")
-B.Models[[5]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID),family=binomial(link="logit"), method="REML")
-B.Models[[6]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
-if(Ar=="Tutuila") B.Models[[7]] <- gam(data=D,weights=STAT.W,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"), method="REML")
+B.Models[[1]] <- gam(data=D,weights=W.B,PRES~YEAR,family=binomial(link="logit"), method="REML")
+B.Models[[2]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
+B.Models[[3]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH,family=binomial(link="logit"), method="REML")
+B.Models[[4]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2),family=binomial(link="logit"), method="REML")
+B.Models[[5]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID),family=binomial(link="logit"), method="REML")
+B.Models[[6]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
+if(Ar=="Tutuila") B.Models[[7]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+MONTH+s(PC1,PC2)+s(PROP_UNID)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"), method="REML")
 
 if(Ar=="Tutuila") Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+PROP_UNID","+TYPE_OF_DAY","+AREA")),ORDER=c(1,2,3,4,5,6,7,8))
 if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+MONTH","+s(PC1,PC2)","+PROP_UNID","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6,7))
