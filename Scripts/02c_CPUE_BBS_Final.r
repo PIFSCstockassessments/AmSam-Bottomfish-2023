@@ -11,6 +11,9 @@ C <- C[METHOD_FK==4]; length(unique(C$INTERVIEW_PK))
 # Remove years 1986-1987, most data collected in groups.
 C <- C[YEAR>=1988]
 
+# Make sure HOURS_FISHED is available and exclude some extreme NUM_GEAR values
+C <- C[HOURS_FISHED>0&(NUM_GEAR>0&NUM_GEAR<20)]; length(unique(C$INTERVIEW_PK))
+
 # Add windspeed information
 W <- readRDS(paste0(root_dir,"/Outputs/CPUE_WIND.rds"))
 C <- merge(C,W,by="INTERVIEW_PK",all.x=T)
