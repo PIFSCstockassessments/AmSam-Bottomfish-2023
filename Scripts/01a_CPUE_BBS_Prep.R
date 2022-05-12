@@ -33,16 +33,21 @@
    aint_bbs4             <- select(aint_bbs4,-YEAR)
 	
    A <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
-  
-   # -- 99 interviews flagged as incomplete
-   A <- A[INCOMPLETE_F=="F"]
+   length(unique(A$INTERVIEW_PK))
    
-   # 389 interviews with EST_LBS and CATCH_PK == NA
-   A <- A[CATCH_PK!="NULL"]
+   # Filter for the two bottomfishing methods 
+   A <- A[METHOD_FK==4|METHOD_FK==5] ; length(unique(A$INTERVIEW_PK))
+   
+   # -- 99 interviews flagged as incomplete
+   A <- A[INCOMPLETE_F=="F"]; length(unique(A$INTERVIEW_PK))
+   
+   # 393 interviews with EST_LBS and CATCH_PK == NA
+   A <- A[CATCH_PK!="NULL"|is.na(CATCH_PK)]; length(unique(A$INTERVIEW_PK))
    
    # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
    A <- A[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
             FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
+   length(unique(A$INTERVIEW_PK))
    
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is one EST_LBS value per CATCH_PK, instead of the value being repeated
@@ -86,12 +91,12 @@
    AREAS <- AREAS[DATASET=="BBS"]
    AREAS <- select(AREAS,AREA_ID,AREA_A,AREA_C)
    AREAS$AREA_ID <- as.character(AREAS$AREA_ID)
-   A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T)
+   A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T); length(unique(A$INTERVIEW_PK))
    
    # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
-   length(unique(A[AREA_FK==0|AREA_FK==99|AREA_FK==100|is.na(AREA_C)]$INTERVIEW_PK)) #135 interviews can be salvaged by assigning the island to the area
+   length(unique(A[AREA_FK==0|AREA_FK==99|AREA_FK==100|is.na(AREA_C)]$INTERVIEW_PK)) #138 interviews can be salvaged by assigning the island to the area
    A[AREA_C=="Unk"|is.na(AREA_C)]$AREA_C <- A[AREA_C=="Unk"|is.na(AREA_C)]$ISLAND_NAME
-   A <- A[AREA_C!="Imports/Filter"]
+   A <- A[AREA_C!="Imports/Filter"]; length(unique(A$INTERVIEW_PK))
    
    #  Add some posix CT variables and moon phase, use require lunar package. Note: American Samoa is UTC -11.
    A <- mutate(A, INTERVIEW_TIME_LOCAL = as.POSIXct(INTERVIEW_TIME, tz='UTC'))
@@ -104,16 +109,17 @@
    A    <- merge(A,ENV,by=c("YEAR","MONTH"),all.x=T)
    
    # Add some species-specific fields
-   SPECIES <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
-   SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY,BMUS)
-   SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
-   A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
+   S <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
+   S <- select(S,SPECIES_PK,SCIENTIFIC_NAME,FAMILY,BMUS)
+   S$SPECIES_PK <- as.character(S$SPECIES_PK)
+   A       <- merge(A,S,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T); length(unique(A$INTERVIEW_PK))
    
  #=========================STEP 2: Basic Interview Filtering and fixes===============================
    
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
-
+   length(unique(A$INTERVIEW_PK))
+   
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
 #	243 'Pristipomoides rutilans' has local name "Palu sina (Yelloweye Opakapaka)"
@@ -136,13 +142,9 @@
   A <- A[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
   A <- A[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
   
- # Filter for the two bottomfishing methods 
-  A <- A[METHOD_FK==4|METHOD_FK==5] 
-
   # Check that covariates don't have NAs or other weird values
   table(A$TYPE_OF_DAY,exclude=NULL)
   table(A$MONTH,exclude=NULL)
-  table(A$PROP_UNID,exclude=NULL) # Note: the NAs are interviews with no BMUS or potential group BMUS catch
   table(A$AREA_C)
   
   # Check the range of catch values
@@ -273,7 +275,8 @@ for (i in 1:length(CATCH_PK.list)){
 # Remove old species unique ID with the corrected one
 B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME,-BMUS)
 setnames(B,"SPECIES_FK2","SPECIES_FK")
-B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
+B <- merge(B,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
+length(unique(B$INTERVIEW_PK))
 
 # Add proportion unidentified per INTERVIEW_PK
 SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
@@ -284,12 +287,10 @@ P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3)
 P           <- select(P,INTERVIEW_PK,PROP_UNID)
 B           <- merge(B,P,by="INTERVIEW_PK",all.x=T)
 
-length(unique(B[is.na(PROP_UNID)]$INTERVIEW_PK)) # 166 interviews that don't contain a BMUS or BMUS-containing group
+length(unique(B[is.na(PROP_UNID)]$INTERVIEW_PK)) # 179 interviews that don't contain a BMUS or BMUS-containing group
 B[is.na(PROP_UNID)]$PROP_UNID <- 0 # Assign zero for these interviews
 
-
 # Collapse data and select only used variables
-
 B <- B[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEASON,MONTH,SAMPLE_DATE,SHIFT,TOD_QUARTER,PORT_SIMPLE,HOUR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,TYPE_OF_DAY,VESSEL_REGIST_NO,METHOD_FK,
             HOURS_FISHED,NUM_GEAR,PROP_UNID,BMUS,SPECIES_FK,FAMILY,SCIENTIFIC_NAME)]
 
