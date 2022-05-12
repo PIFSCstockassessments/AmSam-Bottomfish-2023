@@ -6,9 +6,13 @@ source(paste0(root_dir,paste0("/Scripts/02d_CPUE_FIT_FUNCTION.r")))
 
 
 # Select species and area 
-Sp <- "VALO"
-Ar <- c("Tutuila","Manua") [2]
+minYr <- c(1988,2015)[1]
+maxYr <- 2021
 
-Standardize_CPUE(Sp=Sp,Ar=Ar)
+
+Sp <- "APVI"
+Ar <- c("Tutuila","Manua") [1]
+
+Standardize_CPUE(Sp=Sp,Ar=Ar,minYr=minYr,maxYr=maxYr)
 
 
