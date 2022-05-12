@@ -175,4 +175,11 @@ S <- select(S,SPECIES_PK,SCIENTIFIC_NAME,FAMILY,BMUS)
 S$SPECIES_PK <- as.character(S$SPECIES_PK)
 L <- merge(L,S,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
 
+L <- select(L,INTERVIEW_PK:PROP_UNID,AREA_C,SOURCE:BMUS,SPECIES_FK,EST_LBS)
+
+saveRDS(L,file=paste0(root_dir,"/Outputs/CPUE_B.rds"))
+
+
+
+
 
