@@ -2,7 +2,7 @@ require(dplyr); require(this.path); require(data.table);require(openxlsx); requi
 options(scipen=999)		              # this option just forces R to never use scientific notation
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
-C <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
+C <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_B.rds")))
 C <- C[METHOD_FK==4] # Only do CPUE with bottomfishing gear (not BTM)
 C <- C[,list(LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,SPECIES_FK)]
 
