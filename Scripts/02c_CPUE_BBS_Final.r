@@ -49,17 +49,18 @@ C <- C[order(YEAR,MONTH,TYPE_OF_DAY,AREA_C,INTERVIEW_PK,SPECIES_FK)]
 setnames(C,"EST_LBS","CPUE")
 
 # Set up factors correctly
-C$YEAR         <- as.factor(C$YEAR)
-C$YEAR         <- fct_reorder(C$YEAR,as.numeric(C$YEAR),min)
-C$TYPE_OF_DAY  <- as.factor(C$TYPE_OF_DAY)
-C$AREA_C       <- as.factor(C$AREA_C)
+#C$YEAR         <- as.factor(C$YEAR)
+#C$YEAR         <- fct_reorder(C$YEAR,as.numeric(C$YEAR),min)
+#C$TYPE_OF_DAY  <- as.factor(C$TYPE_OF_DAY)
+#C$AREA_C       <- as.factor(C$AREA_C)
+#C$MONTH        <- as.factor(C$MONTH)
+#C$SEASON       <- as.factor(C$SEASON)
+
+C$YEAR         <- as.character(C$YEAR)
+C$MONTH        <- as.character(C$MONTH)
 C$PRES         <- ifelse(C$CPUE>0,1,0)
-C$MONTH        <- as.factor(C$MONTH)
-C$SEASON       <- as.factor(C$SEASON)
 C$SPECIES_FK   <- as.character(C$SPECIES_FK)
 
 length(unique(C$INTERVIEW_PK))
 saveRDS(C,paste0(root_dir,"/Outputs/CPUE_B.rds"))
-
-
 
