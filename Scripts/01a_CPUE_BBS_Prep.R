@@ -45,7 +45,7 @@
             FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
    
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
-   # This steps gets rid of the size information so that there is 1 EST_LBS per CATCH_PK
+   # This steps gets rid of the size information so that there is one EST_LBS value per CATCH_PK, instead of the value being repeated
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
                                                INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
    
@@ -81,10 +81,10 @@
    A$PORT_SIMPLE <- A$PORT_NAME
    A[PORT_NAME == 'ASILI'|PORT_NAME == 'GENERAL TUTUILA PORT'|PORT_NAME == 'LEONE'|PORT_NAME == 'VATIA']$PORT_SIMPLE <- "Tutuila_Other" 
    
-   # Add more detailed area informations
+   # Add more detailed area information
    AREAS <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="AREAS")   )
    AREAS <- AREAS[DATASET=="BBS"]
-   AREAS <- select(AREAS,AREA_ID,AREA_A,AREA_C,AREA_C)
+   AREAS <- select(AREAS,AREA_ID,AREA_A,AREA_C)
    AREAS$AREA_ID <- as.character(AREAS$AREA_ID)
    A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T)
    
@@ -105,7 +105,7 @@
    
    # Add some species-specific fields
    SPECIES <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
-   SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY)
+   SPECIES <- select(SPECIES,SPECIES_PK,SCIENTIFIC_NAME,FAMILY,BMUS)
    SPECIES$SPECIES_PK <- as.character(SPECIES$SPECIES_PK)
    A       <- merge(A,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
    
@@ -136,18 +136,9 @@
   A <- A[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
   A <- A[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
   
-  
- # -- eliminate interviews missing a metric for effort. note: data dictionary is ambiguous, but previously, 
-   #  HOURS_FISHED x NUM_GEAR was effort. I checked, for all geartypes this makes sense.
-   #  discard any zero effort (note 38 BTM/TRL and BOTTOMFISHING interviews had 0 catch and 0 effort, these were probably canceled trips)
-  A <- A[HOURS_FISHED > 0 & NUM_GEAR > 0]
- 
  # Filter for the two bottomfishing methods 
   A <- A[METHOD_FK==4|METHOD_FK==5] 
-  
-  # Make sure HOURS_FISHED is available and exclude some extreme NUM_GEAR values
-  A <- A[HOURS_FISHED>0&(NUM_GEAR>0&NUM_GEAR<20)]; length(unique(C$INTERVIEW_PK))
-  
+
   # Check that covariates don't have NAs or other weird values
   table(A$TYPE_OF_DAY,exclude=NULL)
   table(A$MONTH,exclude=NULL)
@@ -280,19 +271,9 @@ for (i in 1:length(CATCH_PK.list)){
 # Prop.Rub; Test[SPECIES_FK2=="267"]$EST_LBS/sum(Test$EST_LBS)
 
 # Remove old species unique ID with the corrected one
-B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME)
+B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME,-BMUS)
 setnames(B,"SPECIES_FK2","SPECIES_FK")
 B <- merge(B,SPECIES,by.x="SPECIES_FK",by.y="SPECIES_PK")
-
-# Add information as whether the record is a BMUS or part of a multi-species group that could contain BMUS
-B$BMUS <- "Non_BMUS"
-B[SPECIES_FK=="247"|SPECIES_FK=="239"|SPECIES_FK=="111"|SPECIES_FK=="249"|
-    SPECIES_FK=="248"|SPECIES_FK=="267"|SPECIES_FK=="231"|SPECIES_FK=="242"|
-    SPECIES_FK=="241"|SPECIES_FK=="245"|SPECIES_FK=="229"]$BMUS <- "BMUS_Species"
-
-B[SPECIES_FK=="109"|SPECIES_FK=="110"|SPECIES_FK=="200"|SPECIES_FK=="210"|
-    SPECIES_FK=="230"|SPECIES_FK=="240"|SPECIES_FK=="260"|SPECIES_FK=="380"|
-    SPECIES_FK=="390"]$BMUS <- "BMUS_Containing_Group"
 
 # Add proportion unidentified per INTERVIEW_PK
 SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
