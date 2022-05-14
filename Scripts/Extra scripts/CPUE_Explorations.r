@@ -40,5 +40,16 @@ ggplot(data=HF,aes(x=HOURS_FISHED,y=EST_LBS))+geom_point()+geom_smooth(span=0.7)
 NG <- B[METHOD_FK==4&NUM_GEAR<=8,list(EST_LBS=mean(EST_LBS)),by=list(NUM_GEAR)]
 ggplot(data=NG,aes(x=NUM_GEAR,y=EST_LBS))+geom_point()+geom_smooth(span=0.7)
 
+# Explore how many interviews Bank vs. Tutuila by year
+R <- B[AREA_C!="Manua",list(ONES=1),by=list(YEAR,AREA_C,INTERVIEW_PK)]
+R <- R[,list(N=sum(ONES)),by=list(YEAR,AREA_C)]
+ggplot(data=R,aes(x=YEAR,y=N,fill=AREA_C))+geom_bar(stat="identity",position="stack")
+
+sum(R[AREA_C=="Bank"]$N)/sum(R$N) # Banks are 8% of Tutuila-area trips
+
+
+
+
+
 
 
