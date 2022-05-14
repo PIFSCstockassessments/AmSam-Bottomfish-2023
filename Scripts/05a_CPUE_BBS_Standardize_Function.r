@@ -58,25 +58,102 @@ if(Ar=="Tutuila"){ D <- merge(D,WGHT.B,by=c("YEAR","SEASON","AREA_C"),all.x=T)
 if(Ar=="Manua"){   D <- merge(D,WGHT.B,by=c("YEAR","SEASON"),all.x=T)
                    D <- merge(D,WGHT.P,by=c("YEAR","SEASON"),all.x=T) }
 
-# Run standardization models 
+# Backward selection: Positive catch-only models
+Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY+AREA_C, method="REML")'
+aModel        <- eval(parse(text=Model.String))
+PreviousAIC   <- AIC(aModel)
+P.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
+for(i in 1:10){
+ 
+  a             <- data.table( TERMS=names(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
+  b             <- data.table( TERMS=names(anova(aModel)$s.table[,4]), PVALUE=anova(aModel)$s.table[,4] )
+  c             <- rbind(a,b)
+  c             <- c[TERMS!="YEAR"]
+  RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
+  if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
+  if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
+  RM            <- paste0("+",RM)
+  Model.String  <- gsub(RM,"",Model.String,fixed=T)
+  aModel        <- eval(parse(text=Model.String))
+  NewAIC        <- AIC(aModel)
+  Diff          <- NewAIC-PreviousAIC
+  
+  if(Diff>2){ break; } else { 
+    
+    P.SelResults <- rbind(P.SelResults,data.table(DESCRIPTION="Reduced model",FORMULA=gsub("+","-",RM,fixed=T),AIC=NewAIC,DELT_AIC=Diff))
+    PreviousAIC  <- NewAIC 
+    LastModel    <- aModel
+    }
+}
+
+Best.P.Model.Formula <- gsub(" ","",as.character(LastModel$formula[3]))
+P.SelResults         <- rbind(P.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
+P.SelResults$TYPE    <- "Positive-only" 
+P.SelResults         <- select(P.SelResults,TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
+
+# Backward selection: Probability of catch-only models
+Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
+aModel        <- eval(parse(text=Model.String))
+PreviousAIC   <- AIC(aModel)
+B.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
+for(i in 1:10){
+  
+  a             <- data.table( TERMS=names(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
+  b             <- data.table( TERMS=names(anova(aModel)$s.table[,4]), PVALUE=anova(aModel)$s.table[,4] )
+  c             <- rbind(a,b)
+  c             <- c[TERMS!="YEAR"]
+  RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
+  if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
+  if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
+  RM            <- paste0("+",RM)
+  Model.String  <- gsub(RM,"",Model.String,fixed=T)
+  aModel        <- eval(parse(text=Model.String))
+  NewAIC        <- AIC(aModel)
+  Diff          <- NewAIC-PreviousAIC
+  
+  if(Diff>2){ break; } else { 
+    
+    B.SelResults <- rbind(B.SelResults,data.table(DESCRIPTION="Reduced model",FORMULA=gsub("+","-",RM,fixed=T),AIC=NewAIC,DELT_AIC=Diff))
+    PreviousAIC  <- NewAIC 
+    LastModel    <- aModel
+  }
+}
+
+Best.B.Model.Formula <- gsub(" ","",as.character(LastModel$formula[3]))
+B.SelResults         <- rbind(B.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
+B.SelResults$TYPE    <- "Presence" 
+B.SelResults         <- select(B.SelResults,TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
+
+# For model comparison purposes, take the final models and re-run simpler models to evaluate the effect of each variables
 P.Models      <- list()
-P.Models[[1]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR, method="REML")
-P.Models[[2]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3), method="REML")
-P.Models[[3]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON, method="REML")
-P.Models[[4]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1,PC2), method="REML")
-P.Models[[5]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1,PC2)+TYPE_OF_DAY, method="REML")
-if(Ar=="Tutuila") P.Models[[6]] <- gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1,PC2)+TYPE_OF_DAY+AREA_C, method="REML")
+Model.String  <- paste0('gam(data=D[CPUE>0],weights=W.P,log(CPUE)~',Best.P.Model.Formula,',method="REML")')
+for(i in 1:20){
+  
+  P.Models[[i]] <- eval(parse(text=Model.String))
+  RM            <- gsub(" ","",as.character(P.Models[[i]]$formula[3]))
+  RM            <- strsplit(RM,"\\+") 
+  RM            <- RM[[1]][length(RM[[1]])]
+  RM            <- paste0("+",RM)
+  Model.String  <- gsub(RM,"",Model.String,fixed=T)
+  if(RM=="+YEAR") break
+}
 
 B.Models      <- list()
-B.Models[[1]] <- gam(data=D,weights=W.B,PRES~YEAR,family=binomial(link="logit"), method="REML")
-B.Models[[2]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3),family=binomial(link="logit"), method="REML")
-B.Models[[3]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON,family=binomial(link="logit"), method="REML")
-B.Models[[4]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1,PC2),family=binomial(link="logit"), method="REML")
-B.Models[[5]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1,PC2)+TYPE_OF_DAY,family=binomial(link="logit"), method="REML")
-if(Ar=="Tutuila") B.Models[[6]] <- gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1,PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"), method="REML")
+Model.String  <- paste0('gam(data=D,weights=W.B,PRES~',Best.B.Model.Formula,',family=binomial(link="logit"),method="REML")')
+for(i in 1:20){
+  
+  B.Models[[i]] <- eval(parse(text=Model.String))
+  RM            <- gsub(" ","",as.character(P.Models[[i]]$formula[3]))
+  RM            <- strsplit(RM,"\\+") 
+  RM            <- RM[[1]][length(RM[[1]])]
+  RM            <- paste0("+",RM)
+  Model.String  <- gsub(RM,"",Model.String,fixed=T)
+  if(RM=="+YEAR") break
+}
 
-if(Ar=="Tutuila") Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+SEASON","+s(PC1,PC2)","+TYPE_OF_DAY","+AREA")),ORDER=c(1,2,3,4,5,6,7))
-if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+SEASON","+s(PC1,PC2)","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6))
+
+if(Ar=="Tutuila") Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+SEASON","+YEARxSEASON","+s(PC1,PC2)","+TYPE_OF_DAY","+AREA")),ORDER=c(1,2,3,4,5,6,7,8))
+if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+SEASON","+YEARxSEASON","+s(PC1,PC2)","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6,7))
 Model.Names$MODEL             <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
 Model.Names                   <- select(Model.Names,-ORDER)
 
@@ -91,8 +168,7 @@ for(i in 1:length(B.Models)){
   if(Ar=="Tutuila"){ WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) }
   if(Ar=="Manua")  { WLT <- data.table(  table(D$YEAR,D$SEASON)  )         ; setnames(WLT,c("YEAR","SEASON","N"))          }
   WLT       <- select(WLT,-N)
-  WLT$MODEL <- Model.Names[i+1]
-  
+  #WLT$MODEL <- Model.Names[i+1]
   
   # Add median for continuous variables
   WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
@@ -100,7 +176,9 @@ for(i in 1:length(B.Models)){
   WLT$TYPE_OF_DAY  <- "WD"
   WLT$PC1          <- median(D$PC1)
   WLT$PC2          <- median(D$PC2)
-
+  WLT$PC3          <- median(D$PC3)
+  WLT$PC4          <- median(D$PC4)
+  
   # Predict expected positive catch for all level combinations and calculate standard errors
   LOG.POS.CPUE    <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$fit
   SD.LOG.POS.CPUE <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$se
@@ -119,7 +197,7 @@ for(i in 1:length(B.Models)){
   WLT$PROB.CPUE      <- inv.logit(WLT$LOGIT.PROB.CPUE)
   WLT$LOWER95.PROB   <- inv.logit(WLT$LOGIT.PROB.CPUE-1.96*WLT$SD.LOGIT.PROB.CPUE)
   WLT$UPPER95.PROB   <- inv.logit(WLT$LOGIT.PROB.CPUE+1.96*WLT$SD.LOGIT.PROB.CPUE)
-  WLT$SD.PROB.CPUE    <- (WLT$UPPER95.PROB-WLT$LOWER95.PROB)/3.92
+  WLT$SD.PROB.CPUE   <- (WLT$UPPER95.PROB-WLT$LOWER95.PROB)/3.92
   
   # Put back together
   WLT$TOT.CPUE    <- WLT$POS.CPUE*WLT$PROB.CPUE
@@ -169,26 +247,14 @@ p1 <- ggplot(data=Final.Comp,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,col
   
  ggsave(p1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Trends.png"),height=2,width=8,unit="in")
 
+ windows(width=12,height=3);p1
 
-# Put model results together in a table
-P.Results <- list(); B.Results <- list()
-for(i in 1:length(P.Models)){
-  
-  aP.Table         <- data.table()
-  aP.Model         <- P.Models[[i]]
-  aP.Table$Formula <- as.character(summary(aP.Model)$formula[3])
-  aP.Table$AIC     <- round(AIC(aP.Model),1)
 
-  aB.Table         <- data.table()
-  aB.Model         <- B.Models[[i]]
-  aB.Table$Formula <- as.character(summary(aB.Model)$formula[3])
-  aB.Table$AIC     <- round(AIC(aB.Model),1)
-
-  P.Results[[i]] <- aP.Table
-  B.Results[[i]] <- aB.Table
-
-}
-
+ 
+ 
+ 
+# PUT TABLE RESULTS TOGETHER 
+ 
 P.Final <- rbindlist(P.Results)
 B.Final <- rbindlist(B.Results)
 
@@ -199,6 +265,7 @@ B.Final$DELT.AIC <- 0
 B.Final[2:nrow(B.Final),]$DELT.AIC <- round(diff(B.Final$AIC),1)
 
 Final.Table <- rbind(B.Final,P.Final)
+View(Final.Table)
 
 # Add table to excel worksheet
 File.Name  <- paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx")
@@ -211,11 +278,6 @@ saveWorkbook(wb,File.Name,overwrite = T)
 
 # Save final CPUE trend for SS model
 saveRDS(Final.Trend,paste0(root_dir,"/Outputs/CPUE/CPUE_",Sp,"_",Ar,".rds"))
-
-# Print results
-#windows(width=12,height=3);p1;View(Final.Table)
-
-
 
 } # End of function
 
