@@ -143,7 +143,7 @@ Model.String  <- paste0('gam(data=D,weights=W.B,PRES~',Best.B.Model.Formula,',fa
 for(i in 1:20){
   
   B.Models[[i]] <- eval(parse(text=Model.String))
-  RM            <- gsub(" ","",as.character(P.Models[[i]]$formula[3]))
+  RM            <- gsub(" ","",as.character(B.Models[[i]]$formula[3]))
   RM            <- strsplit(RM,"\\+") 
   RM            <- RM[[1]][length(RM[[1]])]
   RM            <- paste0("+",RM)
@@ -151,13 +151,20 @@ for(i in 1:20){
   if(RM=="+YEAR") break
 }
 
+# Make a list of model names for the figure legend
+P.Model.Names <- data.table(MODEL=as.factor(as.character(P.Models[[1]]$formula[3])),ORDER=1)
+TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]])), ORDER=seq((nrow(TM)+1),2) )
+P.Model.Names <- rbind(P.Model.Names,TM[-1,])
+P.Model.Names$MODEL <- fct_reorder(P.Model.Names$MODEL,P.Model.Names$ORDER,min)
+P.Model.Names <- select(P.Model.Names,-ORDER)
 
-if(Ar=="Tutuila") Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+SEASON","+YEARxSEASON","+s(PC1,PC2)","+TYPE_OF_DAY","+AREA")),ORDER=c(1,2,3,4,5,6,7,8))
-if(Ar=="Manua")   Model.Names <- data.table(MODEL=as.factor(c("NOMI","YEAR","+HOURS_FISHED+NUM_GEAR","+SEASON","+YEARxSEASON","+s(PC1,PC2)","+TYPE_OF_DAY")),ORDER=c(1,2,3,4,5,6,7))
-Model.Names$MODEL             <- fct_reorder(Model.Names$MODEL,Model.Names$ORDER,min)
-Model.Names                   <- select(Model.Names,-ORDER)
+B.Model.Names <- data.table(MODEL=as.factor(as.character(B.Models[[1]]$formula[3])),ORDER=1)
+TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]])), ORDER=seq((nrow(TM)+1),2) )
+B.Model.Names <- rbind(B.Model.Names,TM[-1,])
+B.Model.Names$MODEL <- fct_reorder(B.Model.Names$MODEL,B.Model.Names$ORDER,min)
+B.Model.Names <- select(B.Model.Names,-ORDER)
 
-# Generate standardized CPUE trends for all models
+# Generate standardized CPUE index for all models
 Results <- list()
 for(i in 1:length(B.Models)){
   
