@@ -153,84 +153,93 @@ for(i in 1:20){
 
 # Make a list of model names for the figure legend
 P.Model.Names <- data.table(MODEL=as.factor(as.character(P.Models[[1]]$formula[3])),ORDER=1)
-TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]])), ORDER=seq((nrow(TM)+1),2) )
+TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]])), ORDER=1 )
+TM$ORDER      <- seq((nrow(TM)+1),2)
 P.Model.Names <- rbind(P.Model.Names,TM[-1,])
 P.Model.Names$MODEL <- fct_reorder(P.Model.Names$MODEL,P.Model.Names$ORDER,min)
 P.Model.Names <- select(P.Model.Names,-ORDER)
 
 B.Model.Names <- data.table(MODEL=as.factor(as.character(B.Models[[1]]$formula[3])),ORDER=1)
-TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]])), ORDER=seq((nrow(TM)+1),2) )
+TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]])), ORDER=1 )
+TM$ORDER      <- seq((nrow(TM)+1),2)
 B.Model.Names <- rbind(B.Model.Names,TM[-1,])
 B.Model.Names$MODEL <- fct_reorder(B.Model.Names$MODEL,B.Model.Names$ORDER,min)
 B.Model.Names <- select(B.Model.Names,-ORDER)
 
-# Generate standardized CPUE index for all models
-Results <- list()
-for(i in 1:length(B.Models)){
+#========================Generate standardized CPUE index for all models========================================
+# Create Walter's large table template
+if(Ar=="Tutuila"){ WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) }
+if(Ar=="Manua")  { WLT <- data.table(  table(D$YEAR,D$SEASON)  )         ; setnames(WLT,c("YEAR","SEASON","N"))          }
+WLT       <- select(WLT,-N)
+
+# Add median for continuous variables
+WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
+WLT$NUM_GEAR     <- median(D$NUM_GEAR)
+WLT$TYPE_OF_DAY  <- "WD"
+WLT$PC1          <- median(D$PC1)
+WLT$PC2          <- median(D$PC2)
+WLT$PC3          <- median(D$PC3)
+WLT$PC4          <- median(D$PC4)
+
+# Calculate standardize index for all positive-only models
+Results.P <- list()
+for(i in 1:length(P.Models)){
   
-  aP.Model <- P.Models[[i]]
-  aB.Model <- B.Models[[i]]
-  
-  # Create Walter's large table and run predictions
-  if(Ar=="Tutuila"){ WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) }
-  if(Ar=="Manua")  { WLT <- data.table(  table(D$YEAR,D$SEASON)  )         ; setnames(WLT,c("YEAR","SEASON","N"))          }
-  WLT       <- select(WLT,-N)
-  #WLT$MODEL <- Model.Names[i+1]
-  
-  # Add median for continuous variables
-  WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
-  WLT$NUM_GEAR     <- median(D$NUM_GEAR)
-  WLT$TYPE_OF_DAY  <- "WD"
-  WLT$PC1          <- median(D$PC1)
-  WLT$PC2          <- median(D$PC2)
-  WLT$PC3          <- median(D$PC3)
-  WLT$PC4          <- median(D$PC4)
-  
+  aP.Model     <- P.Models[[i]]
+  aWLT         <- WLT
+  aWLT$MODEL.P <- P.Model.Names[i]
+
   # Predict expected positive catch for all level combinations and calculate standard errors
-  LOG.POS.CPUE    <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$fit
-  SD.LOG.POS.CPUE <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$se
-  WLT             <- cbind(WLT,LOG.POS.CPUE)
-  WLT             <- cbind(WLT,SD.LOG.POS.CPUE)
-  WLT$POS.CPUE    <- exp(WLT$LOG.POS.CPUE+WLT$SD.LOG.POS.CPUE[i]^2/2 )
-  WLT$LOWER95.POS <- exp(WLT$LOG.POS.CPUE-1.96*WLT$SD.LOG.POS.CPUE)
-  WLT$UPPER95.POS <- exp(WLT$LOG.POS.CPUE+1.96*WLT$SD.LOG.POS.CPUE)
-  WLT$SD.POS.CPUE <- (WLT$UPPER95.POS-WLT$LOWER95.POS)/3.92
-  
-  # Predict expected probabilities and associated standard errors
-  LOGIT.PROB.CPUE    <- predict.gam(aB.Model,newdata=WLT,se.fit=T)$fit
-  SD.LOGIT.PROB.CPUE <- predict.gam(aB.Model,newdata=WLT,se.fit=T)$se
-  WLT                <- cbind(WLT,LOGIT.PROB.CPUE)
-  WLT                <- cbind(WLT,SD.LOGIT.PROB.CPUE)
-  WLT$PROB.CPUE      <- inv.logit(WLT$LOGIT.PROB.CPUE)
-  WLT$LOWER95.PROB   <- inv.logit(WLT$LOGIT.PROB.CPUE-1.96*WLT$SD.LOGIT.PROB.CPUE)
-  WLT$UPPER95.PROB   <- inv.logit(WLT$LOGIT.PROB.CPUE+1.96*WLT$SD.LOGIT.PROB.CPUE)
-  WLT$SD.PROB.CPUE   <- (WLT$UPPER95.PROB-WLT$LOWER95.PROB)/3.92
-  
-  # Put back together
-  WLT$TOT.CPUE    <- WLT$POS.CPUE*WLT$PROB.CPUE
-  WLT$SD.TOT.CPUE <- sqrt(  WLT$SD.POS.CPUE^2*WLT$SD.PROB.CPUE^2+WLT$SD.POS.CPUE^2*WLT$PROB.CPUE^2+WLT$SD.PROB.CPUE^2*WLT$POS.CPUE^2    )
-  
-  # Give AREAS proportional geographical weights
-  if(Ar=="Tutuila"){
-   RW  <- data.table(AREA_C=c("Tutuila","Bank"),WEIGHT=c(0.91,0.09))
-   WLT <- merge(WLT,RW,by="AREA_C")
-  } else { WLT$WEIGHT=1.0 } # Give Manua a weight of "1"
-  
-  WLT1 <- WLT[,list(TOT.CPUE=sum(TOT.CPUE*WEIGHT),SD.TOT.CPUE=sqrt(sum(SD.TOT.CPUE^2*WEIGHT^2)),POS.CPUE=sum(POS.CPUE*WEIGHT),PROB.CPUE=sum(PROB.CPUE*WEIGHT)),by=list(MODEL,YEAR,SEASON)] # Sum abundance in all region, by regional weight
-  WLT1 <- WLT1[,list(TOT.CPUE=mean(TOT.CPUE),SD.TOT.CPUE=mean(SD.TOT.CPUE),POS.CPUE=mean(POS.CPUE),PROB.CPUE=mean(PROB.CPUE)),by=list(MODEL,YEAR)] # Average all 12 SEASONs per year
-  
-  WLT1$YEAR         <- as.numeric(WLT1$YEAR)
-  WLT1$TOT.CPUE.STD  <- WLT1$TOT.CPUE/mean(WLT1$TOT.CPUE)*100
-  WLT1$POS.CPUE.STD  <- WLT1$POS.CPUE/mean(WLT1$POS.CPUE)*100
-  WLT1$PROB.CPUE.STD <- WLT1$PROB.CPUE/mean(WLT1$PROB.CPUE)*100
-  
-  Results[[i]] <- WLT1
+  LOG.POS.CPUE     <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$fit
+  SD.LOG.POS.CPUE  <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$se
+  aWLT             <- cbind(aWLT,LOG.POS.CPUE)
+  aWLT             <- cbind(aWLT,SD.LOG.POS.CPUE)
+  aWLT$POS.CPUE    <- exp(aWLT$LOG.POS.CPUE+aWLT$SD.LOG.POS.CPUE[i]^2/2 )
+  aWLT$LOWER95.POS <- exp(aWLT$LOG.POS.CPUE-1.96*aWLT$SD.LOG.POS.CPUE)
+  aWLT$UPPER95.POS <- exp(aWLT$LOG.POS.CPUE+1.96*aWLT$SD.LOG.POS.CPUE)
+  aWLT$SD.POS.CPUE <- (aWLT$UPPER95.POS-aWLT$LOWER95.POS)/3.92
+  Results.P[[i]]   <- select(aWLT,MODEL.P,YEAR,SEASON,AREA_C,POS.CPUE,SD.POS.CPUE)
 }
 
-Final   <- rbindlist(Results)
+# Calculate standardize index for all probability of catch models
+Results.B <- list()
+for(i in 1:length(B.Models)){
+  
+  aB.Model     <- B.Models[[i]]
+  aWLT         <- WLT
+  aWLT$MODEL.B <- B.Model.Names[i]
+  
+  # Predict expected positive catch for all level combinations and calculate standard errors
+  LOGIT.PROB.CPUE     <- predict.gam(aB.Model,newdata=aWLT,se.fit=T)$fit
+  SD.LOGIT.PROB.CPUE  <- predict.gam(aB.Model,newdata=aWLT,se.fit=T)$se
+  aWLT                <- cbind(aWLT,LOGIT.PROB.CPUE)
+  aWLT                <- cbind(aWLT,SD.LOGIT.PROB.CPUE)
+  aWLT$PROB.CPUE      <- inv.logit(aWLT$LOGIT.PROB.CPUE)
+  aWLT$LOWER95.PROB   <- inv.logit(aWLT$LOGIT.PROB.CPUE-1.96*aWLT$SD.LOGIT.PROB.CPUE)
+  aWLT$UPPER95.PROB   <- inv.logit(aWLT$LOGIT.PROB.CPUE+1.96*aWLT$SD.LOGIT.PROB.CPUE)
+  aWLT$SD.PROB.CPUE   <- (aWLT$UPPER95.PROB-aWLT$LOWER95.PROB)/3.92
+  Results.B[[i]]      <- select(aWLT,MODEL.B,YEAR,SEASON,AREA_C,PROB.CPUE,SD.PROB.CPUE)
+}
 
-Final.Trend <- select(Final,MODEL,YEAR,TOT.CPUE,SD.TOT.CPUE) # Select CPUE trend for SS3 model
-Final.Comp  <- select(Final,MODEL,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD)
+# Calculate the combined CPUE for the best model only
+Best.Mod             <- merge(Results.P[[1]],Results.B[[1]],by=c("YEAR","SEASON","AREA_C"))
+Best.Mod$TOT.CPUE    <- Best.Mod$POS.CPUE*Best.Mod$PROB.CPUE
+Best.Mod$SD.TOT.CPUE <- sqrt(  Best.Mod$SD.POS.CPUE^2*Best.Mod$SD.PROB.CPUE^2+Best.Mod$SD.POS.CPUE^2*Best.Mod$PROB.CPUE^2+Best.Mod$SD.PROB.CPUE^2*Best.Mod$POS.CPUE^2    )
+
+# Give AREAS their geographical weights
+if(Ar=="Tutuila"){
+  RW         <- data.table(AREA_C=c("Tutuila","Bank"),WEIGHT=c(0.91,0.09))
+  Best.Mod <- merge(Best.Mod,RW,by="AREA_C")
+} else { Best.Mod$WEIGHT=1.0 } # Give Manua a weight of "1"
+
+Best.Mod <- Best.Mod[,list(TOT.CPUE=sum(TOT.CPUE*WEIGHT),SD.TOT.CPUE=sqrt(sum(SD.TOT.CPUE^2*WEIGHT^2)),POS.CPUE=sum(POS.CPUE*WEIGHT),PROB.CPUE=sum(PROB.CPUE*WEIGHT)),by=list(MODEL.P,MODEL.B,YEAR,SEASON)] # Sum abundance in all region, by regional weight
+Best.Mod <- Best.Mod[,list(TOT.CPUE=mean(TOT.CPUE),SD.TOT.CPUE=mean(SD.TOT.CPUE),POS.CPUE=mean(POS.CPUE),PROB.CPUE=mean(PROB.CPUE)),by=list(MODEL.P,MODEL.B,YEAR)] # Average all 12 SEASONs per year
+
+Best.Mod$YEAR            <- as.numeric(Best.Mod$YEAR)
+Best.Mod$TOT.CPUE.STD    <- Best.Mod$TOT.CPUE/mean(Best.Mod$TOT.CPUE)*100
+Best.Mod$SD.TOT.CPUE.STD <- Best.Mod$SD.TOT.CPUE/mean(Best.Mod$SD.TOT.CPUE)*100
+Best.Mod$POS.CPUE.STD    <- Best.Mod$POS.CPUE/mean(Best.Mod$POS.CPUE)*100
+Best.Mod$PROB.CPUE.STD   <- Best.Mod$PROB.CPUE/mean(Best.Mod$PROB.CPUE)*100
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(POS.CPUE=mean(CPUE/HOURS_FISHED/NUM_GEAR)),by=list(YEAR)]
@@ -239,13 +248,58 @@ NOMI               <- merge(NOMI,NOMI1,by="YEAR")
 NOMI$TOT.CPUE.STD  <- NOMI$TOT.CPUE/mean(NOMI$TOT.CPUE)*100
 NOMI$PROB.CPUE.STD <- NOMI$PROB.CPUE/mean(NOMI$PROB.CPUE)*100
 NOMI$POS.CPUE.STD  <- NOMI$POS.CPUE/mean(NOMI$POS.CPUE)*100
-NOMI$MODEL         <- "NOMI"
+NOMI$MODEL.B <- NOMI$MODEL.P <- "NOMI"
 NOMI$YEAR          <- as.numeric(as.character((NOMI$YEAR)))
-NOMI               <- select(NOMI,MODEL,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD)
+NOMI               <- select(NOMI,MODEL.B,MODEL.P,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD)
+
+Best.Mod <- rbind(select(Best.Mod,MODEL.P,MODEL.B,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD),NOMI) 
+Best.Mod <- melt(Best.Mod,id.var=1:3,variable.name="CPUE_TYPE",value.name="CPUE")
+
+# Best model vs. NOMI graph
+ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE))+geom_line(aes(col=MODEL.B))+facet_wrap(~CPUE_TYPE)
+
+
+
+
+
+
+# Create trend comparison graphs
+Results.P <- rbindlist(Results.P)
+Results.B <- rbindlist(Results.B)
+
+
+
+
+
+aWLT$PROB.CPUE.STD    <- aWLT$PROB.CPUE/mean(aWLT$PROB.CPUE)*100
+aWLT$POS.CPUE.STD     <- aWLT$POS.CPUE/mean(aWLT$POS.CPUE)*100
+
+aWLT <- aWLT[,list(POS.CPUE=mean(POS.CPUE)),by=list(MODEL.P,YEAR)] # Average all seasons per year
+aWLT <- aWLT[,list(PROB.CPUE=mean(PROB.CPUE)),by=list(MODEL.B,YEAR)] # Average all seasons per year
+
+
+
+
+
+
+Final   <- rbindlist(Results.P)
+
+Final.Trend <- select(Final,MODEL,YEAR,TOT.CPUE,SD.TOT.CPUE) # Select CPUE trend for SS3 model
+Final.Comp  <- select(Final,MODEL,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD)
+
+
+
+
+
+
 Final.Comp         <- rbind(Final.Comp,NOMI)
 
 # Melt all types of cpue
 Final.Comp <- melt(Final.Comp,id.var=1:2,variable.name="CPUE_TYPE",value.name="CPUE")
+
+
+
+
 
 p1 <- ggplot(data=Final.Comp,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL,linetype=MODEL),se=F,size=0.4)+theme_bw()+
        facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("TOT.CPUE.STD"="Combined CPUE","POS.CPUE.STD"="Positive-only CPUE","PROB.CPUE.STD"="Probability CPUE")))+
