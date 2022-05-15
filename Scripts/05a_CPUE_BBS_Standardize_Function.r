@@ -1,6 +1,6 @@
 Standardize_CPUE <- function(Sp, Ar,minYr,maxYr) {
   
-  require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot)
+  require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot); require(stringr)
   
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
@@ -168,8 +168,10 @@ B.Model.Names <- select(B.Model.Names,-ORDER)
 
 #========================Generate standardized CPUE index for all models========================================
 # Create Walter's large table template
-if(Ar=="Tutuila"){ WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) }
-if(Ar=="Manua")  { WLT <- data.table(  table(D$YEAR,D$SEASON)  )         ; setnames(WLT,c("YEAR","SEASON","N"))          }
+
+#if(Ar=="Tutuila"){
+WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) #}
+#if(Ar=="Manua")  { WLT <- data.table(  table(D$YEAR,D$SEASON)  )         ; setnames(WLT,c("YEAR","SEASON","N"))          }
 WLT       <- select(WLT,-N)
 
 # Add median for continuous variables
@@ -180,6 +182,11 @@ WLT$PC1          <- median(D$PC1)
 WLT$PC2          <- median(D$PC2)
 WLT$PC3          <- median(D$PC3)
 WLT$PC4          <- median(D$PC4)
+
+# Give AREAS their geographical weights
+WLT$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
+WLT[AREA_C=="Tutuila"]$WEIGHT <- 0.91
+WLT[AREA_C=="Bank"]$WEIGHT    <- 0.09
 
 # Calculate standardize index for all positive-only models
 Results.P <- list()
@@ -198,7 +205,7 @@ for(i in 1:length(P.Models)){
   aWLT$LOWER95.POS <- exp(aWLT$LOG.POS.CPUE-1.96*aWLT$SD.LOG.POS.CPUE)
   aWLT$UPPER95.POS <- exp(aWLT$LOG.POS.CPUE+1.96*aWLT$SD.LOG.POS.CPUE)
   aWLT$SD.POS.CPUE <- (aWLT$UPPER95.POS-aWLT$LOWER95.POS)/3.92
-  Results.P[[i]]   <- select(aWLT,MODEL.P,YEAR,SEASON,AREA_C,POS.CPUE,SD.POS.CPUE)
+  Results.P[[i]]   <- select(aWLT,MODEL.P,YEAR,SEASON,AREA_C,WEIGHT,POS.CPUE,SD.POS.CPUE)
 }
 
 # Calculate standardize index for all probability of catch models
@@ -218,19 +225,13 @@ for(i in 1:length(B.Models)){
   aWLT$LOWER95.PROB   <- inv.logit(aWLT$LOGIT.PROB.CPUE-1.96*aWLT$SD.LOGIT.PROB.CPUE)
   aWLT$UPPER95.PROB   <- inv.logit(aWLT$LOGIT.PROB.CPUE+1.96*aWLT$SD.LOGIT.PROB.CPUE)
   aWLT$SD.PROB.CPUE   <- (aWLT$UPPER95.PROB-aWLT$LOWER95.PROB)/3.92
-  Results.B[[i]]      <- select(aWLT,MODEL.B,YEAR,SEASON,AREA_C,PROB.CPUE,SD.PROB.CPUE)
+  Results.B[[i]]      <- select(aWLT,MODEL.B,YEAR,SEASON,AREA_C,WEIGHT,PROB.CPUE,SD.PROB.CPUE)
 }
 
 # Calculate the combined CPUE for the best model only
-Best.Mod             <- merge(Results.P[[1]],Results.B[[1]],by=c("YEAR","SEASON","AREA_C"))
+Best.Mod             <- merge(Results.P[[1]],Results.B[[1]],by=c("YEAR","SEASON","AREA_C","WEIGHT"))
 Best.Mod$TOT.CPUE    <- Best.Mod$POS.CPUE*Best.Mod$PROB.CPUE
 Best.Mod$SD.TOT.CPUE <- sqrt(  Best.Mod$SD.POS.CPUE^2*Best.Mod$SD.PROB.CPUE^2+Best.Mod$SD.POS.CPUE^2*Best.Mod$PROB.CPUE^2+Best.Mod$SD.PROB.CPUE^2*Best.Mod$POS.CPUE^2    )
-
-# Give AREAS their geographical weights
-if(Ar=="Tutuila"){
-  RW         <- data.table(AREA_C=c("Tutuila","Bank"),WEIGHT=c(0.91,0.09))
-  Best.Mod <- merge(Best.Mod,RW,by="AREA_C")
-} else { Best.Mod$WEIGHT=1.0 } # Give Manua a weight of "1"
 
 Best.Mod <- Best.Mod[,list(TOT.CPUE=sum(TOT.CPUE*WEIGHT),SD.TOT.CPUE=sqrt(sum(SD.TOT.CPUE^2*WEIGHT^2)),POS.CPUE=sum(POS.CPUE*WEIGHT),PROB.CPUE=sum(PROB.CPUE*WEIGHT)),by=list(MODEL.P,MODEL.B,YEAR,SEASON)] # Sum abundance in all region, by regional weight
 Best.Mod <- Best.Mod[,list(TOT.CPUE=mean(TOT.CPUE),SD.TOT.CPUE=mean(SD.TOT.CPUE),POS.CPUE=mean(POS.CPUE),PROB.CPUE=mean(PROB.CPUE)),by=list(MODEL.P,MODEL.B,YEAR)] # Average all 12 SEASONs per year
@@ -243,12 +244,12 @@ Best.Mod$PROB.CPUE.STD   <- Best.Mod$PROB.CPUE/mean(Best.Mod$PROB.CPUE)*100
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(POS.CPUE=mean(CPUE/HOURS_FISHED/NUM_GEAR)),by=list(YEAR)]
-NOMI               <- D[,list(TOT.CPUE=mean(CPUE/HOURS_FISHED/NUM_GEAR),PROB.CPUE=mean(PRES/HOURS_FISHED/NUM_GEAR)),by=list(YEAR)]
+NOMI               <- D[,list(TOT.CPUE=mean(CPUE),PROB.CPUE=mean(PRES)),by=list(YEAR)]
 NOMI               <- merge(NOMI,NOMI1,by="YEAR")
 NOMI$TOT.CPUE.STD  <- NOMI$TOT.CPUE/mean(NOMI$TOT.CPUE)*100
 NOMI$PROB.CPUE.STD <- NOMI$PROB.CPUE/mean(NOMI$PROB.CPUE)*100
 NOMI$POS.CPUE.STD  <- NOMI$POS.CPUE/mean(NOMI$POS.CPUE)*100
-NOMI$MODEL.B <- NOMI$MODEL.P <- "NOMI"
+NOMI$MODEL.B       <- NOMI$MODEL.P <- "NOMI"
 NOMI$YEAR          <- as.numeric(as.character((NOMI$YEAR)))
 NOMI               <- select(NOMI,MODEL.B,MODEL.P,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD)
 
@@ -256,59 +257,36 @@ Best.Mod <- rbind(select(Best.Mod,MODEL.P,MODEL.B,YEAR,TOT.CPUE.STD,POS.CPUE.STD
 Best.Mod <- melt(Best.Mod,id.var=1:3,variable.name="CPUE_TYPE",value.name="CPUE")
 
 # Best model vs. NOMI graph
-ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE))+geom_line(aes(col=MODEL.B))+facet_wrap(~CPUE_TYPE)
-
-
-
-
-
-
-# Create trend comparison graphs
-Results.P <- rbindlist(Results.P)
-Results.B <- rbindlist(Results.B)
-
-
-
-
-
-aWLT$PROB.CPUE.STD    <- aWLT$PROB.CPUE/mean(aWLT$PROB.CPUE)*100
-aWLT$POS.CPUE.STD     <- aWLT$POS.CPUE/mean(aWLT$POS.CPUE)*100
-
-aWLT <- aWLT[,list(POS.CPUE=mean(POS.CPUE)),by=list(MODEL.P,YEAR)] # Average all seasons per year
-aWLT <- aWLT[,list(PROB.CPUE=mean(PROB.CPUE)),by=list(MODEL.B,YEAR)] # Average all seasons per year
-
-
-
-
-
-
-Final   <- rbindlist(Results.P)
-
-Final.Trend <- select(Final,MODEL,YEAR,TOT.CPUE,SD.TOT.CPUE) # Select CPUE trend for SS3 model
-Final.Comp  <- select(Final,MODEL,YEAR,TOT.CPUE.STD,POS.CPUE.STD,PROB.CPUE.STD)
-
-
-
-
-
-
-Final.Comp         <- rbind(Final.Comp,NOMI)
-
-# Melt all types of cpue
-Final.Comp <- melt(Final.Comp,id.var=1:2,variable.name="CPUE_TYPE",value.name="CPUE")
-
-
-
-
-
-p1 <- ggplot(data=Final.Comp,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE,color=MODEL,linetype=MODEL),se=F,size=0.4)+theme_bw()+
+P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=str_wrap(MODEL.B,20)))+geom_line()+
        facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("TOT.CPUE.STD"="Combined CPUE","POS.CPUE.STD"="Positive-only CPUE","PROB.CPUE.STD"="Probability CPUE")))+
-       scale_linetype_manual(values=c("dashed","solid","solid","solid","solid","solid","solid","solid"))+scale_color_brewer(palette="Dark2")+
+       labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()
+
+#=======================Create trend comparison graphs==============================
+Results.P           <- rbindlist(Results.P)
+Results.P$CPUE_TYPE <- "Positive-only CPUE"
+Results.P           <- select(Results.P,CPUE_TYPE,MODEL=MODEL.P,YEAR,SEASON,AREA_C,WEIGHT,CPUE=POS.CPUE)
+
+Results.B           <- rbindlist(Results.B)
+Results.B$CPUE_TYPE <- "Probability CPUE"
+Results.B           <- select(Results.B,CPUE_TYPE,MODEL=MODEL.B,YEAR,SEASON,AREA_C,WEIGHT,CPUE=PROB.CPUE)
+
+Comp.Mod <- rbind(Results.P,Results.B)
+Comp.Mod <- Comp.Mod[,list(CPUE=sum(CPUE*WEIGHT)),by=list(CPUE_TYPE,MODEL,YEAR,SEASON)] # Sum abundance in all region, by regional weight
+Comp.Mod <- Comp.Mod[,list(CPUE=mean(CPUE)),by=list(CPUE_TYPE,MODEL,YEAR)] # Average all 12 SEASONs per year
+
+Comp.AllYrs       <- Comp.Mod[,list(CPUE.ALLYRS=mean(CPUE)),by=list(CPUE_TYPE,MODEL)] # Average all 12 SEASONs per year
+Comp.Mod          <- merge(Comp.Mod,Comp.AllYrs,by=c("CPUE_TYPE","MODEL"))
+Comp.Mod$CPUE.STD <- Comp.Mod$CPUE/Comp.Mod$CPUE.ALLYRS*100
+Comp.Mod$YEAR     <- as.numeric(Comp.Mod$YEAR)
+
+
+p2 <- ggplot(data=Comp.Mod,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE.STD,color=MODEL),se=F,size=0.4)+theme_bw()+
+       facet_wrap(~CPUE_TYPE)+scale_color_brewer(palette="Dark2")+
        theme(legend.text=element_text(size=6),legend.key.height = unit(0.2, 'cm'))+labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")
   
- ggsave(p1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Trends.png"),height=2,width=8,unit="in")
+ggsave(p1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Trends.png"),height=2,width=8,unit="in")
 
- windows(width=12,height=3);p1
+windows(width=12,height=3);p1
 
 
  
