@@ -178,7 +178,7 @@ W <- as.data.table(windsort2)
 #  ENVIRONMENTAL DATA: WINDS
 #    do this working with interview only
 #    Note: Pago Pago is 14.28 deg S, 170.7 deg W (-14.28, -170.7).
-B   <- readRDS(paste0(root_dir, "/Outputs/CPUE_A.rds"))
+B   <- readRDS(paste0(root_dir, "/Outputs/CPUE_B.rds"))
 INT <- B[,list(N=.N),by=list(INTERVIEW_PK,YEAR,INTERVIEW_TIME_LOCAL,INTERVIEW_TIME_UTC,AREA_C)]
 
 # -- Do "nearest neighbor" merge on INTERVIEW_TIME_UTC:   I don't know of a simpler way to do this.
@@ -284,10 +284,9 @@ for (i in 1:nrow(INT.W.TUT)) {
 
 INT.W <- rbind(INT.W.TUT, INT.W.MAN)
 INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=WSPD,WINDDIR=wdir,)
-B     <- merge(B,INT.W,by="INTERVIEW_PK",all.x=T)
 
-
-saveRDS(B,paste0(root_dir, "/Outputs/CPUE_B.rds"))
+length(unique(INT.W$INTERVIEW_PK)) # 2329 interviews, since seems to be missing Banks and others
+saveRDS(INT.W,paste0(root_dir, "/Outputs/CPUE_WIND.rds"))
 
 	
 

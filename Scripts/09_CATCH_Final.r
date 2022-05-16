@@ -42,24 +42,24 @@ saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
 
 
 # Compare this catch to Erin's original scripts
-# F <- E[YEAR>=1986,list(LBS=sum(LBS)),by=list(SPECIES,YEAR)]
-# F <- F[order(SPECIES,YEAR)]
+ F <- E[YEAR>=1986,list(LBS=sum(LBS)),by=list(SPECIES,YEAR)]
+ F <- F[order(SPECIES,YEAR)]
+ 
+ ER <- readRDS(paste0(root_dir,"/Outputs/ErinCatch.rds"))
+ ER <- merge(ER,S,by="SCIENTIFIC_NAME")
+ ER <- select(ER,SPECIES,YEAR,LBS)
+ ER$SOURCE<- "Erin"
+ F$SOURCE <- "Marc"
 # 
-# ER <- readRDS(paste0(root_dir,"/Outputs/ErinCatch.rds"))
-# ER <- merge(ER,S,by="SCIENTIFIC_NAME")
-# ER <- select(ER,SPECIES,YEAR,LBS)
-# ER$SOURCE<- "Erin"
-# F$SOURCE <- "Marc"
+ G <- data.table( rbind(ER,F) )
 # 
-# G <- data.table( rbind(ER,F) )
-# 
-# TOT <- G[,list(LBS=round(sum(LBS),0)),by=list(YEAR,SOURCE)]
-# TOT <- dcast(TOT,YEAR~SOURCE,value.var="LBS")
+ TOT <- G[,list(LBS=round(sum(LBS),0)),by=list(YEAR,SOURCE)]
+ TOT <- dcast(TOT,YEAR~SOURCE,value.var="LBS")
 # 
 # 
-# ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES,scales="free_y")
-# ggplot(data=TOT,aes(x=YEAR))+geom_line(aes(y=Marc),col="blue")+geom_line(aes(y=Erin),col="red")
-# 
+ ggplot(data=G,aes(x=YEAR,y=LBS,col=SOURCE))+geom_line()+facet_wrap(~SPECIES,scales="free_y")
+ ggplot(data=TOT,aes(x=YEAR))+geom_line(aes(y=Marc),col="blue")+geom_line(aes(y=Erin),col="red")+geom_text(aes(y=Marc,label=Marc), position=position_dodge(width=0.9), vjust=-0.25)
+ ggplot(data=TOT,aes(x=YEAR,y=Marc))+geom_bar(stat="identity",col="black")+ylab("LBS")+geom_text(aes(label=Marc), position=position_dodge(width=0.9), vjust=-0.25)
 
 
 

@@ -4,12 +4,9 @@ root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
 C <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_B.rds")))
 C <- C[METHOD_FK==4] # Only do CPUE with bottomfishing gear (not BTM)
-C <- C[,list(LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,YEAR,MONTH,TYPE_OF_DAY,AREA_C,WINDSPEED,PROP_UNID,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
+C <- C[,list(LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,SPECIES_FK)]
 
 C$SPECIES_FK <- paste0("S",C$SPECIES_FK)
-
-No.variables <- ncol(C)-1
-
 length(unique(C$INTERVIEW_PK))
 
 #======= Calculate uku targeting principal component values (Winker et al. 2013)============
@@ -25,12 +22,12 @@ SP_REJECT          <- SP_CATCH[PROP<0.01]      # Drop SPECIES_FK corresponding t
 No.SPECIES_FK      <- length(unique(SP_CATCH[PROP>0.01]$SPECIES_FK))
 
 # Only keep the SPECIES_FK making up 99% of the catch
-D <- dcast(C,INTERVIEW_PK+YEAR+MONTH+TYPE_OF_DAY+AREA_C+WINDSPEED+PROP_UNID+HOURS_FISHED+NUM_GEAR~SPECIES_FK,value.var="LBS",fill=0)
+D <- dcast(C,INTERVIEW_PK~SPECIES_FK,value.var="LBS",fill=0)
 D <- D[,(SP_REJECT$SPECIES_FK):=NULL]
 D <- data.table(D)
 
 # Calculate prop. of each SPECIES_FK per trip
-PROPS               <- D[,(No.variables+1):ncol(D)]/rowSums(D[,(No.variables+1):ncol(D)])
+PROPS               <- D[,2:ncol(D)]/rowSums(D[,2:ncol(D)])
 PROPS[is.na(PROPS)] <- 0 
 PROPS               <- (PROPS)^(1/4) # Fourth-root transformation to increase weight of rarer SPECIES_FK
 #PROPS               <- PROPS[rowSums(PROPS)>0,]
@@ -63,11 +60,9 @@ plotnScree(results)
 for(i in 1:variables) if(NF$Eigenvalues[i]>=1&(NF$Eigenvalues[i]>=NF$Pred.eig[i])){PC_KEEP<-i}else{break} 
 
 # Add first four principal components back in dataset
-E <- cbind(D[,1:(No.variables-1)],PCA$x[,1:4],PC_KEEP)
+E <- cbind(D[,1],PCA$x[,1:4])
 
 # Save this record
-E <- dplyr::select(E,TRIP,FYEAR,MONTH,DATE,FISHER,CUM_EXP,LAT,LONG,SPEED,XDIR,YDIR,AREA,AREA_A,AREA_B,AREA_C,PC1,PC2,PC3,PC4,PC_KEEP,HOURS,UKUCPUE=S20)
-
-E <- E[order(DATE,AREA_C,TRIP)]
-
+length(unique(C$INTERVIEW_PK))
+saveRDS(E,paste0(root_dir,"/Outputs/CPUE_PCA.rds"))
 
