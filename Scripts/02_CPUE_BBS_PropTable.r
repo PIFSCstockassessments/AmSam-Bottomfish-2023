@@ -2,7 +2,7 @@ require(data.table); require(ggplot2); require(gridExtra); require(directlabels)
 options(scipen = 999)
 root_dir <- this.path::here(.. = 1) 
 
-Z <- readRDS(paste0(root_dir,"\\Outputs\\CPUE_B.rds"))
+Z <- readRDS(paste0(root_dir,"\\Outputs\\CPUE_A.rds"))
 Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_PK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
 Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]
 Z$SPECIES_FK <- as.numeric(Z$SPECIES_FK)
@@ -136,6 +136,49 @@ ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop
 
 # Output table for further use
 saveRDS(Final,file=paste0(root_dir,"\\Outputs\\BBS_Prop_Table.rds"))
+
+#============================Apply the species proportion table to the CPUE data for CPUE indices purposes===============================================================
+
+D   <- readRDS(paste0(root_dir,"/Outputs/CPUE_A.rds"))
+PT  <- readRDS(paste0(root_dir, "/Outputs/BBS_Prop_Table.rds"))  # Species composition of groups, by group x period x region
+
+PT$GROUP_FK   <- as.character(PT$GROUP_FK)
+PT$SPECIES_FK <- as.character(PT$SPECIES_FK)
+
+D$PERIOD <- 999 # Add time period that matches the one used for prop table (PT)
+D[YEAR>1985&YEAR<=1995]$PERIOD  <- 1995
+D[YEAR>1995&YEAR<=2005]$PERIOD  <- 2005
+D[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
+D[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
+
+# Replace all the grouped catch into species using the proportion table calculated above.
+X            <- D[BMUS=="BMUS_Containing_Group"]
+X            <- merge(X,PT,by.x=c("SPECIES_FK","PERIOD","AREA_C"),by.y=c("GROUP_FK","PERIOD","AREA_C"),allow.cartesian=T)
+X$SPECIES_FK <- X$SPECIES_FK.y
+X$EST_LBS    <- X$EST_LBS*X$Prop
+X            <- select(X,-SPECIES_FK.y,-Prop,-PERIOD)
+X$SOURCE     <- "Group-level"
+
+# Remove the grouped catch from the original data so it can be merge with the new table where groups were broken down by species
+Y        <- select(D,-PERIOD )
+Y        <- Y[BMUS!="BMUS_Containing_Group"]
+Y$SOURCE <- "Species-level"
+
+L <- rbind(X,Y)
+L <- select(L,-FAMILY,-BMUS,-SCIENTIFIC_NAME)
+
+#=======Final re-organization=================
+
+# Re-add some species-specific fields
+S <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="ALLSPECIES")   )
+S <- select(S,SPECIES_PK,SCIENTIFIC_NAME,FAMILY,BMUS)
+S$SPECIES_PK <- as.character(S$SPECIES_PK)
+L <- merge(L,S,by.x="SPECIES_FK",by.y="SPECIES_PK",all.x=T)
+
+L <- select(L,INTERVIEW_PK:PROP_UNID,AREA_C,SOURCE:BMUS,SPECIES_FK,EST_LBS)
+
+saveRDS(L,file=paste0(root_dir,"/Outputs/CPUE_B.rds"))
+
 
 
 

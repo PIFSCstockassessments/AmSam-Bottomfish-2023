@@ -6,15 +6,19 @@ root_dir <- this.path::here(.. = 2) # establish directories using this.path
 B <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
 
 # How many interviews?
-I <- B[,list(ONES=1),by=list(YEAR,INTERVIEW_PK,METHOD_FK,BMUS)] 
-I <- dcast(I,INTERVIEW_PK+YEAR+METHOD_FK~BMUS,value.var="ONES",fill=0) # 3048 interviews (Method 4 or 5)
+I    <- B[,list(ONES=1),by=list(YEAR,INTERVIEW_PK,METHOD_FK,BMUS)]
+I    <- dcast(I,INTERVIEW_PK+YEAR+METHOD_FK~BMUS,value.var="ONES",fill=0) # 3203 interviews (Method 4 or 5)
+nrow(I)
 
 nrow(I[METHOD_FK==4])/(nrow(I[METHOD_FK==4])+nrow(I[METHOD_FK==5])) # 75% of interviews are Bottomfishing
 I <- I[METHOD_FK==4]
+length(unique(I$INTERVIEW_PK))
+
 
 I$BOTH            <- ifelse(I$BMUS_Containing_Group==1&I$BMUS_Species==1,1,0)
 I2                <- I[BMUS_Containing_Group==1|BMUS_Species==1,list(GROUP=sum(BMUS_Containing_Group),BSPECIES=sum(BMUS_Species),BOTH=sum(BOTH)),by=list(YEAR)]
 I2$N_ONLY_SPECIES <- I2$BSPECIES-I2$BOTH
+
 ggplot(data=I2,aes(x=YEAR,y=N_ONLY_SPECIES))+geom_line()
        # If we filtered for only interviews where ALL the BMUS catch is identified at the species level, we would get only about 10 to 30 interviews per year pre-2016.
 
@@ -28,6 +32,21 @@ VE <- data.table(  table(VE$VESSEL_REGIST_NO)  )
 ME <- B[,list(ONES=1),by=list(INTERVIEW_PK,METHOD_FK)]
 ME <- ME[,list(N=sum(ONES)),by=list(INTERVIEW_PK)]   
 ME[N>1] # This shows an INTERVIEW_PK always contains a single METHOD   
+
+# Explore pattern between hours_fished and cpue
+HF <- B[METHOD_FK==4&HOURS_FISHED<=24,list(EST_LBS=mean(EST_LBS)),by=list(HOURS_FISHED)]
+ggplot(data=HF,aes(x=HOURS_FISHED,y=EST_LBS))+geom_point()+geom_smooth(span=0.7)
+
+NG <- B[METHOD_FK==4&NUM_GEAR<=8,list(EST_LBS=mean(EST_LBS)),by=list(NUM_GEAR)]
+ggplot(data=NG,aes(x=NUM_GEAR,y=EST_LBS))+geom_point()+geom_smooth(span=0.7)
+
+# Explore how many interviews Bank vs. Tutuila by year
+R <- B[AREA_C!="Manua",list(ONES=1),by=list(YEAR,AREA_C,INTERVIEW_PK)]
+R <- R[,list(N=sum(ONES)),by=list(YEAR,AREA_C)]
+ggplot(data=R,aes(x=YEAR,y=N,fill=AREA_C))+geom_bar(stat="identity",position="stack")
+
+sum(R[AREA_C=="Bank"]$N)/sum(R$N) # Banks are 8% of Tutuila-area trips
+
 
 
 

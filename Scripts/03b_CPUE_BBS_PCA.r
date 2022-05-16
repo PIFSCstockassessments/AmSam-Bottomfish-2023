@@ -2,7 +2,7 @@ require(dplyr); require(this.path); require(data.table);require(openxlsx); requi
 options(scipen=999)		              # this option just forces R to never use scientific notation
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
-C <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_A.rds")))
+C <- readRDS(paste(paste0(root_dir, "/Outputs/CPUE_B.rds")))
 C <- C[METHOD_FK==4] # Only do CPUE with bottomfishing gear (not BTM)
 C <- C[,list(LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,SPECIES_FK)]
 
@@ -60,8 +60,9 @@ plotnScree(results)
 for(i in 1:variables) if(NF$Eigenvalues[i]>=1&(NF$Eigenvalues[i]>=NF$Pred.eig[i])){PC_KEEP<-i}else{break} 
 
 # Add first four principal components back in dataset
-E <- cbind(D[,1],PCA$x[,1:4],PC_KEEP)
+E <- cbind(D[,1],PCA$x[,1:4])
 
 # Save this record
+length(unique(C$INTERVIEW_PK))
 saveRDS(E,paste0(root_dir,"/Outputs/CPUE_PCA.rds"))
 
