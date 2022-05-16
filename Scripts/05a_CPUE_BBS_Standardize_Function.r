@@ -1,6 +1,6 @@
 Standardize_CPUE <- function(Sp, Ar,minYr,maxYr) {
   
-  require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot); require(stringr)
+require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot); require(stringr); require(gridExtra); require(grid)
   
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
@@ -257,9 +257,15 @@ Best.Mod$CPUE_PROB.STD   <- Best.Mod$CPUE_PROB/mean(Best.Mod$CPUE_PROB)*100
 write.csv(select(Best.Mod,YEAR,CPUE_TOT,SD.CPUE_TOT),file=paste0(root_dir,"/Outputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
 
 # Add nominal CPUE information
-NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR)]
-NOMI               <- D[,list(CPUE_TOT=mean(CPUE),CPUE_PROB=mean(PRES)),by=list(YEAR)]
-NOMI               <- merge(NOMI,NOMI1,by="YEAR")
+NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR,SEASON,AREA_C)]
+NOMI               <- D[,list(CPUE_TOT=mean(CPUE),CPUE_PROB=mean(PRES)),by=list(YEAR,SEASON,AREA_C)]
+NOMI               <- merge(NOMI,NOMI1,by=c("YEAR","SEASON","AREA_C"))
+NOMI$CPUE_TOT      <- NOMI$CPUE_PROB*NOMI$CPUE_POS
+NOMI$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
+NOMI[AREA_C=="Tutuila"]$WEIGHT <- 0.91
+NOMI[AREA_C=="Bank"]$WEIGHT    <- 0.09
+NOMI <- NOMI[,list(CPUE_TOT=sum(CPUE_TOT*WEIGHT),CPUE_POS=sum(CPUE_POS*WEIGHT),CPUE_PROB=sum(CPUE_PROB*WEIGHT)),by=list(YEAR,SEASON)] # Sum abundance in all region, by regional weight
+NOMI <- NOMI[,list(CPUE_TOT=mean(CPUE_TOT),CPUE_POS=mean(CPUE_POS),CPUE_PROB=mean(CPUE_PROB)),by=list(YEAR)] # Average all 12 SEASONs per year
 NOMI$CPUE_TOT.STD  <- NOMI$CPUE_TOT/mean(NOMI$CPUE_TOT)*100
 NOMI$CPUE_PROB.STD <- NOMI$CPUE_PROB/mean(NOMI$CPUE_PROB)*100
 NOMI$CPUE_POS.STD  <- NOMI$CPUE_POS/mean(NOMI$CPUE_POS)*100
@@ -276,7 +282,7 @@ P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=str_wrap(MODEL_PROB,20)))+geom_
        labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()
 
 windows(width=12,height=3);P1
-ggsave(P1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_BestMod.png"),height=2,width=8,unit="in")
+ggsave(P1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_BestModel.png"),height=2,width=8,unit="in")
 
 
 #=======================Create trend comparison graphs==============================
@@ -289,18 +295,22 @@ Comp.Mod$CPUE.STD <- Comp.Mod$CPUE/Comp.Mod$CPUE.ALLYRS*100
 Comp.Mod$YEAR     <- as.numeric(Comp.Mod$YEAR)
 Comp.Mod          <- select(Comp.Mod,-CPUE.ALLYRS)
 
-P2 <- ggplot(data=Comp.Mod,aes(x=YEAR,col=str_wrap(MODEL,20)))+geom_line(aes(y=CPUE.STD))+#geom_smooth(aes(y=CPUE.STD),se=F,size=0.4)+theme_bw()+
-       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("PROB"="Probability CPUE","POS"="Positive-only CPUE")))+
-       scale_color_brewer(palette="Dark2")+
-       theme(legend.text=element_text(size=6),legend.key.height = unit(0.2, 'cm'))+labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")
+
+P3 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_POS.STD),col="lightgray",size=3)+
+       geom_line(data=Comp.Mod[CPUE_TYPE=="POS"],aes(x=YEAR,y=CPUE.STD,col=str_wrap(MODEL,20)))+
+       scale_color_brewer(palette="Dark2")+labs(col=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard positive-only CPUE (% of mean)")+
+       theme(legend.text=element_text(size=6),legend.key.height=unit(0.2,'cm'))+theme_bw()
+
+P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",size=3)+
+       geom_line(data=Comp.Mod[CPUE_TYPE=="PROB"],aes(x=YEAR,y=CPUE.STD,col=str_wrap(MODEL,20)))+
+       scale_color_brewer(palette="Dark2")+labs(col=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard probability CPUE (% of mean)")+
+       theme(legend.text=element_text(size=6),legend.key.height=unit(0.2,'cm'))+theme_bw()
+
+Comp.Graph <- arrangeGrob(P3,P4,ncol=1)
 
 
-
-
-
-windows(width=12,height=3);P2
-ggsave(P2,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_ModelComps.png"),height=2,width=8,unit="in")
-
+windows(width=8,height=8); grid.draw(Comp.Graph)
+ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_ModelComps.png"),height=6,width=6,unit="in")
 
 
 } # End of function
