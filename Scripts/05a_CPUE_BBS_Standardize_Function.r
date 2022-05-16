@@ -77,10 +77,10 @@ for(i in 1:10){
     }
 }
 
-Best.P.Model.Formula <- gsub(" ","",as.character(LastModel$formula[3]))
-P.SelResults         <- rbind(P.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
-P.SelResults$CPUE_TYPE    <- "Positive-only CPUE" 
-P.SelResults         <- select(P.SelResults,TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
+Best.P.Model.Formula   <- gsub(" ","",as.character(LastModel$formula[3]))
+P.SelResults           <- rbind(P.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
+P.SelResults$CPUE_TYPE <- "Positive-only CPUE" 
+P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Backward selection: Probability of catch-only models
 if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
@@ -111,11 +111,27 @@ for(i in 1:10){
   }
 }
 
-Best.B.Model.Formula <- gsub(" ","",as.character(LastModel$formula[3]))
-B.SelResults         <- rbind(B.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
-B.SelResults$CPUE_TYPE    <- "Probability CPUE" 
-B.SelResults         <- select(B.SelResults,TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
+Best.B.Model.Formula    <- gsub(" ","",as.character(LastModel$formula[3]))
+B.SelResults            <- rbind(B.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
+B.SelResults$CPUE_TYPE  <- "Probability CPUE" 
+B.SelResults            <- select(B.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
+# Put final summary table together and export CPUE index for input into SS3 
+Final          <- rbind(P.SelResults,B.SelResults)
+Final$AIC      <- round(Final$AIC,1)
+Final$DELT_AIC <- round(Final$DELT_AIC,1)
+View(Final)
+
+# Add table to excel worksheet
+File.Name  <- paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx")
+Sheet.Name <- paste0(Sp,"_",Ar)
+wb         <- loadWorkbook(File.Name)
+if(!(Sheet.Name %in% getSheetNames(File.Name))) addWorksheet(wb, sheetName = Sheet.Name)
+writeData(wb, sheet = Sheet.Name, Final,colNames=T)
+setColWidths(wb,widths="auto",sheet=Sheet.Name,cols=1:10)
+saveWorkbook(wb,File.Name,overwrite = T)
+
+#==================CPUE index creation and comparison between models=============================
 # For model comparison purposes, take the final models and re-run simpler models to evaluate the effect of each variables
 P.Models      <- list()
 Model.String  <- paste0('gam(data=D[CPUE>0],weights=W.P,log(CPUE)~',Best.P.Model.Formula,',method="REML")')
@@ -143,26 +159,24 @@ for(i in 1:20){
 }
 
 # Make a list of model names for the figure legend
-P.Model.Names  <- data.table(MODEL=as.factor(as.character(P.Models[[1]]$formula[3])),MODEL_ORDER=1)
-TM             <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]])), MODEL_ORDER=1 )
-TM$MODEL_ORDER <- seq((nrow(TM)+1),2)
-TM$MODEL       <- paste0("- ",TM$MODEL)
-P.Model.Names  <- rbind(P.Model.Names,TM[-1,])
+P.Model.Names       <- data.table(MODEL=as.factor(as.character(P.Models[[1]]$formula[3])),MODEL_ORDER=1)
+TM                  <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]])), MODEL_ORDER=1 )
+TM$MODEL_ORDER      <- seq((nrow(TM)+1),2)
+TM$MODEL            <- paste0("- ",TM$MODEL)
+P.Model.Names       <- rbind(P.Model.Names,TM[-1,])
 P.Model.Names$MODEL <- fct_reorder(P.Model.Names$MODEL,P.Model.Names$MODEL_ORDER,min)
 
-B.Model.Names <- data.table(MODEL=as.factor(as.character(B.Models[[1]]$formula[3])),MODEL_ORDER=1)
-TM            <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]])), MODEL_ORDER=1 )
+B.Model.Names       <- data.table(MODEL=as.factor(as.character(B.Models[[1]]$formula[3])),MODEL_ORDER=1)
+TM                  <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]])), MODEL_ORDER=1 )
 TM$MODEL_ORDER      <- seq((nrow(TM)+1),2)
-TM$MODEL      <- paste0("- ",TM$MODEL)
-B.Model.Names <- rbind(B.Model.Names,TM[-1,])
+TM$MODEL            <- paste0("- ",TM$MODEL)
+B.Model.Names       <- rbind(B.Model.Names,TM[-1,])
 B.Model.Names$MODEL <- fct_reorder(B.Model.Names$MODEL,B.Model.Names$MODEL_ORDER,min)
 
 #========================Generate standardized CPUE index for all models========================================
-# Create Walter's large table template
+# Create Walter's large table template and add add median for continuous variables and most commmon variable for categorical ones
 WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) #}
 WLT <- select(WLT,-N)
-
-# Add median for continuous variables and most commmon variable for categorical ones
 WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
 WLT$NUM_GEAR     <- median(D$NUM_GEAR)
 WLT$TYPE_OF_DAY  <- "WD"
@@ -221,7 +235,8 @@ for(i in 1:length(B.Models)){
 }
 
 # Combine all results in one table
-Results <- rbind(rbindlist(Results.P),rbindlist(Results.B))
+Results      <- rbind(rbindlist(Results.P),rbindlist(Results.B))
+Results$YEAR <- as.numeric(Results$YEAR)
 
 # Calculate the combined CPUE for the best model only
 Best.Mod <- Results[MODEL_ORDER==1]
@@ -233,11 +248,13 @@ Best.Mod$SD.CPUE_TOT <- sqrt(  Best.Mod$SD.CPUE_POS^2*Best.Mod$SD.CPUE_PROB^2+Be
 Best.Mod <- Best.Mod[,list(CPUE_TOT=sum(CPUE_TOT*WEIGHT),SD.CPUE_TOT=sqrt(sum(SD.CPUE_TOT^2*WEIGHT^2)),CPUE_POS=sum(CPUE_POS*WEIGHT),CPUE_PROB=sum(CPUE_PROB*WEIGHT)),by=list(MODEL_POS,MODEL_PROB,YEAR,SEASON)] # Sum abundance in all region, by regional weight
 Best.Mod <- Best.Mod[,list(CPUE_TOT=mean(CPUE_TOT),SD.CPUE_TOT=mean(SD.CPUE_TOT),CPUE_POS=mean(CPUE_POS),CPUE_PROB=mean(CPUE_PROB)),by=list(MODEL_POS,MODEL_PROB,YEAR)] # Average all 12 SEASONs per year
 
-Best.Mod$YEAR            <- as.numeric(Best.Mod$YEAR)
 Best.Mod$CPUE_TOT.STD    <- Best.Mod$CPUE_TOT/mean(Best.Mod$CPUE_TOT)*100
 Best.Mod$SD.CPUE_TOT.STD <- Best.Mod$SD.CPUE_TOT/mean(Best.Mod$SD.CPUE_TOT)*100
 Best.Mod$CPUE_POS.STD    <- Best.Mod$CPUE_POS/mean(Best.Mod$CPUE_POS)*100
 Best.Mod$CPUE_PROB.STD   <- Best.Mod$CPUE_PROB/mean(Best.Mod$CPUE_PROB)*100
+
+# Save final CPUE trend for SS model
+write.csv(select(Best.Mod,YEAR,CPUE_TOT,SD.CPUE_TOT),file=paste0(root_dir,"/Outputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR)]
@@ -258,6 +275,10 @@ P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=str_wrap(MODEL_PROB,20)))+geom_
        facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Positive-only CPUE","CPUE_PROB.STD"="Probability CPUE")))+
        labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()
 
+windows(width=12,height=3);P1
+ggsave(P1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_BestMod.png"),height=2,width=8,unit="in")
+
+
 #=======================Create trend comparison graphs==============================
 Comp.Mod <- Results[,list(CPUE=sum(CPUE*WEIGHT)),by=list(CPUE_TYPE,MODEL,YEAR,SEASON)] # Sum abundance in all region, by regional weight
 Comp.Mod <- Comp.Mod[,list(CPUE=mean(CPUE)),by=list(CPUE_TYPE,MODEL,YEAR)] # Average all 12 SEASONs per year
@@ -266,45 +287,21 @@ Comp.AllYrs       <- Comp.Mod[,list(CPUE.ALLYRS=mean(CPUE)),by=list(CPUE_TYPE,MO
 Comp.Mod          <- merge(Comp.Mod,Comp.AllYrs,by=c("CPUE_TYPE","MODEL"))
 Comp.Mod$CPUE.STD <- Comp.Mod$CPUE/Comp.Mod$CPUE.ALLYRS*100
 Comp.Mod$YEAR     <- as.numeric(Comp.Mod$YEAR)
+Comp.Mod          <- select(Comp.Mod,-CPUE.ALLYRS)
 
-
-p2 <- ggplot(data=Comp.Mod,aes(x=YEAR,group=MODEL))+geom_smooth(aes(y=CPUE.STD,color=MODEL),se=F,size=0.4)+theme_bw()+
-       facet_wrap(~CPUE_TYPE)+scale_color_brewer(palette="Dark2")+
+P2 <- ggplot(data=Comp.Mod,aes(x=YEAR,col=str_wrap(MODEL,20)))+geom_line(aes(y=CPUE.STD))+#geom_smooth(aes(y=CPUE.STD),se=F,size=0.4)+theme_bw()+
+       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("PROB"="Probability CPUE","POS"="Positive-only CPUE")))+
+       scale_color_brewer(palette="Dark2")+
        theme(legend.text=element_text(size=6),legend.key.height = unit(0.2, 'cm'))+labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")
-  
-ggsave(p1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Trends.png"),height=2,width=8,unit="in")
-
-windows(width=12,height=3);p1
 
 
- 
- 
- 
-# PUT TABLE RESULTS TOGETHER 
- 
-P.Final <- rbindlist(P.Results)
-B.Final <- rbindlist(B.Results)
 
-P.Final$DELT.AIC <- 0
-P.Final[2:nrow(P.Final),]$DELT.AIC <- round(diff(P.Final$AIC),1)
 
-B.Final$DELT.AIC <- 0
-B.Final[2:nrow(B.Final),]$DELT.AIC <- round(diff(B.Final$AIC),1)
 
-Final.Table <- rbind(B.Final,P.Final)
-View(Final.Table)
+windows(width=12,height=3);P2
+ggsave(P2,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_ModelComps.png"),height=2,width=8,unit="in")
 
-# Add table to excel worksheet
-File.Name  <- paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx")
-Sheet.Name <- paste0(Sp,"_",Ar)
-wb         <- loadWorkbook(File.Name)
-if(!(Sheet.Name %in% getSheetNames(File.Name))) addWorksheet(wb, sheetName = Sheet.Name)
-writeData(wb, sheet = Sheet.Name, Final.Table,colNames=T)
-setColWidths(wb,widths="auto",sheet=Sheet.Name,cols=1:10)
-saveWorkbook(wb,File.Name,overwrite = T)
 
-# Save final CPUE trend for SS model
-saveRDS(Final.Trend,paste0(root_dir,"/Outputs/CPUE/CPUE_",Sp,"_",Ar,".rds"))
 
 } # End of function
 
