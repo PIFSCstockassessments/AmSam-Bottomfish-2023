@@ -5,82 +5,56 @@
 #	Megumi Oshima megumi.oshima@noaa.gov
 #  
 #  --------------------------------------------------------------------------------------------------------------
-
-require(r4ss)
-require(tidyverse)
-require(this.path)
-require(openxlsx)
-
-## Initial inputs
-root_dir <- this.path::here(.. = 2)
-
-Species.List <- read.xlsx(file.path(root_dir, "Data", "METADATA.xlsx"), sheet = "BMUS")
-M_option <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
-                       OPTION=rep("Option1", 11))
-#DAT file 
+## DAT file
 #  --------------------------------------------------------------------------------------------------------------
-## STEP 1. Read in all data to be added 
-# Catch data
-catch         <- readRDS(file.path(root_dir, "Outputs", "CATCH_final.rds"))
-# Life history data
-life.history  <- read.xlsx(file.path(root_dir, "Data", "LH parameters.xlsx"))
-# Length comp data
-len.comp      <- readRDS(file.path(root_dir, "Outputs", "SIZE_final.rds"))
-# CPUE data
-#cpue         <- readRDS(file.path(root_dir, "Outputs", "cpue.rds"))
-
-
-### NOTE if you want to specify population length bins with min and max values different to data bins (method = 2), then add 2 columns to BIN.LIST pop_min and pop_max with the min and max values to use for each species.
-BIN.LIST      <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
-                           BINWIDTH=c(5,5,5,5,5,3,2,5,5,5,5)) # in cm
-BIN.LIST      <- len.comp %>% 
-  group_by(SPECIES) %>% 
-  summarise(min = min(LENGTH_BIN_START), 
-            max = max(LENGTH_BIN_START)) %>% 
-  merge(BIN.LIST, by = "SPECIES") %>% 
-  as.data.table()
-
-
-for(i in seq_along(Species.List$SPECIES)){
+build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, cpue = NULL, life.history = NULL, 
+                      len.comp = NULL, startyr = 1967, endyr = 2021, bin.list = NULL, fleets = 1, 
+                      M_option_sp = NULL, fleetinfo = NULL, lbin_method = 1, 
+                      template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
+                      out.dir = file.path(root_dir, "SS3 models")){
   
-  ## specify species that you are creating files for
-  species  <- Species.List$SPECIES[i]
+  nfleet <- length(fleets)
   
   ## STEP 2. Read in SS dat file
-  
-  DAT <- r4ss::SS_readdat_3.30(file = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "data.ss"))
+  DAT <- r4ss::SS_readdat_3.30(file = file.path(template.dir, "data.ss"))
   
   ## STEP 3. Get data in correct format and subset
-  catch.sp        <- catch %>% 
-    filter(str_detect(SPECIES, species)) %>% 
-    mutate(fleet = 1, 
-           seas = 1, 
-           catch_se = 0.05,
+  if(is.null(catch)) stop("Timeseries of catch is missing")
+  
+  catch <- catch
+  catch$fleet <- 1
+  
+  catch.sp <- catch %>% 
+    as.data.frame() %>% 
+    dplyr::filter(str_detect(SPECIES, species)) %>% 
+    dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
+    dplyr::mutate(seas = 1, 
+           fleet = 1,
+           catch_se = catch_se,
            catch = LBS/2205) %>% 
-    rename("year" = YEAR) %>% 
-    select(year, seas, fleet, catch, catch_se)
+    dplyr::rename("year" = YEAR) %>% 
+    dplyr::arrange(fleet, year) %>% 
+    dplyr::select(-SPECIES) %>% 
+    dplyr::select(year, seas, fleet, catch, catch_se)
   
-  M_option_sp     <- M_option %>% 
-    filter(SPECIES == species) %>% 
-    pull(var = 2) #pull out the 2nd column, gets this as a character string
-  
-  life.history.sp <- life.history %>% 
-    filter(str_detect(SPECIES, species)) %>% 
-    filter(str_detect(OPTION, M_option_sp))
+  Nages <- life.history %>% 
+    dplyr::filter(str_detect(OPTION, M_option_sp)) %>% 
+    dplyr::filter(str_detect(X1, "Nages")) %>% 
+    pull(INIT)
   
   len.comp.sp     <- len.comp %>% 
-    filter(str_detect(SPECIES, species)) %>% 
-    arrange(LENGTH_BIN_START) %>% 
-    mutate(Seas = 1,
+    dplyr::filter(str_detect(SPECIES, species)) %>% 
+    dplyr::arrange(LENGTH_BIN_START) %>% 
+    dplyr::mutate(Seas = 1,
            FltSvy = as.numeric(factor(DATASET)), 
            Sex = 0, 
            Part = 0, 
            LENGTH_BIN_START = paste0("l",LENGTH_BIN_START)) %>% 
-    rename(Yr = YEAR,
+    dplyr::rename(Yr = YEAR,
            Nsamp = EFFN) %>% 
-    select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
+    dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
     tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
-    arrange(Yr)
+    dplyr::arrange(Yr)
   
   ## STEP 4. Change inputs for dat file
   
@@ -92,30 +66,23 @@ for(i in seq_along(Species.List$SPECIES)){
   DAT$Nsubseasons     <- 2 #minimum number is 2
   DAT$spawn_month     <- 1
   DAT$Nsexes          <- 1 #1 ignore fraction female in ctl file, 2 use frac female in ctl file, -1 one sex and multiply spawning biomass by frac female
-  DAT$Nages           <- life.history.sp$AMAX
+  DAT$Ngenders        <- NULL
+  DAT$Nages           <- Nages
   DAT$N_areas         <- 1 #if want to explore fleets as areas, change this 
-  DAT$Nfleets         <- length(unique(len.comp.sp$FltSvy))  #include fishing fleets and surveys
+  DAT$Nfleets         <- nfleet  #include fishing fleets and surveys
   ## specify the fleet types, timing, area, units, any catch multiplier and fleet name in fleetinfo
-  if(DAT$Nfleets == 1){
-    DAT$fleetinfo <- data.frame(type = c(1), surveytiming = c(-1),
-                                units = c(1), need_catch_mult = c(0), 
-                                fleetname = c("FISHERY"))
-  }
-  if(DAT$Nfleets == 2){
-    DAT$fleetinfo <- data.frame(type = c(1,3), surveytiming = c(-1,1),
-                                units = c(1,2), need_catch_mult = c(0,0), 
-                                fleetname = c("FISHERY", "SURVEY"))
-  }
-  
-  
+  DAT$fleetinfo <- fleetinfo
+
   if(exists("catch.sp")){
     
     ## Add catch, column names: year, seas, fleet, catch, catch_se
     ## NOTE: will need to adjust if there are multiple fleets with catch
     init.catch <- data.frame(year = -999, seas = 1, fleet = 1, catch = 0, catch_se = 0.01)
     DAT$catch  <- rbind(init.catch, catch.sp) 
+    print(DAT$catch)
     
   }else{
+    message("No catch to input")
     DAT$catch <- NULL
   }
   
@@ -128,6 +95,7 @@ for(i in seq_along(Species.List$SPECIES)){
     DAT$CPUE <- cpue
     
   }else{
+    message("No CPUE to input")
     DAT$CPUEinfo <- NULL
     DAT$CPUE <- NULL
   }
@@ -136,7 +104,7 @@ for(i in seq_along(Species.List$SPECIES)){
     DAT$N_discard_fleets <- unique(discards.sp$fleet)
     DAT$discard <- discards.sp
   }else{
-    
+    message("No discards to input")
     ## Any discard fleets?
     DAT$N_discard_fleets <- 0
     DAT$discard <- NULL
@@ -166,6 +134,7 @@ for(i in seq_along(Species.List$SPECIES)){
     
   }else{
     
+    message("No length composition to input")
     DAT$use_lencomp <- 0
     DAT$lencomp <- NULL
   }
@@ -184,6 +153,7 @@ for(i in seq_along(Species.List$SPECIES)){
     
   }else{
     
+    message("No age composition to input")
     DAT$N_agebins              <- 0
     DAT$agecomp <- NULL
     
@@ -197,6 +167,7 @@ for(i in seq_along(Species.List$SPECIES)){
     
   }else{
     
+    message("No size composition to input")
     DAT$use_MeanSize_at_Age_obs <- 0
     DAT$MeanSize_at_Age_obs <- NULL
     
@@ -209,7 +180,7 @@ for(i in seq_along(Species.List$SPECIES)){
   ##      1: use data bins, no other input necessary
   ##      2: generate from bin width, min, and max, specify those values 
   ##      3: read values for length bins, specify number of length bins then lower edges of each bin
-  DAT$lbin_method <- 1 
+  DAT$lbin_method <- lbin_method 
   if(DAT$lbin_method == 2){
     
     DAT$binwidth     <- as.numeric(BIN.LIST[which(BIN.LIST$SPECIES == species), "BINWIDTH"])
@@ -237,7 +208,7 @@ for(i in seq_along(Species.List$SPECIES)){
   DAT$use_selectivity_priors <- 0
   
   ## STEP 5. Save new dat file
-  r4ss::SS_writedat_3.30(DAT, outfile = file.path(root_dir, "SS3 models", paste0(species), "data.ss"), 
+  r4ss::SS_writedat_3.30(DAT, outfile = file.path(out.dir, paste0(species), "data.ss"), 
                          overwrite = TRUE, verbose = FALSE)
   
 }

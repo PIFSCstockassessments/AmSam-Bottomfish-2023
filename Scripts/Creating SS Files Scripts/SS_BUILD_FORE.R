@@ -5,50 +5,47 @@
 #	Megumi Oshima megumi.oshima@noaa.gov
 #  
 #  --------------------------------------------------------------------------------------------------------------
-
-require(r4ss)
-require(tidyverse)
-require(this.path)
-
-root_dir <- this.path::here(.. = 2)
-## specify species that you are creating files for. 
-## If you want to do all at once can make into a loop (for i in 1:nrow(Species.List))
-endyr <- 2021
-SPR.target <- 04
-Btarget <- 0.4
-Nforeyrs <- 10
-
 ## Forecast file
 #  --------------------------------------------------------------------------------------------------------------
-for(i in seq_along(Species.List$SPECIES)){
-  
-  species  <- Species.List$SPECIES[i]
+build_forecast <- function(species, 
+                           template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "forecast.ss"),
+                           out.dir = file.path(root_dir, "SS3 models"),
+                           benchmarks = 1,
+                           MSY = 2,
+                           endyr = 2021,
+                           SPR.target = 0.4,
+                           Btarget = 0.4,
+                           Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
+                           Bmark_relF_Basis = 1,
+                           Forecast = 1,
+                           Nforeyrs = 10, 
+                           Fcast_years = c(0,0,-10,0,-999,0),
+                           ControlRule = 0){
   ## STEP 1. Read in template forecast file
-  FORE <- r4ss::SS_readforecast(file = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "forecast.ss"))
+  FORE <- r4ss::SS_readforecast(file = template.dir)
   
   ## STEP 2. Make any necessary changes
   #  --------------------------------------------------------------------------------------------------------------
   ## most common inputs to change:
-  FORE$benchmarks                         <- 1 #calculate F_spr
-  FORE$MSY                                <- 2 #calculate F(MSY)
+  FORE$benchmarks                         <- benchmarks #calculate F_spr
+  FORE$MSY                                <- MSY #calculate F(MSY)
   FORE$SPRtarget                          <- SPR.target
   FORE$Btarget                            <- Btarget
   
-  #beg_bio, end_bio, beg_selex, end_selex, beg_relF, end_relF, beg_recr_dist, end_recr_dist, beg_SRparm, end_SRparm
-  FORE$Bmark_years                        <- c(0,0,0,0,0,0,0,0,0,0) #0 for end year, can change to actual years or relative (to end year)
-  FORE$Bmark_relF_Basis                   <- 1 #use year range
-  FORE$Forecast                           <- 1 #F(SPR)
+  FORE$Bmark_years                        <- Bmark_years 
+  FORE$Bmark_relF_Basis                   <- Bmark_relF_Basis #use year range
+  FORE$Forecast                           <- Forecast #F(SPR)
   FORE$Nforecastyrs                       <- Nforeyrs
   
   #beg_selex, end_selex, beg_relF, end_relF, beg_mean recruits, end_recruits
-  FORE$Fcast_years                        <- c(0,0,-10,0,-999,0)
-  FORE$ControlRuleMethod                  <- 0
+  FORE$Fcast_years                        <- Fcast_years
+  FORE$ControlRuleMethod                  <- ControlRule
   
   FORE$FirstYear_for_caps_and_allocations <- endyr + 2
   
   ## STEP 3. Save updated file
   #  --------------------------------------------------------------------------------------------------------------
-  r4ss::SS_writeforecast(FORE, dir = file.path(root_dir, "SS3 models", species),
+  r4ss::SS_writeforecast(FORE, dir = file.path(out.dir, species),
                          writeAll = TRUE, overwrite = TRUE)
   
 }
