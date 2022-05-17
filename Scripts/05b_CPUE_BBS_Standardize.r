@@ -10,7 +10,7 @@ minYr <- c(1988,2015)[1]
 maxYr <- 2021
 
 
-Sp <- "PRZO"
+Sp <- "ETCO"
 Ar <- c("Tutuila","Manua") [1]
 
 Standardize_CPUE(Sp=Sp,Ar=Ar,minYr=minYr,maxYr=maxYr)
