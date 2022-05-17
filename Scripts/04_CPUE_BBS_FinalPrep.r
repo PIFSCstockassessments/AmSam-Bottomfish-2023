@@ -19,9 +19,7 @@ W <- readRDS(paste0(root_dir,"/Outputs/CPUE_WIND.rds"))
 C <- merge(C,W,by="INTERVIEW_PK",all.x=T)
 
 length(unique(C$INTERVIEW_PK))
-length(unique(C[is.na(WINDSPEED)]$INTERVIEW_PK)) # 86 interviews are missing Windspeed
-table((C[is.na(WINDSPEED)]$AREA_C))
-table((C[is.na(WINDSPEED)]$YEAR))
+length(unique(C[is.na(WINDSPEED)]$INTERVIEW_PK)) # no interview is missing Windspeed
 
 # Add PCs targeting information
 PC <- readRDS(paste0(root_dir,"/Outputs/CPUE_PCA.rds"))
