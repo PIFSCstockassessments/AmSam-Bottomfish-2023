@@ -189,6 +189,7 @@ WLT$NUM_GEAR     <- median(D$NUM_GEAR)
 WLT$TYPE_OF_DAY  <- "WD"
 WLT$PC1          <- median(D$PC1)
 WLT$PC2          <- median(D$PC2)
+WLT$WINDSPEED    <- median(D$WINDSPEED)
 
 # Give AREAS their geographical weights
 WLT$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
