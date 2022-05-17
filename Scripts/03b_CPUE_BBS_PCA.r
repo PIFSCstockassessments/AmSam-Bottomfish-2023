@@ -10,21 +10,19 @@ C$SPECIES_FK <- paste0("S",C$SPECIES_FK)
 length(unique(C$INTERVIEW_PK))
 
 #=============Add information about group-association to each records==============================
+S             <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="ALLSPECIES")
+S             <- select(S,SPECIES_PK,BMUS,Jacks_110,Groupers_210,Deep_snappers_230,Emperors_260,Inshore_snappers_390)
+S$SPECIES_PK  <- paste0("S",S$SPECIES_PK)
+C             <- merge(C,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
+C$SPECIES_FK2 <- C$SPECIES_FK
 
-#S            <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="ALLSPECIES")
-#S            <- select(S,SPECIES_PK,BMUS,Jacks_110,Groupers_210,Deep_snappers_230,Emperors_260,Inshore_snappers_390)
+C[Jacks_110==1]$SPECIES_FK2            <- "S110"
+C[Groupers_210==1]$SPECIES_FK2         <- "S210"
+C[Deep_snappers_230==1]$SPECIES_FK2    <- "S230"
+C[Emperors_260==1]$SPECIES_FK2         <- "S260"
+C[Inshore_snappers_390==1]$SPECIES_FK2 <- "S390"
 
-#S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
-#C            <- merge(C,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
-
-
-
-
-#Test <- C[,list(LBS=sum(LBS)),by=list(SPECIES_FK)]
-#Test <- Test[order(-LBS)]
-
-#nrow(C[SPECIES_FK=="240"])
-
+C$SPECIES_FK <- C$SPECIES_FK2  # Comment this out if you want to run PCAs at mainly the species level
 
 #======= Calculate uku targeting principal component values (Winker et al. 2013)============
 
