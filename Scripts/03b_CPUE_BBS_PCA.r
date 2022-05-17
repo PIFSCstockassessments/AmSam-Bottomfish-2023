@@ -9,6 +9,23 @@ C <- C[,list(LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,SPECIES_FK)]
 C$SPECIES_FK <- paste0("S",C$SPECIES_FK)
 length(unique(C$INTERVIEW_PK))
 
+#=============Add information about group-association to each records==============================
+
+#S            <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="ALLSPECIES")
+#S            <- select(S,SPECIES_PK,BMUS,Jacks_110,Groupers_210,Deep_snappers_230,Emperors_260,Inshore_snappers_390)
+
+#S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
+#C            <- merge(C,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
+
+
+
+
+#Test <- C[,list(LBS=sum(LBS)),by=list(SPECIES_FK)]
+#Test <- Test[order(-LBS)]
+
+#nrow(C[SPECIES_FK=="240"])
+
+
 #======= Calculate uku targeting principal component values (Winker et al. 2013)============
 
 #Determine which species to include in the xij variables which is 0 or 1 for each trip j, if species i is caught in it. 
