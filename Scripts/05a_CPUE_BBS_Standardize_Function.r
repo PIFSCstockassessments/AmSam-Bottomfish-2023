@@ -49,8 +49,8 @@ WGHT.B                <- select(WGHT.B,-N,-Nobs_Nstrata)
 D                     <- merge(D,WGHT.B,by=c("YEAR","SEASON","AREA_C"),all.x=T)
 
 # Backward selection: Positive catch-only models
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY+AREA_C, method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY, method="REML")'
+if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C, method="REML")'
+if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
   
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
@@ -83,8 +83,8 @@ P.SelResults$CPUE_TYPE <- "Positive-only CPUE"
 P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Backward selection: Probability of catch-only models
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+s(PC3)+s(PC4)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
+if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
@@ -189,8 +189,6 @@ WLT$NUM_GEAR     <- median(D$NUM_GEAR)
 WLT$TYPE_OF_DAY  <- "WD"
 WLT$PC1          <- median(D$PC1)
 WLT$PC2          <- median(D$PC2)
-WLT$PC3          <- median(D$PC3)
-WLT$PC4          <- median(D$PC4)
 
 # Give AREAS their geographical weights
 WLT$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
@@ -304,8 +302,11 @@ Comp.Mod          <- select(Comp.Mod,-CPUE.ALLYRS)
 
 Comp.Mod.P       <- Comp.Mod[CPUE_TYPE=="POS"]
 Comp.Mod.P$MODEL <- fct_reorder(as.factor(Comp.Mod.P$MODEL),Comp.Mod.P$MODEL_ORDER,min)
+levels(Comp.Mod.P$MODEL) <- str_wrap(levels(Comp.Mod.P$MODEL),20)
 Comp.Mod.B       <- Comp.Mod[CPUE_TYPE=="PROB"]
 Comp.Mod.B$MODEL <- fct_reorder(as.factor(Comp.Mod.B$MODEL),Comp.Mod.B$MODEL_ORDER,min)
+levels(Comp.Mod.B$MODEL) <- str_wrap(levels(Comp.Mod.B$MODEL),20)
+
 
 P3 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_POS.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.P,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
@@ -325,8 +326,4 @@ ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Model
 
 
 } # End of function
-
-
-str(Comp.Mod)
-
 
