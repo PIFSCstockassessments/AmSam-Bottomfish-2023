@@ -120,7 +120,16 @@ B.SelResults            <- select(B.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC
 Final          <- rbind(P.SelResults,B.SelResults)
 Final$AIC      <- round(Final$AIC,1)
 Final$DELT_AIC <- round(Final$DELT_AIC,1)
-View(Final)
+
+# Function to clean up model names
+clean.formula <- function(text){
+    text <- gsub("s\\(","",text)
+    text <- gsub("\\)","",text)
+    text <- gsub(", k = 3","",text)
+    text <- gsub(",k=3","",text)
+        return (text) }
+
+Final$FORMULA <- clean.formula(Final$FORMULA)
 
 # Add table to excel worksheet
 File.Name  <- paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx")
@@ -159,19 +168,17 @@ for(i in 1:20){
 }
 
 # Make a list of model names for the figure legend
-P.Model.Names       <- data.table(MODEL=as.factor(as.character(P.Models[[1]]$formula[3])),MODEL_ORDER=1)
-TM                  <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]])), MODEL_ORDER=1 )
+P.Model.Names       <- data.table(MODEL=clean.formula(P.Models[[1]]$formula[3]),MODEL_ORDER=1)
+TM                  <- data.table(  MODEL=as.character(strsplit( gsub(" ","",P.Model.Names$MODEL),"\\+"  )[[1]]), MODEL_ORDER=1 )
 TM$MODEL_ORDER      <- seq((nrow(TM)+1),2)
 TM$MODEL            <- paste0("- ",TM$MODEL)
 P.Model.Names       <- rbind(P.Model.Names,TM[-1,])
-P.Model.Names$MODEL <- fct_reorder(P.Model.Names$MODEL,P.Model.Names$MODEL_ORDER,min)
 
-B.Model.Names       <- data.table(MODEL=as.factor(as.character(B.Models[[1]]$formula[3])),MODEL_ORDER=1)
-TM                  <- data.table(  MODEL=as.factor(as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]])), MODEL_ORDER=1 )
+B.Model.Names       <- data.table(MODEL=clean.formula(B.Models[[1]]$formula[3]),MODEL_ORDER=1)
+TM                  <- data.table(  MODEL=as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]]), MODEL_ORDER=1 )
 TM$MODEL_ORDER      <- seq((nrow(TM)+1),2)
 TM$MODEL            <- paste0("- ",TM$MODEL)
 B.Model.Names       <- rbind(B.Model.Names,TM[-1,])
-B.Model.Names$MODEL <- fct_reorder(B.Model.Names$MODEL,B.Model.Names$MODEL_ORDER,min)
 
 #========================Generate standardized CPUE index for all models========================================
 # Create Walter's large table template and add add median for continuous variables and most commmon variable for categorical ones
@@ -286,23 +293,27 @@ ggsave(P1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_BestModel.png
 
 
 #=======================Create trend comparison graphs==============================
-Comp.Mod <- Results[,list(CPUE=sum(CPUE*WEIGHT)),by=list(CPUE_TYPE,MODEL,YEAR,SEASON)] # Sum abundance in all region, by regional weight
-Comp.Mod <- Comp.Mod[,list(CPUE=mean(CPUE)),by=list(CPUE_TYPE,MODEL,YEAR)] # Average all 12 SEASONs per year
+Comp.Mod <- Results[,list(CPUE=sum(CPUE*WEIGHT)),by=list(CPUE_TYPE,MODEL,MODEL_ORDER,YEAR,SEASON)] # Sum abundance in all region, by regional weight
+Comp.Mod <- Comp.Mod[,list(CPUE=mean(CPUE)),by=list(CPUE_TYPE,MODEL,MODEL_ORDER,YEAR)] # Average all 12 SEASONs per year
 
-Comp.AllYrs       <- Comp.Mod[,list(CPUE.ALLYRS=mean(CPUE)),by=list(CPUE_TYPE,MODEL)] # Average all 12 SEASONs per year
-Comp.Mod          <- merge(Comp.Mod,Comp.AllYrs,by=c("CPUE_TYPE","MODEL"))
+Comp.AllYrs       <- Comp.Mod[,list(CPUE.ALLYRS=mean(CPUE)),by=list(CPUE_TYPE,MODEL,MODEL_ORDER)] # Average all 12 SEASONs per year
+Comp.Mod          <- merge(Comp.Mod,Comp.AllYrs,by=c("CPUE_TYPE","MODEL","MODEL_ORDER"))
 Comp.Mod$CPUE.STD <- Comp.Mod$CPUE/Comp.Mod$CPUE.ALLYRS*100
 Comp.Mod$YEAR     <- as.numeric(Comp.Mod$YEAR)
 Comp.Mod          <- select(Comp.Mod,-CPUE.ALLYRS)
 
+Comp.Mod.P       <- Comp.Mod[CPUE_TYPE=="POS"]
+Comp.Mod.P$MODEL <- fct_reorder(as.factor(Comp.Mod.P$MODEL),Comp.Mod.P$MODEL_ORDER,min)
+Comp.Mod.B       <- Comp.Mod[CPUE_TYPE=="PROB"]
+Comp.Mod.B$MODEL <- fct_reorder(as.factor(Comp.Mod.B$MODEL),Comp.Mod.B$MODEL_ORDER,min)
 
 P3 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_POS.STD),col="lightgray",size=3)+
-       geom_line(data=Comp.Mod[CPUE_TYPE=="POS"],aes(x=YEAR,y=CPUE.STD,col=str_wrap(MODEL,20)))+
+       geom_line(data=Comp.Mod.P,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
        scale_color_brewer(palette="Dark2")+labs(col=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard positive-only CPUE (% of mean)")+
        theme(legend.text=element_text(size=6),legend.key.height=unit(0.2,'cm'))+theme_bw()
 
 P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",size=3)+
-       geom_line(data=Comp.Mod[CPUE_TYPE=="PROB"],aes(x=YEAR,y=CPUE.STD,col=str_wrap(MODEL,20)))+
+       geom_line(data=Comp.Mod.B,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
        scale_color_brewer(palette="Dark2")+labs(col=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard probability CPUE (% of mean)")+
        theme(legend.text=element_text(size=6),legend.key.height=unit(0.2,'cm'))+theme_bw()
 
@@ -314,4 +325,8 @@ ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_Model
 
 
 } # End of function
+
+
+str(Comp.Mod)
+
 
