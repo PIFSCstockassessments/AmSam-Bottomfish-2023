@@ -143,8 +143,8 @@ Final <- select(Final,SPECIES,OPTION,DATASET,YEAR,SL50,F,SPR,NOTE)
 Summary1 <- Final[OPTION=="Option1"&YEAR>=2010&DATASET!="UVS_NWHI",list(SPR=mean(SPR)),by=list(SPECIES,DATASET)]
 Summary2 <- dcast(Summary1,SPECIES~DATASET,value.var="SPR")
 
-write.xlsx(Summary2,paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Summary.xlsx"))
-write.xlsx(Final,paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Results.xlsx"))
+write.xlsx(Summary2,paste0(root_dir,"/Outputs/LBSPR/LBSPR_Summary.xlsx"))
+write.xlsx(Final,paste0(root_dir,"/Outputs/LBSPR/LBSPR_Results.xlsx"))
 
 aPlot <- ggplot(data=Summary1)+
            geom_hline(aes(yintercept=0.3),col="red",size=1)+
