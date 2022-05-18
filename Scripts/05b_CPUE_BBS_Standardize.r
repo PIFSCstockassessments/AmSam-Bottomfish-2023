@@ -5,8 +5,8 @@ root_dir <- this.path::here(.. = 1)
 source(paste0(root_dir,paste0("/Scripts/05a_CPUE_BBS_Standardize_Function.r")))
 
 
-Sp <- "ETCO"
-Ar <- c("Tutuila","Manua") [2]
+Sp <- "LUKA"
+Ar <- c("Tutuila","Manua") [1]
 
 Standardize_CPUE(Sp=Sp,Ar=Ar)
 
