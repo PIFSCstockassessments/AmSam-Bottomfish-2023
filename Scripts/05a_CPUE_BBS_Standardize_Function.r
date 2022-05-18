@@ -72,6 +72,7 @@ for(i in 1:10){
  
   a             <- data.table( TERMS=rownames(anova(aModel)$pTerms.pv), PVALUE=as.numeric(anova(aModel)$pTerms.pv) )
   b             <- data.table( TERMS=rownames(anova(aModel)$s.table), PVALUE=as.numeric(anova(aModel)$s.table[,4]) )
+  if((nrow(a)==1&nrow(b)==0)) break
   if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
@@ -112,6 +113,7 @@ for(i in 1:10){
   
   a             <- data.table( TERMS=rownames(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
   b             <- data.table( TERMS=rownames(anova(aModel)$s.table), PVALUE=anova(aModel)$s.table[,4] )
+  if((nrow(a)==1&nrow(b)==0)) break
   if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
@@ -306,12 +308,15 @@ NOMI               <- select(NOMI,MODEL_PROB,MODEL_POS,YEAR,CPUE_TOT.STD,CPUE_PO
 Best.Mod <- rbind(select(Best.Mod,MODEL_POS,MODEL_PROB,YEAR,CPUE_TOT.STD,CPUE_POS.STD,CPUE_PROB.STD),NOMI) 
 Best.Mod <- melt(Best.Mod,id.var=1:3,variable.name="CPUE_TYPE",value.name="CPUE")
 
-# Best model vs. NOMI graph
-P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=str_wrap(MODEL_PROB,20)))+geom_line()+
-       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Positive-only CPUE","CPUE_PROB.STD"="Probability CPUE")))+
-       labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()
+Best.Mod$MODLABEL <- paste0("Positive model\n",Best.Mod$MODEL_POS,"\nProbability model\n",Best.Mod$MODEL_PROB)
+Best.Mod[MODEL_POS=="NOMI"]$MODLABEL <- "Nominal"
 
-windows(width=12,height=3);P1
+# Best model vs. NOMI graph
+P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=str_wrap(MODLABEL,20)))+geom_line()+
+       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Positive-only CPUE","CPUE_PROB.STD"="Probability CPUE")))+
+       labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+theme(legend.key.height=unit(1.5,'cm'))
+
+print(P1)
 ggsave(P1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_BestModel.png"),height=2,width=8,unit="in")
 
 
@@ -346,7 +351,7 @@ P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",s
 Comp.Graph <- arrangeGrob(P3,P4,ncol=1)
 
 
-windows(width=8,height=8); grid.draw(Comp.Graph)
+grid.draw(Comp.Graph)
 ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_ModelComps.png"),height=6,width=6,unit="in")
 
 
