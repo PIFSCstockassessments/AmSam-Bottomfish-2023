@@ -1,4 +1,4 @@
-Standardize_CPUE <- function(Sp, Ar,minYr,maxYr) {
+Standardize_CPUE <- function(Sp, Ar,minYr=1988,maxYr=2021) {
   
 require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot); require(stringr); require(gridExtra); require(grid)
   
@@ -22,6 +22,11 @@ D <- C[SPECIES==Sp]
 # Run selections
 if(Ar=="Tutuila") D <- D[AREA_C=="Tutuila"|AREA_C=="Bank"] 
 if(Ar=="Manua")   D <- D[AREA_C=="Manua"&YEAR<=2008]
+if(Sp=="VALO")    D <- D[YEAR>=2016]
+
+if(Sp=="VALO"&Ar=="Manua") return(message("Cannot run VALO for Manua, since no good VALO data before 2015 and no data after 2010 in the Manuas."))
+if(Sp=="LERU"&Ar=="Manua")  return(message("No LERU data in the Manuas."))
+
 
 nrow(D); nrow(D[CPUE>0]) # Check interview counts
 
@@ -48,18 +53,28 @@ WGHT.B                <- WGHT.B[order(YEAR,SEASON)]
 WGHT.B                <- select(WGHT.B,-N,-Nobs_Nstrata)
 D                     <- merge(D,WGHT.B,by=c("YEAR","SEASON","AREA_C"),all.x=T)
 
+# Cancel data weight calculations and revert to same weights for all points
+D$W.B <- 1
+D$W.P <- 1
+
+
 # Backward selection: Positive catch-only models
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C, method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+#if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C, method="REML")'
+#if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
   
+if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C, method="REML")'
+if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
 P.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
 for(i in 1:10){
  
-  a             <- data.table( TERMS=names(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
-  b             <- data.table( TERMS=names(anova(aModel)$s.table[,4]), PVALUE=anova(aModel)$s.table[,4] )
-  c             <- rbind(a,b)
+  a             <- data.table( TERMS=rownames(anova(aModel)$pTerms.pv), PVALUE=as.numeric(anova(aModel)$pTerms.pv) )
+  b             <- data.table( TERMS=rownames(anova(aModel)$s.table), PVALUE=as.numeric(anova(aModel)$s.table[,4]) )
+  if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
+  if(nrow(b)==0) c <- a
+  if(nrow(a)==0) c <- b
   c             <- c[TERMS!="YEAR"]
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
@@ -83,17 +98,23 @@ P.SelResults$CPUE_TYPE <- "Positive-only CPUE"
 P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Backward selection: Probability of catch-only models
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+#if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
+#if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+
+if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
+if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+
 
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
 B.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
 for(i in 1:10){
   
-  a             <- data.table( TERMS=names(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
-  b             <- data.table( TERMS=names(anova(aModel)$s.table[,4]), PVALUE=anova(aModel)$s.table[,4] )
-  c             <- rbind(a,b)
+  a             <- data.table( TERMS=rownames(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
+  b             <- data.table( TERMS=rownames(anova(aModel)$s.table), PVALUE=anova(aModel)$s.table[,4] )
+  if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
+  if(nrow(b)==0) c <- a
+  if(nrow(a)==0) c <- b
   c             <- c[TERMS!="YEAR"]
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
@@ -129,13 +150,16 @@ clean.formula <- function(text){
     text <- gsub(",k=3","",text)
         return (text) }
 
-Final$FORMULA <- clean.formula(Final$FORMULA)
+Final$FORMULA   <- clean.formula(Final$FORMULA)
+Final$TIMESTAMP <- format(Sys.time(), "%a %b %d %X %Y")
+Final[2:nrow(Final)]$TIMESTAMP <- NA
 
 # Add table to excel worksheet
 File.Name  <- paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx")
-Sheet.Name <- paste0(Sp,"_",Ar)
+Sheet.Name <- paste0(Sp,"_",substr(Ar,1,1))
 wb         <- loadWorkbook(File.Name)
-if(!(Sheet.Name %in% getSheetNames(File.Name))) addWorksheet(wb, sheetName = Sheet.Name)
+if(Sheet.Name %in% getSheetNames(File.Name)) removeWorksheet(wb,Sheet.Name)
+addWorksheet(wb, sheetName = Sheet.Name)
 writeData(wb, sheet = Sheet.Name, Final,colNames=T)
 setColWidths(wb,widths="auto",sheet=Sheet.Name,cols=1:10)
 saveWorkbook(wb,File.Name,overwrite = T)
