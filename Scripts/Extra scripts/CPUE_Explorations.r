@@ -28,6 +28,9 @@ VE <- data.table(  table(VE$VESSEL_REGIST_NO)  )
 (VE[V1=="NULL"]$N+VE[V1=="UNREG"]$N)/sum(VE$N) # 20% of bfish interviews contain vessel_regist_no == NULL
 
 
+
+
+
 # Explore patterns related to how many METHODS are contained with a single INTERVIEW_PK
 ME <- B[,list(ONES=1),by=list(INTERVIEW_PK,METHOD_FK)]
 ME <- ME[,list(N=sum(ONES)),by=list(INTERVIEW_PK)]   
