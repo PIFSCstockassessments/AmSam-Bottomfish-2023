@@ -5,14 +5,10 @@ root_dir <- this.path::here(.. = 1)
 source(paste0(root_dir,paste0("/Scripts/05a_CPUE_BBS_Standardize_Function.r")))
 
 
-# Select species and area 
-minYr <- c(1988,2015)[1]
-maxYr <- 2021
-
-
 Sp <- "ETCO"
-Ar <- c("Tutuila","Manua") [1]
+Ar <- c("Tutuila","Manua") [2]
 
-Standardize_CPUE(Sp=Sp,Ar=Ar,minYr=minYr,maxYr=maxYr)
+Standardize_CPUE(Sp=Sp,Ar=Ar)
 
 
+minYr=1988;maxYr=2021
