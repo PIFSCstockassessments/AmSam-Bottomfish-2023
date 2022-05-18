@@ -7,9 +7,9 @@
 #  --------------------------------------------------------------------------------------------------------------
 ## DAT file
 #  --------------------------------------------------------------------------------------------------------------
-build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, cpue = NULL, life.history = NULL, 
-                      len.comp = NULL, startyr = 1967, endyr = 2021, bin.list = NULL, fleets = 1, 
-                      M_option_sp = NULL, fleetinfo = NULL, lbin_method = 1, 
+build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = NULL, cpue = NULL, 
+                      life.history = NULL, len.comp = NULL, startyr = 1967, endyr = 2021, 
+                      bin.list = NULL, fleets = 1, M_option_sp = NULL, fleetinfo = NULL, lbin_method = 1, 
                       template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
                       out.dir = file.path(root_dir, "SS3 models")){
   
@@ -86,17 +86,16 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, cpue = NULL
     DAT$catch <- NULL
   }
   
+  ## Add CPUE info, column names: Fleet, Units, Errtype, SD_Report
+  DAT$CPUEinfo <- CPUEinfo
+  
   if(exists("cpue.sp")){
-    
-    ## Add CPUE info, column names: Fleet, Units, Errtype, SD_Report
-    DAT$CPUEinfo
-    
+
     ## ADD CPUE data, column names: year, seas, index, obs, se_log
     DAT$CPUE <- cpue
     
   }else{
     message("No CPUE to input")
-    DAT$CPUEinfo <- NULL
     DAT$CPUE <- NULL
   }
   
