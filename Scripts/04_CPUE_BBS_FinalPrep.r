@@ -32,27 +32,19 @@ length(unique(C[is.na(PC1)]$INTERVIEW_PK)) # No interviews are missing PCs
 S <- C[,list(N=.N),by=list(BMUS,SPECIES_FK)]
 S <- select(S,-N)
 
-C <- C[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,YEAR,SEASON,MONTH,TYPE_OF_DAY,AREA_C,WINDSPEED,PROP_UNID,PC1,PC2,PC3,PC4,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
-C <- dcast(C,INTERVIEW_PK+YEAR+SEASON+MONTH+TYPE_OF_DAY+AREA_C+WINDSPEED+PROP_UNID+PC1+PC2+PC3+PC4+HOURS_FISHED+NUM_GEAR~SPECIES_FK,value.var="EST_LBS",fill=0)
-C <- melt(C,id.vars=1:14,value.name="EST_LBS",variable.name="SPECIES_FK")
+C <- C[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,YEAR,SEASON,MONTH,TYPE_OF_DAY,AREA_C,WINDSPEED,VESSEL_REGIST_NO,PROP_UNID,PC1,PC2,PC3,PC4,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
+C <- dcast(C,INTERVIEW_PK+YEAR+SEASON+MONTH+TYPE_OF_DAY+AREA_C+WINDSPEED+VESSEL_REGIST_NO+PROP_UNID+PC1+PC2+PC3+PC4+HOURS_FISHED+NUM_GEAR~SPECIES_FK,value.var="EST_LBS",fill=0)
+C <- melt(C,id.vars=1:15,value.name="EST_LBS",variable.name="SPECIES_FK")
 C <- data.table(C); length(unique(C$INTERVIEW_PK))
 
 # Only keep the bmus species (we don't need the rest after the PCA analysis is done)
 C <- merge(C,S,by="SPECIES_FK")
 C <- C[BMUS=="BMUS_Species"]
 
-C <- C[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,YEAR,SEASON,MONTH,TYPE_OF_DAY,AREA_C,WINDSPEED,PROP_UNID,PC1,PC2,PC3,PC4,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
+C <- C[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,YEAR,SEASON,MONTH,TYPE_OF_DAY,AREA_C,WINDSPEED,VESSEL_REGIST_NO,PROP_UNID,PC1,PC2,PC3,PC4,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
 C <- C[order(YEAR,MONTH,TYPE_OF_DAY,AREA_C,INTERVIEW_PK,SPECIES_FK)]
 
 setnames(C,"EST_LBS","CPUE")
-
-# Set up factors correctly
-#C$YEAR         <- as.factor(C$YEAR)
-#C$YEAR         <- fct_reorder(C$YEAR,as.numeric(C$YEAR),min)
-#C$TYPE_OF_DAY  <- as.factor(C$TYPE_OF_DAY)
-#C$AREA_C       <- as.factor(C$AREA_C)
-#C$MONTH        <- as.factor(C$MONTH)
-#C$SEASON       <- as.factor(C$SEASON)
 
 C$YEAR         <- as.character(C$YEAR)
 C$MONTH        <- as.character(C$MONTH)
