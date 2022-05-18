@@ -174,7 +174,7 @@ for(i in 1:length(Species.List)){
    
    if(Combine_Areas==T)  G[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
    
-   Fld <- paste0(root_dir,"/Outputs/Graphs/Size/")
+   Fld <- paste0(root_dir,"/Outputs/Summary/Size figures/")
    if(nrow(G[DATASET=="Biosampling"])>0){
       ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
       ggsave(paste0(Fld,Sp,"_Freq_","BIO",".png"),width=20,height=10,unit="cm")}
@@ -224,17 +224,17 @@ for(i in 1:length(Species.List)){
 
  SizeData <- SizeData[AREA_C!="Atoll"]
  SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
- saveRDS(SizeData,paste0(root_dir,"/Outputs/SIZE_Final.rds"))
+ saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
 
 
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_C+DATASET~YEAR,value.var="N",fill=0)
-write.xlsx(Summary,paste0(root_dir,"/Outputs//Graphs//SIZE//Size_N_YEAR.xlsx"))
+write.xlsx(Summary,paste0(root_dir,"/Outputs//Summary//Size_N_YEAR.xlsx"))
 
 L99Summary <- do.call(rbind.data.frame, L99List)
 L99Summary <- dcast.data.table(L99Summary,SPECIES~DATASET,value.var="L99",fill=NA)
-write.xlsx(L99Summary,paste0(root_dir,"/Outputs//Graphs//SIZE//L99.xlsx"))
+write.xlsx(L99Summary,paste0(root_dir,"/Outputs//Summary//L99.xlsx"))
 
 
 
