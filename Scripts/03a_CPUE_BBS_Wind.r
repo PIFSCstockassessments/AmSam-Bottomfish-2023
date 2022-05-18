@@ -235,7 +235,7 @@ for (i in 1:nrow(INT.W.MAN)) {
 
 # TUTUILA
 
-INT.TUT <- INT[AREA_C == 'Tutuila']		
+INT.TUT <- INT[AREA_C == 'Tutuila'|AREA_C=='Bank']		
 INT.TUT <- INT.TUT[order(INTERVIEW_TIME_UTC)] 
 W.TUT   <- W[LOCATION == 'Tutuila']
 W.TUT   <- W.TUT[order(DT)]	
@@ -285,7 +285,7 @@ for (i in 1:nrow(INT.W.TUT)) {
 INT.W <- rbind(INT.W.TUT, INT.W.MAN)
 INT.W <- select(INT.W,INTERVIEW_PK,WINDSPEED=WSPD,WINDDIR=wdir,)
 
-length(unique(INT.W$INTERVIEW_PK)) # 2329 interviews, since seems to be missing Banks and others
+length(unique(INT.W$INTERVIEW_PK)) # 2717 interviews, since seems to be missing Banks and others
 saveRDS(INT.W,paste0(root_dir, "/Outputs/CPUE_WIND.rds"))
 
 	
