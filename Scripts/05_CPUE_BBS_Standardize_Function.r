@@ -157,10 +157,10 @@ Final$TIMESTAMP <- format(Sys.time(), "%a %b %d %X %Y")
 Final[2:nrow(Final)]$TIMESTAMP <- NA
 
 # Add table to excel worksheet
-File.Name  <- paste0(root_dir,"/Outputs/Graphs/CPUE/CPUE models.xlsx")
-Sheet.Name <- paste0(Sp,"_",substr(Ar,1,1))
-wb         <- loadWorkbook(File.Name)
-if(Sheet.Name %in% getSheetNames(File.Name)) removeWorksheet(wb,Sheet.Name)
+File.Name    <- paste0(root_dir,"/Outputs/Summary/CPUE models.xlsx")
+wb <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook()})
+Sheet.Name   <- paste0(Sp,"_",substr(Ar,1,1))
+if(Sheet.Name %in% sheets(wb)) removeWorksheet(wb,Sheet.Name)
 addWorksheet(wb, sheetName = Sheet.Name)
 writeData(wb, sheet = Sheet.Name, Final,colNames=T)
 setColWidths(wb,widths="auto",sheet=Sheet.Name,cols=1:10)
@@ -286,7 +286,7 @@ Best.Mod$CPUE_POS.STD    <- Best.Mod$CPUE_POS/mean(Best.Mod$CPUE_POS)*100
 Best.Mod$CPUE_PROB.STD   <- Best.Mod$CPUE_PROB/mean(Best.Mod$CPUE_PROB)*100
 
 # Save final CPUE trend for SS model
-write.csv(select(Best.Mod,YEAR,CPUE_TOT,SD.CPUE_TOT),file=paste0(root_dir,"/Outputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
+write.csv(select(Best.Mod,YEAR,CPUE_TOT,SD.CPUE_TOT),file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR,SEASON,AREA_C)]
@@ -308,16 +308,17 @@ NOMI               <- select(NOMI,MODEL_PROB,MODEL_POS,YEAR,CPUE_TOT.STD,CPUE_PO
 Best.Mod <- rbind(select(Best.Mod,MODEL_POS,MODEL_PROB,YEAR,CPUE_TOT.STD,CPUE_POS.STD,CPUE_PROB.STD),NOMI) 
 Best.Mod <- melt(Best.Mod,id.var=1:3,variable.name="CPUE_TYPE",value.name="CPUE")
 
-Best.Mod$MODLABEL <- paste0("Positive model\n",Best.Mod$MODEL_POS,"\nProbability model\n",Best.Mod$MODEL_PROB)
+Best.Mod$MODLABEL <- paste0("Positive model\n",str_wrap(Best.Mod$MODEL_POS,20),"\nProbability model\n",str_wrap(Best.Mod$MODEL_PROB,20))
 Best.Mod[MODEL_POS=="NOMI"]$MODLABEL <- "Nominal"
 
 # Best model vs. NOMI graph
-P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=str_wrap(MODLABEL,20)))+geom_line()+
+P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=MODLABEL))+geom_line()+
        facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Positive-only CPUE","CPUE_PROB.STD"="Probability CPUE")))+
-       labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+theme(legend.key.height=unit(1.5,'cm'))
+       labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+
+       theme(axis.title=element_text(size=8),legend.text=element_text(size=6),legend.key.height=unit(1.5,'cm'))
 
 print(P1)
-ggsave(P1,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_BestModel.png"),height=2,width=8,unit="in")
+ggsave(P1,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_",Ar,"_BestModel.png"),height=2,width=8,unit="in")
 
 
 #=======================Create trend comparison graphs==============================
@@ -340,20 +341,18 @@ levels(Comp.Mod.B$MODEL) <- str_wrap(levels(Comp.Mod.B$MODEL),20)
 
 P3 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_POS.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.P,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
-       scale_color_brewer(palette="Dark2")+labs(col=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard positive-only CPUE (% of mean)")+
-       theme(legend.text=element_text(size=6),legend.key.height=unit(0.2,'cm'))+theme_bw()
+       scale_color_brewer(palette="Dark2")+xlab("Year")+ylab("Stand. pos.-only CPUE (%)")+
+       theme_bw()+theme(axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
 
 P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.B,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
-       scale_color_brewer(palette="Dark2")+labs(col=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard probability CPUE (% of mean)")+
-       theme(legend.text=element_text(size=6),legend.key.height=unit(0.2,'cm'))+theme_bw()
+       scale_color_brewer(palette="Dark2")+xlab("Year")+ylab("Stand. prob. CPUE (%)")+
+       theme_bw()+theme(axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
 
-Comp.Graph <- arrangeGrob(P3,P4,ncol=1)
-
-
-grid.draw(Comp.Graph)
-ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Graphs/CPUE/",Sp,"_",Ar,"_ModelComps.png"),height=6,width=6,unit="in")
-
+gA <- ggplotGrob(P3)
+gB <- ggplotGrob(P4)
+Comp.Graph <- rbind(gA,gB)
+ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_",Ar,"_ModelComps.png"),height=5,width=8,unit="in")
 
 } # End of function
 
