@@ -56,8 +56,17 @@ fleetinfo <- data.frame(
   type = c(1),
   surveytiming = c(-1),
   units = c(1),
+  area = c(1),
   need_catch_mult = c(0),
   fleetname = c("FISHERY")
+)
+
+CPUEinfo <- data.frame(
+  Fleet = c(1),
+  Units = c(1),
+  Errtype = c(0),
+  SD_Report = c(0)
+  
 )
 
 ## create Q options, age, and length selectivity types dataframes based on the number of fleets including. 
@@ -65,7 +74,7 @@ fleetinfo <- data.frame(
 Q.options <- data.frame(fleet = c(1), link = c(1), link_info = c(0), extra_se = c(0), biasadj = c(0), float = c(0))
 #using recommended double normal for both patterns
 size_selex_types <- data.frame(Pattern = c(24), Discard = c(0), Male = c(0), Special = c(0))
-age_selex_types <- data.frame(Pattern = c(8), Discard = c(0), Male = c(0), Special = c(0))  
+age_selex_types <- data.frame(Pattern = c(0), Discard = c(0), Male = c(0), Special = c(0))  
 
 startyr <- 1967
 endyr <- 2021
@@ -87,6 +96,7 @@ build_dat(
   species = species,
   catch = catch,
   catch_se = 0.05,
+  CPUEinfo = CPUEinfo,
   life.history = life.history,
   len.comp = len.comp,
   bin.list = BIN.LIST,
@@ -129,16 +139,22 @@ build_starter(
 build_control(
   species = species,
   ctl.inputs = ctl.inputs,
+  includeCPUE = FALSE,
+  Q.options = Q.options,
   M_option_sp = "Option1",
+  size_selex_types = size_selex_types,
+  age_selex_types = age_selex_types,
   template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
   out.dir = file.path(root_dir, "SS3 models")
 )
 
 
 ### Run Stock Synthesis ####
-run_SS_models(dirvec = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
-              model = "ss_opt_win", skipfinished = FALSE)
+run_SS_models(dirvec = file.path(root_dir, "SS3 models", species), 
+              model = "ss_opt_win", extras = "-stopph 2 -nohess", skipfinished = FALSE)
 
+report <- SS_output(file.path(root_dir, "SS3 models", species))
+SS_plots(report, dir = file.path(root_dir, "SS3 models", species))
 ## Do Retrospectives
 SS_doRetro(masterdir=file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
            oldsubdir="", newsubdir="Retrospectives", years=0:-5)
