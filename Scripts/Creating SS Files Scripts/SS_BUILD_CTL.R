@@ -132,7 +132,7 @@ build_control <- function(species = species,
   CTL$Q_parms <- ctl.params %>%
     filter(str_detect(category, "Q")) %>%
     filter(str_detect(OPTION, M_option_sp)) %>%
-    select(-c(category, OPTION)) %>%
+    select(-c(category, OPTION, Ptype)) %>%
     column_to_rownames("X1")
 
 

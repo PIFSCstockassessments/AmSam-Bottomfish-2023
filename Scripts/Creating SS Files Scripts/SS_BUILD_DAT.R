@@ -89,7 +89,7 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = 
   ## Add CPUE info, column names: Fleet, Units, Errtype, SD_Report
   DAT$CPUEinfo <- CPUEinfo
   
-  if(exists("cpue.sp")){
+  if(exists("cpue")){
 
     ## ADD CPUE data, column names: year, seas, index, obs, se_log
     DAT$CPUE <- cpue

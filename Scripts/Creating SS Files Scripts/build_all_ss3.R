@@ -4,20 +4,44 @@ require(r4ss)
 require(tidyverse)
 require(this.path)
 require(openxlsx)
+require(purrr)
 
 ### Initial Inputs ####
 root_dir <- this.path::here(.. = 2)
-Species.List <- read.xlsx(file.path(root_dir, "Data", "METADATA.xlsx"), sheet = "BMUS")
+Species.List <- list.files(file.path(root_dir, "SS3 models"))
+
+species <- Species.List[2]
+startyr <- 1967
+endyr <- 2021
+fleets <- 1
+nfleets <- length(fleets)
+M_option_sp <- "Option1"
+
+
 # Catch data
 catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_final.rds"))
 # Life history data
 life.history <-
   read.xlsx(file.path(root_dir, "Data", "CTL_parameters.xlsx"), sheet = species)
 # Length comp data
-len.comp <- readRDS(file.path(root_dir, "Outputs", "SIZE_final.rds"))
+len.comp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_final.rds"))
 # CPUE data
-# cpue   <- readRDS(file.path(root_dir, "Outputs", paste0("CPUE_", species, "tutuila", ".rds")))
-# assume cv of 0.2
+cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
+                         pattern = species,
+                         full.names = TRUE)
+
+cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
+area <- unlist(str_extract_all(cpue_files, pattern = c("Manua|Tutuila")))
+
+cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
+  mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
+  rbindlist() %>% 
+  mutate(seas = 7,
+         index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
+  select(year, seas, index, obs, se_log) %>% 
+  filter(index %in% fleets) %>% 
+  as.data.frame()
+
 ## Control file inputs
 ## sheet will index scenarios 
 ctl.inputs <- read.xlsx(file.path(root_dir, "Data", "CTL_inputs.xlsx"), sheet = "base")
@@ -76,12 +100,7 @@ Q.options <- data.frame(fleet = c(1), link = c(1), link_info = c(0), extra_se = 
 size_selex_types <- data.frame(Pattern = c(24), Discard = c(0), Male = c(0), Special = c(0))
 age_selex_types <- data.frame(Pattern = c(0), Discard = c(0), Male = c(0), Special = c(0))  
 
-startyr <- 1967
-endyr <- 2021
-fleets <- 1
-nfleets <- length(fleets)
-M_option_sp <- "Option1"
-species <- Species.List$SPECIES[1]
+
 
 
 ### Call the functions to build the SS3 files ####
@@ -97,6 +116,7 @@ build_dat(
   catch = catch,
   catch_se = 0.05,
   CPUEinfo = CPUEinfo,
+  cpue = cpue,
   life.history = life.history,
   len.comp = len.comp,
   bin.list = BIN.LIST,
@@ -139,7 +159,7 @@ build_starter(
 build_control(
   species = species,
   ctl.inputs = ctl.inputs,
-  includeCPUE = FALSE,
+  includeCPUE = TRUE,
   Q.options = Q.options,
   M_option_sp = "Option1",
   size_selex_types = size_selex_types,
@@ -150,8 +170,10 @@ build_control(
 
 
 ### Run Stock Synthesis ####
+file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
+          file.path(root_dir, "SS3 models", species))
 run_SS_models(dirvec = file.path(root_dir, "SS3 models", species), 
-              model = "ss_opt_win", extras = "-stopph 2 -nohess", skipfinished = FALSE)
+              model = "ss_opt_win", extras = "-stopph 0 -nohess", skipfinished = FALSE)
 
 report <- SS_output(file.path(root_dir, "SS3 models", species))
 SS_plots(report, dir = file.path(root_dir, "SS3 models", species))
