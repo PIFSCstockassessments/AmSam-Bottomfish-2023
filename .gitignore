@@ -3,7 +3,9 @@
 .RData
 .Ruserdata
 Run_r4ss.R
-Data
+Data/*
+!Data/CTL_inputs.xlsx
+!Data/CTL_parameters.xlsx
 Old
 Outputs
 SS3/100_Profiles
@@ -60,6 +62,4 @@ runnumber.ss
 *.pdf
 SS3 models/TEMPLATE_FILES/R0_Likelihood
 SS3 models/TEMPLATE_FILES/Retrospectives
-Data_test/*
-!Data_test/CTL_inputs.xlsx
 
