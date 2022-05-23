@@ -285,8 +285,10 @@ Best.Mod$SD.CPUE_TOT.STD <- Best.Mod$SD.CPUE_TOT/mean(Best.Mod$SD.CPUE_TOT)*100
 Best.Mod$CPUE_POS.STD    <- Best.Mod$CPUE_POS/mean(Best.Mod$CPUE_POS)*100
 Best.Mod$CPUE_PROB.STD   <- Best.Mod$CPUE_PROB/mean(Best.Mod$CPUE_PROB)*100
 
+Best.Mod$LOGSD.CPUE_TOT <- sqrt( log((Best.Mod$SD.CPUE_TOT/Best.Mod$CPUE_TOT)^2+1)   )
+
 # Save final CPUE trend for SS model
-write.csv(select(Best.Mod,YEAR,CPUE_TOT,SD.CPUE_TOT),file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
+write.csv(select(Best.Mod,YEAR,CPUE_TOT,LOGSD.CPUE_TOT),file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR,SEASON,AREA_C)]
@@ -317,7 +319,7 @@ P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=MODLABEL))+geom_line()+
        labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+
        theme(axis.title=element_text(size=8),legend.text=element_text(size=6),legend.key.height=unit(1.5,'cm'))
 
-print(P1)
+#print(P1)
 ggsave(P1,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_",Ar,"_BestModel.png"),height=2,width=8,unit="in")
 
 
