@@ -58,5 +58,8 @@ runnumber.ss
 *.csv
 *.txt
 *.pdf
-
+SS3 models/TEMPLATE_FILES/R0_Likelihood
+SS3 models/TEMPLATE_FILES/Retrospectives
+Data_test/*
+!Data_test/CTL_inputs.xlsx
 
