@@ -23,6 +23,7 @@ C[Emperors_260==1]$SPECIES_FK2         <- "S260"
 C[Inshore_snappers_390==1]$SPECIES_FK2 <- "S390"
 
 C$SPECIES_FK <- C$SPECIES_FK2  # Comment this out if you want to run PCAs at mainly the species level
+C <- C[,list(LBS=sum(LBS)),by=list(INTERVIEW_PK,SPECIES_FK)]
 
 #======= Calculate uku targeting principal component values (Winker et al. 2013)============
 
