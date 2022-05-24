@@ -144,7 +144,8 @@ build_control <- function(species = species,
     CTL$size_selex_parms <- ctl.params %>%
       filter(str_detect(category, "selex_size")) %>%
       filter(str_detect(OPTION, M_option_sp)) %>%
-      select(-c(category, OPTION, "X1", Ptype))
+      select(-c(category, OPTION, "X1", Ptype)) %>% 
+      as.data.frame()
 
   }else{
 
@@ -161,7 +162,8 @@ build_control <- function(species = species,
       filter(str_detect(category, "selex_age")) %>%
       filter(str_detect(OPTION, M_option_sp)) %>%
       filter(str_detect(OPTION, M_option_sp)) %>%
-      select(-c(category, OPTION, "X1", Ptype))
+      select(-c(category, OPTION, "X1", Ptype)) %>% 
+      as.data.frame()
 
   }else{
 
