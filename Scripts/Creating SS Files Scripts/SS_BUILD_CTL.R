@@ -9,6 +9,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 build_control <- function(species = species,
                           ctl.inputs = ctl.inputs,
+                          ctl.params = ctl.params,
                           includeCPUE = TRUE,
                           Q.options = Q.options,
                           M_option_sp = "Option1",
@@ -25,8 +26,6 @@ build_control <- function(species = species,
     select(c(Parameter, contains(species))) %>% 
     pivot_wider(names_from = Parameter, 
                 values_from = paste0(species))
-  
-  ctl.params <- read.xlsx(file.path(root_dir, "Data", "CTL_parameters.xlsx"), sheet = paste0(species))
   
   
   #  --------------------------------------------------------------------------------------------------------------

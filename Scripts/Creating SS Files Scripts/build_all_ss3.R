@@ -10,7 +10,7 @@ require(purrr)
 root_dir <- this.path::here(.. = 2)
 Species.List <- list.files(file.path(root_dir, "SS3 models"))
 
-species <- Species.List[2]
+species <- Species.List[1]
 startyr <- 1967
 endyr <- 2021
 fleets <- 1
@@ -45,7 +45,7 @@ cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>%
 ## Control file inputs
 ## sheet will index scenarios 
 ctl.inputs <- read.xlsx(file.path(root_dir, "Data", "CTL_inputs.xlsx"), sheet = "base")
-#lambdas <- read.xlsx(file.path(root_dir, "Data"))
+ctl.params <- read.xlsx(file.path(root_dir, "Data", "CTL_parameters.xlsx"), sheet = paste0(species))
 
 ### NOTE: if you want to specify population length bins with min and max 
 # values different to data bins (method = 2), then add 2 columns to 
@@ -159,6 +159,7 @@ build_starter(
 build_control(
   species = species,
   ctl.inputs = ctl.inputs,
+  ctl.params = ctl.params,
   includeCPUE = TRUE,
   Q.options = Q.options,
   M_option_sp = "Option1",
@@ -173,7 +174,7 @@ build_control(
 file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
           file.path(root_dir, "SS3 models", species))
 run_SS_models(dirvec = file.path(root_dir, "SS3 models", species), 
-              model = "ss_opt_win", extras = "-stopph 0 -nohess", skipfinished = FALSE)
+              model = "ss_opt_win", extras = "-stopph 2 -nohess", skipfinished = FALSE)
 
 report <- SS_output(file.path(root_dir, "SS3 models", species))
 SS_plots(report, dir = file.path(root_dir, "SS3 models", species))
