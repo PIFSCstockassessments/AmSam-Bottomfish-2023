@@ -57,9 +57,9 @@ runnumber.ss
 *.tmp
 *.png
 *.html
-*.csv
 *.txt
 *.pdf
+*.csv
 SS3 models/TEMPLATE_FILES/R0_Likelihood
 SS3 models/TEMPLATE_FILES/Retrospectives
 
