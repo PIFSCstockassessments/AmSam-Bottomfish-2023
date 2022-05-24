@@ -11,7 +11,7 @@
 #	Melanie Abecassis and Russell Price
 
 #  --------------------------------------------------------------------------------------------------------------
-   require(ncdf4); require(httr); require(dplyr); require(this.path); require(data.table)
+   require(ncdf4); require(httr); require(tidyverse); require(this.path); require(data.table)
    root_dir <- this.path::here(.. = 1)
 
 #  originally I was downloading the .nc s through R, but something is wrong now. Instead, download the .ncs using the web interface, put them in the working directory,

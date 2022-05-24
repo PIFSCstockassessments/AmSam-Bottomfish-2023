@@ -1,4 +1,4 @@
-require(dplyr); require(this.path); require(data.table);  require(openxlsx); require(ggplot2)
+require(tidyverse); require(this.path); require(data.table);  require(openxlsx)
 options(scipen=999)		
 
 root_dir <- this.path::here(..=1)

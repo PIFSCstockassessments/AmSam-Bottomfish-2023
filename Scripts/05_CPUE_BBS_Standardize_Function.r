@@ -1,6 +1,6 @@
 Standardize_CPUE <- function(Sp, Ar,minYr=1988,maxYr=2021) {
   
-require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(forcats); require(openxlsx); require(boot); require(stringr); require(gridExtra); require(grid)
+require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid)
   
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 

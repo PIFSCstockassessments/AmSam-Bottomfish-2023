@@ -1,4 +1,4 @@
-require(data.table); require(ggplot2); require(gridExtra); require(directlabels);require(openxlsx);  require(dplyr);require(stringr)
+require(data.table); require(tidyverse); require(gridExtra); require(directlabels);require(openxlsx)
 options(scipen = 999)
 root_dir <- this.path::here(.. = 1) 
 

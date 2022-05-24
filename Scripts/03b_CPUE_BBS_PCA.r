@@ -1,4 +1,4 @@
-require(dplyr); require(this.path); require(data.table);require(openxlsx); require(ggplot2); require(ggfortify)
+require(tidyverse); require(this.path); require(data.table);require(openxlsx); require(ggfortify)
 options(scipen=999)		              # this option just forces R to never use scientific notation
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 

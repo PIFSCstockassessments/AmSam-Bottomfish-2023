@@ -1,6 +1,6 @@
 # This script loads size data from the BBS, biosampling, and diver datasets and organizes them in a single table   
 
-require(data.table); require(openxlsx); require(dplyr); require(openxlsx); require(ggplot2);require(gridExtra);require(grid); options(scipen=999)
+require(data.table); require(openxlsx); require(tidyverse); require(openxlsx); require(gridExtra);require(grid); options(scipen=999)
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
 # Options
