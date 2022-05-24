@@ -1,35 +1,41 @@
-require(this.path); root_dir <- this.path::here(..=1)
+require(this.path)
+require(googledrive)
+require(pacman)
+
+pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lunar,RColorBrewer,tidyverse,this.path)
+
+# Create data folder or update it with latest data from Google Drive
+File      <- "Data_05.18.2022.zip"
+a         <- drive_ls(path = "https://drive.google.com/drive/u/1/folders/1pnH38cupmDU4O_KkKDhYWee_p4sTSD6u")
+file_id   <- a$id[which(a$name==File)]
+drive_download(file=file_id, overwrite = TRUE, path = File )
+unzip(File)
 
 # Creates outputs folder structure, if necessary
-dir.create(file.path(root_dir, "Outputs"))
-
-dir.create(file.path(root_dir, "Outputs/LBSPR"))
-dir.create(file.path(root_dir, "Outputs/LBSPR/Graphs"))
-dir.create(file.path(root_dir, "Outputs/LBSPR/Temp size"))
-
-dir.create(file.path(root_dir, "Outputs/SS3_Inputs"))
-dir.create(file.path(root_dir, "Outputs/SS3_Inputs/CPUE"))
-
-dir.create(file.path(root_dir, "Outputs/Summary"))
-dir.create(file.path(root_dir, "Outputs/Summary/CPUE figures"))
-dir.create(file.path(root_dir, "Outputs/Summary/Size figures"))
+dir.create(file.path(here(..=1), "Outputs"))
+dir.create(file.path(here(..=1), "Outputs/LBSPR"))
+dir.create(file.path(here(..=1), "Outputs/LBSPR/Graphs"))
+dir.create(file.path(here(..=1), "Outputs/LBSPR/Temp size"))
+dir.create(file.path(here(..=1), "Outputs/SS3_Inputs"))
+dir.create(file.path(here(..=1), "Outputs/SS3_Inputs/CPUE"))
+dir.create(file.path(here(..=1), "Outputs/Summary"))
+dir.create(file.path(here(..=1), "Outputs/Summary/CPUE figures"))
+dir.create(file.path(here(..=1), "Outputs/Summary/Size figures"))
 
 # Run all CATCH and CPUE data processing scripts and export catch files for input into SS
-source(paste0(root_dir,"/Scripts/01_CPUE_BBS_InitPrep.r"));       rm(list=setdiff(ls(), "root_dir"))
-source(paste0(root_dir,"/Scripts/02_CPUE_BBS_PropTable.r"));      rm(list=setdiff(ls(), "root_dir")) 
-source(paste0(root_dir,"/Scripts/03a_CPUE_BBS_Wind.r"));     rm(list=setdiff(ls(), "root_dir"))
-source(paste0(root_dir,"/Scripts/03b_CPUE_BBS_PCA.r"));      rm(list=setdiff(ls(), "root_dir")) 
-source(paste0(root_dir,"/Scripts/04_CPUE_BBS_FinalPrep.r")); rm(list=setdiff(ls(), "root_dir"))
-source(paste0(root_dir,"/Scripts/05_CPUE_BBS_Standardize_Function.r"))
-source(paste0(root_dir,"/Scripts/06_CATCH_BBS_FinalPrep.r")); rm(list=setdiff(ls(), "root_dir")) 
-source(paste0(root_dir,"/Scripts/07_CATCH_SBS_PropTable.r")); rm(list=setdiff(ls(), "root_dir")) 
-source(paste0(root_dir,"/Scripts/08_CATCH_SBS_FinalPrep.r")); rm(list=setdiff(ls(), "root_dir"))
-source(paste0(root_dir,"/Scripts/09_CATCH_Final.r")); rm(list=setdiff(ls(), "root_dir"))
-source(paste0(root_dir,"/Scripts/10_SIZE.r"));                rm(list=setdiff(ls(), "root_dir")) 
-
+source(paste0(here(..=1),"/Scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())
+source(paste0(here(..=1),"/Scripts/02_CPUE_BBS_PropTable.r"));  rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/03a_CPUE_BBS_Wind.r"));      rm(list=ls())
+source(paste0(here(..=1),"/Scripts/03b_CPUE_BBS_PCA.r"));       rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/04_CPUE_BBS_FinalPrep.r"));  rm(list=ls())
+source(paste0(here(..=1),"/Scripts/06_CATCH_BBS_FinalPrep.r")); rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/07_CATCH_SBS_PropTable.r")); rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/08_CATCH_SBS_FinalPrep.r")); rm(list=ls())
+source(paste0(here(..=1),"/Scripts/09_CATCH_Final.r"));         rm(list=ls())
+source(paste0(here(..=1),"/Scripts/10_SIZE.r"));                rm(list=ls()) 
 
 # Run CPUE standardization and export indices for input into SS
-source(paste0(root_dir,"/Scripts/05_CPUE_BBS_Standardize_Function.r"))
+source(paste0(here(..=1),"/Scripts/05_CPUE_BBS_Standardize_Function.r"))
 
 Species.List <- c("APRU", "APVI", "CALU", "LERU", "LUKA", "ETCO", "PRFL", "PRZO", "VALO")
 Area.List    <- c("Tutuila","Manua")
@@ -41,7 +47,7 @@ for(i in 1:length(Species.List)){
   }
 }
 
-# Run a single model
+# Or run a single model
 Standardize_CPUE(Sp = "APRU" , Ar = c("Tutuila","Manua") [2])
 
 
