@@ -2,6 +2,7 @@ require(this.path)
 require(googledrive)
 require(pacman)
 
+# Check if all required packages are installed, and install if not.
 pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lunar,RColorBrewer,tidyverse,this.path)
 
 # Create data folder or update it with latest data from Google Drive
