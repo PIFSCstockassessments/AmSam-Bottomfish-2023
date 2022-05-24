@@ -5,6 +5,8 @@ require(tidyverse)
 require(this.path)
 require(openxlsx)
 require(purrr)
+require(googlesheets4)
+require(data.table)
 
 ### Initial Inputs ####
 root_dir <- this.path::here(.. = 2)
@@ -44,8 +46,9 @@ cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>%
 
 ## Control file inputs
 ## sheet will index scenarios 
-ctl.inputs <- read.xlsx(file.path(root_dir, "Data", "CTL_inputs.xlsx"), sheet = "base")
-ctl.params <- read.xlsx(file.path(root_dir, "Data", "CTL_parameters.xlsx"), sheet = paste0(species))
+
+ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ",sheet="base")
+ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", sheet=species)
 
 ### NOTE: if you want to specify population length bins with min and max 
 # values different to data bins (method = 2), then add 2 columns to 
