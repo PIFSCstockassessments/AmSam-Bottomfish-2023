@@ -12,7 +12,7 @@ require(data.table)
 root_dir <- this.path::here(.. = 2)
 Species.List <- list.files(file.path(root_dir, "SS3 models"))
 
-species <- Species.List[1]
+species <- Species.List[2]
 startyr <- 1967
 endyr <- 2021
 fleets <- 1
@@ -100,7 +100,7 @@ CPUEinfo <- data.frame(
 ## NOTE: not the best way but if all species have the same fleets this will work.
 Q.options <- data.frame(fleet = c(1), link = c(1), link_info = c(0), extra_se = c(0), biasadj = c(0), float = c(0))
 #using recommended double normal for both patterns
-size_selex_types <- data.frame(Pattern = c(24), Discard = c(0), Male = c(0), Special = c(0))
+size_selex_types <- data.frame(Pattern = c(1), Discard = c(0), Male = c(0), Special = c(0))
 age_selex_types <- data.frame(Pattern = c(0), Discard = c(0), Male = c(0), Special = c(0))  
 
 
