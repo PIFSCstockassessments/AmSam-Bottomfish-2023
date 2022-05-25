@@ -12,9 +12,7 @@ require(data.table)
 root_dir <- this.path::here(.. = 2)
 Species.List <- list.files(file.path(root_dir, "SS3 models"))
 
-species <- Species.List[2]
-startyr <- 1967
-endyr <- 2021
+species <- Species.List[1]
 fleets <- 1
 nfleets <- length(fleets)
 M_option_sp <- "Option1"
@@ -104,6 +102,8 @@ size_selex_types <- data.frame(Pattern = c(1), Discard = c(0), Male = c(0), Spec
 age_selex_types <- data.frame(Pattern = c(0), Discard = c(0), Male = c(0), Special = c(0))  
 
 
+startyr <- catch %>% filter(SPECIES == species) %>% summarise(min(YEAR)) %>% pull()
+endyr <- catch %>% filter(SPECIES == species) %>% summarise(max(YEAR)) %>% pull()
 
 
 ### Call the functions to build the SS3 files ####
@@ -180,6 +180,7 @@ run_SS_models(dirvec = file.path(root_dir, "SS3 models", species),
               model = "ss_opt_win", extras = "-stopph 2 -nohess", skipfinished = FALSE)
 
 report <- SS_output(file.path(root_dir, "SS3 models", species))
+report$parameters %>% filter(str_detect(Status, "HI|LO"))
 SS_plots(report, dir = file.path(root_dir, "SS3 models", species))
 ## Do Retrospectives
 SS_doRetro(masterdir=file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
