@@ -123,8 +123,8 @@ build_dat(
   life.history = life.history,
   len.comp = len.comp,
   bin.list = BIN.LIST,
-  fleets = 1,
-  M_option_sp = "Option1",
+  fleets = fleets,
+  M_option_sp = M_option_sp,
   fleetinfo = fleetinfo,
   lbin_method = 1,
   template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
@@ -177,11 +177,8 @@ build_control(
 file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
           file.path(root_dir, "SS3 models", species))
 run_SS_models(dirvec = file.path(root_dir, "SS3 models", species), 
-              model = "ss_opt_win", extras = "-stopph 2 -nohess", skipfinished = FALSE)
+              model = "ss_opt_win",  skipfinished = FALSE)
 
-report <- SS_output(file.path(root_dir, "SS3 models", species))
-report$parameters %>% filter(str_detect(Status, "HI|LO"))
-SS_plots(report, dir = file.path(root_dir, "SS3 models", species))
 ## Do Retrospectives
 SS_doRetro(masterdir=file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
            oldsubdir="", newsubdir="Retrospectives", years=0:-5)
