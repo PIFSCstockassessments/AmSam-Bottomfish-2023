@@ -8,6 +8,7 @@ The repo folder structure is:
 
 /SS3 models (SS3 files)
 
+Current model development and diagnostics can be found [here.](https://github.com/PIFSCstockassessments/AmSam-Bottomfish-2023/blob/master/index.md)
 
 ## Github Disclaimer
 
