@@ -1,6 +1,6 @@
 Standardize_CPUE <- function(Sp, Ar,minYr=1988,maxYr=2021) {
   
-require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid)
+require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
@@ -59,11 +59,11 @@ D$W.P <- 1
 
 
 # Backward selection: Positive catch-only models
-#if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C, method="REML")'
-#if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C, method="REML")'
+if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
   
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C, method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+#if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C, method="REML")'
+#if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
 
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
@@ -99,11 +99,11 @@ P.SelResults$CPUE_TYPE <- "Positive-only CPUE"
 P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Backward selection: Probability of catch-only models
-#if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
-#if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
+if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+#if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
+#if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 
 
 aModel        <- eval(parse(text=Model.String))
@@ -199,12 +199,14 @@ TM                  <- data.table(  MODEL=as.character(strsplit( gsub(" ","",P.M
 TM$MODEL_ORDER      <- seq((nrow(TM)+1),2)
 TM$MODEL            <- paste0("- ",TM$MODEL)
 P.Model.Names       <- rbind(P.Model.Names,TM[-1,])
+P.Model.Names       <- P.Model.Names[order(MODEL_ORDER)]
 
 B.Model.Names       <- data.table(MODEL=clean.formula(B.Models[[1]]$formula[3]),MODEL_ORDER=1)
 TM                  <- data.table(  MODEL=as.character(strsplit( gsub(" ","",B.Model.Names$MODEL),"\\+"  )[[1]]), MODEL_ORDER=1 )
 TM$MODEL_ORDER      <- seq((nrow(TM)+1),2)
 TM$MODEL            <- paste0("- ",TM$MODEL)
 B.Model.Names       <- rbind(B.Model.Names,TM[-1,])
+B.Model.Names       <- B.Model.Names[order(MODEL_ORDER)]
 
 #========================Generate standardized CPUE index for all models========================================
 # Create Walter's large table template and add add median for continuous variables and most commmon variable for categorical ones
@@ -343,12 +345,14 @@ levels(Comp.Mod.B$MODEL) <- str_wrap(levels(Comp.Mod.B$MODEL),20)
 
 P3 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_POS.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.P,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
-       scale_color_brewer(palette="Dark2")+xlab("Year")+ylab("Stand. pos.-only CPUE (%)")+
+       scale_color_viridis(option="viridis",discrete=T,direction=1)+
+       xlab("Year")+ylab("Stand. pos.-only CPUE (%)")+
        theme_bw()+theme(axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
 
 P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.B,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
-       scale_color_brewer(palette="Dark2")+xlab("Year")+ylab("Stand. prob. CPUE (%)")+
+       scale_color_viridis(option="viridis",discrete=T,direction=1)+
+       xlab("Year")+ylab("Stand. prob. CPUE (%)")+
        theme_bw()+theme(axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
 
 gA <- ggplotGrob(P3)

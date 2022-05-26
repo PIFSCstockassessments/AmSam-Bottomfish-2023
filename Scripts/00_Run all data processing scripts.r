@@ -3,7 +3,7 @@ require(googledrive)
 require(pacman)
 
 # Check if all required packages are installed, and install if not.
-pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lunar,RColorBrewer,tidyverse,this.path)
+pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lunar,RColorBrewer,tidyverse,this.path,viridis)
 
 # Create data folder or update it with latest data from Google Drive
 File      <- "Data_05.18.2022.zip"
@@ -49,10 +49,10 @@ for(i in 1:length(Species.List)){
 }
 
 # Or run a single model
-Standardize_CPUE(Sp = "APRU" , Ar = c("Tutuila","Manua") [2])
+Standardize_CPUE(Sp = "APVI" , Ar = c("Tutuila","Manua") [1])
 
 
-#Sp<-"APRU"
-#Ar<-"Manua" 
+#Sp<-"LERU"
+#Ar<-"Tutuila" 
 #minYr=1988
 #maxYr=2021
