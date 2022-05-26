@@ -50,6 +50,7 @@ SSplotData(report.)
 data.frame(Converged = file.exists(file.path(params$report, params$species, "ss.std")), 
            MaxGrad = report.$maximum_gradient_component)
 
+report.$warnings
 ```
 
 
@@ -58,8 +59,8 @@ data.frame(Converged = file.exists(file.path(params$report, params$species, "ss.
 
 ```{r}
 sspar(mfrow = c(1,2))
-SSplotIndices(report., subplots = 2, fleets = 2)
-SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = 2)
+SSplotIndices(report., subplots = 2, fleets = 1)
+SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = 1)
 sspar(mfrow = c(1,1))
 SSplotJABBAres(report., subplots = "cpue", add = TRUE)
 ```
@@ -80,7 +81,8 @@ SSplotComps(report., subplots = 1, fleets = 1)
 ## Retrospective and Hindcasting  
 ### Retrospective 
 ```{r message=FALSE}
-mod.retro <- SSgetoutput(dirvec = file.path("..", "..", "SS3 models", params$species, "Retrospectives", paste("retro",0:-5,sep="")), verbose = FALSE)
+if(dir.exists(file.path("..", "..", "SS3 models", params$species, "Retrospectives"))){
+  mod.retro <- SSgetoutput(dirvec = file.path("..", "..", "SS3 models", params$species, "Retrospectives", paste("retro",0:-5,sep="")), verbose = FALSE)
 
 retrosum <- SSsummarize(mod.retro, verbose = FALSE)
 retrocomp <- SSretroComps(mod.retro)
@@ -93,13 +95,22 @@ SSplotRetro(retrosum,
 SSplotRetro(retrosum, 
             subplots = "F",
             add =TRUE)
+}else{
+  print("No retrospective runs were found")
+}
+
 ```
 
 ### Hindcasting
 ```{r}
-sspar(mfrow = c(1,2))
+if(dir.exists(file.path("..", "..", "SS3 models", params$species, "Retrospectives"))){
+  sspar(mfrow = c(1,2))
 SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = 1)
 SSplotHCxval(retrocomp, subplots = "len", add = TRUE, indexselect = 1)
+}else{
+  print("No information for hindcast was found")
+}
+
 ```
 
 
@@ -112,8 +123,8 @@ SSplotRecdevs(report., subplots = c(2,3))
 ## Likelihood Profile
 
 ```{r }
-
-r0.vec <- seq(8.2, 8.4, .1)
+if(dir.exists(file.path("..", "..", "SS3 models", params$species, "R0_Likelihood"))){
+  r0.vec <- seq(8.2, 8.4, .1)
 Nprofile <- length(r0.vec)
 # read the output files (with names like Report1.sso, Report2.sso, etc.)
 profilemodels <- SSgetoutput(dirvec = file.path("..", "..", "SS3 models", params$species, "R0_Likelihood"), 
@@ -132,12 +143,16 @@ SSplotProfile(profilesummary, # summary object
   profile.string = "R0", # substring of profile parameter
   profile.label = "R0"
 )
+}else{
+  print("No likelihood runs were found")
+}
+
 
 
 ```
 
 ## Management Quantities  
-```{r}
+```{r eval=FALSE}
 
 mvln <- SSdeltaMVLN(report.)
 SSplotEnsemble(mvln$kb, subplots = c("stock", "harvest", "SSB", "F"), add = TRUE)

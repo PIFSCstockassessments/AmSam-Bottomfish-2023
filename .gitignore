@@ -56,7 +56,6 @@ runnumber.ss
 *.std
 *.tmp
 *.png
-*.html
 *.txt
 *.pdf
 *.csv

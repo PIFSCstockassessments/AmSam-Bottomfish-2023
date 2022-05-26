@@ -12,41 +12,14 @@ require(data.table)
 root_dir <- this.path::here(.. = 2)
 Species.List <- list.files(file.path(root_dir, "SS3 models"))
 
-species <- Species.List[1]
 fleets <- 1
 nfleets <- length(fleets)
 M_option_sp <- "Option1"
 
-
 # Catch data
 catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_final.rds"))
-# Life history data
-life.history <-
-  read.xlsx(file.path(root_dir, "Data", "CTL_parameters.xlsx"), sheet = species)
 # Length comp data
 len.comp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_final.rds"))
-# CPUE data
-cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
-                         pattern = species,
-                         full.names = TRUE)
-
-cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
-area <- unlist(str_extract_all(cpue_files, pattern = c("Manua|Tutuila")))
-
-cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
-  mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
-  rbindlist() %>% 
-  mutate(seas = 7,
-         index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
-  select(year, seas, index, obs, se_log) %>% 
-  filter(index %in% fleets) %>% 
-  as.data.frame()
-
-## Control file inputs
-## sheet will index scenarios 
-
-ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ",sheet="base")
-ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", sheet=species)
 
 ### NOTE: if you want to specify population length bins with min and max 
 # values different to data bins (method = 2), then add 2 columns to 
@@ -101,16 +74,48 @@ Q.options <- data.frame(fleet = c(1), link = c(1), link_info = c(0), extra_se = 
 size_selex_types <- data.frame(Pattern = c(1), Discard = c(0), Male = c(0), Special = c(0))
 age_selex_types <- data.frame(Pattern = c(0), Discard = c(0), Male = c(0), Special = c(0))  
 
-
-startyr <- catch %>% filter(SPECIES == species) %>% summarise(min(YEAR)) %>% pull()
-endyr <- catch %>% filter(SPECIES == species) %>% summarise(max(YEAR)) %>% pull()
-
+# DAT inputs, single value parameters
+ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ",sheet="base")
 
 ### Call the functions to build the SS3 files ####
 source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_DAT.R"))
 source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_START.R"))
 source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_FORE.R"))
 source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_CTL.R"))
+
+for(i in seq_along(Species.List)){
+### Inputs that need to be changed by species
+species <- Species.List[i]
+# Life history data
+life.history <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", sheet=species)
+# Start and End year
+startyr <- catch %>% 
+  filter(SPECIES == species) %>% 
+  summarise(min(YEAR)) %>% pull()
+endyr <- catch %>% 
+  filter(SPECIES == species) %>% 
+  summarise(max(YEAR)) %>% pull()
+
+# CPUE data
+cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
+                         pattern = species,
+                         full.names = TRUE)
+
+cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
+area <- unlist(str_extract_all(cpue_files, 
+                               pattern = c("Manua|Tutuila")))
+
+cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
+  mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
+  rbindlist() %>% 
+  mutate(seas = 7,
+         index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
+  select(year, seas, index, obs, se_log) %>% 
+  filter(index %in% fleets) %>% 
+  as.data.frame()
+
+# Control file inputs
+ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", sheet=species)
 
 
 ### Build SS3 Files ####
@@ -177,8 +182,24 @@ build_control(
 file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
           file.path(root_dir, "SS3 models", species))
 run_SS_models(dirvec = file.path(root_dir, "SS3 models", species), 
-              model = "ss_opt_win",  skipfinished = FALSE)
+              model = "ss_opt_win", extras = "-stopph 3 -nohess",  skipfinished = FALSE)
 
+### Create Summary Report ####
+rmarkdown::render("~/AmSam-Bottomfish-2023/Scripts/Creating SS Files Scripts/model_diags_report.Rmd", 
+                  output_file = paste0(species, "_SS3_Diags_Report"),
+                  output_dir =  file.path(root_dir, "SS3 models", species),
+                  params = list(
+                    species = paste0(species),
+                    scenario = "Base",
+                    report = "../../SS3 models"
+                  ))
+}
+
+
+report <- SS_output(file.path(root_dir, "SS3 models", species))
+report$warnings
+report$parameters %>% filter(str_detect(Status, "HI|LO"))
+SS_plots(report, dir = file.path(root_dir, "SS3 models", species))
 ## Do Retrospectives
 SS_doRetro(masterdir=file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
            oldsubdir="", newsubdir="Retrospectives", years=0:-5)
@@ -223,8 +244,10 @@ profile <- SS_profile(
 
 ### Create Summary Report ####
 rmarkdown::render("~/AmSam-Bottomfish-2023/Scripts/Creating SS Files Scripts/model_diags_report.Rmd", 
+                  output_file = paste0(species, "_SS3_Diags_Report"),
+                  output_dir =  file.path(root_dir, "SS3 models", species),
                   params = list(
-                    species = "TEMPLATE_FILES",
+                    species = paste0(species),
                     scenario = "Base",
                     report = "../../SS3 models"
 ))
