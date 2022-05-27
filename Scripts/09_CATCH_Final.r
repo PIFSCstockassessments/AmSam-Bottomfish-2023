@@ -32,11 +32,10 @@ E <- merge(E,S,by="SPECIES_FK")
 
 ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
 
-
-
 # Save final catch file
 Z <- E[,list(LBS=round(sum(LBS),0)),by=list(SPECIES,YEAR)]
 Z <- Z[order(SPECIES,YEAR)]
+Z$KG <- round(Z$LBS*0.453592,1)
 saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
 
 
