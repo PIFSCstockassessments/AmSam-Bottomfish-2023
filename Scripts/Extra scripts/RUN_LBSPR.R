@@ -4,8 +4,9 @@ require(LBSPR); require(data.table); require(openxlsx); require(grid); require(g
 root_dir <- this.path::here(..=2)
 
 # Get size structure data
-SIZDAT  <- readRDS(paste0(root_dir,"/Outputs/SIZE_Final.rds"))
+SIZDAT  <- readRDS(paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
 SIZDAT  <- SIZDAT[,!"EFFN"]
+SIZDAT$LENGTH_BIN_START <- as.numeric(SIZDAT$LENGTH_BIN_START)
 LH      <- data.table(  read.xlsx(paste0(root_dir,"/Data/LH parameters.xlsx")) )
 
 colnames(LH) <- c("SPECIES","OPTION","LINF","K","CVLINF","M","AMAX","L50","L95","NOTE")
@@ -25,7 +26,7 @@ for(i in 1:nrow(Species.List)){
   DAT         <- SIZDAT[SPECIES==Sp]
   
   BinWidth <- diff(unique(DAT$LENGTH_BIN_START))
-  BinWidth <- as.numeric(names(table(BinWidth)[1]))
+  BinWidth <- as.integer(names(which.max(table(BinWidth))))
   
   # Add a few larger size bins to help LBSPR run
   
