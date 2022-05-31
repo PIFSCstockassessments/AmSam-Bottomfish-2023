@@ -15,6 +15,7 @@ Species.List <- list.files(file.path(root_dir, "SS3 models"))
 fleets <- 1
 nfleets <- length(fleets)
 M_option_sp <- "Option1"
+#growth, SR, M, more options
 
 # Catch data
 catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_final.rds"))
@@ -84,6 +85,9 @@ source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_FOR
 source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_CTL.R"))
 
 for(i in seq_along(Species.List)){
+  
+## Add in a way to create a subdirectory
+  
 ### Inputs that need to be changed by species
 species <- Species.List[i]
 # Life history data
