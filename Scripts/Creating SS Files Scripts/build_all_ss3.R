@@ -26,30 +26,15 @@ len.comp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_final.rds
 # values different to data bins (method = 2), then add 2 columns to 
 # BIN.LIST pop_min and pop_max with the min and max values to use for 
 # each species.
-BIN.LIST <- data.table(
-  SPECIES = c(
-    "APRU",
-    "APVI",
-    "CALU",
-    "ETCA",
-    "ETCO",
-    "LERU",
-    "LUKA",
-    "PRFI",
-    "PRFL",
-    "PRZO",
-    "VALO"
-  ),
-  BINWIDTH = c(5, 5, 5, 5, 5, 3, 2, 5, 5, 5, 5) # in cm
-) 
-BIN.LIST <- len.comp %>%
-  group_by(SPECIES) %>%
-  summarise(
-    min = min(LENGTH_BIN_START),
-    max = max(LENGTH_BIN_START)
-  ) %>%
-  merge(BIN.LIST, by = "SPECIES") %>%
-  as.data.table()
+
+Species.List <- unique(len.comp$SPECIES)
+BIN.LIST     <- data.table(SPECIES=Species.List,min=0,max=0,BINWIDTH=0)
+for(i in 1:length(Species.List)){
+ BinWidth             <- diff(unique(len.comp[SPECIES==Species.List[i]]$LENGTH_BIN_START))
+ BIN.LIST[i]$BINWIDTH <- as.integer(names(which.max(table(BinWidth))))
+ BIN.LIST[i]$min      <- min(len.comp[SPECIES==Species.List[i]]$LENGTH_BIN_START)
+ BIN.LIST[i]$max      <- max(len.comp[SPECIES==Species.List[i]]$LENGTH_BIN_START)
+}
 
 fleetinfo <- data.frame(
   type = c(1),
