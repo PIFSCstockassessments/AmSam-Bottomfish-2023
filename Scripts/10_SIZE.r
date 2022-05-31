@@ -18,7 +18,7 @@ M            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sh
 M            <- select(M,DATASET,METHOD_ID,METHOD_C)
 M$METHOD_ID  <- as.character(M$METHOD_ID)
 S            <- data.table(  read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="BMUS")   )
-S            <- select(S,SPECIES_PK,SPECIES,SCIENTIFIC_NAME,FAMILY,LMAX,TL_TO_FL)
+S            <- select(S,SPECIES_PK,SPECIES,SCIENTIFIC_NAME,FAMILY,LMAX,TL_TO_FL,LW_A,LW_B)
 S$SPECIES_PK <- as.character(S$SPECIES_PK)
 S$LMAX       <- S$LMAX/10
 
@@ -37,14 +37,16 @@ S$LMAX       <- S$LMAX/10
  BB$YEAR       <- year(BB$SAMPLE_DATE)
  BB$LEN_MM     <- as.numeric(BB$LEN_MM)
  BB$SIZ_LBS    <- as.numeric(BB$SIZ_LBS)
+ BB$NUM_KEPT   <- as.numeric(BB$NUM_KEPT)
+ BB$EST_LBS    <- as.numeric(BB$EST_LBS)
  BB$AREA_FK    <- as.character((BB$AREA_FK))
  BB$METHOD_FK  <- as.character((BB$METHOD_FK))
- BB$LEN_MM     <- as.numeric(BB$LEN_MM)
- BB$SIZ_LBS    <- as.numeric(BB$SIZ_LBS)
-
+ 
  BB[LEN_MM==0]$LEN_MM   <- NA
  BB[SIZ_LBS==0]$SIZ_LBS <- NA
- BB                     <- select(BB,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,LEN_MM,SIZ_LBS)
+ BB[SIZ_LBS==as.numeric(EST_LBS)]$SIZ_LBS <- NA # remove weights where interviewers confused the SIZ_LBS field (individual weights) with EST_LBS (total pounds caught)
+ 
+ BB                     <- select(BB,INTERVIEW_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
  
   #Merge metadata tables
  BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID",all.x=T)
@@ -52,7 +54,7 @@ S$LMAX       <- S$LMAX/10
  BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
  
  # Simplify this dataset
- BB <- select(BB,DATASET,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
+ BB <- select(BB,DATASET,INTERVIEW_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
  
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
@@ -66,9 +68,26 @@ BB <- BB[!(SPECIES_FK=="229"&YEAR<2015)]
 BB[AREA_C=="Unk"]$AREA_C <- BB[AREA_C=="Unk"]$ISLAND_NAME
 BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 
+# Convert weights to lengths and verify
+BB$GRAMS                <- BB$LBS*0.453592*1000
+BB$LENGTH_FL_FROMWEIGHT <-(BB$GRAMS/ BB$LW_A)^(1/BB$LW_B)
+
+ggplot(data=BB[!is.na(LENGTH_FL)&!is.na(LENGTH_FL_FROMWEIGHT)])+geom_point(aes(x=LENGTH_FL,y=LENGTH_FL_FROMWEIGHT,col=SPECIES))+
+  geom_abline(intercept=0, slope=1)+facet_wrap(~SPECIES,scales="free_y")
+
+ggplot(data=BB)+geom_histogram(aes(x=LENGTH_FL_FROMWEIGHT,fill=SPECIES))+facet_wrap(~SPECIES,scales="free")
+
+# Calculate mean weight from total pounds caught (alternative)
+BC             <- BB[!(is.na(NUM_KEPT)),list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
+BC$MWfromCATCH <- BC$LBS_CAUGHT/BC$NUM_KEPT
+BC             <- BC[,list(MWfromCATCH=mean(MWfromCATCH)),by=list(YEAR,SPECIES,LW_A,LW_B)]
+BC$MWfromCATCH <- BC$MWfromCATCH*0.453592*1000
+BC$MLfromCATCH <- (BC$MWfromCATCH/BC$LW_A)^(1/BC$LW_B)
+
 # Quick pattern check on mean length and mean weight stability
-Test <- BB[METHOD_C=="Bottomfishing",list(MW=mean(LBS),ML=mean(LENGTH_FL)),by=list(SPECIES,YEAR)]
-ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=MW),col="red")+geom_line(aes(y=ML),col="blue")+facet_wrap(~SPECIES)
+Test <- BB[METHOD_C=="Bottomfishing",list(MLfromW=mean(LENGTH_FL_FROMWEIGHT,na.rm=T),ML=mean(LENGTH_FL,na.rm=T)),by=list(SPECIES,YEAR)]
+ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=MLfromW),col="red",size=2)+geom_line(aes(y=ML),col="blue",size=2)+
+  geom_line(data=BC,aes(y=MLfromCATCH),col="black",size=2)+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
 
 # Final options for BBS data
 table(BB$METHOD_C,BB$SCIENTIFIC_NAME)
