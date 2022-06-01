@@ -8,8 +8,10 @@
 ## Forecast file
 #  --------------------------------------------------------------------------------------------------------------
 build_forecast <- function(species, 
-                           template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "forecast.ss"),
-                           out.dir = file.path(root_dir, "SS3 models"),
+                           scenario = "base",
+                           file_dir = "base",
+                           template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "forecast.ss"),
+                           out_dir = file.path(root_dir, "SS3 models"),
                            benchmarks = 1,
                            MSY = 2,
                            endyr = 2021,
@@ -22,7 +24,7 @@ build_forecast <- function(species,
                            Fcast_years = c(0,0,-10,0,-999,0),
                            ControlRule = 0){
   ## STEP 1. Read in template forecast file
-  FORE <- r4ss::SS_readforecast(file = template.dir)
+  FORE <- r4ss::SS_readforecast(file = file.path(template_dir, "forecast.ss"))
   
   ## STEP 2. Make any necessary changes
   #  --------------------------------------------------------------------------------------------------------------
@@ -45,7 +47,7 @@ build_forecast <- function(species,
   
   ## STEP 3. Save updated file
   #  --------------------------------------------------------------------------------------------------------------
-  r4ss::SS_writeforecast(FORE, dir = file.path(out.dir, species),
+  r4ss::SS_writeforecast(FORE, dir = file.path(out_dir, species, file_dir),
                          writeAll = TRUE, overwrite = TRUE)
   
 }

@@ -56,3 +56,79 @@ Standardize_CPUE(Sp = "APVI" , Ar = c("Tutuila","Manua") [1])
 #Ar<-"Tutuila" 
 #minYr=1988
 #maxYr=2021
+
+# Script for build_all_ss function
+source(paste0(here(..=1),"/Scripts/11_BUILD_SS3_MODEL.R"))
+
+# Build and run models for all species in a loop
+Species.List <- c("APRU", "APVI", "CALU", "LERU", "LUKA", "ETCO", "PRFL", "PRZO", "VALO")
+for(i in seq_along(Species.List)){
+  
+  species <- Species.List[i]
+  
+  build_all_ss(species,
+               scenario = "base",
+               fleets = 1,
+               M_option = "Option1",
+               SR_option = "Option1",
+               Q_option = "Option1",
+               LSEL_option = "Option1",
+               ASEL_option = "Option1",
+               includeCPUE = TRUE,
+               init_values = 0, 
+               parmtrace = 0,
+               N_boot = 1,
+               last_est_phs = 10,
+               seed = 0123,
+               benchmarks = 1,
+               MSY = 2,
+               SPR.target = 0.4,
+               Btarget = 0.4,
+               Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
+               Bmark_relF_Basis = 1,
+               Forecast = 1,
+               Nforeyrs = 10, 
+               Fcast_years = c(0,0,-10,0,-999,0),
+               ControlRule = 0,
+               root_dir = this.path::here(.. = 1),
+               file_dir = scenario,
+               template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
+               out_dir = file.path(root_dir, "SS3 models"),
+               runmodels = TRUE,
+               ext_args = "-stopph 3 -nohess",
+               printreport = FALSE)
+}
+
+
+# Or run for a single species
+build_all_ss(species = "APRU",
+             scenario = "base",
+             fleets = 1,
+             M_option = "Option1",
+             SR_option = "Option1",
+             Q_option = "Option1",
+             LSEL_option = "Option1",
+             ASEL_option = "Option1",
+             includeCPUE = TRUE,
+             init_values = 0, 
+             parmtrace = 0,
+             N_boot = 1,
+             last_est_phs = 10,
+             seed = 0123,
+             benchmarks = 1,
+             MSY = 2,
+             SPR.target = 0.4,
+             Btarget = 0.4,
+             Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
+             Bmark_relF_Basis = 1,
+             Forecast = 1,
+             Nforeyrs = 10, 
+             Fcast_years = c(0,0,-10,0,-999,0),
+             ControlRule = 0,
+             root_dir = this.path::here(.. = 2),
+             file_dir = scenario,
+             template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
+             out_dir = file.path(root_dir, "SS3 models"),
+             runmodels = TRUE,
+             ext_args = "-stopph 3 -nohess",
+             printreport = TRUE)

@@ -13,7 +13,7 @@ params:
     VALO, TEMPLATE_FILES]
   scenario: 
     label: "Scenario"
-    value: "Base"
+    value: "base"
     input: text
   report: 
     label: "Model Directory"
@@ -34,7 +34,7 @@ library(ss3diags)
 
 ```{r}
 
-report. <- SS_output(dir = file.path(params$report, params$species), verbose = FALSE, printstats = FALSE)
+report. <- SS_output(dir = file.path(params$report, params$species, params$scenario), verbose = FALSE, printstats = FALSE)
 
 ```
 

@@ -8,18 +8,24 @@
 #CTL file 
 #  --------------------------------------------------------------------------------------------------------------
 build_control <- function(species = species,
+                          scenario = "base",
                           ctl.inputs = ctl.inputs,
                           ctl.params = ctl.params,
                           includeCPUE = TRUE,
                           Q.options = Q.options,
-                          M_option_sp = "Option1",
+                          M_option = "Option1",
+                          SR_option = "Option1",
+                          Q_option = "Option1",
+                          LSEL_option = "Option1",
+                          ASEL_option = "Option1",
                           size_selex_types = size_selex_types,
                           age_selex_types = age_selex_types,
-                          template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
-                          out.dir = file.path(root_dir, "SS3 models")){
+                          file_dir = "base",
+                          template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
+                          out_dir = file.path(root_dir, "SS3 models")){
   
-  CTL        <- r4ss::SS_readctl_3.30(file = file.path(template.dir, "control.ss"), 
-                                      datlist = file.path(template.dir, "data.ss"))
+  CTL        <- r4ss::SS_readctl_3.30(file = file.path(template_dir, "control.ss"), 
+                                      datlist = file.path(template_dir, "data.ss"))
 
   
   ctl.sps    <- ctl.inputs %>% 
@@ -71,7 +77,7 @@ build_control <- function(species = species,
   # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn
   CTL$MG_parms <- ctl.params %>%
     filter(str_detect(category, "MG")) %>%
-    filter(str_detect(OPTION, M_option_sp)) %>%
+    filter(str_detect(OPTION, M_option)) %>%
     select(-c(category, OPTION)) %>%
     column_to_rownames("X1")
 
@@ -82,7 +88,7 @@ build_control <- function(species = species,
   # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn, PType
   CTL$SR_parms <- ctl.params %>%
     filter(str_detect(category, "SR")) %>%
-    filter(str_detect(OPTION, M_option_sp)) %>%
+    filter(str_detect(OPTION, SR_option)) %>%
     select(-c(category, OPTION)) %>%
     column_to_rownames("X1")
 
@@ -122,7 +128,7 @@ build_control <- function(species = species,
   ## Catchability
   if(includeCPUE == TRUE){
     # Table with nrow = nfleets and column names: fleet, link, link_info, extra_se, biasadj, and float
-    CTL$Q_options <- Q.options
+    CTL$Q_options <- as.data.frame(Q.options)
   }else{
     CTL$Q_options <- NULL
   }
@@ -130,7 +136,7 @@ build_control <- function(species = species,
   # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn
   CTL$Q_parms <- ctl.params %>%
     filter(str_detect(category, "Q")) %>%
-    filter(str_detect(OPTION, M_option_sp)) %>%
+    filter(str_detect(OPTION, Q_option)) %>%
     select(-c(category, OPTION, Ptype)) %>%
     column_to_rownames("X1")
 
@@ -143,7 +149,7 @@ build_control <- function(species = species,
 
     CTL$size_selex_parms <- ctl.params %>%
       filter(str_detect(category, "selex_size")) %>%
-      filter(str_detect(OPTION, M_option_sp)) %>%
+      filter(str_detect(OPTION, LSEL_option)) %>%
       select(-c(category, OPTION, "X1", Ptype)) %>% 
       as.data.frame()
 
@@ -160,8 +166,7 @@ build_control <- function(species = species,
     CTL$age_selex_types <- age_selex_types
     CTL$age_selex_parms <- ctl.params %>%
       filter(str_detect(category, "selex_age")) %>%
-      filter(str_detect(OPTION, M_option_sp)) %>%
-      filter(str_detect(OPTION, M_option_sp)) %>%
+      filter(str_detect(OPTION, ASEL_option)) %>%
       select(-c(category, OPTION, "X1", Ptype)) %>% 
       as.data.frame()
 
@@ -200,7 +205,7 @@ build_control <- function(species = species,
   #  --------------------------------------------------------------------------------------------------------------
   ## STEP 3. Save updated control file
   
-  r4ss::SS_writectl_3.30(CTL, outfile = file.path(out.dir, species, "control.ss"), overwrite = TRUE)
+  r4ss::SS_writectl_3.30(CTL, outfile = file.path(out_dir, species, file_dir, "control.ss"), overwrite = TRUE)
   
 }
   

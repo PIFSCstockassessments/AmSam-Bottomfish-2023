@@ -7,16 +7,17 @@
 #  --------------------------------------------------------------------------------------------------------------
 ## DAT file
 #  --------------------------------------------------------------------------------------------------------------
-build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = NULL, cpue = NULL, 
-                      life.history = NULL, len.comp = NULL, startyr = 1967, endyr = 2021, 
-                      bin.list = NULL, fleets = 1, M_option_sp = NULL, fleetinfo = NULL, lbin_method = 1, 
-                      template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
-                      out.dir = file.path(root_dir, "SS3 models")){
+build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo = NULL, cpue = NULL, 
+                      Nages = NULL, Narea = 1, lencomp = NULL, startyr = 1967, endyr = 2021, 
+                      bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, 
+                      file_dir = "base",
+                      template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
+                      out_dir = file.path(root_dir, "SS3 models")){
   
   nfleet <- length(fleets)
   
   ## STEP 2. Read in SS dat file
-  DAT <- r4ss::SS_readdat_3.30(file = file.path(template.dir, "data.ss"))
+  DAT <- r4ss::SS_readdat_3.30(file = file.path(template_dir, "data.ss"))
   
   ## STEP 3. Get data in correct format and subset
   if(is.null(catch)) stop("Timeseries of catch is missing")
@@ -29,20 +30,20 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = 
     dplyr::filter(str_detect(SPECIES, species)) %>% 
     dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
     dplyr::mutate(seas = 1, 
-           fleet = 1,
-           catch_se = catch_se,
-           catch = LBS/2205) %>% 
-    dplyr::rename("year" = YEAR) %>% 
+           fleet = 1) %>% 
+    dplyr::rename("year" = YEAR,
+                  "catch" = KG,
+                  "catch_se" = LOGSD.KG) %>% 
     dplyr::arrange(fleet, year) %>% 
     dplyr::select(-SPECIES) %>% 
     dplyr::select(year, seas, fleet, catch, catch_se)
   
-  Nages <- life.history %>% 
-    dplyr::filter(str_detect(OPTION, M_option_sp)) %>% 
-    dplyr::filter(str_detect(X1, "Nages")) %>% 
-    pull(INIT)
+  # Nages <- life.history %>% 
+  #   dplyr::filter(str_detect(OPTION, M_option_sp)) %>% 
+  #   dplyr::filter(str_detect(X1, "Nages")) %>% 
+  #   pull(INIT)
   
-  len.comp.sp     <- len.comp %>% 
+  lencomp.sp     <- lencomp %>% 
     dplyr::filter(str_detect(SPECIES, species)) %>% 
     dplyr::arrange(LENGTH_BIN_START) %>% 
     dplyr::mutate(Seas = 1,
@@ -68,7 +69,7 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = 
   DAT$Nsexes          <- 1 #1 ignore fraction female in ctl file, 2 use frac female in ctl file, -1 one sex and multiply spawning biomass by frac female
   DAT$Ngenders        <- NULL
   DAT$Nages           <- Nages
-  DAT$N_areas         <- 1 #if want to explore fleets as areas, change this 
+  DAT$N_areas         <- Narea #if want to explore fleets as areas, change this 
   DAT$Nfleets         <- nfleet  #include fishing fleets and surveys
   ## specify the fleet types, timing, area, units, any catch multiplier and fleet name in fleetinfo
   DAT$fleetinfo <- fleetinfo
@@ -112,7 +113,7 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = 
   
   ## Composition data
   
-  if(exists("len.comp.sp")){
+  if(exists("lencomp.sp")){
     
     ## Length Composition 
     DAT$use_lencomp <- 1 #switch to 0 if not using length comp data 
@@ -124,12 +125,12 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = 
                                CompError      = rep(0, DAT$Nfleets),
                                ParmSelect     = rep(0, DAT$Nfleets),
                                minsamplesize  = rep(1, DAT$Nfleets))
-    DAT$N_lbins     <- length(select(len.comp.sp, starts_with("l")))
-    lbin_vector <- colnames(len.comp.sp[-c(1:6)])
+    DAT$N_lbins     <- length(select(lencomp.sp, starts_with("l")))
+    lbin_vector <- colnames(lencomp.sp[-c(1:6)])
     DAT$lbin_vector <- as.numeric(str_sub(lbin_vector, 2))
     
     ## Add length composition data, column names: Yr, Seas, FltSVy, Gender, Part, Nsamp, length_bin_values...
-    DAT$lencomp     <- as.data.frame(len.comp.sp)
+    DAT$lencomp     <- as.data.frame(lencomp.sp)
     
   }else{
     
@@ -207,7 +208,7 @@ build_dat <- function(species = NULL, catch = NULL, catch_se = 0.05, CPUEinfo = 
   DAT$use_selectivity_priors <- 0
   
   ## STEP 5. Save new dat file
-  r4ss::SS_writedat_3.30(DAT, outfile = file.path(out.dir, paste0(species), "data.ss"), 
+  r4ss::SS_writedat_3.30(DAT, outfile = file.path(out_dir, paste0(species), file_dir, "data.ss"), 
                          overwrite = TRUE, verbose = FALSE)
   
 }

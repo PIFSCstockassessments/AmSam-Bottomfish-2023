@@ -8,15 +8,17 @@
 ## Starter file
 #  --------------------------------------------------------------------------------------------------------------
 build_starter <- function(species,
-                          template.dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "starter.ss"), 
-                          out.dir = file.path(root_dir, "SS3 models"),
+                          scenario = "base",
+                          file_dir = "base",
+                          template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "starter.ss"), 
+                          out_dir = file.path(root_dir, "SS3 models"),
                           init_values = 0,
                           parmtrace = 0,
                           N_boot = 1,
                           last_est_phs = 10,
                           seed = 0123){
   ## STEP 1. Read in template starter file
-  START <- r4ss::SS_readstarter(file = template.dir)
+  START <- r4ss::SS_readstarter(file = file.path(template_dir, "starter.ss"))
   
   ## STEP 2. Make any changes necessary
   #  --------------------------------------------------------------------------------------------------------------
@@ -31,7 +33,7 @@ build_starter <- function(species,
   
   ## STEP 3. Save updated starter file
   #  --------------------------------------------------------------------------------------------------------------
-  r4ss::SS_writestarter(START, dir = file.path(out.dir, species), overwrite = TRUE)
+  r4ss::SS_writestarter(START, dir = file.path(out_dir, species, file_dir), overwrite = TRUE)
   
 }
 
