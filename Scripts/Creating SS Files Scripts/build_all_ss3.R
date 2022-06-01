@@ -241,7 +241,8 @@ rmarkdown::render("~/AmSam-Bottomfish-2023/Scripts/Creating SS Files Scripts/mod
 ))
 
 
-build_all_ss(species = "APVI",
+build_all_ss(species = "APRU",
              scenario = "base",
              runmodels = TRUE,
-             ext_args = "-stopph 3 -nohess")
+             ext_args = "-stopph 3 -nohess",
+             printreport = FALSE)

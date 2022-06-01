@@ -126,10 +126,10 @@ build_all_ss(species = "APRU",
              Nforeyrs = 10, 
              Fcast_years = c(0,0,-10,0,-999,0),
              ControlRule = 0,
-             root_dir = this.path::here(.. = 2),
-             file_dir = scenario,
+             root_dir = this.path::here(.. = 1),
+             file_dir = "base",
              template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
              out_dir = file.path(root_dir, "SS3 models"),
              runmodels = TRUE,
              ext_args = "-stopph 3 -nohess",
-             printreport = TRUE)
+             printreport = FALSE)

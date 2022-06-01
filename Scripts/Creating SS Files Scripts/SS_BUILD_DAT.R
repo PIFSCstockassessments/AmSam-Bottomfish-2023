@@ -30,10 +30,11 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     dplyr::filter(str_detect(SPECIES, species)) %>% 
     dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
     dplyr::mutate(seas = 1, 
-           fleet = 1) %>% 
+           fleet = 1,
+           LOGSD.MT = ifelse(LOGSD.MT == 0, 0.001, LOGSD.MT)) %>% 
     dplyr::rename("year" = YEAR,
-                  "catch" = KG,
-                  "catch_se" = LOGSD.KG) %>% 
+                  "catch" = MT,
+                  "catch_se" = LOGSD.MT) %>% 
     dplyr::arrange(fleet, year) %>% 
     dplyr::select(-SPECIES) %>% 
     dplyr::select(year, seas, fleet, catch, catch_se)
