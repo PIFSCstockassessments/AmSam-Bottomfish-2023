@@ -9,7 +9,7 @@ Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
 MinN           <- 40 # Minimum sample size to do size frequency
 AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
-                       BINWIDTH=c(5,5,5,5,5,3,2,5,5,5,5)) # in cm
+                       BINWIDTH=c(5,5,5,5,5,3,2,5,5,3,3)) # in cm
 
 # Load metadata tables (Area, Method, Species)
 A            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="AREAS")   )
@@ -73,21 +73,29 @@ BB$GRAMS                <- BB$LBS*0.453592*1000
 BB$LENGTH_FL_FROMWEIGHT <-(BB$GRAMS/ BB$LW_A)^(1/BB$LW_B)
 
 ggplot(data=BB[!is.na(LENGTH_FL)&!is.na(LENGTH_FL_FROMWEIGHT)])+geom_point(aes(x=LENGTH_FL,y=LENGTH_FL_FROMWEIGHT,col=SPECIES))+
-  geom_abline(intercept=0, slope=1)+facet_wrap(~SPECIES,scales="free_y")
+  geom_abline(intercept=0, slope=1)+facet_wrap(~SPECIES,scales="free_y")+theme(legend.position="none")
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfromW vs Lengths.png"),width=8,height=6,units="in")
 
-ggplot(data=BB)+geom_histogram(aes(x=LENGTH_FL_FROMWEIGHT,fill=SPECIES))+facet_wrap(~SPECIES,scales="free")
+ggplot(data=BB)+geom_histogram(aes(x=LENGTH_FL_FROMWEIGHT,fill=SPECIES))+facet_wrap(~SPECIES,scales="free")+theme(legend.position="none")
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfromW_histogram.png"),width=8,height=6,units="in")
 
 # Calculate mean weight from total pounds caught (alternative)
-BC             <- BB[!(is.na(NUM_KEPT)),list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
-BC$MWfromCATCH <- BC$LBS_CAUGHT/BC$NUM_KEPT
-BC             <- BC[,list(MWfromCATCH=mean(MWfromCATCH)),by=list(YEAR,SPECIES,LW_A,LW_B)]
-BC$MWfromCATCH <- BC$MWfromCATCH*0.453592*1000
-BC$MLfromCATCH <- (BC$MWfromCATCH/BC$LW_A)^(1/BC$LW_B)
+BC               <- BB[!(is.na(NUM_KEPT)),list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
+BC$MWfromCATCH   <- BC$LBS_CAUGHT/BC$NUM_KEPT
+BC               <- BC[,list(MWfromCATCH=mean(MWfromCATCH)),by=list(YEAR,SPECIES,LW_A,LW_B)]
+BC$MWfromCATCH   <- BC$MWfromCATCH*0.453592*1000
+BC$ML_FROM_CATCH <- (BC$MWfromCATCH/BC$LW_A)^(1/BC$LW_B)
 
 # Quick pattern check on mean length and mean weight stability
-Test <- BB[METHOD_C=="Bottomfishing",list(MLfromW=mean(LENGTH_FL_FROMWEIGHT,na.rm=T),ML=mean(LENGTH_FL,na.rm=T)),by=list(SPECIES,YEAR)]
-ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=MLfromW),col="red",size=2)+geom_line(aes(y=ML),col="blue",size=2)+
-  geom_line(data=BC,aes(y=MLfromCATCH),col="black",size=2)+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+Test <- BB[METHOD_C=="Bottomfishing",list(ML_FROM_WEIGHT=mean(LENGTH_FL_FROMWEIGHT,na.rm=T),ML_FROM_LENGTH=mean(LENGTH_FL,na.rm=T)),by=list(SPECIES,YEAR)]
+ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=ML_FROM_WEIGHT,col="red"),size=1)+geom_line(aes(y=ML_FROM_LENGTH,col="blue"),size=1)+
+  geom_line(data=BC,aes(y=ML_FROM_CATCH,col="black"),size=1)+facet_wrap(~SPECIES,scales="free")+
+  scale_color_identity(name = "Mean Length Source",
+                       breaks = c("red", "blue", "black"),
+                       labels = c("From weight measures", "From length measures", "From mean catch per trip"),
+                       guide = "legend")+theme_bw()
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods.png"),width=8,height=4,units="in")
+
 
 # Final options for BBS data
 table(BB$METHOD_C,BB$SCIENTIFIC_NAME)
