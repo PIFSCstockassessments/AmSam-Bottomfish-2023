@@ -31,15 +31,18 @@ E <- rbind(A,B,D)
 E <- merge(E,S,by="SPECIES_FK")
 
 ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=4,units="in")
+
 
 # Save final catch file
 Z          <- E[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SPECIES,YEAR)]
 Z          <- Z[order(SPECIES,YEAR)]
-Z$KG       <- round(Z$LBS*0.453592,1)
-Z$SD.KG    <- round(Z$SD.LBS*0.453592,1)
-Z$LOGSD.KG <- sqrt( log((Z$SD.KG/Z$KG)^2+1)   )
-Z[is.na(LOGSD.KG)]$LOGSD.KG <- 0  
-  
+Z$MT       <- round(Z$LBS*0.453592/1000,5)
+Z$SD.MT    <- round(Z$SD.LBS*0.453592/1000,3)
+Z$LOGSD.MT <- sqrt( log((Z$SD.MT/Z$MT)^2+1)   )
+Z[is.na(LOGSD.MT)]$LOGSD.MT <- 0  
+
+Z <- select(Z,SPECIES,YEAR,MT,LOGSD.MT)  
 saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
 
 
