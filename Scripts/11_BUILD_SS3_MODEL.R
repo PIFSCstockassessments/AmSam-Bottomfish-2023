@@ -280,7 +280,7 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-    rmarkdown::render("~/AmSam-Bottomfish-2023/Scripts/Creating SS Files Scripts/model_diags_report.Rmd", 
+    rmarkdown::render(file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
                       output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
                       output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
                       params = list(

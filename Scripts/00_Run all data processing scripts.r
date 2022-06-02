@@ -80,7 +80,7 @@ build_all_ss(species = "APRU",
              out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
              runmodels = TRUE,
              ext_args = "-stopph 3 -nohess",
-             printreport = FALSE)
+             printreport = T)
 
 
 
