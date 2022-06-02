@@ -1,17 +1,16 @@
 require(pacman)
 
 # Check if all required packages are installed, and install if not.
-pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis)
+pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis)
 
-# Download latest data from Google Drive
-a <- drive_ls(path="https://drive.google.com/drive/u/1/folders/1pnH38cupmDU4O_KkKDhYWee_p4sTSD6u", pattern="Data",order_by = "recency desc")
-a <- a[1,] # Select most recent "Data" zip file
-drive_download(file=a$id, overwrite = TRUE, path = a$name )
-
-# Only unzip the Data zip file if it's more recent (if not, this could replace more recent data!)
+# Check latest data from Google Drive but only download if its more recent than on local repo
+a                  <- drive_ls(path="https://drive.google.com/drive/u/1/folders/1pnH38cupmDU4O_KkKDhYWee_p4sTSD6u", pattern="Data", order_by="recency desc")
+a                  <- a[1,] # Select most recent "Data" zip file
 Date.CurrentFolder <- as_datetime(file.info(paste0(file.path(here(..=1)),"/Data"))$mtime)
 Date.GoogleFolder  <- as_datetime(map_chr(a$drive_resource, "modifiedTime"))
-if(Date.CurrentFolder<Date.GoogleFolder)  unzip(a$name)  
+if(Date.CurrentFolder<Date.GoogleFolder){
+  drive_download(file=a$id, overwrite = TRUE, path = a$name )
+  unzip(a$name)                         }
 
 # Creates outputs folder structure, if necessary
 dir.create(file.path(here(..=1), "Outputs"))
