@@ -31,6 +31,7 @@
 #' @param runmodels default TRUE, runs ss model
 #' @param est_args extra arguments that can be added to ss call (i.e. -nohess)
 #' @param printreport default TRUE, produces summary diagnostics report
+#' @param r4ssplots default is FALSE, will produce full r4ss output plots
 #' 
 
 
@@ -58,13 +59,15 @@ build_all_ss <- function(species,
                          Nforeyrs = 10, 
                          Fcast_years = c(0,0,-10,0,-999,0),
                          ControlRule = 0,
-                         root_dir = this.path::here(.. = 2),
+                         root_dir = this.path::here(.. = 1),
                          file_dir = scenario,
-                         template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
-                         out_dir = file.path(root_dir, "SS3 models"),
+                         template_dir = file.path(this.path::here(.. = 1), 
+                                                  "SS3 models", "TEMPLATE_FILES"), 
+                         out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
                          runmodels = TRUE,
                          ext_args = "-stopph 3 -nohess",
-                         printreport = TRUE
+                         printreport = TRUE,
+                         r4ssplots = TRUE
                          ){
   
   ## Step 1. Read in all data components ###-------------------------------------------
@@ -270,21 +273,28 @@ build_all_ss <- function(species,
   if(runmodels){
     ### Run Stock Synthesis ####
     file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
-              file.path(root_dir, "SS3 models", species, scenario))
-    r4ss::run_SS_models(dirvec = file.path(root_dir, "SS3 models", species, scenario), 
+              file.path(root_dir, "SS3 models", species, file_dir))
+    r4ss::run_SS_models(dirvec = file.path(root_dir, "SS3 models", species, file_dir), 
                   model = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
   }
   
   if(printreport){
     ### Create Summary Report ####
     rmarkdown::render("~/AmSam-Bottomfish-2023/Scripts/Creating SS Files Scripts/model_diags_report.Rmd", 
-                      output_file = paste(species, scenario, "SS3_Diags_Report", sep = "_"),
-                      output_dir =  file.path(root_dir, "SS3 models", species, scenario),
+                      output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
+                      output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
                       params = list(
                         species = paste0(species),
                         scenario = scenario,
                         report = "../../SS3 models"
                       ))
+  }
+  
+  if(r4ssplots){
+    report <- SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
+                        verbose = FALSE, printstats = FALSE)
+    SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
+    
   }
   
 } 
