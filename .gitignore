@@ -60,6 +60,10 @@ runnumber.ss
 *.pdf
 *.csv
 *.zip
-SS3 models/TEMPLATE_FILES/R0_Likelihood
-SS3 models/TEMPLATE_FILES/Retrospectives
+SS3 models/TEMPLATE_FILES/*
+!SS3 models/TEMPLATE_FILES/control.ss
+!SS3 models/TEMPLATE_FILES/data.ss
+!SS3 models/TEMPLATE_FILES/forecast.ss
+!SS3 models/TEMPLATE_FILES/starter.ss
+!SS3 models/TEMPLATE_FILES/ss_opt_win.exe
 
