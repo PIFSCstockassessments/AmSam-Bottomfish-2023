@@ -2,6 +2,8 @@
 
 require(LBSPR); require(data.table); require(openxlsx); require(grid); require(gridExtra); require(ggplot2); require(ggplotify); require(dplyr); require(this.path)
 root_dir <- this.path::here(..=2)
+dir.create(paste0(root_dir,"/Outputs/LBSPR/Temp size"),recursive=T,showWarnings=F)
+dir.create(paste0(root_dir,"/Outputs/LBSPR/Graphs"),recursive=T,showWarnings=F)
 
 # Get size structure data
 SIZDAT  <- readRDS(paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))

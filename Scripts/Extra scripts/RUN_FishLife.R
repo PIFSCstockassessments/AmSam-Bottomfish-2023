@@ -5,6 +5,7 @@
 
 require(FishLife); require(openxlsx); require(this.path); require(data.table); require(dplyr); require(stringr)
 root_dir <- this.path::here(..=2)
+dir.create(paste0(root_dir,"/Outputs"),recursive=T,showWarnings=F)
 
 S <- data.table( read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS") )
 S <- select(S,SPECIES,SCIENTIFIC_NAME)

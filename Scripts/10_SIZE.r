@@ -2,6 +2,8 @@
 
 require(data.table); require(openxlsx); require(tidyverse); require(openxlsx); require(gridExtra);require(grid); options(scipen=999)
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
+dir.create(paste0(root_dir,"/Outputs/Summary/Size figures"),recursive=T,showWarnings=F)
+dir.create(paste0(root_dir,"/Outputs/SS3_Inputs"),recursive=T,showWarnings=F)
 
 # Options
 Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
