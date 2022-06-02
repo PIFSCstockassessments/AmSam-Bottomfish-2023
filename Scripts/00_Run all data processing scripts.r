@@ -14,7 +14,6 @@ Date.GoogleFolder <- as_datetime(map_chr(a$drive_resource, "modifiedTime"))
   if(Date.CurrentFolder<Date.GoogleFolder){
     drive_download(file=a$id, overwrite = TRUE, path = a$name )
     unzip(a$name)                         }          
-##########################################################
 
 ########## PROCESS CATCH AND CPUE DATA ################
 source(paste0(here(..=1),"/Scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())
@@ -27,7 +26,6 @@ source(paste0(here(..=1),"/Scripts/07_CATCH_SBS_PropTable.r")); rm(list=ls())
 source(paste0(here(..=1),"/Scripts/08_CATCH_SBS_FinalPrep.r")); rm(list=ls())
 source(paste0(here(..=1),"/Scripts/09_CATCH_Final.r"));         rm(list=ls())
 source(paste0(here(..=1),"/Scripts/10_SIZE.r"));                rm(list=ls()) 
-#######################################################
 
 ################ RUN CPUE STANDARDIZATION############################
 # Run CPUE standardization and export indices for input into SS
@@ -44,13 +42,48 @@ for(i in 1:length(Species.List)){
 }
 
 # Or run a single model
-Standardize_CPUE(Sp = "APVI" , Ar = c("Tutuila","Manua") [1])
+#Standardize_CPUE(Sp = "APVI" , Ar = c("Tutuila","Manua") [1])
 #Sp<-"LERU"; Ar<-"Tutuila"; minYr=1988; maxYr=2021
-#####################################################################
 
 ###################### RUN STOCK SYNTHESIS #############################################
 # Script for build_all_ss function
 source(paste0(here(..=1),"/Scripts/11_BUILD_SS3_MODEL.R"))
+
+# Run for a single species
+build_all_ss(species = "APRU",
+             scenario = "base",
+             fleets = 1,
+             M_option = "Option1",
+             SR_option = "Option1",
+             Q_option = "Option1",
+             LSEL_option = "Option1",
+             ASEL_option = "Option1",
+             includeCPUE = TRUE,
+             init_values = 0, 
+             parmtrace = 0,
+             N_boot = 1,
+             last_est_phs = 10,
+             seed = 0123,
+             benchmarks = 1,
+             MSY = 2,
+             SPR.target = 0.4,
+             Btarget = 0.4,
+             Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
+             Bmark_relF_Basis = 1,
+             Forecast = 1,
+             Nforeyrs = 10, 
+             Fcast_years = c(0,0,-10,0,-999,0),
+             ControlRule = 0,
+             root_dir = this.path::here(.. = 1),
+             file_dir = "base",
+             template_dir = file.path(this.path::here(.. = 1), "SS3 models", "TEMPLATE_FILES"), 
+             out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
+             runmodels = TRUE,
+             ext_args = "-stopph 3 -nohess",
+             printreport = FALSE)
+
+
+
 
 # Build and run models for all species in a loop
 Species.List <- c("APRU", "APVI", "CALU", "LERU", "LUKA", "ETCO", "PRFL", "PRZO", "VALO")
@@ -90,39 +123,3 @@ for(i in seq_along(Species.List)){
                ext_args = "-stopph 3 -nohess",
                printreport = FALSE)
 }
-
-
-# Or run for a single species
-build_all_ss(species = "APRU",
-             scenario = "base",
-             fleets = 1,
-             M_option = "Option1",
-             SR_option = "Option1",
-             Q_option = "Option1",
-             LSEL_option = "Option1",
-             ASEL_option = "Option1",
-             includeCPUE = TRUE,
-             init_values = 0, 
-             parmtrace = 0,
-             N_boot = 1,
-             last_est_phs = 10,
-             seed = 0123,
-             benchmarks = 1,
-             MSY = 2,
-             SPR.target = 0.4,
-             Btarget = 0.4,
-             Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
-             Bmark_relF_Basis = 1,
-             Forecast = 1,
-             Nforeyrs = 10, 
-             Fcast_years = c(0,0,-10,0,-999,0),
-             ControlRule = 0,
-             root_dir = this.path::here(.. = 1),
-             file_dir = "base",
-             template_dir = file.path(this.path::here(.. = 1), "SS3 models", "TEMPLATE_FILES"), 
-             out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
-             runmodels = TRUE,
-             ext_args = "-stopph 3 -nohess",
-             printreport = FALSE)
-
-###########################################################################################################
