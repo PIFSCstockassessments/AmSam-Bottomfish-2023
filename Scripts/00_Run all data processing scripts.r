@@ -126,39 +126,4 @@ for(i in seq_along(Species.List)){
                printreport = FALSE)
 }
 
-
-# Or run for a single species
-build_all_ss(species = "LUKA",
-             scenario = "base",
-             fleets = 1,
-             M_option = "Option1",
-             SR_option = "Option1",
-             Q_option = "Option1",
-             LSEL_option = "Option1",
-             ASEL_option = "Option1",
-             includeCPUE = TRUE,
-             init_values = 0, 
-             parmtrace = 0,
-             N_boot = 1,
-             last_est_phs = 10,
-             seed = 0123,
-             benchmarks = 1,
-             MSY = 2,
-             SPR.target = 0.4,
-             Btarget = 0.4,
-             Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
-             Bmark_relF_Basis = 1,
-             Forecast = 1,
-             Nforeyrs = 10, 
-             Fcast_years = c(0,0,-10,0,-999,0),
-             ControlRule = 0,
-             root_dir = this.path::here(.. = 1),
-             file_dir = "testdir",
-             template_dir = file.path(this.path::here(.. = 1), "SS3 models", "TEMPLATE_FILES"), 
-             out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
-             runmodels = TRUE,
-             ext_args = "-stopph 3 -nohess",
-             printreport = TRUE,
-             r4ssplots = FALSE)
-
 ###########################################################################################################

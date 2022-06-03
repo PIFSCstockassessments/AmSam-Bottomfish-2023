@@ -295,7 +295,9 @@ build_all_ss <- function(species,
     report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
                         verbose = FALSE, printstats = FALSE)
     r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
+    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir), pdf=TRUE, png=FALSE)
     
   }
+
   
 } 

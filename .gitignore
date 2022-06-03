@@ -57,7 +57,6 @@ runnumber.ss
 *.tmp
 *.png
 *.txt
-*.pdf
 *.csv
 *.zip
 SS3 models/TEMPLATE_FILES/*
