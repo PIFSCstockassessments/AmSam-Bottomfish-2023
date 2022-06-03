@@ -18,6 +18,10 @@ params:
   report: 
     label: "Model Directory"
     value: "../../SS3 models"
+  file_dir:
+    label: "file_dir"
+    value: "base"
+    input: text
     
 ---
 
@@ -34,7 +38,7 @@ library(ss3diags)
 
 ```{r}
 
-report. <- SS_output(dir = file.path(params$report, params$species, params$scenario), verbose = FALSE, printstats = FALSE)
+report. <- SS_output(dir = file.path(params$report, params$species, params$file_dir), verbose = FALSE, printstats = FALSE)
 
 ```
 

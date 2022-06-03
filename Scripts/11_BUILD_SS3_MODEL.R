@@ -286,14 +286,15 @@ build_all_ss <- function(species,
                       params = list(
                         species = paste0(species),
                         scenario = scenario,
-                        report = "../../SS3 models"
+                        report = "../../SS3 models",
+                        file_dir = paste0(file_dir)
                       ))
   }
   
   if(r4ssplots){
-    report <- SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
+    report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
                         verbose = FALSE, printstats = FALSE)
-    SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
+    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
     
   }
   

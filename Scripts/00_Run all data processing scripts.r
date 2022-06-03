@@ -1,6 +1,6 @@
 # Check if all required packages are installed, and install if not.
 require(pacman)
-pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis)
+pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis,r4ss)
 
 ########## DOWNLOAD DATA FROM GOOGLE DRIVE ###############
 # Check latest data from Google Drive but only download if its more recent than on local repo
@@ -93,7 +93,7 @@ for(i in seq_along(Species.List)){
 
 
 # Or run for a single species
-build_all_ss(species = "APRU",
+build_all_ss(species = "LUKA",
              scenario = "base",
              fleets = 1,
              M_option = "Option1",
@@ -118,11 +118,12 @@ build_all_ss(species = "APRU",
              Fcast_years = c(0,0,-10,0,-999,0),
              ControlRule = 0,
              root_dir = this.path::here(.. = 1),
-             file_dir = "base",
+             file_dir = "testdir",
              template_dir = file.path(this.path::here(.. = 1), "SS3 models", "TEMPLATE_FILES"), 
              out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
              runmodels = TRUE,
              ext_args = "-stopph 3 -nohess",
-             printreport = FALSE)
+             printreport = TRUE,
+             r4ssplots = FALSE)
 
 ###########################################################################################################
