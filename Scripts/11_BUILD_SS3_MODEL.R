@@ -3,6 +3,8 @@
 #' Note, you will need to set up Google Drive authentication with the `googlesheets4` package which will allow you to directly pull parameter input files from Google Drive into R session.
 #' @param species the species to use
 #' @param scenario a string to identify which scenario model is being developed under, needs to match name of sheet in CTL_inputs.xlsx file
+#' @param startyr start year of the model
+#' @param endyr end year of the model
 #' @param fleets an integer or vector of integers of fleet id numbers (tutuila = 1, manua = 2), default is 1
 #' @param M_option which option being used for natural mortality (found in CTL_parameters.xlsx), default is "Option1"
 #' @param SR_option see M_option (stock-recruitment)
@@ -37,6 +39,8 @@
 
 build_all_ss <- function(species,
                          scenario = "base",
+                         startyr = 1967,
+                         endyr = 2021,
                          fleets = 1,
                          M_option = "Option1",
                          SR_option = "Option1",
@@ -97,12 +101,12 @@ build_all_ss <- function(species,
   }
   
   # Start and End year
-  startyr <- catch %>% 
-    filter(SPECIES == species) %>% 
-    summarise(min(YEAR)) %>% pull()
-  endyr <- catch %>% 
-    filter(SPECIES == species) %>% 
-    summarise(max(YEAR)) %>% pull()
+  # startyr <- catch %>% 
+  #   filter(SPECIES == species) %>% 
+  #   summarise(min(YEAR)) %>% pull()
+  # endyr <- catch %>% 
+  #   filter(SPECIES == species) %>% 
+  #   summarise(max(YEAR)) %>% pull()
   
   Nfleets <- length(fleets)
   

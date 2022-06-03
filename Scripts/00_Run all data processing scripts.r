@@ -53,6 +53,8 @@ source(paste0(here(..=1),"/Scripts/11_BUILD_SS3_MODEL.R"))
 # Run for a single species
 build_all_ss(species = "APRU",
              scenario = "base",
+             startyr = 1967,
+             endyr = 2021,
              fleets = 1,
              M_option = "Option1",
              SR_option = "Option1",
@@ -96,6 +98,8 @@ for(i in seq_along(Species.List)){
   
   build_all_ss(species,
                scenario = "base",
+               startyr = 1967,
+               endyr = 2021,
                fleets = 1,
                M_option = "Option1",
                SR_option = "Option1",
