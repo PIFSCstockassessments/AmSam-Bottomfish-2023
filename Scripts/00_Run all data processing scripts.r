@@ -6,14 +6,15 @@ pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,
 # Check latest data from Google Drive but only download if its more recent than on local repo
 a                  <- drive_ls(path="https://drive.google.com/drive/u/1/folders/1pnH38cupmDU4O_KkKDhYWee_p4sTSD6u", pattern="Data", order_by="recency desc")
 a                  <- a[1,] # Select most recent "Data" zip file
-if(dir.exists(paste0(file.path(here(..=1)),"/Data"))){
+if(dir.exists(file.path(here(..=1),"Data"))){
          Date.CurrentFolder <- as_datetime(file.info(paste0(file.path(here(..=1)),"/Data"))$mtime)
 } else { Date.CurrentFolder <- "1900-01-01 01:01:01 UTC" }
   
 Date.GoogleFolder <- as_datetime(map_chr(a$drive_resource, "modifiedTime"))
   if(Date.CurrentFolder<Date.GoogleFolder){
-    drive_download(file=a$id, overwrite = TRUE, path = a$name )
-    unzip(a$name)                         }          
+    drive_download(file=a$id, overwrite = TRUE, path = file.path(here(..=1),a$name) )
+    unzip(file.path(here(..=1),a$name),exdir=here(..=1))  
+    }          
 
 ########## PROCESS CATCH AND CPUE DATA ################
 source(paste0(here(..=1),"/Scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())

@@ -30,8 +30,8 @@ D            <- select(D,SOURCE,SPECIES_FK,YEAR=Year,AREA_C=Area,LBS=lbs,SD.LBS)
 E <- rbind(A,B,D)
 E <- merge(E,S,by="SPECIES_FK")
 
-ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=4,units="in")
+C1 <- ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
+ggsave(plot=C1,filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=4,units="in")
 
 
 # Save final catch file
