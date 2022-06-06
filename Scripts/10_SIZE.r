@@ -48,7 +48,7 @@ S$LMAX       <- S$LMAX/10
  BB[SIZ_LBS==0]$SIZ_LBS <- NA
  BB[SIZ_LBS==as.numeric(EST_LBS)]$SIZ_LBS <- NA # remove weights where interviewers confused the SIZ_LBS field (individual weights) with EST_LBS (total pounds caught)
  
- BB                     <- select(BB,INTERVIEW_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
+ BB                     <- select(BB,INTERVIEW_PK,SIZE_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
  
   #Merge metadata tables
  BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID",all.x=T)
@@ -56,7 +56,7 @@ S$LMAX       <- S$LMAX/10
  BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
  
  # Simplify this dataset
- BB <- select(BB,DATASET,INTERVIEW_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
+ BB <- select(BB,DATASET,INTERVIEW_PK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
  
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
@@ -84,19 +84,39 @@ ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/
 # Calculate mean weight from total pounds caught (alternative)
 BC               <- BB[!(is.na(NUM_KEPT)),list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
 BC$MWfromCATCH   <- BC$LBS_CAUGHT/BC$NUM_KEPT
-BC               <- BC[,list(MWfromCATCH=mean(MWfromCATCH)),by=list(YEAR,SPECIES,LW_A,LW_B)]
 BC$MWfromCATCH   <- BC$MWfromCATCH*0.453592*1000
 BC$ML_FROM_CATCH <- (BC$MWfromCATCH/BC$LW_A)^(1/BC$LW_B)
+BC2               <- BC[,list(ML_FROM_CATCH=mean(ML_FROM_CATCH)),by=list(YEAR,SPECIES)]
 
 # Quick pattern check on mean length and mean weight stability
-Test <- BB[METHOD_C=="Bottomfishing",list(ML_FROM_WEIGHT=mean(LENGTH_FL_FROMWEIGHT,na.rm=T),ML_FROM_LENGTH=mean(LENGTH_FL,na.rm=T)),by=list(SPECIES,YEAR)]
-ggplot(data=Test,aes(x=YEAR))+geom_line(aes(y=ML_FROM_WEIGHT,col="red"),size=1)+geom_line(aes(y=ML_FROM_LENGTH,col="blue"),size=1)+
-  geom_line(data=BC,aes(y=ML_FROM_CATCH,col="black"),size=1)+facet_wrap(~SPECIES,scales="free")+
+BD <- BB[METHOD_C=="Bottomfishing",list(ML_FROM_WEIGHT=mean(LENGTH_FL_FROMWEIGHT,na.rm=T),ML_FROM_LENGTH=mean(LENGTH_FL,na.rm=T)),by=list(SPECIES,YEAR)]
+ggplot(data=BD,aes(x=YEAR))+geom_line(aes(y=ML_FROM_WEIGHT,col="red"),size=1)+geom_line(aes(y=ML_FROM_LENGTH,col="blue"),size=1)+
+  geom_line(data=BC2,aes(y=ML_FROM_CATCH,col="black"),size=1)+facet_wrap(~SPECIES,scales="free")+
   scale_color_identity(name = "Mean Length Source",
                        breaks = c("red", "blue", "black"),
                        labels = c("From weight measures", "From length measures", "From mean catch per trip"),
                        guide = "legend")+theme_bw()
 ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods.png"),width=8,height=4,units="in")
+
+# Check why ML from catch is bad in older data
+BE <- BB[!(is.na(NUM_KEPT)),list(NUM_KEPT=mean(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR)]
+ggplot(data=BE)+geom_histogram(aes(x=NUM_KEPT))+facet_wrap(~YEAR,scales="free_y")+xlim(c(-1,20))
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/Dist_NumKept.png"),width=8,height=4,units="in")
+
+# Check if we can fix this issue by removing interviews where SIZ_PK count != NUM_KEPT
+BF <- BB[!(is.na(NUM_KEPT)),list(ONES=1),by=list(INTERVIEW_PK,SIZE_PK)]
+BF <- BF[,list(N_SIZEPK=sum(ONES)),by=list(INTERVIEW_PK)]
+BF <- merge(BC,BF,by="INTERVIEW_PK")
+BF <- BF[N_SIZEPK==NUM_KEPT] # This filters almost all available data
+BF <- BF[,list(ML_FROM_CATCH=mean(ML_FROM_CATCH)),by=list(SPECIES,YEAR)]
+
+ggplot(data=BD,aes(x=YEAR))+geom_line(aes(y=ML_FROM_WEIGHT,col="red"),size=1)+geom_line(aes(y=ML_FROM_LENGTH,col="blue"),size=1)+
+  geom_line(data=BC2,aes(y=ML_FROM_CATCH,col="black"),size=1)+geom_line(data=BF,aes(y=ML_FROM_CATCH,col="orange"),size=1.2)+
+  facet_wrap(~SPECIES,scales="free")+scale_color_identity(name = "Mean Length Source",
+                                        breaks = c("red", "blue", "black","orange"),
+                                        labels = c("From weight measures", "From length measures", "From mean catch per trip","From mean catch per trip v2"),
+                                        guide = "legend")+theme_bw() 
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom4methods.png"),width=10,height=4,units="in")
 
 
 # Final options for BBS data
