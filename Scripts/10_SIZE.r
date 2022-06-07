@@ -70,61 +70,37 @@ BB <- BB[!(SPECIES_FK=="229"&YEAR<2015)]
 BB[AREA_C=="Unk"]$AREA_C <- BB[AREA_C=="Unk"]$ISLAND_NAME
 BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 
+# Select only bottomfishing methods
+table(BB$METHOD_C,BB$SPECIES)
+BB <- BB[METHOD_C=="Bottomfishing"]  # This filters a few spearfishing records for some species. Main impact is for VALO with 51 records removed.
+
 # Convert weights to lengths and verify
 BB$GRAMS                <- BB$LBS*0.453592*1000
-BB$LENGTH_FL_FROMWEIGHT <-(BB$GRAMS/ BB$LW_A)^(1/BB$LW_B)
+BB$LENGTH_FROM_WEIGHT <-(BB$GRAMS/ BB$LW_A)^(1/BB$LW_B)
 
-ggplot(data=BB[!is.na(LENGTH_FL)&!is.na(LENGTH_FL_FROMWEIGHT)])+geom_point(aes(x=LENGTH_FL,y=LENGTH_FL_FROMWEIGHT,col=SPECIES))+
-  geom_abline(intercept=0, slope=1)+facet_wrap(~SPECIES,scales="free_y")+theme(legend.position="none")
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfromW vs Lengths.png"),width=8,height=6,units="in")
-
-ggplot(data=BB)+geom_histogram(aes(x=LENGTH_FL_FROMWEIGHT,fill=SPECIES))+facet_wrap(~SPECIES,scales="free")+theme(legend.position="none")
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfromW_histogram.png"),width=8,height=6,units="in")
+# Calculate sample sizes
+BB$N_LFL <- 0; BB[!is.na(LENGTH_FL)]$N_LFL          <- 1
+BB$N_LFW <- 0; BB[!is.na(LENGTH_FROM_WEIGHT)]$N_LFW <- 1
+BB_N     <- BB[,list(N_LFL_TOT=sum(N_LFL),N_LFW_TOT=sum(N_LFW)),by=list(SPECIES,YEAR)]
+BB       <- merge(BB,BB_N,by=c("SPECIES","YEAR"))
 
 # Calculate mean weight from total pounds caught (alternative)
-BC               <- BB[!(is.na(NUM_KEPT)),list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
+BC               <- BB[!(is.na(NUM_KEPT))&NUM_KEPT>0,list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
 BC$MWfromCATCH   <- BC$LBS_CAUGHT/BC$NUM_KEPT
 BC$MWfromCATCH   <- BC$MWfromCATCH*0.453592*1000
 BC$ML_FROM_CATCH <- (BC$MWfromCATCH/BC$LW_A)^(1/BC$LW_B)
-BC2               <- BC[,list(ML_FROM_CATCH=mean(ML_FROM_CATCH)),by=list(YEAR,SPECIES)]
+BC$N_LFC         <- 0; BC[ML_FROM_CATCH>0]$N_LFC <- 1
+BC_N             <- BC[,list(N_LFC_TOT=sum(N_LFC)),by=list(SPECIES,YEAR)]
+BC2              <- BC[,list(ML_FROM_CATCH=mean(ML_FROM_CATCH)),by=list(YEAR,SPECIES)]
+BC2               <- merge(BC2,BC_N,by=c("SPECIES","YEAR"))
 
-# Quick pattern check on mean length and mean weight stability
-BD <- BB[METHOD_C=="Bottomfishing",list(ML_FROM_WEIGHT=mean(LENGTH_FL_FROMWEIGHT,na.rm=T),ML_FROM_LENGTH=mean(LENGTH_FL,na.rm=T)),by=list(SPECIES,YEAR)]
-ggplot(data=BD,aes(x=YEAR))+geom_line(aes(y=ML_FROM_WEIGHT,col="red"),size=1)+geom_line(aes(y=ML_FROM_LENGTH,col="blue"),size=1)+
-  geom_line(data=BC2,aes(y=ML_FROM_CATCH,col="black"),size=1)+facet_wrap(~SPECIES,scales="free")+
-  scale_color_identity(name = "Mean Length Source",
-                       breaks = c("red", "blue", "black"),
-                       labels = c("From weight measures", "From length measures", "From mean catch per trip"),
-                       guide = "legend")+theme_bw()
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods.png"),width=8,height=4,units="in")
-
-# Check why ML from catch is bad in older data
-BE <- BB[!(is.na(NUM_KEPT)),list(NUM_KEPT=mean(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR)]
-ggplot(data=BE)+geom_histogram(aes(x=NUM_KEPT))+facet_wrap(~YEAR,scales="free_y")+xlim(c(-1,20))
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/Dist_NumKept.png"),width=8,height=4,units="in")
-
-# Check if we can fix this issue by removing interviews where SIZ_PK count != NUM_KEPT
-BF <- BB[!(is.na(NUM_KEPT)),list(ONES=1),by=list(INTERVIEW_PK,SIZE_PK)]
-BF <- BF[,list(N_SIZEPK=sum(ONES)),by=list(INTERVIEW_PK)]
-BF <- merge(BC,BF,by="INTERVIEW_PK")
-BF <- BF[N_SIZEPK==NUM_KEPT] # This filters almost all available data
-BF <- BF[,list(ML_FROM_CATCH=mean(ML_FROM_CATCH)),by=list(SPECIES,YEAR)]
-
-ggplot(data=BD,aes(x=YEAR))+geom_line(aes(y=ML_FROM_WEIGHT,col="red"),size=1)+geom_line(aes(y=ML_FROM_LENGTH,col="blue"),size=1)+
-  geom_line(data=BC2,aes(y=ML_FROM_CATCH,col="black"),size=1)+geom_line(data=BF,aes(y=ML_FROM_CATCH,col="orange"),size=1.2)+
-  facet_wrap(~SPECIES,scales="free")+scale_color_identity(name = "Mean Length Source",
-                                        breaks = c("red", "blue", "black","orange"),
-                                        labels = c("From weight measures", "From length measures", "From mean catch per trip","From mean catch per trip v2"),
-                                        guide = "legend")+theme_bw() 
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom4methods.png"),width=10,height=4,units="in")
-
+#Filter year with low sample size
+BB[N_LFL_TOT<=15]$LENGTH_FL          <- NA
+BB[N_LFW_TOT<=15]$LENGTH_FROM_WEIGHT <- NA
+BC2[N_LFC_TOT<=15]$ML_FROM_CATCH     <- NA
 
 # Final options for BBS data
-table(BB$METHOD_C,BB$SCIENTIFIC_NAME)
-BB <- BB[METHOD_C=="Bottomfishing"]  # This filters a few spearfishing records for some species. Main impact is for VALO with 51 records removed.
-
 BB <- BB[!is.na(LENGTH_FL)]
-
 BB <- select(BB,DATASET,SPECIES,YEAR,AREA_C,LENGTH_FL)
 
 # ===============Biosampling program sizes======================================================================      
