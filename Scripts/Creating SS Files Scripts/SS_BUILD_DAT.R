@@ -46,6 +46,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
   
   lencomp.sp     <- lencomp %>% 
     dplyr::filter(str_detect(SPECIES, species)) %>% 
+    dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
     dplyr::arrange(LENGTH_BIN_START) %>% 
     dplyr::mutate(Seas = 1,
            FltSvy = as.numeric(factor(DATASET)), 

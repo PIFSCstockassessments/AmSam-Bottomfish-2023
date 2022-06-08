@@ -4,8 +4,8 @@ pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,
 
 ########## DOWNLOAD DATA FROM GOOGLE DRIVE ###############
 # Check latest data from Google Drive but only download if its more recent than on local repo
-a                  <- drive_ls(path="https://drive.google.com/drive/u/1/folders/1pnH38cupmDU4O_KkKDhYWee_p4sTSD6u", pattern="Data", order_by="recency desc")
-a                  <- a[1,] # Select most recent "Data" zip file
+a                  <- drive_reveal(drive_ls(path="https://drive.google.com/drive/u/1/folders/1pnH38cupmDU4O_KkKDhYWee_p4sTSD6u", pattern="Data"), what = "modified_time")
+a                  <- arrange(a, by = desc(modified_time))[1,] # Select most recent "Data" zip file
 if(dir.exists(file.path(here(..=1),"Data"))){
          Date.CurrentFolder <- as_datetime(file.info(paste0(file.path(here(..=1)),"/Data"))$mtime)
 } else { Date.CurrentFolder <- "1900-01-01 01:01:01 UTC" }
@@ -43,7 +43,7 @@ for(i in 1:length(Species.List)){
 }
 
 # Or run a single model
-#Standardize_CPUE(Sp = "APVI" , Ar = c("Tutuila","Manua") [1])
+#Standardize_CPUE(Sp = "VALO" , Ar = c("Tutuila","Manua") [1])
 #Sp<-"LERU"; Ar<-"Tutuila"; minYr=1988; maxYr=2021
 
 ###################### RUN STOCK SYNTHESIS #############################################
@@ -51,9 +51,9 @@ for(i in 1:length(Species.List)){
 source(paste0(here(..=1),"/Scripts/11_BUILD_SS3_MODEL.R"))
 
 # Run for a single species
-build_all_ss(species = "APRU",
+build_all_ss(species = "APVI",
              scenario = "base",
-             startyr = 1967,
+             startyr = 1980,
              endyr = 2021,
              fleets = 1,
              M_option = "Option1",

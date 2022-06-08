@@ -136,6 +136,7 @@ build_all_ss <- function(species,
            index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
     select(year, seas, index, obs, se_log) %>% 
     filter(index %in% fleets) %>% 
+    filter(year >= startyr & year <= endyr) %>% 
     as.data.frame()
   
   # Length Bins
@@ -209,6 +210,8 @@ build_all_ss <- function(species,
   build_dat(
     species = species,
     scenario = scenario,
+    startyr = startyr,
+    endyr = endyr,
     catch = catch,
     CPUEinfo = cpueinfo,
     cpue = cpue,
