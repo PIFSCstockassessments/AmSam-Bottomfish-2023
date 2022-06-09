@@ -54,7 +54,7 @@ BB <- merge(BB,M[DATASET=="BBS"],by.x=c("METHOD_FK","DATASET"),by.y=c("METHOD_ID
 BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 # Simplify this dataset
-BB <- select(BB,DATASET,INTERVIEW_PK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,SIZ_LBS)
+BB <- select(BB,DATASET,INTERVIEW_PK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LMAX,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,SIZ_LBS)
 
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
@@ -92,9 +92,9 @@ BB$LFC    <- BB$LFC*0.453592*1000         # Convert to grams
 BB$LFC    <- (BB$LFC/BB$LW_A)^(1/BB$LW_B) # Mean Length-from-Catch
 BB[N_SIZEPK!=NUM_KEPT]$LFC  <- NA         # Remove interviews where N of SIZE_PK is different from NUM_KEPT (likely unreliable size data)
 
-BB <- select(BB,INTERVIEW_PK,YEAR,SPECIES,LFW,LFL,LFC)
-BC <- melt(BB,id.vars = 1:3,variable.name = "LSOURCE",value.name="LENGTH")
-BD <- BC[,list(LENGTH=mean(LENGTH,na.rm=T),N=.N),by=list(SPECIES,LSOURCE,YEAR)]
+BB <- select(BB,INTERVIEW_PK,YEAR,SPECIES,LMAX,LFW,LFL,LFC)
+BC <- melt(BB,id.vars = 1:4,variable.name = "LSOURCE",value.name="LENGTH")
+BD <- BC[,list(LENGTH=mean(LENGTH,na.rm=T),N=.N),by=list(SPECIES,LMAX,LSOURCE,YEAR)]
 BD <- BD[order(SPECIES,YEAR,LSOURCE)]
 
 
@@ -104,7 +104,29 @@ ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/
 ggplot(data=BB)+geom_histogram(aes(x=LFW,fill=SPECIES))+facet_wrap(~SPECIES,scales="free")+theme(legend.position="none")
 ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfromW_histogram.png"),width=8,height=6,units="in")
 
-ggplot(data=BD[N>=10],aes(x=YEAR,y=LENGTH))+geom_line(aes(col=LSOURCE),size=1)+facet_wrap(~SPECIES,scales="free")+theme_bw()
-ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods.png"),width=8,height=4,units="in")
+ggplot(data=BD,aes(x=YEAR,y=LENGTH))+geom_line(aes(col=LSOURCE),size=1)+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods_N0.png"),width=8,height=4,units="in")
+
+ggplot(data=BD[N>=15],aes(x=YEAR,y=LENGTH))+geom_line(aes(col=LSOURCE),size=1)+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods_N15.png"),width=8,height=4,units="in")
+
+# Check ML by time period, to see if we can use superyears in SS
+TIMEPERIOD <- 10 #years
+BD$TP      <- BD$YEAR - (BD$YEAR %% TIMEPERIOD) + TIMEPERIOD/2
+BE         <- BD[,list(LENGTH=mean(LENGTH,na.rm=T),N=sum(N)),by=list(SPECIES,LMAX,LSOURCE,TP)]
+
+ggplot(data=BE[N>=15],aes(x=TP,y=LENGTH,col=LSOURCE))+geom_point(shape=95,size=5)+geom_line()+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHbyPERIOD.png"),width=8,height=4,units="in")
+
+
+
+
+
+
+
+
+
+
+
 
 
