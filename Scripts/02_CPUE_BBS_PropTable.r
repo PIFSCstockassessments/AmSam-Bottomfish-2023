@@ -130,9 +130,13 @@ Final <- Final[order(GROUP_FK,PERIOD,AREA_C,SPECIES_FK)]
 # Some graphical exploration of species proportion evolution
 Test <- Final[SPECIES_FK==111|SPECIES_FK==229|SPECIES_FK==231|SPECIES_FK==239|SPECIES_FK==241|SPECIES_FK==242|SPECIES_FK==245|
                  SPECIES_FK==247|SPECIES_FK==248|SPECIES_FK==267]
-ggplot(data=Test[GROUP_FK==200&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES_FK)))
-ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES_FK)))
+S    <- read.xlsx(file.path(root_dir,"Data","METADATA.xlsx"),sheet="BMUS")
+S    <- select(S,SPECIES_PK,SPECIES)
+Test <- merge(Test,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
+ggplot(Test[GROUP_FK==200],aes(x=PERIOD,y=Prop,col=as.character(SPECIES)))+geom_line()+geom_point()+facet_wrap(~AREA_C)+theme_bw()+ggtitle("Bottomfishes")
+ggsave(last_plot(),file=file.path(root_dir,"Outputs","Summary","PROP_BOTTOMFISHES_200.png"))
+ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop,col=as.character(SPECIES)))
 
 # Output table for further use
 saveRDS(Final,file=paste0(root_dir,"\\Outputs\\BBS_Prop_Table.rds"))

@@ -11,6 +11,32 @@ S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
 S <- select(S,SPECIES_FK=SPECIES_PK,SPECIES,SCIENTIFIC_NAME)
 
 # Load historic data from Excel document
+Hist.Catch.Option <- "PropTableOnly"
+
+# Option1: Use only proptable calculated between 1986-2005
+if(Hist.Catch.Option=="PropTableOnly"){
+PT <- readRDS(file.path(root_dir,"Outputs","BBS_Prop_Table.rds"))
+PT <- PT[GROUP_FK==200&(PERIOD==1995|PERIOD==2005),list(Prop=mean(Prop)),by=list(SPECIES_FK,AREA_C)]
+C  <- data.table( read.xlsx(file.path(root_dir,"Data","Landings_Historic_1967_1985.xlsx"),sheet="Total Bottomfishes 67_85")  )
+setnames(C,1:3,c("YEAR","AREA_C","BOTTOMFISH_LBS"))
+C <- C[1:57,1:3]
+C[AREA_C=="Banks"]$AREA_C <- "Tutuila"
+C <- C[,list(BOTTOMFISH_LBS=sum(BOTTOMFISH_LBS)),by=list(YEAR,AREA_C)]
+
+D     <- merge(C,PT,by="AREA_C",allow.cartesian = T)
+D$LBS <- D$Prop*D$BOTTOMFISH_LBS
+D$SPECIES_FK <- paste0("S",D$SPECIES_FK)
+D     <- merge(D,S,by="SPECIES_FK")
+
+ggplot(D,aes(x=YEAR,y=BOTTOMFISH_LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES)
+D$SOURCE     <- "Historic"
+D$SD.LBS     <- 0
+D            <- select(D,SOURCE,SPECIES_FK,YEAR,AREA_C,LBS,SD.LBS)
+D$SPECIES_FK <- paste0("S",D$SPECIES_FK)
+}
+
+# Option 2: use a mix of proportions, including from the old reports
+if(Hist.Catch.Option=="Original"){
 D <- data.table()
 Species.list <- c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO")
 for(i in 1:length(Species.list)){
@@ -25,6 +51,7 @@ D$SOURCE     <- "Historic"
 D$SD.LBS     <- 0
 D            <- merge(D,S,by="SPECIES")
 D            <- select(D,SOURCE,SPECIES_FK,YEAR=Year,AREA_C=Area,LBS=lbs,SD.LBS)
+}
 
 # Put all catches together
 E <- rbind(A,B,D)
