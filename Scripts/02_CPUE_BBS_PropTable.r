@@ -2,13 +2,13 @@ require(data.table); require(tidyverse); require(gridExtra); require(directlabel
 options(scipen = 999)
 root_dir <- this.path::here(.. = 1) 
 
-Z <- readRDS(paste0(root_dir,"\\Outputs\\CPUE_A.rds"))
+Z <- readRDS(paste0(root_dir,"/Outputs/CPUE_A.rds"))
 Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_PK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
 Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]
 Z$SPECIES_FK <- as.numeric(Z$SPECIES_FK)
 
 # Append species group association table
-SKEY <- data.table(  read.xlsx(paste0(root_dir,"\\Data\\METADATA.xlsx"),sheet="ALLSPECIES")  )
+SKEY <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="ALLSPECIES")  )
 #SKEY$SPECIES_PK <- as.character(SKEY$SPECIES_PK)
 SKEY            <- SKEY[,-(2:7)]
 Z               <- merge(Z,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
@@ -135,7 +135,7 @@ ggplot(data=Test[GROUP_FK==230&AREA_C=="Tutuila"])+geom_line(aes(x=PERIOD,y=Prop
 
 
 # Output table for further use
-saveRDS(Final,file=paste0(root_dir,"\\Outputs\\BBS_Prop_Table.rds"))
+saveRDS(Final,file=paste0(root_dir,"/Outputs/BBS_Prop_Table.rds"))
 
 #============================Apply the species proportion table to the CPUE data for CPUE indices purposes===============================================================
 
