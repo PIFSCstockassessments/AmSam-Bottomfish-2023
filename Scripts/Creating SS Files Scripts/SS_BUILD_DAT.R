@@ -62,8 +62,8 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
   ## STEP 4. Change inputs for dat file
   
   DAT$Comments        <- paste("#C data file for", species, sep = " ")
-  DAT$styr            <- min(catch.sp$year)
-  DAT$endyr           <- max(catch.sp$year)
+  DAT$styr            <- startyr
+  DAT$endyr           <- endyr
   DAT$nseas           <- 1
   DAT$months_per_seas <- 12
   DAT$Nsubseasons     <- 2 #minimum number is 2
