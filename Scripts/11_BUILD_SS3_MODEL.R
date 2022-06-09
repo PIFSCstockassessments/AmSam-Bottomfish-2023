@@ -84,7 +84,7 @@ build_all_ss <- function(species,
   ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   # Control and data file inputs
   ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
-                           sheet=species)
+                           sheet=species, range = "A:Q")
   
   
   ## Step 2. Source scripts with each function ###-------------------------------------

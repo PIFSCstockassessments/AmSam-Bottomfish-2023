@@ -2,9 +2,9 @@ require(tidyverse); require(this.path); require(data.table);  require(openxlsx)
 options(scipen=999)		
 
 root_dir <- this.path::here(..=1)
-
-A <- readRDS(paste0(root_dir,"\\Outputs\\CATCH_BBS_A.rds")) # Boat-based catch
-B <- readRDS(paste0(root_dir,"\\Outputs\\CATCH_SBS_A.rds")) # Shore-based catch
+dir.create(file.path(root_dir, "Outputs", "Summary"))
+A <- readRDS(paste0(root_dir,"/Outputs/CATCH_BBS_A.rds")) # Boat-based catch
+B <- readRDS(paste0(root_dir,"/Outputs/CATCH_SBS_A.rds")) # Shore-based catch
 
 S <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS")
 S$SPECIES_PK <- paste0("S",S$SPECIES_PK)

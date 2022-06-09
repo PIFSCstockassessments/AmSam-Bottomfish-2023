@@ -85,7 +85,7 @@ build_control <- function(species = species,
   ## Spawner-Recruitment
   CTL$SR_function         <- ctl.sps$SR_function #beverton holt
   CTL$Use_steep_init_equi <- ctl.sps$Use_steep_init_equi #not using in initial equ recruitment calculation
-  # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn, PType
+  # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn
   CTL$SR_parms <- ctl.params %>%
     filter(str_detect(category, "SR")) %>%
     filter(str_detect(OPTION, SR_option)) %>%
@@ -137,7 +137,7 @@ build_control <- function(species = species,
   CTL$Q_parms <- ctl.params %>%
     filter(str_detect(category, "Q")) %>%
     filter(str_detect(OPTION, Q_option)) %>%
-    select(-c(category, OPTION, Ptype)) %>%
+    select(-c(category, OPTION)) %>%
     column_to_rownames("X1")
 
 
@@ -150,7 +150,7 @@ build_control <- function(species = species,
     CTL$size_selex_parms <- ctl.params %>%
       filter(str_detect(category, "selex_size")) %>%
       filter(str_detect(OPTION, LSEL_option)) %>%
-      select(-c(category, OPTION, "X1", Ptype)) %>% 
+      select(-c(category, OPTION, "X1")) %>% 
       as.data.frame()
 
   }else{
@@ -167,7 +167,7 @@ build_control <- function(species = species,
     CTL$age_selex_parms <- ctl.params %>%
       filter(str_detect(category, "selex_age")) %>%
       filter(str_detect(OPTION, ASEL_option)) %>%
-      select(-c(category, OPTION, "X1", Ptype)) %>% 
+      select(-c(category, OPTION, "X1")) %>% 
       as.data.frame()
 
   }else{

@@ -79,7 +79,7 @@ setnames(D,"SPECIES_FK2","SPECIES_FK")
 # ============= Calculate species proportion table for shore-based surveys (see 02_BBS_proptable code)=============================
 
 # Append species group association table
-SKEY            <- data.table(  read.xlsx(paste0(root_dir,"\\Data\\METADATA.xlsx"),sheet="ALLSPECIES")  )
+SKEY            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="ALLSPECIES")  )
 SKEY$SPECIES_PK <- as.character(SKEY$SPECIES_PK)
 SKEY            <- SKEY[,-(2:7)]
 D               <- merge(D,SKEY,by.x="SPECIES_FK",by.y="SPECIES_PK")
