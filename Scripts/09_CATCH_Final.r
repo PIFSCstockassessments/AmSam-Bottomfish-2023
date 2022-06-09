@@ -32,7 +32,6 @@ ggplot(D,aes(x=YEAR,y=BOTTOMFISH_LBS,fill=AREA_C))+geom_bar(stat="identity",posi
 D$SOURCE     <- "Historic"
 D$SD.LBS     <- 0
 D            <- select(D,SOURCE,SPECIES_FK,YEAR,AREA_C,LBS,SD.LBS)
-D$SPECIES_FK <- paste0("S",D$SPECIES_FK)
 }
 
 # Option 2: use a mix of proportions, including from the old reports
