@@ -1,6 +1,6 @@
 # Check if all required packages are installed, and install if not. Note: You need r4ss v.1.44.0 and ss3diags obtained from github repos.
 require(pacman)
-pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis,r4ss)
+pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis,r4ss,nFactors,openxlsx)
 
 ########## DOWNLOAD DATA FROM GOOGLE DRIVE ###############
 # Check latest data from Google Drive but only download if its more recent than on local repo
@@ -43,7 +43,7 @@ for(i in 1:length(Species.List)){
 }
 
 # Or run a single model
-#Standardize_CPUE(Sp = "VALO" , Ar = c("Tutuila","Manua") [1])
+Standardize_CPUE(Sp = "APVI" , Ar = c("Tutuila","Manua") [1])
 #Sp<-"LERU"; Ar<-"Tutuila"; minYr=1988; maxYr=2021
 
 ###################### RUN STOCK SYNTHESIS #############################################
@@ -53,7 +53,7 @@ source(paste0(here(..=1),"/Scripts/11_BUILD_SS3_MODEL.R"))
 # Run for a single species
 build_all_ss(species = "APVI",
              scenario = "base",
-             startyr = 1980,
+             startyr = 1967,
              endyr = 2021,
              fleets = 1,
              M_option = "Option1",
@@ -74,21 +74,24 @@ build_all_ss(species = "APVI",
              Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
              Bmark_relF_Basis = 1,
              Forecast = 1,
-             Nforeyrs = 10, 
+             Nforeyrs = 1, 
              Fcast_years = c(0,0,-10,0,-999,0),
              ControlRule = 0,
              root_dir = this.path::here(.. = 1),
-             file_dir = "base",
+             file_dir = "BASE_bio",
              template_dir = file.path(this.path::here(.. = 1), "SS3 models", "TEMPLATE_FILES"), 
              out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
              runmodels = TRUE,
-             ext_args = "-stopph 3 -nohess",
-             printreport = T,
+             ext_args = "-nohess",
+             printreport = F,
              r4ssplots = T
              )
 
 
+report <- SS_output(file.path(this.path::here(.. = 1), "SS3 models", species, file_dir))
+SSplotBiology(report, subplots = 1)
 
+SS_tune_comps(report, option = "DM", dir = file.path(root_dir, "SS3 models", species, file_dir))
 
 # Build and run models for all species in a loop
 Species.List <- c("APRU", "APVI", "CALU", "LERU", "LUKA", "ETCO", "PRFL", "PRZO", "VALO")

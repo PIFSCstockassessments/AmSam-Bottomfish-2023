@@ -84,7 +84,7 @@ build_all_ss <- function(species,
   ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   # Control and data file inputs
   ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
-                           sheet=species, range = "A:Q")
+                           sheet=species)
   
   
   ## Step 2. Source scripts with each function ###-------------------------------------
@@ -100,13 +100,26 @@ build_all_ss <- function(species,
     dir.create(file.path(root_dir, "SS3 models", species, file_dir))
   }
   
-  # Start and End year
-  # startyr <- catch %>% 
-  #   filter(SPECIES == species) %>% 
-  #   summarise(min(YEAR)) %>% pull()
-  # endyr <- catch %>% 
-  #   filter(SPECIES == species) %>% 
-  #   summarise(max(YEAR)) %>% pull()
+  ## Create text file with notes from CTL_params sheet for reference
+  cat("**Notes on Parameters** \n")
+  sink(file.path(root_dir, "SS3 models", species, file_dir,"model_options.txt"))
+  
+  cat(paste0("M: ", M_option, ", ", ctl.params$Notes[which(ctl.params$category == "MG" & 
+                                                             ctl.params$OPTION == M_option &
+                                                             ctl.params$X1 == "NatM_p_1_Fem_GP_1")] ,"\n"))
+  
+  cat(paste0("Growth: ", M_option, ", ", ctl.params$Notes[which(ctl.params$category == "MG" & 
+                                                                  ctl.params$OPTION == M_option &
+                                                                  ctl.params$X1 == "L_at_Amin_Fem_GP_2")] ,"\n"))
+  
+  cat(paste0("Stock-Recruit: ", SR_option, ", ", ctl.params$Notes[which(ctl.params$category == "SR" & 
+                                                                  ctl.params$OPTION == SR_option &
+                                                                  ctl.params$X1 == "SR_LN(R0)")] ,"\n"))
+  
+  sink()
+  
+  ## Remove notes column 
+  ctl.params <- select(ctl.params, -Notes)
   
   Nfleets <- length(fleets)
   
