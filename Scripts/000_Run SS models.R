@@ -13,10 +13,12 @@ build_all_ss(species = "APVI",
              endyr = 2021,
              fleets = 1,
              M_option = "Option1",
+             GROWTH_option = "Option1",
+             LW_option = "Option1",
+             MAT_option = "Option1",
              SR_option = "Option1",
-             Q_option = "Option1",
-             LSEL_option = "Option1",
-             ASEL_option = "Option1",
+             EST_option = "Option1",
+             lambdas = NULL,
              includeCPUE = TRUE,
              init_values = 0, 
              parmtrace = 0,
@@ -40,7 +42,7 @@ build_all_ss(species = "APVI",
              runmodels = TRUE,
              ext_args = "-nohess",
              printreport = F,
-             r4ssplots = T
+             r4ssplots = F
 )
 
 

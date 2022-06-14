@@ -14,12 +14,17 @@ build_control <- function(species = species,
                           includeCPUE = TRUE,
                           Q.options = Q.options,
                           M_option = "Option1",
+                          GROWTH_option = "Option1",
+                          LW_option = "Option1",
+                          MAT_option = "Option1",
                           SR_option = "Option1",
-                          Q_option = "Option1",
-                          LSEL_option = "Option1",
-                          ASEL_option = "Option1",
+                          EST_option = "Option1",
+                          #Q_option = "Option1",
+                          #LSEL_option = "Option1",
+                          #ASEL_option = "Option1",
                           size_selex_types = size_selex_types,
                           age_selex_types = age_selex_types,
+                          lambdas = NULL,
                           file_dir = "base",
                           template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
                           out_dir = file.path(root_dir, "SS3 models")){
@@ -75,11 +80,22 @@ build_control <- function(species = species,
 
   ## Growth Parameters
   # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn
-  CTL$MG_parms <- ctl.params %>%
-    filter(str_detect(category, "MG")) %>%
-    filter(str_detect(OPTION, M_option)) %>%
-    select(-c(category, OPTION)) %>%
-    column_to_rownames("X1")
+  # CTL$MG_parms <- ctl.params %>%
+  #   filter(str_detect(category, "M|GROWTH|LW|MAT")) %>%
+  #   filter(str_detect(OPTION, M_option)) %>%
+  #   select(-c(category, OPTION)) %>%
+  #   column_to_rownames("X1")
+  
+  
+  M <- ctl.params[which(ctl.params$category == "M" & ctl.params$OPTION == M_option & ctl.params$X1 == "NatM_p_1_Fem_GP_1"),]
+  MG <- ctl.params[which(ctl.params$category == "GROWTH" & ctl.params$OPTION == GROWTH_option),]
+  LW <- ctl.params[which(ctl.params$category == "LW" & ctl.params$OPTION == LW_option),]
+  MAT <- ctl.params[which(ctl.params$category == "MAT" & ctl.params$OPTION == MAT_option),]
+  
+ CTL$MG_parms <- bind_rows(M, MG, LW, MAT) %>% 
+   select(-c(category, OPTION)) %>%
+   column_to_rownames("X1")
+   
 
   CTL$MGparm_seas_effects <- unlist(select(ctl.sps, contains("Mgparm_seas")))
   ## Spawner-Recruitment
@@ -91,7 +107,12 @@ build_control <- function(species = species,
     filter(str_detect(OPTION, SR_option)) %>%
     select(-c(category, OPTION)) %>%
     column_to_rownames("X1")
-
+  R0 <- ctl.params[which(ctl.params$X1 == "SR_LN(R0)" & ctl.params$OPTION == EST_option),]
+  
+  CTL$SR_parms <- R0 %>% select(-c(category, OPTION)) %>%
+    column_to_rownames("X1") %>% 
+    bind_rows(CTL$SR_parms)
+  
   CTL$do_recdev <- ctl.sps$do_recdev
   if(CTL$do_recdev == 1){
 
@@ -135,21 +156,27 @@ build_control <- function(species = species,
 
   # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn
   CTL$Q_parms <- ctl.params %>%
-    filter(str_detect(category, "Q")) %>%
-    filter(str_detect(OPTION, Q_option)) %>%
+    filter(str_detect(category, "EST")) %>%
+    filter(str_detect(X1, "Q")) %>% 
+    filter(str_detect(OPTION, EST_option)) %>%
     select(-c(category, OPTION)) %>%
     column_to_rownames("X1")
 
 
   ## Selectivity
-  size.parms <- ctl.params %>% filter(str_detect(category, "selex_size")) %>% nrow()
+  size.parms <- ctl.params %>% 
+    filter(str_detect(category, "EST")) %>% 
+    filter(str_detect(X1, fixed("size", ignore_case = TRUE))) %>% 
+    nrow()
+  
   if(size.parms > 0){
 
     CTL$size_selex_types <- size_selex_types
 
     CTL$size_selex_parms <- ctl.params %>%
-      filter(str_detect(category, "selex_size")) %>%
-      filter(str_detect(OPTION, LSEL_option)) %>%
+      filter(str_detect(category, "EST")) %>% 
+      filter(str_detect(X1, fixed("size", ignore_case = TRUE))) %>%
+      filter(str_detect(OPTION, EST_option)) %>%
       select(-c(category, OPTION, "X1")) %>% 
       as.data.frame()
 
@@ -160,13 +187,15 @@ build_control <- function(species = species,
 
   }
 
-  age.parms <- ctl.params %>% filter(str_detect(category, "selex_age")) %>% nrow()
+  age.parms <- ctl.params %>%filter(str_detect(category, "EST")) %>% 
+    filter(str_detect(X1, fixed("age", ignore_case = TRUE))) %>% nrow()
   if(age.parms > 0){
 
     CTL$age_selex_types <- age_selex_types
     CTL$age_selex_parms <- ctl.params %>%
-      filter(str_detect(category, "selex_age")) %>%
-      filter(str_detect(OPTION, ASEL_option)) %>%
+      filter(str_detect(category, "EST")) %>% 
+      filter(str_detect(X1, fixed("age", ignore_case = TRUE))) %>%
+      filter(str_detect(OPTION, EST_option)) %>%
       select(-c(category, OPTION, "X1")) %>% 
       as.data.frame()
 
@@ -192,7 +221,7 @@ build_control <- function(species = species,
   ## Likelihoods
   # Table with column names: like_comp, fleet, phase, value, and sizefreq_method
   # Only needed if values are different from 1
-  if(exists("lambdas")){
+  if(!is.null(lambdas)){
     CTL$lambdas <- lambdas
     CTL$N_lambdas <- nrow(lambdas)
   }else{

@@ -43,10 +43,12 @@ build_all_ss <- function(species,
                          endyr = 2021,
                          fleets = 1,
                          M_option = "Option1",
+                         GROWTH_option = "Option1",
+                         LW_option = "Option1",
+                         MAT_option = "Option1",
                          SR_option = "Option1",
-                         Q_option = "Option1",
-                         LSEL_option = "Option1",
-                         ASEL_option = "Option1",
+                         EST_option = "Option1",
+                         lambdas = NULL,
                          includeCPUE = TRUE,
                          init_values = 0, 
                          parmtrace = 0,
@@ -101,7 +103,6 @@ build_all_ss <- function(species,
   }
   
   ## Create text file with notes from CTL_params sheet for reference
-  cat("**Notes on Parameters** \n")
   sink(file.path(root_dir, "SS3 models", species, file_dir,"model_options.txt"))
   
   cat(paste0("M: ", M_option, ", ", ctl.params$Notes[which(ctl.params$category == "MG" & 
@@ -247,12 +248,14 @@ build_all_ss <- function(species,
     includeCPUE = includeCPUE,
     Q.options = Q.options,
     M_option = M_option,
+    GROWTH_option = GROWTH_option,
+    LW_option = LW_option,
+    MAT_option = MAT_option,
     SR_option = SR_option,
-    Q_option = Q_option,
-    LSEL_option = LSEL_option,
-    ASEL_option = ASEL_option,
+    EST_option = EST_option,
     size_selex_types = size_selex_types,
     age_selex_types = age_selex_types,
+    lambdas = lambdas,
     file_dir = file_dir,
     template_dir = template_dir,
     out_dir = out_dir
