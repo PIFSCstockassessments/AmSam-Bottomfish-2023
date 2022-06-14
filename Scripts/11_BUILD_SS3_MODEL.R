@@ -6,11 +6,14 @@
 #' @param startyr start year of the model
 #' @param endyr end year of the model
 #' @param fleets an integer or vector of integers of fleet id numbers (tutuila = 1, manua = 2), default is 1
-#' @param M_option which option being used for natural mortality (found in CTL_parameters.xlsx), default is "Option1"
-#' @param SR_option see M_option (stock-recruitment)
+#' @param M_option which option being used for natural mortality and Nages (found in CTL_parameters.xlsx), default is "Option1"
+#' @param GROWTH_option see M_option (growth curve parameters: Lamin, Lamax, k, CV young & CV old)
+#' @param LW_option see M_option (length-weight relationship)
+#' @param MAT_option see M_option (maturity and fecundity: L50, L95,a,b,cohort growth, frac female)
+#' @param SR_option see M_option (stock-recruitment, except R0)
 #' @param Q_option see M_option (catchability)
-#' @param LSEL_option see M_option (length-selectivity)
-#' @param ASEL_option see M_option (age-selectivity)
+#' @param EST_option see M_option (model estimated parameters: R0, Q, selectivity)
+#' @param lambdas dataframe of lambda values, default is NULL 
 #' @param includeCPUE default is true, if excluding CPUE, set to FALSE
 #' @param init_values use ss.par file to run ss model (1), or no (0) (starter.ss input)
 #' @param parmtrace can switch to 1 to turn on, helpful for debugging model (starter.ss input)
