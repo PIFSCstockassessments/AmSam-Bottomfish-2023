@@ -87,7 +87,7 @@ build_control <- function(species = species,
   #   column_to_rownames("X1")
   
   
-  M <- ctl.params[which(ctl.params$category == "M" & ctl.params$OPTION == M_option & ctl.params$X1 == "NatM_p_1_Fem_GP_1"),]
+  M <- ctl.params %>% filter(str_detect(category, "M") & OPTION == M_option & str_detect(X1, "NatM_p_1_Fem"))
   MG <- ctl.params[which(ctl.params$category == "GROWTH" & ctl.params$OPTION == GROWTH_option),]
   LW <- ctl.params[which(ctl.params$category == "LW" & ctl.params$OPTION == LW_option),]
   MAT <- ctl.params[which(ctl.params$category == "MAT" & ctl.params$OPTION == MAT_option),]
