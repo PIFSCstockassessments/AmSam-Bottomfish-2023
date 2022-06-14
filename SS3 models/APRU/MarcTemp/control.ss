@@ -34,7 +34,7 @@
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
 5 #_Age(post-settlement)_for_L1;linear growth below this
-25 #_Growth_Age_for_L2 (999 to use as Linf)
+999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
 #
@@ -42,7 +42,7 @@
 0 #_CV_Growth_Pattern:  0 CV=f(LAA); 1 CV=F(A); 2 SD=F(LAA); 3 SD=F(A); 4 logSD=F(A)
 1 #_maturity_option:  1=length logistic; 2=age logistic; 3=read age-maturity matrix by growth_pattern; 4=read age-fecundity; 5=disabled; 6=read length-maturity
 1 #_First_Mature_Age
-2 #_fecundity option:(1)eggs=Wt*(a+b*Wt);(2)eggs=a*L^b;(3)eggs=a*Wt^b; (4)eggs=a+b*L; (5)eggs=a+b*W
+1 #_fecundity option:(1)eggs=Wt*(a+b*Wt);(2)eggs=a*L^b;(3)eggs=a*Wt^b; (4)eggs=a+b*L; (5)eggs=a+b*W
 0 #_hermaphroditism option:  0=none; 1=female-to-male age-specific fxn; -1=male-to-female age-specific fxn
 1 #_parameter_offset_approach (1=none, 2= M, G, CV_G as offset from female-GP1, 3=like SS2 V1.x)
 #
@@ -74,7 +74,7 @@
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
 0.1	30	     8.5	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
-0.2	 1	0.717591	0	0	0	  2	0	0	0	0	0	0	0	#_SR_BH_steep
+0.2	 1	0.717591	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
   0	 2	0.448452	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	 5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
   0	 0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
@@ -114,8 +114,7 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-15	40	25	  50	0	0	3	0	0	0	0	0	0	0	#_1
- 0	10	 3	-1.7	0	0	3	0	0	0	0	0	0	0	#_2
+15	40	25	50	0	0	3	0	0	0	0	0	0	0	#_1
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
