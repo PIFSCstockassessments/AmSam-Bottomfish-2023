@@ -70,11 +70,7 @@ Z[is.na(LOGSD.MT)]$LOGSD.MT <- 0
 
 Z <- select(Z,SPECIES,YEAR,MT,LOGSD.MT)  
 
-Z[YEAR<=1985]$LOGSD.MT <- 0.8
-
-
-
-
+Z[YEAR<=1985]$LOGSD.MT <- 0.8 # Add some uncertainty to historic catch
 saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
 
 
