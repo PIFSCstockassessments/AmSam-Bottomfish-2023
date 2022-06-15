@@ -33,7 +33,7 @@
 0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=Maunder_M;_6=Age-range_Lorenzen
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
-5 #_Age(post-settlement)_for_L1;linear growth below this
+1.25 #_Age(post-settlement)_for_L1;linear growth below this
 999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
@@ -48,15 +48,15 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	    0.22	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-   10	     60	      40	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
-   50	    100	    84.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
- 0.05	   0.25	   0.125	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+    0	      2	     0.2	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
+   10	     60	      25	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_2       
+   50	    100	   72.02	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_2       
+ 0.05	    0.5	    0.33	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_2       
  0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
  0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
-   -1	      3	5.82e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	    2.77	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   35	     60	    46.9	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
+   -1	      3	1.33e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+   -1	      4	   3.008	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+   35	     60	      45	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
    -3	      3	   -0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
@@ -73,9 +73,9 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-  1	30	     8.5	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
-0.2	 1	0.717591	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	 2	0.448452	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+  1	30	      10	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.2	 1	0.806835	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
+  0	 2	0.392145	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	 5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
   0	 0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
@@ -114,8 +114,8 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-15	45	25	0	0	0	3	0	0	0	0	0	0	0	#_1
- 0	15	 3	0	0	0	3	0	0	0	0	0	0	0	#_2
+15	45	37.7	0	0	0	3	0	0	0	0	0	0	0	#_1
+ 0	15	 5.7	0	0	0	3	0	0	0	0	0	0	0	#_2
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
