@@ -69,6 +69,12 @@ Z$LOGSD.MT <- sqrt( log((Z$SD.MT/Z$MT)^2+1)   )
 Z[is.na(LOGSD.MT)]$LOGSD.MT <- 0  
 
 Z <- select(Z,SPECIES,YEAR,MT,LOGSD.MT)  
+
+Z[YEAR<=1985]$LOGSD.MT <- 0.8
+
+
+
+
 saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
 
 
