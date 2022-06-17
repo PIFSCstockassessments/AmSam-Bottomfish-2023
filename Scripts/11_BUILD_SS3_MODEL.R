@@ -237,7 +237,7 @@ build_all_ss <- function(species,
     bin.list = BIN.LIST,
     fleets = fleets,
     fleetinfo = fleetinfo,
-    lbin_method = 1,
+    lbin_method = 2,
     file_dir = file_dir,
     template_dir = template_dir,
     out_dir = out_dir

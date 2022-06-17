@@ -118,8 +118,6 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
   if(exists("lencomp.sp")){
     
     ## Length Composition 
-    DAT$use_lencomp <- 1 #switch to 0 if not using length comp data 
-    
     DAT$len_info    <- data.frame(mintailcomp = rep(0, DAT$Nfleets),
                                addtocomp      = rep(0.0000001, DAT$Nfleets),
                                combine_M_F    = rep(0, DAT$Nfleets),
@@ -127,6 +125,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
                                CompError      = rep(0, DAT$Nfleets),
                                ParmSelect     = rep(0, DAT$Nfleets),
                                minsamplesize  = rep(1, DAT$Nfleets))
+    
     DAT$N_lbins     <- length(select(lencomp.sp, starts_with("l")))
     lbin_vector <- colnames(lencomp.sp[-c(1:6)])
     DAT$lbin_vector <- as.numeric(str_sub(lbin_vector, 2))
@@ -185,9 +184,10 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
   DAT$lbin_method <- lbin_method 
   if(DAT$lbin_method == 2){
     
-    DAT$binwidth     <- as.numeric(BIN.LIST[which(BIN.LIST$SPECIES == species), "BINWIDTH"])
-    DAT$minimum_size <- as.numeric(BIN.LIST[which(BIN.LIST$SPECIES == species), "pop_min"]) #lower size of first bin
-    DAT$maximum_size <- as.numeric(BIN.LIST[which(BIN.LIST$SPECIES == species), "pop_max"]) #lower size of largest bin 
+    DAT$binwidth     <- 1
+    DAT$minimum_size <- 1 #lower size of first bin
+    DAT$maximum_size <- BIN.LIST %>% filter(str_detect(SPECIES, species)) %>% pull(max) + 10 #lower size of largest bin 
+    
     
   }
   if(DAT$lbin_method == 3){
