@@ -174,7 +174,8 @@ build_all_ss <- function(species,
     mutate(Male = 0,
            Special = 0) %>% 
     setNames(c("Pattern", "Discard", "Male", "Special")) %>% 
-    as.data.frame()
+    as.data.frame() %>% 
+    slice(rep(1:n(), each = Nfleets)) #assume same selectivity pattern for both areas
   
   age_selex_types <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 
@@ -183,14 +184,16 @@ build_all_ss <- function(species,
     mutate(Male = 0,
            Special = 0) %>% 
     setNames(c("Pattern", "Discard", "Male", "Special")) %>% 
-    as.data.frame()
+    as.data.frame() %>% 
+    slice(rep(1:n(), each = Nfleets)) #assume same selectivity pattern for both areas
     
   # Catchability options
   Q.options <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 
     filter(str_detect(Parameter, "Q.opt")) %>% 
     mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
-             as.numeric()) %>% 
+             as.numeric(),
+           Parameter = str_remove_all(Parameter, "_[0-9]*$")) %>% 
     filter(Fleet %in% fleets) %>% 
     pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
     setNames(c("fleet", "link", "link_info", "extra_se", "biasadj", "float"))
@@ -209,19 +212,23 @@ build_all_ss <- function(species,
     filter(str_detect(Parameter, "catch_mult")) %>% 
     mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
              as.numeric()) %>% 
-    filter(Fleet %in% 1) %>% 
+    filter(Fleet %in% fleets) %>% 
     pull(paste0(species))
   
-  fleetinfo <- data.frame(
-    type = 1,
-    surveytiming = -1,
-    units = 1,
-    area = 1,
-    need_catch_mult = 0,
-    fleetname = "FISHERY"
-  )
-  fleetinfo$need_catch_mult <- need_catch_mult
+  fleetid <- seq(1, Nfleets)
+  fleetid[1] <- "FISHERY"
+  fleetid[-1] <- paste0("SURVEY", fleetid[-1])
+  fleetname <- fleetid
   
+  fleetinfo <- data.frame(
+    type = c(1,rep(3, Nfleets-1)), 
+    surveytiming = c(-1, rep(1, Nfleets-1)), 
+    units = rep(1, Nfleets),
+    area = rep(1, Nfleets),
+    need_catch_mult = need_catch_mult,
+    fleetname = fleetname
+  )
+ 
   
   ## Step 4. Create SS3 input files
   build_dat(
