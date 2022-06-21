@@ -2,6 +2,10 @@ require(data.table); require(tidyverse); require(gridExtra); require(directlabel
 options(scipen = 999)
 root_dir <- this.path::here(.. = 1) 
 
+if(!exists(paste0(root_dir, "/Outputs/Summary"))){
+  dir.create(paste0(root_dir, "/Outputs/Summary"))
+}
+
 Z <- readRDS(paste0(root_dir,"/Outputs/CPUE_A.rds"))
 Z <- select(Z,YEAR,AREA_C,SPECIES_FK,INTERVIEW_PK,CATCH_PK,SCIENTIFIC_NAME,METHOD_FK,EST_LBS)
 Z <- Z[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,YEAR,AREA_C,SPECIES_FK,SCIENTIFIC_NAME,METHOD_FK)]

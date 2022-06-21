@@ -2,7 +2,7 @@ require(tidyverse); require(this.path); require(data.table);  require(openxlsx)
 options(scipen=999)		
 
 root_dir <- this.path::here(..=1)
-dir.create(file.path(root_dir, "Outputs", "Summary"))
+#dir.create(file.path(root_dir, "Outputs", "Summary"))
 A <- readRDS(paste0(root_dir,"/Outputs/CATCH_BBS_A.rds")) # Boat-based catch
 B <- readRDS(paste0(root_dir,"/Outputs/CATCH_SBS_A.rds")) # Shore-based catch
 

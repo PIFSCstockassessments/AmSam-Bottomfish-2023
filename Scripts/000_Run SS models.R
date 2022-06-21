@@ -46,10 +46,20 @@ build_all_ss(species = "APVI",
 )
 
 
-report <- SS_output(file.path(this.path::here(.. = 1), "SS3 models", species, file_dir))
-SSplotBiology(report, subplots = 1)
+source(paste0(here(..=1),"/Scripts/12_RUN_DIAGS.R"))
 
-SS_tune_comps(report, option = "DM", dir = file.path(root_dir, "SS3 models", species, file_dir))
+run_diags(root_dir = this.path::here(.. = 1),
+          species = "APVI",
+          file_dir = "test",
+          do_retro = TRUE,
+          retro_years = 0:-3,
+          do_profile = FALSE,
+          profile = "SR_LN(R0)",
+          profile.vec = seq(8.2, 8.4, .1),
+          do_jitter = FALSE,
+          Njitter = 2,
+          jitterFraction = 0.1
+)
 
 # Build and run models for all species in a loop
 Species.List <- c("APRU", "APVI", "CALU", "LERU", "LUKA", "ETCO", "PRFL", "PRZO", "VALO")
