@@ -170,12 +170,20 @@ build_all_ss <- function(species,
   size_selex_types <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 
     filter(str_detect(Parameter, "size_selex")) %>% 
+    mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
+             as.numeric(),
+           Fleet = str_replace_na(Fleet, replacement = "1"),
+           Parameter = str_remove_all(Parameter, "_[0-9]*$")
+           ) %>% 
     pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
-    mutate(Male = 0,
-           Special = 0) %>% 
+    mutate(Male = 0) %>% 
+    select(size_selex_pattern, size_selex_discard, Male, size_selex_special) %>% 
     setNames(c("Pattern", "Discard", "Male", "Special")) %>% 
-    as.data.frame() %>% 
-    slice(rep(1:n(), each = Nfleets)) #assume same selectivity pattern for both areas
+    as.data.frame() 
+  
+  if(Nfleets > 1){
+    
+  }
   
   age_selex_types <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 

@@ -126,7 +126,7 @@
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
 1	0	0	0	#_1 1
-1	0	0	0	#_2 2
+5	0	0	1	#_2 2
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
@@ -135,10 +135,10 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-15	45	37.7	0	0	0	3	0	0	0	0	0	0	0	#_1
- 0	15	 5.7	0	0	0	3	0	0	0	0	0	0	0	#_2
-15	45	37.7	0	0	0	3	0	0	0	0	0	0	0	#_3
- 0	15	 5.7	0	0	0	3	0	0	0	0	0	0	0	#_4
+15	45	37.7	0	0	0	 3	0	0	0	0	0	0	0	#_1
+ 0	15	 5.7	0	0	0	 3	0	0	0	0	0	0	0	#_2
+-1	10	   0	0	0	0	-3	0	0	0	0	0	0	0	#_3
+-1	10	   0	0	0	0	-3	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
