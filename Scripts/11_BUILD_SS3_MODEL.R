@@ -262,6 +262,7 @@ build_all_ss <- function(species,
   build_control(
     species = species,
     scenario = scenario,
+    Nfleets = Nfleets,
     ctl.inputs = ctl.inputs,
     ctl.params = ctl.params,
     includeCPUE = includeCPUE,

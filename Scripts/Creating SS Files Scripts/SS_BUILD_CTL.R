@@ -9,6 +9,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 build_control <- function(species = species,
                           scenario = "base",
+                          Nfleets = Nfleets,
                           ctl.inputs = ctl.inputs,
                           ctl.params = ctl.params,
                           includeCPUE = TRUE,
