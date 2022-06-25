@@ -175,6 +175,7 @@ build_all_ss <- function(species,
            Fleet = str_replace_na(Fleet, replacement = "1"),
            Parameter = str_remove_all(Parameter, "_[0-9]*$")
            ) %>% 
+    filter(Fleet %in% fleets) %>% 
     pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
     mutate(Male = 0) %>% 
     select(size_selex_pattern, size_selex_discard, Male, size_selex_special) %>% 
