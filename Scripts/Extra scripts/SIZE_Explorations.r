@@ -92,11 +92,15 @@ BB$LFC    <- BB$LFC*0.453592*1000         # Convert to grams
 BB$LFC    <- (BB$LFC/BB$LW_A)^(1/BB$LW_B) # Mean Length-from-Catch
 BB[N_SIZEPK!=NUM_KEPT]$LFC  <- NA         # Remove interviews where N of SIZE_PK is different from NUM_KEPT (likely unreliable size data)
 
-BB <- select(BB,INTERVIEW_PK,YEAR,SPECIES,LMAX,LFW,LFL,LFC)
-BC <- melt(BB,id.vars = 1:4,variable.name = "LSOURCE",value.name="LENGTH")
-BD <- BC[,list(LENGTH=mean(LENGTH,na.rm=T),N=.N),by=list(SPECIES,LMAX,LSOURCE,YEAR)]
-BD <- BD[order(SPECIES,YEAR,LSOURCE)]
+# Add time period
+TIMEPERIOD <- 10 #years
+BB$TP      <- BB$YEAR - (BB$YEAR %% TIMEPERIOD) + TIMEPERIOD/2
 
+BB <- select(BB,INTERVIEW_PK,YEAR,TP,SPECIES,LMAX,NUM_KEPT,LFW,LFL,LFC)
+BC <- melt(BB,id.vars = 1:6,variable.name = "LSOURCE",value.name="LENGTH")
+BD <- BC[,list(LENGTH=mean(LENGTH,na.rm=T),N=.N),by=list(SPECIES,LMAX,LSOURCE,TP,YEAR)]
+BD <- BD[order(SPECIES,YEAR,LSOURCE)]
+BE <- BC[NUM_KEPT>1,list(LENGTH=mean(LENGTH,na.rm=T),N=.N),by=list(SPECIES,LMAX,LSOURCE,TP,YEAR)]
 
 ggplot(data=BB[!(is.na(LFL)|is.na(LFW))],aes(x=LFL,y=LFW))+geom_point(aes(col=SPECIES))+geom_abline(intercept=0, slope=1)+facet_wrap(~SPECIES,scales="free_y")+theme(legend.position="none")
 ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfromW vs Lengths.png"),width=8,height=6,units="in")
@@ -110,15 +114,20 @@ ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/
 ggplot(data=BD[N>=15],aes(x=YEAR,y=LENGTH))+geom_line(aes(col=LSOURCE),size=1)+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
 ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods_N15.png"),width=8,height=4,units="in")
 
-# Check ML by time period, to see if we can use superyears in SS
-TIMEPERIOD <- 10 #years
-BD$TP      <- BD$YEAR - (BD$YEAR %% TIMEPERIOD) + TIMEPERIOD/2
-BE         <- BD[,list(LENGTH=mean(LENGTH,na.rm=T),N=sum(N)),by=list(SPECIES,LMAX,LSOURCE,TP)]
+ggplot(data=BE[N>=15&LSOURCE!="LFW"],aes(x=YEAR,y=LENGTH))+geom_line(aes(col=LSOURCE),size=1)+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHfrom3Methods_N0.png"),width=8,height=4,units="in")
 
-ggplot(data=BE[N>=15],aes(x=TP,y=LENGTH,col=LSOURCE))+geom_point(shape=95,size=5)+geom_line()+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+
+# Check ML by time period, to see if we can use superyears in SS
+
+BF     <- BD[,list(LENGTH=mean(LENGTH,na.rm=T),N=sum(N)),by=list(SPECIES,LMAX,LSOURCE,TP)]
+BG     <- BE[,list(LENGTH=mean(LENGTH,na.rm=T),N=sum(N)),by=list(SPECIES,LMAX,LSOURCE,TP)]
+
+ggplot(data=BF[N>=15],aes(x=TP,y=LENGTH,col=LSOURCE))+geom_point(shape=95,size=5)+geom_line()+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
 ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHbyPERIOD.png"),width=8,height=4,units="in")
 
-
+ggplot(data=BG[!(LSOURCE=="LFL"&TP==1995)&N>=10&LSOURCE!="LFW"],aes(x=TP,y=LENGTH,col=LSOURCE))+geom_point(shape=95,size=5)+geom_line()+facet_wrap(~SPECIES,scales="free_y")+theme_bw()
+ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LENGTHbyPERIOD_NUM_KEPTnot1.png"),width=8,height=4,units="in")
 
 
 
