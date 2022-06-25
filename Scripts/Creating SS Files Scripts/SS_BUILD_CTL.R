@@ -174,7 +174,8 @@ build_control <- function(species = species,
       filter(str_detect(category, "EST")) %>% 
       filter(str_detect(X1, fixed("size", ignore_case = TRUE))) %>%
       filter(str_detect(OPTION, EST_option)) %>%
-      select(-c(category, OPTION, "X1")) %>% 
+      slice_head(n = Nfleets*2) %>% 
+      select(-c(category, OPTION, "X1", Fleet)) %>% 
       as.data.frame()
 
   }else{
