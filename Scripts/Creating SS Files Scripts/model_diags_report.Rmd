@@ -116,7 +116,7 @@ SSplotRetro(retrosum,
 ```
 
 ### Hindcasting
-```{r eval =FALSE}
+```{r }
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
   sspar(mfrow = c(1,2))
 SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = 1)
@@ -137,7 +137,7 @@ SSplotRecdevs(report., subplots = c(2,3))
 
 ## Likelihood Profile
 
-```{r }
+```{r eval =FALSE }
 if(dir.exists(file.path(params$report, params$species, params$file_dir, paste0(params$profile, "_profile")))){
   r0.vec <- profile.vec
 Nprofile <- length(r0.vec)
