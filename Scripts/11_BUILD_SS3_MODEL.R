@@ -35,9 +35,19 @@
 #' @param out_dir first part of path to directory for saving files to, do not include species name or scenario
 #' @param runmodels default TRUE, runs ss model
 #' @param est_args extra arguments that can be added to ss call (i.e. -nohess)
+#' @param do_retro TRUE or FALSE to run retrospective
+#' @param retro_years years for retrospective peels, relative to end year, ie 0:-3 is 3 year peels
+#' @param do_profile TRUE or FALSE to run likelihood profiling
+#' @param profile string vector of parameter to profile, can be a vector of strings if changing multiple (ie "SR_LN(R0)")
+#' @param profile.vec vector of values to profile over for the parameter of interest
+#' @param do_jitter TRUE to run jitter analysis
+#' @param Njitter number of jitters to run
+#' @param jitterFraction increment of change for each jitter run
 #' @param printreport default TRUE, produces summary diagnostics report
 #' @param r4ssplots default is FALSE, will produce full r4ss output plots
 #' 
+#' 
+
 
 
 build_all_ss <- function(species,
@@ -75,6 +85,14 @@ build_all_ss <- function(species,
                          out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
                          runmodels = TRUE,
                          ext_args = "-stopph 3 -nohess",
+                         do_retro = TRUE,
+                         retro_years = 0:-5,
+                         do_profile = TRUE,
+                         profile = "SR_LN(R0)",
+                         profile.vec = seq(8.2, 8.4, .1),
+                         do_jitter = TRUE,
+                         Njitter = 200,
+                         jitterFraction = 0.1,
                          printreport = TRUE,
                          r4ssplots = TRUE
                          ){
@@ -321,6 +339,29 @@ build_all_ss <- function(species,
                   model = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
   }
   
+  if(r4ssplots){
+    report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
+                              verbose = FALSE, printstats = FALSE)
+    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
+    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir), pdf=TRUE, png=FALSE)
+    
+  }
+  
+  source(file.path(root_dir, "Scripts", "12_RUN_DIAGS.R"))
+  
+  run_diags(root_dir = root_dir,
+            species = species,
+            file_dir = file_dir,
+            do_retro = do_retro,
+            retro_years = retro_years,
+            do_profile = do_profile,
+            profile = profile,
+            profile.vec = profile.vec,
+            do_jitter = do_jitter,
+            Njitter = Njitter,
+            jitterFraction = jitterFraction
+  )
+  
   if(printreport){
     ### Create Summary Report ####
     rmarkdown::render(file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
@@ -330,17 +371,12 @@ build_all_ss <- function(species,
                         species = paste0(species),
                         scenario = scenario,
                         report = "../../SS3 models",
-                        file_dir = paste0(file_dir)
+                        file_dir = paste0(file_dir),
+                        retro_years = retro_years,
                       ))
   }
   
-  if(r4ssplots){
-    report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
-                        verbose = FALSE, printstats = FALSE)
-    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
-    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir), pdf=TRUE, png=FALSE)
-    
-  }
+
 
   
 } 
