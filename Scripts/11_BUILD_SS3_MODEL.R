@@ -372,7 +372,8 @@ build_all_ss <- function(species,
                         scenario = scenario,
                         report = "../../SS3 models",
                         file_dir = paste0(file_dir),
-                        retro_years = retro_years,
+                        profile = profile,
+                        profile_vec = profile.vec
                       ))
   }
   
