@@ -90,7 +90,7 @@ SSplotComps(report., subplots = 1, fleets = 1)
 
 ## Retrospective and Hindcasting  
 ### Retrospective 
-```{r message=FALSE, eval = FALSE}
+```{r message=FALSE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
   
   retro.dirs <- list.files(file.path(params$report, params$species, params$file_dir, "Retrospectives"),
