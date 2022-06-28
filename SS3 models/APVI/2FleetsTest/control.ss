@@ -33,7 +33,7 @@
 0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=Maunder_M;_6=Age-range_Lorenzen
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
-2 #_Age(post-settlement)_for_L1;linear growth below this
+3 #_Age(post-settlement)_for_L1;linear growth below this
 999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
@@ -48,16 +48,16 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	    0.22	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-   10	     60	      20	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_2       
-   50	    100	    84.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_2       
- 0.05	   0.25	   0.125	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_2       
- 0.05	   0.25	    0.13	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_2        
- 0.05	   0.25	    0.13	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_2          
-   -1	      3	5.82e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	    2.77	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   35	     60	    46.9	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
-   -3	      3	   -0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+    0	      2	     0.2	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
+   10	     60	    51.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   50	    100	    76.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
+ 0.05	    0.5	   0.136	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+ 0.05	   0.25	    0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	   0.25	    0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
+   -1	      3	1.18e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+   -1	      4	   3.043	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+   35	     60	    44.8	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
+   -4	      3	   -3.44	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
   0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
@@ -73,14 +73,14 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-  1	30	       6	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
-0.2	 1	0.717591	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	 2	0.448452	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
- -5	 5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
-  0	 0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
+  1	30	  10	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.2	 1	0.81	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
+  0	 2	0.39	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+ -5	 5	   0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
+  0	 0	   0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
 1 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
-1970 # first year of main recr_devs; early devs can preceed this era
+2004 # first year of main recr_devs; early devs can preceed this era
 2020 # last year of main recr_devs; forecast devs start in following year
 3 #_recdev phase
 1 # (0/1) to read 13 advanced options
@@ -88,14 +88,14 @@
 -4 #_recdev_early_phase
 0 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
-1998.7 #_last_yr_nobias_adj_in_MPD; begin of ramp
-2003.7 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-2012.8 #_last_yr_fullbias_adj_in_MPD
-2018.1 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
-0.5415 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
+1997 #_last_yr_nobias_adj_in_MPD; begin of ramp
+2004 #_first_yr_fullbias_adj_in_MPD; begin of plateau
+2013.6 #_last_yr_fullbias_adj_in_MPD
+2021.6 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
+0.8937 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
 0 #_period of cycles in recruitment (N parms read below)
--5 #min rec_dev
-5 #max rec_dev
+-1 #min rec_dev
+1 #max rec_dev
 0 #_read_recdevs
 #_end of advanced SR options
 #
@@ -120,7 +120,7 @@
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
 -7	5	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
--7	5	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_Manua
+-7	5	0	0	0	0	1	0	0	0	0	0	0	0	#_LNQ_base_manua
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -135,10 +135,10 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-15	60	35	0	0	0	2	0	0	0	0	0	0	0	#_1
- 0	20	10	0	0	0	2	0	0	0	0	0	0	0	#_2
--1	10	 0	0	0	0	2	0	0	0	0	0	0	0	#_3
--1	10	 0	0	0	0	2	0	0	0	0	0	0	0	#_4
+15	45	37.7	0	0	0	2	0	0	0	0	0	0	0	#_1
+ 0	15	 5.7	0	0	0	2	0	0	0	0	0	0	0	#_2
+-1	10	   0	0	0	0	2	0	0	0	0	0	0	0	#_3
+-1	10	   0	0	0	0	2	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
