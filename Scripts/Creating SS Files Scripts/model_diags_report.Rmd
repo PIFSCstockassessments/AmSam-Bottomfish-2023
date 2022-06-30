@@ -6,7 +6,7 @@ output: html_document
 params: 
   species:
     label: "Select species"
-    value: APVI
+    value: APRU
     input: select
     choices: [APRU, APVI, CALU,
     ETCO, LERU, LUKA, PRFL, PRZO, 
@@ -20,14 +20,15 @@ params:
     value: "../../SS3 models"
   file_dir:
     label: "file_dir"
-    value: "test"
+    value: "2FleetsTest5"
     input: text
   profile:
     label: "profile"
-    value: profile
+    value: "SR_LN(R0)"
+    input: text
   profile_vec: 
     label: "vector of profile values"
-    value: profile.vec
+    value: !r seq(8.2, 8.4, .1)
     
 ---
 
@@ -90,7 +91,7 @@ SSplotComps(report., subplots = 1, fleets = 1)
 
 ## Retrospective and Hindcasting  
 ### Retrospective 
-```{r message=FALSE}
+```{r message=FALSE, eval = TRUE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
   
   retro.dirs <- list.files(file.path(params$report, params$species, params$file_dir, "Retrospectives"),
@@ -116,7 +117,7 @@ SSplotRetro(retrosum,
 ```
 
 ### Hindcasting
-```{r }
+```{r eval =TRUE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
   sspar(mfrow = c(1,2))
 SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = 1)
@@ -137,31 +138,33 @@ SSplotRecdevs(report., subplots = c(2,3))
 
 ## Likelihood Profile
 
-```{r eval =FALSE }
+```{r eval=TRUE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, paste0(params$profile, "_profile")))){
-  r0.vec <- profile.vec
+  
+r0.vec <- params$profile_vec
 Nprofile <- length(r0.vec)
+profile.str <- substr(params$profile, start=1, stop=5)
 # read the output files (with names like Report1.sso, Report2.sso, etc.)
-profile.dirs <- list.files(file.path(params$report, params$species, params$file_dir, paste0(params$profile, "_profile")),
-                           full.names = TRUE)
+profile.dirs <- file.path(params$report, params$species, params$file_dir, paste0(params$profile, "_profile"))
 profilemodels <- SSgetoutput(dirvec = profile.dirs, 
                              keyvec = 1:Nprofile, verbose = FALSE)
 # summarize output
 profilesummary <- SSsummarize(profilemodels, verbose = FALSE)
 
 # OPTIONAL COMMANDS TO ADD MODEL WITH PROFILE PARAMETER ESTIMATED
-MLEmodel <- SS_output(file.path(params$report, params$species), verbose = FALSE, printstats = FALSE)
+MLEmodel <- SS_output(file.path(params$report, params$species, params$file_dir, paste0(params$profile, "_profile")), verbose = FALSE, printstats = FALSE)
 profilemodels[["MLE"]] <- MLEmodel
 profilesummary <- SSsummarize(profilemodels, verbose = FALSE)
 # END OPTIONAL COMMANDS
 
 # plot profile using summary created above
 SSplotProfile(profilesummary, # summary object
-  profile.string = params$profile, # substring of profile parameter
+  profile.string = profile.str, # substring of profile parameter
   profile.label = params$profile
 )
 }else{
   print("No likelihood runs were found")
+  
 }
 
 
@@ -169,7 +172,7 @@ SSplotProfile(profilesummary, # summary object
 ```
 
 ## Management Quantities  
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 mvln <- SSdeltaMVLN(report.)
 SSplotEnsemble(mvln$kb, subplots = c("stock", "harvest", "SSB", "F"), add = TRUE)
