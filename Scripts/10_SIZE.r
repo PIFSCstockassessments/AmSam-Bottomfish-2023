@@ -11,7 +11,7 @@ Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
 MinN           <- 40 # Minimum sample size to do size frequency
 AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
-                       BINWIDTH=c(5,5,5,5,5,3,2,5,5,3,3)) # in cm
+                       BINWIDTH=c(5,5,5,5,5,2,1,5,5,3,3)) # in cm
 
 # Load metadata tables (Area, Method, Species)
 A            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="AREAS")   )
@@ -249,6 +249,9 @@ for(i in 1:length(Species.List)){
 
  SizeData <- SizeData[AREA_C!="Atoll"]
  SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
+
+ SizeData <- SizeData[DATASET!="UVS"]
+ 
  saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
 
 
@@ -260,7 +263,6 @@ write.xlsx(Summary,paste0(root_dir,"/Outputs//Summary//Size_N_YEAR.xlsx"))
 L99Summary <- do.call(rbind.data.frame, L99List)
 L99Summary <- dcast.data.table(L99Summary,SPECIES~DATASET,value.var="L99",fill=NA)
 write.xlsx(L99Summary,paste0(root_dir,"/Outputs//Summary//L99.xlsx"))
-
 
 
 
