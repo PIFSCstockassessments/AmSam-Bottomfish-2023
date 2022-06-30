@@ -73,7 +73,7 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-  1	30	       6	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.1	30	       6	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
 0.2	 1	0.717591	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
   0	 2	0.448452	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	 5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
@@ -106,9 +106,10 @@
 #Fishing Mortality info
 0.3 # F ballpark
 -2000 # F ballpark year (neg value to disable)
-3 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
+2 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
 2.9 # max F or harvest rate, depends on F_Method
-4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
+#_overall start F value; overall phase; N detailed inputs to read
+0.1 2 0 #_F_setup
 #
 #_initial_F_parms; count = 0
 #
