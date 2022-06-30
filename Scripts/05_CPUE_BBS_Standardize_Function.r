@@ -24,7 +24,7 @@ D <- C[SPECIES==Sp]
 # Run selections
 if(Ar=="Tutuila") D <- D[AREA_C=="Tutuila"|AREA_C=="Bank"] 
 if(Ar=="Manua")   D <- D[AREA_C=="Manua"&YEAR<=2008]
-if(Sp=="VALO")    D <- D[YEAR>=2016]
+#if(Sp=="VALO")    D <- D[YEAR>=2016]
 
 if(Sp=="VALO"&Ar=="Manua") return(message("Cannot run VALO for Manua, since no good VALO data before 2015 and no data after 2010 in the Manuas."))
 if(Sp=="LERU"&Ar=="Manua")  return(message("No LERU data in the Manuas."))
