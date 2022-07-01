@@ -374,7 +374,8 @@ build_all_ss <- function(species,
                         report = "../../SS3 models",
                         file_dir = paste0(file_dir),
                         profile = profile,
-                        profile_vec = profile.vec
+                        profile_vec = profile.vec,
+                        Njitter = Njitter
                       ))
   }
   
