@@ -75,30 +75,18 @@ report.$warnings
 ```{r}
 
 n.indices <- length(unique(report.$cpue$Fleet))
-
+n.comps <- length(unique(report.$lendbase$Fleet))
 for(i in 1:n.indices){
   sspar(mfrow = c(1,2))
   SSplotIndices(report., subplots = 2, fleets = i)
   SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i)
 }
-# sspar(mfrow = c(1,2))
-# SSplotIndices(report., subplots = 2, fleets = 1)
-# SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = 1)
-# if(report.$nfleets > 1){
-#   sspar(mfrow = c(1,2))
-#   SSplotIndices(report., subplots = 2, fleets = 2)
-#   SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = 2)
-# }
-for(i in 1:n.indices){
+
+for(i in 1:n.comps){
   sspar(mfrow = c(1,1))
   SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i)
 }
-# sspar(mfrow = c(1,1))
-# SSplotJABBAres(report., subplots = "cpue", add = TRUE)
-# if(report.$nfleets > 1){
-#   sspar(mfrow = c(1,1))
-#   SSplotJABBAres(report., subplots = "cpue", indexselect = 2, add = TRUE)
-# }
+
 ```
 
 ### Length Comp
@@ -144,9 +132,16 @@ SSplotRetro(retrosum,
 ### Hindcasting
 ```{r eval =TRUE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
-  sspar(mfrow = c(1,2))
-SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = 1)
-SSplotHCxval(retrocomp, subplots = "len", add = TRUE, indexselect = 1)
+  for(i in 1:n.indices){
+    sspar(mfrow = c(1,2))
+    SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = i)
+  }
+  
+  for(i in 1:n.comps){
+    sspar(mfrow = c(1,2))
+    SSplotHCxval(retrocomp, subplots = "len", add = TRUE, indexselect = i)
+  }
+  
 }else{
   print("No information for hindcast was found")
   
@@ -242,6 +237,9 @@ if(dir.exists(file.path(params$report, params$species, params$file_dir, "jitter"
   SSplotComparisons(jittersum, subplots = c(2), plot = TRUE)
   SSplotComparisons(jittersum, subplots = c(8), plot = TRUE)
   SSplotComparisons(jittersum, subplots = c(10), plot = TRUE)
+  
+  
+  
 }else{
   print("No jitter runs were found.")
 }
