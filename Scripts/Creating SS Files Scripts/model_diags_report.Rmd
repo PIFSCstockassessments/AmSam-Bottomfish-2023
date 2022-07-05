@@ -76,6 +76,9 @@ report.$warnings
 
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
+
+report.$index_variance_tuning_check
+
 for(i in 1:n.indices){
   sspar(mfrow = c(1,2))
   SSplotIndices(report., subplots = 2, fleets = i)
@@ -91,6 +94,8 @@ for(i in 1:n.comps){
 
 ### Length Comp
 ```{r}
+report.$Length_Comp_Fit_Summary
+
 sspar(mfrow = c(1,2))
 SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1)
 SSplotJABBAres(report., subplots = "len", add = TRUE, indexselect = 1)
