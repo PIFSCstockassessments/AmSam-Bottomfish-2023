@@ -212,8 +212,18 @@ build_control <- function(species = species,
   CTL$TG_custom              <- 0
 
   ## Input variance adjustment
-  CTL$DoVar_adjust           <- 0
+  CTL$DoVar_adjust           <- ctl.sps$DoVar_adjust
   #if 1, need a table with column names: Factor, Fleet, and Value
+  if(CTL$DoVar_adjust == 1){
+    
+    CTL$Variance_adjustment_list <- ctl.sps %>% 
+      select(contains("var_adj_")) %>% 
+      pivot_longer(cols = everything(), names_to = "var", values_to = "Value") %>% 
+      separate(col = var, into = c("var", "adj", "factor", "fleet"), sep = "_") %>% 
+      select(-c(var, adj)) %>% 
+      as.data.frame()
+    
+  }
 
   CTL$maxlambdaphase         <- ctl.sps$maxlambdaphase #max phase of estimation
   #CTL$sd_offset              <- ctl.sps$sd_offset #must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
