@@ -80,7 +80,10 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     
     ## Add catch, column names: year, seas, fleet, catch, catch_se
     ## NOTE: will need to adjust if there are multiple fleets with catch
-    init.catch <- data.frame(year = -999, seas = 1, fleet = 1, catch = 0, catch_se = 0.01)
+    init.catch <- data.frame(year = -999, 
+                             seas = 1, fleet = 1, 
+                             catch = catch.sp[catch.sp$year == startyr, "catch"], 
+                             catch_se = catch.sp[catch.sp$year == startyr, "catch_se"])
     DAT$catch  <- rbind(init.catch, catch.sp) 
     print(DAT$catch)
     

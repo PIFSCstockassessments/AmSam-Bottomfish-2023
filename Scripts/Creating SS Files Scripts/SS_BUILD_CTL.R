@@ -77,14 +77,6 @@ build_control <- function(species = species,
   CTL$parameter_offset_approach <- ctl.sps$parameter_off_approach #no offset
 
   ## Growth Parameters
-  # Table of parameters with column names: LO, HI, INIT, PRIOR, PR_type, PHASE, env_var&link, dev_link, dev_minyr, dev_maxyr, dev_PH, Block, Block_Fxn
-  # CTL$MG_parms <- ctl.params %>%
-  #   filter(str_detect(category, "M|GROWTH|LW|MAT")) %>%
-  #   filter(str_detect(OPTION, M_option)) %>%
-  #   select(-c(category, OPTION)) %>%
-  #   column_to_rownames("X1")
-  
-  
   M <- ctl.params %>% filter(str_detect(category, "M") & OPTION == M_option & str_detect(X1, "NatM_p_1_Fem"))
   MG <- ctl.params[which(ctl.params$category == "GROWTH" & ctl.params$OPTION == GROWTH_option),]
   LW <- ctl.params[which(ctl.params$category == "LW" & ctl.params$OPTION == LW_option),]
@@ -140,6 +132,10 @@ build_control <- function(species = species,
   CTL$F_Method        <- ctl.sps$F_Method
   if(CTL$F_Method == 2){
     CTL$F_setup <- c(ctl.sps$initial_f, ctl.sps$phase, ctl.sps$Fdetail)
+    CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
+      rename("LABEL" = "X1") %>% 
+      select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
+      as.data.table()
   }
   CTL$maxF            <- ctl.sps$maxF
   CTL$F_iter          <- ctl.sps$F_iter #recommended between 3 and 5
