@@ -80,7 +80,7 @@ for(i in 1:10){
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
   c             <- c[TERMS!="YEAR"]
-  if (max(c$PVALUE==0)) break; # End model selection if the p-values left are so low, they equal "0"
+  if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
@@ -122,7 +122,7 @@ for(i in 1:10){
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
   c             <- c[TERMS!="YEAR"]
-  if (max(c$PVALUE==0)) break; # End model selection if the p-values left are so low, they equal "0"
+  if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
