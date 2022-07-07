@@ -152,8 +152,8 @@
 #
 # Input variance adjustments factors: 
 #_factor	fleet	Value
-1    	1	   0.5	#_1         
-1    	2	   0.5	#_2         
+1    	1	     0	#_1         
+1    	2	     0	#_2         
 4    	1	0.3722	#_3         
 -9999	0	     0	#_terminator
 #
