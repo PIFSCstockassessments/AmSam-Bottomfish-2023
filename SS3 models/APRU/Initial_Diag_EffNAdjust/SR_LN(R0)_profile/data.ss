@@ -4,11 +4,11 @@
 #_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
 #_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
-#_Start_time: Tue Jul 05 10:34:20 2022
+#_Start_time: Tue Jul 05 11:05:28 2022
 #_echo_input_data
 #C data file for APRU
 #V3.30.19.01;_fast(opt);_compile_date:_Apr 15 2022;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
-1986 #_StartYr
+1967 #_StartYr
 2021 #_EndYr
 1 #_Nseas
  12 #_months/season
@@ -39,6 +39,25 @@
 #_catch_se:  standard error of log(catch)
 #_NOTE:  catch data is ignored for survey fleets
 -999 1 1 0 0.01
+1967 1 1 0.132 0.8
+1968 1 1 0.39553 0.8
+1969 1 1 0.17463 0.8
+1970 1 1 0.0508 0.8
+1971 1 1 0.001 0.8
+1972 1 1 1.27323 0.8
+1973 1 1 1.9949 0.8
+1974 1 1 1.68373 0.8
+1975 1 1 2.35868 0.8
+1976 1 1 1.70868 0.8
+1977 1 1 0.96933 0.8
+1978 1 1 0.42365 0.8
+1979 1 1 0.20139 0.8
+1980 1 1 0.50303 0.8
+1981 1 1 0.95572 0.8
+1982 1 1 1.22561 0.8
+1983 1 1 2.47434 0.8
+1984 1 1 1.83523 0.8
+1985 1 1 1.96133 0.8
 1986 1 1 1.5658 1.37929
 1987 1 1 0.46584 1.72221
 1988 1 1 1.15303 1.14764
