@@ -293,7 +293,10 @@ Best.Mod$CPUE_PROB.STD   <- Best.Mod$CPUE_PROB/mean(Best.Mod$CPUE_PROB)*100
 Best.Mod$LOGSD.CPUE_TOT <- sqrt( log((Best.Mod$SD.CPUE_TOT/Best.Mod$CPUE_TOT)^2+1)   )
 
 # Save final CPUE trend for SS model
-write.csv(select(Best.Mod,YEAR,CPUE_TOT,LOGSD.CPUE_TOT),file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
+Best.Mod.Final <- select(Best.Mod,YEAR,CPUE_TOT,LOGSD.CPUE_TOT)
+Best.Mod.Final[LOGSD.CPUE_TOT<0.2]$LOGSD.CPUE_TOT <- 0.2 # Insure that the CV for any year is at least 0.2
+  
+write.csv(Best.Mod.Final,file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR,SEASON,AREA_C)]
