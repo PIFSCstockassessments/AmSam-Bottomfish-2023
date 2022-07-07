@@ -18,6 +18,7 @@ colnames(N_OPTIONS) <- c("SPECIES","N_OPTIONS")
 Species.List        <- data.table(SPECIES=c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO"))
 Species.List        <- merge(Species.List,N_OPTIONS,by="SPECIES")
 
+SIZDAT$AREA_C  <- "Main" # Place holder since SIZE_Final.rds does not contain AREA_C anymore (not necessary for SS)
 
 OUT.List <- data.table()
 for(i in 1:nrow(Species.List)){
@@ -44,23 +45,23 @@ for(i in 1:nrow(Species.List)){
   DAT$SPECIES <- NULL
   
   # Split datasets and regions
-  BBS_Main <- DAT[DATASET=="BBS"&AREA_C=="Main",!c("DATASET","AREA_C")]
-  BS_Main  <- DAT[DATASET=="Biosampling"&AREA_C=="Main",!c("DATASET","AREA_C")]
-  US_Atoll <- DAT[DATASET=="UVS"&AREA_C=="Atoll",!c("DATASET","AREA_C")]
-  US_Main  <- DAT[DATASET=="UVS"&AREA_C=="Main",!c("DATASET","AREA_C")]
+  BBS_Main <- DAT[DATASET=="BIO and BBS"&AREA_C=="Main",!c("DATASET","AREA_C")]
+  #BS_Main  <- DAT[DATASET=="Biosampling"&AREA_C=="Main",!c("DATASET","AREA_C")]
+  #US_Atoll <- DAT[DATASET=="UVS"&AREA_C=="Atoll",!c("DATASET","AREA_C")]
+  #US_Main  <- DAT[DATASET=="UVS"&AREA_C=="Main",!c("DATASET","AREA_C")]
   
   # Remove empty years
   BBS_Main <- BBS_Main[,c(which(colSums(BBS_Main) != 0)),with=F]
-  BS_Main  <- BS_Main[,c(which(colSums(BS_Main) != 0)),with=F]
-  US_Atoll <- US_Atoll[,c(which(colSums(US_Atoll) != 0)),with=F]
-  US_Main  <- US_Main[,c(which(colSums(US_Main) != 0)),with=F]
+  #BS_Main  <- BS_Main[,c(which(colSums(BS_Main) != 0)),with=F]
+  #US_Atoll <- US_Atoll[,c(which(colSums(US_Atoll) != 0)),with=F]
+  #US_Main  <- US_Main[,c(which(colSums(US_Main) != 0)),with=F]
   
   # Save to csv files (easier integration with LBSPR)
   Drive <- paste0(root_dir,"/Outputs/LBSPR/Temp size/",Sp)
   write.csv(BBS_Main,paste0(Drive,"_BBS_Main.csv"),row.names=F)
-  write.csv(BS_Main,paste0(Drive,"_BS_Main.csv"),row.names=F)
-  write.csv(US_Atoll,paste0(Drive,"_UVS_Atoll.csv"),row.names=F)
-  write.csv(US_Main,paste0(Drive,"_UVS_Main.csv"),row.names=F)
+  #write.csv(BS_Main,paste0(Drive,"_BS_Main.csv"),row.names=F)
+  #write.csv(US_Atoll,paste0(Drive,"_UVS_Atoll.csv"),row.names=F)
+  #write.csv(US_Main,paste0(Drive,"_UVS_Main.csv"),row.names=F)
   
   for(j in 1:N_Options){
     
@@ -81,30 +82,33 @@ for(i in 1:nrow(Species.List)){
     
     # Load data in LBSPR object
     LenBBS_Main <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BBS_Main.csv"),dataType="freq", header=TRUE)
-    LenBS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BS_Main.csv"),dataType="freq", header=TRUE)
+    #LenBS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_BS_Main.csv"),dataType="freq", header=TRUE)
     
-    if(length(US_Atoll>0))
-      LenUS_Atoll <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Atoll.csv"),dataType="freq", header=TRUE)
+    #if(length(US_Atoll>0))
+    #  LenUS_Atoll <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Atoll.csv"),dataType="freq", header=TRUE)
     
-    if(length(US_Main>0))
-      LenUS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Main.csv"),dataType="freq", header=TRUE)
+    #if(length(US_Main>0))
+    #  LenUS_Main  <- new("LB_lengths", LB_pars=MyPars, file=paste0(Drive,"_UVS_Main.csv"),dataType="freq", header=TRUE)
     
     # Fit data to model
     myFit_BBMain   <- LBSPRfit(MyPars, LenBBS_Main)
-    myFit_BSMain   <- LBSPRfit(MyPars, LenBS_Main)
-    if(length(US_Atoll>0)) myFit_UVSAtoll <- LBSPRfit(MyPars, LenUS_Atoll)
-    if(length(US_Main>0))  myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
+    #myFit_BSMain   <- LBSPRfit(MyPars, LenBS_Main)
+    #if(length(US_Atoll>0)) myFit_UVSAtoll <- LBSPRfit(MyPars, LenUS_Atoll)
+    #if(length(US_Main>0))  myFit_UVSMain  <- LBSPRfit(MyPars, LenUS_Main)
     
     # Outputs
-    if(Sp=="APVI"|Sp=="LUKA"){
-      OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50),
-                   cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*aLH$M,myFit_BSMain@SPR,myFit_BSMain@SL50),
-                   cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*aLH$M,myFit_UVSMain@SPR,myFit_UVSMain@SL50)
-                 )
-    } else {
-      OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50),
-                   cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*aLH$M,myFit_BSMain@SPR,myFit_BSMain@SL50))
-    }
+    
+    OUT <- cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50)
+    
+  #  if(Sp=="APVI"|Sp=="LUKA"){
+   #   OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50),
+  #                 cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*aLH$M,myFit_BSMain@SPR,myFit_BSMain@SL50),
+   #                cbind("UVS_Main", myFit_UVSMain@Years,myFit_UVSMain@FM*aLH$M,myFit_UVSMain@SPR,myFit_UVSMain@SL50)
+  #               )
+   # } else {
+  #    OUT <-rbind( cbind("BBS_Main", myFit_BBMain@Years,myFit_BBMain@FM*aLH$M,myFit_BBMain@SPR,myFit_BBMain@SL50),
+   #                cbind("BS_Main",  myFit_BSMain@Years,myFit_BSMain@FM*aLH$M,myFit_BSMain@SPR,myFit_BSMain@SL50))
+  #  }
     
     OUT         <- data.table(OUT)
     setnames(OUT,c("DATASET","YEAR","F","SPR","SL50"))
@@ -123,16 +127,16 @@ for(i in 1:nrow(Species.List)){
     # Create some graphs
     Drive2 <- paste0(root_dir,"/Outputs/LBSPR/Graphs/",Sp,"_",Option.Name)
     
-    aFit1  <- as.ggplot(plotSize(myFit_BBMain))
-    aFit2  <- as.ggplot(plotSize(myFit_BSMain))
-    Fit    <- arrangeGrob(aFit1,aFit2,ncol=1)
-    ggsave(Fit,filename=paste0(Drive2,"_Fit.png"),height=20,width=15,units="cm")
+  #  aFit1  <- as.ggplot(plotSize(myFit_BBMain))
+  #  aFit2  <- as.ggplot(plotSize(myFit_BSMain))
+  #  Fit    <- arrangeGrob(aFit1,aFit2,ncol=1)
+  #  ggsave(Fit,filename=paste0(Drive2,"_Fit.png"),height=20,width=15,units="cm")
     
-    aGraph1 <- ggplot(data=OUT,aes(x=YEAR,y=F,col=DATASET))+geom_line(size=1)+geom_point(size=3)+ggtitle(Sp)+theme_bw()
-    aGraph2 <- ggplot(data=OUT,aes(x=YEAR,y=SPR,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
-    aGraph3 <- ggplot(data=OUT,aes(x=YEAR,y=SL50,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
-    Graph   <- arrangeGrob(aGraph1,aGraph2,aGraph3,ncol=1)
-    ggsave(Graph,filename=paste0(Drive2,"_Results.png"),height=20,width=15,units="cm")
+   # aGraph1 <- ggplot(data=OUT,aes(x=YEAR,y=F,col=DATASET))+geom_line(size=1)+geom_point(size=3)+ggtitle(Sp)+theme_bw()
+  #  aGraph2 <- ggplot(data=OUT,aes(x=YEAR,y=SPR,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
+  #  aGraph3 <- ggplot(data=OUT,aes(x=YEAR,y=SL50,col=DATASET))+geom_line(size=1)+geom_point(size=3)+theme_bw()
+  #  Graph   <- arrangeGrob(aGraph1,aGraph2,aGraph3,ncol=1)
+ #   ggsave(Graph,filename=paste0(Drive2,"_Results.png"),height=20,width=15,units="cm")
     
     
     } # End Option loop
@@ -146,8 +150,8 @@ Final <- select(Final,SPECIES,OPTION,DATASET,YEAR,SL50,F,SPR,NOTE)
 Summary1 <- Final[OPTION=="Option1"&YEAR>=2010&DATASET!="UVS_NWHI",list(SPR=mean(SPR)),by=list(SPECIES,DATASET)]
 Summary2 <- dcast(Summary1,SPECIES~DATASET,value.var="SPR")
 
-write.xlsx(Summary2,paste0(root_dir,"/Outputs/LBSPR/LBSPR_Summary.xlsx"))
-write.xlsx(Final,paste0(root_dir,"/Outputs/LBSPR/LBSPR_Results.xlsx"))
+#write.xlsx(Summary2,paste0(root_dir,"/Outputs/LBSPR/LBSPR_Summary.xlsx"))
+#write.xlsx(Final,paste0(root_dir,"/Outputs/LBSPR/LBSPR_Results.xlsx"))
 
 aPlot <- ggplot(data=Summary1)+
            geom_hline(aes(yintercept=0.3),col="red",size=1)+
@@ -155,7 +159,7 @@ aPlot <- ggplot(data=Summary1)+
            geom_point(aes(x=SPECIES,y=SPR,fill=DATASET),shape=21,size=5)+
            theme_bw()
 
-ggsave(aPlot,file=paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Results.png"),width=20,height=8,unit="cm")
+#ggsave(aPlot,file=paste0(root_dir,"/Outputs/LBSPR/Graphs/LBSPR_Results.png"),width=20,height=8,unit="cm")
 
 
 
