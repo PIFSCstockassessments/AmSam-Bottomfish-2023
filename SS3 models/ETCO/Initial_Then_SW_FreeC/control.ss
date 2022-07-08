@@ -106,10 +106,9 @@
 #Fishing Mortality info
 0.3 # F ballpark
 -2000 # F ballpark year (neg value to disable)
-2 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
+3 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
 2.9 # max F or harvest rate, depends on F_Method
-#_overall start F value; overall phase; N detailed inputs to read
-0.01 4 0 #_F_setup
+4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
 #
 #_initial_F_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
