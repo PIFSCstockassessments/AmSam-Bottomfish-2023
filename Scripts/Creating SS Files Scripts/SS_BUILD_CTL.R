@@ -22,7 +22,7 @@ build_control <- function(species = species,
                           EST_option = "Option1",
                           size_selex_types = size_selex_types,
                           age_selex_types = age_selex_types,
-                          lambdas = NULL,
+                          lambdas = FALSE,
                           file_dir = "base",
                           template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
                           out_dir = file.path(root_dir, "SS3 models")){
@@ -227,9 +227,18 @@ build_control <- function(species = species,
   ## Likelihoods
   # Table with column names: like_comp, fleet, phase, value, and sizefreq_method
   # Only needed if values are different from 1
-  if(!is.null(lambdas)){
-    CTL$lambdas <- lambdas
-    CTL$N_lambdas <- nrow(lambdas)
+  if(lambdas == TRUE){
+    CTL$lambdas <- ctl.sps %>% 
+      select(contains("lambda_")) %>% 
+      pivot_longer(cols = everything(), names_to = "name", values_to = "value") %>% 
+      separate(name, into = c("lambda", "name", "fleet"), sep = "_") %>% 
+      select(-lambda) %>% 
+      mutate(fleet = ifelse(is.na(fleet), 1, fleet)) %>% 
+      pivot_wider(names_from = "name", values_from = "value", names_repair = "minimal") %>% 
+      select(-fleet) %>% 
+      as.data.frame()
+    
+    CTL$N_lambdas <- nrow(CTL$lambdas)
   }else{
     CTL$lambdas <- NULL
     CTL$N_lambdas <- 0

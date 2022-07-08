@@ -6,7 +6,7 @@ output: html_document
 params: 
   species:
     label: "Select species"
-    value: APRU
+    value: APVI
     input: select
     choices: [APRU, APVI, CALU,
     ETCO, LERU, LUKA, PRFL, PRZO, 
@@ -20,15 +20,15 @@ params:
     value: "../../SS3 models"
   file_dir:
     label: "file_dir"
-    value: "2FleetsTest5"
+    value: "Initial_Fmethod3_allC"
     input: text
   profile:
     label: "profile"
-    value: "SR_LN(R0)"
+    value: "InitF"
     input: text
   profile_vec: 
     label: "vector of profile values"
-    value: !r seq(8.2, 8.4, .1)
+    value: !r seq(0, 2, .2)
   Njitter:
     label: "Number of jitters"
     value: !r 2
