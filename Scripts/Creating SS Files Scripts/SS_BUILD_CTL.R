@@ -233,6 +233,7 @@ build_control <- function(species = species,
       pivot_longer(cols = everything(), names_to = "name", values_to = "value") %>% 
       separate(name, into = c("lambda", "name", "fleet"), sep = "_") %>% 
       select(-lambda) %>% 
+      filter(!is.na(value)) %>% 
       mutate(fleet = ifelse(is.na(fleet), 1, fleet)) %>% 
       pivot_wider(names_from = "name", values_from = "value", names_repair = "minimal") %>% 
       select(-fleet) %>% 
