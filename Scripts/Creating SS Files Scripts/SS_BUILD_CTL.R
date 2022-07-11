@@ -134,14 +134,15 @@ build_control <- function(species = species,
     CTL$F_setup <- c(ctl.sps$initialF_Fmethod2, ctl.sps$phase_Fmethod2, ctl.sps$Fdetail)
     
   }
-  CTL$maxF            <- ctl.sps$maxF
-  CTL$F_iter          <- ctl.sps$F_iter #recommended between 3 and 5
   if(CTL$F_Method == 3){
-    CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
+    CTL$F_iter          <- ctl.sps$F_iter #recommended between 3 and 5
+  }
+  CTL$maxF            <- ctl.sps$maxF
+  
+  CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
       rename("LABEL" = "X1") %>% 
       select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
       as.data.table()
-  }
   
   ## Catchability
   if(includeCPUE == TRUE){
