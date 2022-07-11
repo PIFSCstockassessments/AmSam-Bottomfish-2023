@@ -131,15 +131,18 @@ build_control <- function(species = species,
   CTL$F_ballpark_year <- ctl.sps$F_ballpark_year #negative year disables this
   CTL$F_Method        <- ctl.sps$F_Method
   if(CTL$F_Method == 2){
-    CTL$F_setup <- c(ctl.sps$initial_f, ctl.sps$phase, ctl.sps$Fdetail)
+    CTL$F_setup <- c(ctl.sps$initialF_Fmethod2, ctl.sps$phase_Fmethod2, ctl.sps$Fdetail)
     
   }
   CTL$maxF            <- ctl.sps$maxF
   CTL$F_iter          <- ctl.sps$F_iter #recommended between 3 and 5
-  CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
-    rename("LABEL" = "X1") %>% 
-    select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
-    as.data.table()
+  if(CTL$F_Method == 3){
+    CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
+      rename("LABEL" = "X1") %>% 
+      select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
+      as.data.table()
+  }
+  
   ## Catchability
   if(includeCPUE == TRUE){
     # Table with nrow = nfleets and column names: fleet, link, link_info, extra_se, biasadj, and float
