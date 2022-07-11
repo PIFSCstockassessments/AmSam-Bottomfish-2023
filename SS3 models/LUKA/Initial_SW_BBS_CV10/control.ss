@@ -33,7 +33,7 @@
 0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=Maunder_M;_6=Age-range_Lorenzen
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
-0.2 #_Age(post-settlement)_for_L1;linear growth below this
+0.01 #_Age(post-settlement)_for_L1;linear growth below this
 999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
@@ -48,16 +48,16 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	     0.4	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
+    0	      2	    0.73	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
     1	     10	       2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_4       
-   20	     40	    24.7	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_4       
- 0.05	    0.6	    0.53	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_4       
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_4        
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_4          
+   20	     40	      22	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_4       
+ 0.05	    0.6	     0.3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_4       
+ 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_4        
+ 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_4          
    -1	      3	1.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	    3.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   15	     60	    19.4	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-   -3	      3	   -0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+   15	     60	      15	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+   -3	      3	      -3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
   0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
@@ -107,12 +107,12 @@
 0.3 # F ballpark
 -2000 # F ballpark year (neg value to disable)
 3 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
-5 # max F or harvest rate, depends on F_Method
+10 # max F or harvest rate, depends on F_Method
 4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
 #
 #_initial_F_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
-0	2	0.2	0	0	0	1	#_1
+0	10	0.2	0	0	0	1	#_1
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
@@ -137,10 +137,10 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-15	40	25	  50	0	0	2	0	0	0	0	0	0	0	#_1
- 0	 5	 3	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
--1	10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_3
--1	10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_4
+15	40	25	  50	0	0	1	0	0	0	0	0	0	0	#_1
+ 0	 5	 3	-1.7	0	0	1	0	0	0	0	0	0	0	#_2
+-1	10	 0	   0	0	0	1	0	0	0	0	0	0	0	#_3
+-1	10	 0	   0	0	0	1	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
@@ -152,8 +152,11 @@
 #_Cond -6 6 1 1 2 0.01 -4 0 0 0 0 0 0 0  #_placeholder if no parameters
 #
 # Input variance adjustments factors: 
-#_Factor Fleet Value
--9999 1 0 # terminator
+#_factor	fleet	Value
+1    	1	   0	#_1         
+1    	2	   0	#_2         
+4    	1	0.15	#_3         
+-9999	0	   0	#_terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
