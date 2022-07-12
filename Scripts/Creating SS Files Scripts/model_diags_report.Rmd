@@ -20,7 +20,7 @@ params:
     value: "../../SS3 models"
   file_dir:
     label: "file_dir"
-    value: "Initial_Fmethod3_allC"
+    value: "Initial"
     input: text
   profile:
     label: "profile"
