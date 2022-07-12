@@ -29,7 +29,8 @@ A0   <- median(Data$A0)
 
 # Get CALU estimates
 # Based on L99 of 75.8 cm (FL) from BBS
-Data <- Get_distributions(Family="Carangidae", Lmax.mean=(758/0.88), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Base on L99 of 60.7 cm (FL) from Rose+Swains divers (n=120)
+Data <- Get_distributions(Family="Carangidae", Lmax.mean=(607/0.88), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.88)
 Lmat <- median(Data$Lmat*0.88)

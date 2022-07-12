@@ -1,7 +1,11 @@
 #C forecast file written by R function SS_writeforecast
 #C rerun model to get more complete formatting in forecast.ss_new
 #C should work with SS version: 3.3
-#C file write time: 2022-07-11 15:25:30
+<<<<<<<< HEAD:SS3 models/APVI/Initial_F2/forecast.ss
+#C file write time: 2022-07-12 11:56:21
+========
+#C file write time: 2022-07-11 15:44:55
+>>>>>>>> 7c3621c209174d24b4e15d3789e1bff4f1f821fe:SS3 models/APRU/Initial_NoHist/forecast.ss
 #
 1 #_benchmarks
 2 #_MSY
