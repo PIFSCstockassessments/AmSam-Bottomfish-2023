@@ -1,11 +1,7 @@
 #C starter file written by R function SS_writestarter
 #C rerun model to get more complete formatting in starter.ss_new
 #C should work with SS version: 3.30
-<<<<<<<< HEAD:SS3 models/APRU/Initial_f3_allC/starter.ss
-#C file write time: 2022-07-11 15:25:30
-========
-#C file write time: 2022-07-11 15:30:31
->>>>>>>> 7c3621c209174d24b4e15d3789e1bff4f1f821fe:SS3 models/APRU/Initial_Fmeth2/starter.ss
+#C file write time: 2022-07-12 14:35:22
 #
 data.ss #_datfile
 control.ss #_ctlfile
