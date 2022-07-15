@@ -6,7 +6,7 @@ dir.create(paste0(root_dir,"/Outputs/Summary/Size figures"),recursive=T,showWarn
 dir.create(paste0(root_dir,"/Outputs/SS3_Inputs"),recursive=T,showWarnings=F)
 
 # Options
-Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
+Combine_BB_BIO <- F # Combine biosampling and creel survey lengths
 Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
 MinN           <- 40 # Minimum sample size to do size frequency
 AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
@@ -247,6 +247,10 @@ for(i in 1:length(Species.List)){
  SizeData$N <- as.numeric(SizeData$N)
  SizeData$LENGTH_BIN_START <- as.numeric(as.character(SizeData$LENGTH_BIN_START))
 
+ SizeData2 <- SizeData
+ saveRDS(SizeData2,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final_LBSPR.rds"))
+ 
+ 
  SizeData <- SizeData[AREA_C!="Atoll"]
  SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
 
