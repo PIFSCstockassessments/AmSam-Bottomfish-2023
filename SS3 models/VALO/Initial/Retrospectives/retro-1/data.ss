@@ -16,7 +16,7 @@
 1	-1	1	1	0	FISHERY	#_1
 #_Catch data
 #_year	season	fleet	catch	catch_se
- -999	1	1	      0	    0.01	#_1         
+ -999	1	1	0.06033	     0.8	#_1         
  1967	1	1	0.06033	     0.8	#_2         
  1968	1	1	0.18144	     0.8	#_3         
  1969	1	1	0.08029	     0.8	#_4         
@@ -132,7 +132,7 @@
 2 # length bin method: 1=use databins; 2=generate from binwidth,min,max below; 3=read vector
 1 # binwidth for population size comp
 1 # minimum size in the population (lower edge of first bin and size at age 0.00)
-58 # maximum size in the population (lower edge of last bin)
+48 # maximum size in the population (lower edge of last bin)
 1 #_use_lencomp
 #
 #_len_info
@@ -149,6 +149,7 @@
  2013	1	1	0	0	66.36	0	0	0	0	0	0	 1	10	13	13	18	14	5	2	1	2	#_3         
  2014	1	1	0	0	49.56	0	0	0	0	0	1	10	13	 9	11	 6	 5	3	0	1	0	#_4         
  2015	1	1	0	0	   84	0	0	0	0	0	4	 8	19	19	13	12	15	4	4	1	1	#_5         
+ 2015	1	2	0	0	36.12	1	2	0	2	5	6	12	 3	 2	 3	 1	 0	3	3	0	0	#_6         
 -9999	0	0	0	0	    0	0	0	0	0	0	0	 0	 0	 0	 0	 0	 0	0	0	0	0	#_terminator
 0 #_N_agebins
 #

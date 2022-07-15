@@ -68,7 +68,7 @@
 #_growth_parms
 #_ LO HI INIT PRIOR PR_SD PR_type PHASE env_var&link dev_link dev_minyr dev_maxyr dev_PH Block Block_Fxn
 # Sex: 1  BioPattern: 1  NatMort
- 0 2 0.44 0 0 0 -3 0 0 0 0 0 0 0 # NatM_uniform_Fem_GP_1
+ 0 2 0.385714 0 0 0 -3 0 0 0 0 0 0 0 # NatM_uniform_Fem_GP_1
 # Sex: 1  BioPattern: 1  Growth
  1 20 5 0 0 0 -4 0 0 0 0 0 0 0 # L_at_Amin_Fem_GP_1
  38 100 43.5 0 0 0 -4 0 0 0 0 0 0 0 # L_at_Amax_Fem_GP_1
@@ -105,30 +105,30 @@
 0  # 0/1 to use steepness in initial equ recruitment calculation
 0  #  future feature:  0/1 to make realized sigmaR a function of SR curvature
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn #  parm_name
- 1 30 3.4 0 0 0 -1 0 0 0 0 0 0 0 # SR_LN(R0)
+ 0.8 30 3 0 0 0 -1 0 0 0 0 0 0 0 # SR_LN(R0)
            0.2             1      0.767674             0             0             0         -2          0          0          0          0          0          0          0 # SR_BH_steep
              0             2      0.411207             0             0             0         -4          0          0          0          0          0          0          0 # SR_sigmaR
             -5             5             0             0             0             0         -4          0          0          0          0          0          0          0 # SR_regime
              0             0             0             0             0             0        -99          0          0          0          0          0          0          0 # SR_autocorr
 #_no timevary SR parameters
 1 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
-1970 # first year of main recr_devs; early devs can preceed this era
-2020 # last year of main recr_devs; forecast devs start in following year
-3 #_recdev phase 
-0 # (0/1) to read 13 advanced options
-#_Cond 0 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
-#_Cond -4 #_recdev_early_phase
-#_Cond 0 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
-#_Cond 1 #_lambda for Fcast_recr_like occurring before endyr+1
-#_Cond 967 #_last_yr_nobias_adj_in_MPD; begin of ramp
-#_Cond 1953 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-#_Cond 2020 #_last_yr_fullbias_adj_in_MPD
-#_Cond 2022 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS3 sets bias_adj to 0.0 for fcast yrs)
-#_Cond 1 #_max_bias_adj_in_MPD (typical ~0.8; -3 sets all years to 0.0; -2 sets all non-forecast yrs w/ estimated recdevs to 1.0; -1 sets biasadj=1.0 for all yrs w/ recdevs)
-#_Cond 0 #_period of cycles in recruitment (N parms read below)
-#_Cond -5 #min rec_dev
-#_Cond 5 #max rec_dev
-#_Cond 0 #_read_recdevs
+2011 # first year of main recr_devs; early devs can preceed this era
+2018 # last year of main recr_devs; forecast devs start in following year
+2 #_recdev phase 
+1 # (0/1) to read 13 advanced options
+ -40 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
+ 3 #_recdev_early_phase
+ 4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
+ 1 #_lambda for Fcast_recr_like occurring before endyr+1
+ 2000.2 #_last_yr_nobias_adj_in_MPD; begin of ramp
+ 2009.2 #_first_yr_fullbias_adj_in_MPD; begin of plateau
+ 2011.5 #_last_yr_fullbias_adj_in_MPD
+ 2019.3 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS3 sets bias_adj to 0.0 for fcast yrs)
+ 0.6503 #_max_bias_adj_in_MPD (typical ~0.8; -3 sets all years to 0.0; -2 sets all non-forecast yrs w/ estimated recdevs to 1.0; -1 sets biasadj=1.0 for all yrs w/ recdevs)
+ 0 #_period of cycles in recruitment (N parms read below)
+ -5 #min rec_dev
+ 5 #max rec_dev
+ 0 #_read_recdevs
 #_end of advanced SR options
 #
 #_placeholder for full parameter lines for recruitment cycles
@@ -136,8 +136,8 @@
 #_Yr Input_value
 #
 # all recruitment deviations
-#  1970R 1971R 1972R 1973R 1974R 1975R 1976R 1977R 1978R 1979R 1980R 1981R 1982R 1983R 1984R 1985R 1986R 1987R 1988R 1989R 1990R 1991R 1992R 1993R 1994R 1995R 1996R 1997R 1998R 1999R 2000R 2001R 2002R 2003R 2004R 2005R 2006R 2007R 2008R 2009R 2010R 2011R 2012R 2013R 2014R 2015R 2016R 2017R 2018R 2019R 2020R 2021F 2022F
-#  0.0164558 0.0199633 0.0240156 0.0291805 0.0366163 0.0468126 0.0591579 0.0736016 0.0908069 0.111769 0.137236 0.173458 0.227738 0.308914 0.408216 0.421055 0.238161 0.106115 0.141907 0.196203 0.191293 0.165936 0.324533 0.49437 0.401024 0.318384 0.288816 0.304338 0.264371 0.236036 0.116808 0.00708971 0.0652933 0.0054997 -0.174164 -0.385208 -0.458146 -0.24873 0.179888 -0.936158 -0.968086 -0.950613 -0.646836 -0.661807 -0.297546 -0.235519 -0.173275 -0.0829573 -0.0139549 0.000930555 0.00100847 0 0
+#  1971E 1972E 1973E 1974E 1975E 1976E 1977E 1978E 1979E 1980E 1981E 1982E 1983E 1984E 1985E 1986E 1987E 1988E 1989E 1990E 1991E 1992E 1993E 1994E 1995E 1996E 1997E 1998E 1999E 2000E 2001E 2002E 2003E 2004E 2005E 2006E 2007E 2008E 2009E 2010E 2011R 2012R 2013R 2014R 2015R 2016R 2017R 2018R 2019F 2020F 2021F 2022F
+#  0.0332635 0.0388691 0.046018 0.0565189 0.070673 0.0867737 0.104397 0.124441 0.148032 0.175618 0.214848 0.27211 0.354474 0.445188 0.432846 0.247577 0.126819 0.163191 0.212551 0.210817 0.197234 0.348462 0.487704 0.395251 0.318012 0.286693 0.289471 0.24184 0.202077 0.0863939 -0.0187963 -0.00180139 -0.087595 -0.256429 -0.439658 -0.48844 -0.252004 0.268041 -0.833327 -0.840716 -0.648122 -0.328596 -0.283174 0.0898146 0.160583 0.233506 0.344817 0.431169 -5.54731e-05 -4.62612e-09 5.24025e-14 0
 #
 #Fishing Mortality info 
 0.3 # F ballpark value in units of annual_F
@@ -146,14 +146,15 @@
 2.9 # max F (methods 2-4) or harvest fraction (method 1)
 4  # N iterations for tuning in hybrid mode; recommend 3 (faster) to 5 (more precise if many fleets)
 #
-#_initial_F_parms; for each fleet x season that has init_catch; nest season in fleet; count = 0
+#_initial_F_parms; for each fleet x season that has init_catch; nest season in fleet; count = 1
 #_for unconstrained init_F, use an arbitrary initial catch and set lambda=0 for its logL
 #_ LO HI INIT PRIOR PR_SD  PR_type  PHASE
+ 0 2 0.015057 0 0 0 1 # InitF_seas_1_flt_1FISHERY
 #
 # F rates by fleet x season
 # Yr:  1967 1968 1969 1970 1971 1972 1973 1974 1975 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022
 # seas:  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-# FISHERY 0.0138477 0.0426149 0.0192361 0.00551494 0.000234919 0.144107 0.252633 0.231222 0.390157 0.325868 0.189038 0.0763097 0.0334004 0.0755533 0.139858 0.18376 0.416251 0.35423 0.399216 0.276921 0.0759468 0.168444 0.140846 0.0368881 0.0616817 0.0335643 0.0363515 0.0985323 0.0863636 0.0726607 0.146739 0.0143899 0.0468023 0.0439422 0.0585156 0.123945 0.18217 0.0763273 0.0373623 0.0324598 0.0802881 0.128894 0.216798 0.0692093 0.10534 0.0328051 0.166495 0.171941 0.103279 0.0397256 0.0306933 0.0313804 0.0813655 0.0448928 0.00504332 0.174919
+# FISHERY 0.0151396 0.0461494 0.0206953 0.00590285 0.00025034 0.15341 0.268769 0.245058 0.413247 0.346723 0.200785 0.0801273 0.0344933 0.0767706 0.140236 0.182424 0.410959 0.350237 0.397549 0.278437 0.076882 0.170898 0.14233 0.0369253 0.0611847 0.0330814 0.0355983 0.0958553 0.0840789 0.0713616 0.144865 0.0142136 0.0461627 0.0433215 0.0577203 0.122466 0.18023 0.0758305 0.0375925 0.0331307 0.0826598 0.133148 0.225119 0.072314 0.10887 0.0329601 0.160939 0.156822 0.0882828 0.0320174 0.0236461 0.0232916 0.058084 0.0308657 0.00343579 0.160664
 #
 #_Q_setup for fleets with cpue or survey data
 #_1:  fleet number
@@ -168,7 +169,7 @@
 #
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
-            -7             5      -2.01647             0             0             0          1          0          0          0          0          0          0          0  #  LnQ_base_FISHERY(1)
+            -7             5      -2.03679             0             0             0          1          0          0          0          0          0          0          0  #  LnQ_base_FISHERY(1)
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -216,8 +217,8 @@
 #
 #_          LO            HI          INIT         PRIOR         PR_SD       PR_type      PHASE    env-var    use_dev   dev_mnyr   dev_mxyr     dev_PH      Block    Blk_Fxn  #  parm_name
 # 1   FISHERY LenSelex
-            15            40       23.4808             0             0             0          2          0          0          0          0          0          0          0  #  Size_inflection_FISHERY(1)
-             0             5       4.29017             0             0             0          2          0          0          0          0          0          0          0  #  Size_95%width_FISHERY(1)
+            15            40        23.451             0             0             0          2          0          0          0          0          0          0          0  #  Size_inflection_FISHERY(1)
+             0             5        4.2459             0             0             0          2          0          0          0          0          0          0          0  #  Size_95%width_FISHERY(1)
 # 1   FISHERY AgeSelex
 #_No_Dirichlet parameters
 #_no timevary selex parameters

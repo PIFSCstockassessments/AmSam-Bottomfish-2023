@@ -4,7 +4,7 @@
 #_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
 #_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
-#_Start_time: Fri Jul 01 08:34:10 2022
+#_Start_time: Wed Jul 13 12:35:04 2022
 #_echo_input_data
 #C data file for VALO
 #V3.30.19.01;_fast(opt);_compile_date:_Apr 15 2022;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
@@ -37,7 +37,7 @@
 #_Catch data: yr, seas, fleet, catch, catch_se
 #_catch_se:  standard error of log(catch)
 #_NOTE:  catch data is ignored for survey fleets
--999 1 1 0 0.01
+-999 1 1 0.06033 0.8
 1967 1 1 0.06033 0.8
 1968 1 1 0.18144 0.8
 1969 1 1 0.08029 0.8
@@ -155,7 +155,7 @@
 2 # length bin method: 1=use databins; 2=generate from binwidth,min,max below; 3=read vector
 1 # binwidth for population size comp 
 1 # minimum size in the population (lower edge of first bin and size at age 0.00) 
-58 # maximum size in the population (lower edge of last bin) 
+48 # maximum size in the population (lower edge of last bin) 
 1 # use length composition data (0/1)
 #_mintailcomp: upper and lower distribution for females and males separately are accumulated until exceeding this level.
 #_addtocomp:  after accumulation of tails; this value added to all bins
@@ -177,6 +177,7 @@
  2013 1 1 0 0 66.36 0 0 0 0 0 0 1 10 13 13 18 14 5 2 1 2
  2014 1 1 0 0 49.56 0 0 0 0 0 1 10 13 9 11 6 5 3 0 1 0
  2015 1 1 0 0 84 0 0 0 0 0 4 8 19 19 13 12 15 4 4 1 1
+ 2015 1 2 0 0 36.12 1 2 0 2 5 6 12 3 2 3 1 0 3 3 0 0
 -9999 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 #
 0 #_N_age_bins
@@ -190,7 +191,7 @@
 #_minsamplesize: minimum sample size; set to 1 to match 3.24, minimum value is 0.001
 #
 #_mintailcomp addtocomp combM+F CompressBins CompError ParmSelect minsamplesize
-# 0 0 9984 9984 0 0 0 #_fleet:1_FISHERY
+# 0 0 0 351428608 0 0 0 #_fleet:1_FISHERY
 # 0 #_Lbin_method_for_Age_Data: 1=poplenbins; 2=datalenbins; 3=lengths
 # sex codes:  0=combined; 1=use female only; 2=use male only; 3=use both as joint sexxlength distribution
 # partition codes:  (0=combined; 1=discard; 2=retained
