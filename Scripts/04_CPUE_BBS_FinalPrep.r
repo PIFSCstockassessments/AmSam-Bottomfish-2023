@@ -52,5 +52,9 @@ C$PRES         <- ifelse(C$CPUE>0,1,0)
 C$SPECIES_FK   <- as.character(C$SPECIES_FK)
 
 length(unique(C$INTERVIEW_PK))
+
+# Remove an extreme outlier for PRZO
+C <- C[!(INTERVIEW_PK==890819113004&SPECIES_FK==245)]
+
 saveRDS(C,paste0(root_dir,"/Outputs/CPUE_C.rds"))
 

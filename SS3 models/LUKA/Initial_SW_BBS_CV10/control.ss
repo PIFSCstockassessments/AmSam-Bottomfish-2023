@@ -48,12 +48,12 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	    0.73	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
+    0	      2	   0.675	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
     1	     10	       2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_4       
-   20	     40	      22	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_4       
- 0.05	    0.6	     0.3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_4       
- 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_4        
- 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_4          
+   20	     40	    24.7	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_4       
+ 0.05	    0.6	    0.53	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_4       
+ 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_4        
+ 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_4          
    -1	      3	1.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	    3.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
    15	     60	      15	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
@@ -84,7 +84,7 @@
 2018 # last year of main recr_devs; forecast devs start in following year
 2 #_recdev phase
 1 # (0/1) to read 13 advanced options
--40 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
+-37 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
 3 #_recdev_early_phase
 4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1

@@ -52,8 +52,8 @@ M    <- median(Data$M)
 A0   <- median(Data$A0)
 
 # Get LERU estimates
-# Based on L99 of 39.4 cm (FL) from BBS
-Data <- Get_distributions(Family="Lethrinidae", Lmax.mean=(394/0.91), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 39 cm (FL) from BBS+BIOS
+Data <- Get_distributions(Family="Lethrinidae", Lmax.mean=(390/0.91), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.91)
 Lmat <- median(Data$Lmat*0.91)
