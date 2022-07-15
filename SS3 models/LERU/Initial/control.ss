@@ -33,7 +33,7 @@
 0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=Maunder_M;_6=Age-range_Lorenzen
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
-0.5 #_Age(post-settlement)_for_L1;linear growth below this
+0 #_Age(post-settlement)_for_L1;linear growth below this
 999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
@@ -49,15 +49,15 @@
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
     0	      2	   0.675	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-    2	     10	       5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+    2	     15	    10.7	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
    10	     50	    31.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
  0.05	      1	     0.8	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
+ 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
    -1	      3	2.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	    2.94	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   10	     40	      23	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-   -3	      3	   -0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+   10	     40	    22.6	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+   -3	      3	   -0.98	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
   0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
@@ -73,18 +73,18 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-  1	30	      10	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
-0.2	 1	0.655771	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	 2	0.552117	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
- -5	 5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
-  0	 0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
+  1	5	       2	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.2	1	0.655771	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
+  0	2	0.552117	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+ -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
+  0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
 1 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
 2004 # first year of main recr_devs; early devs can preceed this era
 2018 # last year of main recr_devs; forecast devs start in following year
 2 #_recdev phase
 1 # (0/1) to read 13 advanced options
--40 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
+-37 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
 3 #_recdev_early_phase
 4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
@@ -107,7 +107,7 @@
 0.3 # F ballpark
 -2000 # F ballpark year (neg value to disable)
 3 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
-5 # max F or harvest rate, depends on F_Method
+2.9 # max F or harvest rate, depends on F_Method
 4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
 #
 #_initial_F_parms
@@ -149,7 +149,7 @@
 #_factor	fleet	Value
 1    	1	   0	#_1         
 1    	2	   0	#_2         
-4    	1	0.04	#_3         
+4    	1	0.15	#_3         
 -9999	0	   0	#_terminator
 #
 5 #_maxlambdaphase
