@@ -70,8 +70,15 @@ Z[is.na(LOGSD.MT)]$LOGSD.MT <- 0
 
 Z <- select(Z,SPECIES,YEAR,MT,LOGSD.MT)  
 
-Z[YEAR<=1985]$LOGSD.MT <- 0.8 # Add some uncertainty to historic catch
+# Variance min/max adjustments
+
+Z[YEAR<=1985]$LOGSD.MT              <- 0.5 # Add some uncertainty to historic catch
+Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
+Z[YEAR>=1986&LOGSD.MT<0.2]$LOGSD.MT <- 0.2 # Increase min CV to 0.2
+
+
 saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
+
 
 
 
