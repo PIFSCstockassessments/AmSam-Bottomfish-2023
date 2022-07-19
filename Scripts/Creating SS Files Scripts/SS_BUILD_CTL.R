@@ -74,17 +74,35 @@ build_control <- function(species = species,
   CTL$First_Mature_Age          <- ctl.sps$First_Mature_Age
   CTL$fecundity_option          <- ctl.sps$fecundity_option #(1)eggs=Wt*(a+b*Wt);(2)eggs=a*L^b;(3)eggs=a*Wt^b; (4)eggs=a+b*L; (5)eggs=a+b*W
   CTL$hermaphroditism_option    <- ctl.sps$hermaphroditism_option
+  if(CTL$hermaphroditism_option != 0){
+    CTL$Herm_season <- ctl.sps$hermaphroditism_season
+    CTL$Herm_MalesInSSB <- ctl.sps$hermaphroditism_malesinssb
+    
+  }
   CTL$parameter_offset_approach <- ctl.sps$parameter_off_approach #no offset
 
   ## Growth Parameters
-  M <- ctl.params %>% filter(str_detect(category, "M") & OPTION == M_option & str_detect(X1, "NatM_p_1_Fem"))
+  M <- ctl.params %>% filter(str_detect(category, "M") & OPTION == M_option & str_detect(X1, "NatM"))
   MG <- ctl.params[which(ctl.params$category == "GROWTH" & ctl.params$OPTION == GROWTH_option),]
   LW <- ctl.params[which(ctl.params$category == "LW" & ctl.params$OPTION == LW_option),]
   MAT <- ctl.params[which(ctl.params$category == "MAT" & ctl.params$OPTION == MAT_option),]
   
+  Nsex <- ctl.sps %>% select(Nsexes)
+  
  CTL$MG_parms <- bind_rows(M, MG, LW, MAT) %>% 
    select(-c(category, OPTION)) %>%
-   column_to_rownames("X1")
+   mutate(sex = ifelse(str_detect(X1, "Fem"), 1, 2),
+          sex = ifelse(str_detect(X1, "Herm"), 3, sex),
+          sex = ifelse(str_detect(X1, "FracFemale|CohortGrowDev"), 4, sex)) %>% 
+   column_to_rownames("X1") %>% 
+   arrange(sex) %>% 
+   filter(if(Nsex$Nsexes != 2) sex != 2) %>% 
+   #filter(if(CTL$hermaphroditism_option == 0) sex != 3) %>% 
+   select(-sex)
+ 
+ if(CTL$hermaphroditism_option == 0){
+   CTL$MG_parms <- CTL$MG_parms %>% filter(str_detect(rownames(.), "Herm", negate = TRUE))
+ }
    
 
   CTL$MGparm_seas_effects <- unlist(select(ctl.sps, contains("Mgparm_seas")))

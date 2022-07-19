@@ -149,11 +149,17 @@ build_all_ss <- function(species,
   Nages <- ctl.params %>% 
        dplyr::filter(str_detect(OPTION, M_option)) %>% 
        dplyr::filter(str_detect(X1, "Nages")) %>% 
-       pull(INIT)
+       pull(INIT) %>% 
+       max()
   
   Narea <- ctl.inputs %>% 
     select(Parameter, paste0(species)) %>% 
     filter(str_detect(Parameter, "N_areas")) %>% 
+    pull()
+  
+  Nsexes <- ctl.inputs %>% 
+    select(Parameter, paste0(species)) %>% 
+    filter(str_detect(Parameter, "Nsexes")) %>% 
     pull()
   
   # CPUE data
@@ -268,6 +274,7 @@ build_all_ss <- function(species,
     CPUEinfo = cpueinfo,
     cpue = cpue,
     Nages = Nages,
+    Nsexes = Nsexes,
     lencomp = lencomp,
     bin.list = BIN.LIST,
     fleets = fleets,
