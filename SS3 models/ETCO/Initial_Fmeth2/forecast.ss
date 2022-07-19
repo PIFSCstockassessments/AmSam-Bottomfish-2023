@@ -1,11 +1,7 @@
 #C forecast file written by R function SS_writeforecast
 #C rerun model to get more complete formatting in forecast.ss_new
 #C should work with SS version: 3.3
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F3_nohistC/forecast.ss
-#C file write time: 2022-07-13 14:34:29
-========
-#C file write time: 2022-07-13 11:05:33
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/ETCO/Initial_Fmeth2/forecast.ss
+#C file write time: 2022-07-18 12:01:40
 #
 1 #_benchmarks
 2 #_MSY

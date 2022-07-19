@@ -33,11 +33,7 @@
 0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=Maunder_M;_6=Age-range_Lorenzen
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
-0.5 #_Age(post-settlement)_for_L1;linear growth below this
-========
 1 #_Age(post-settlement)_for_L1;linear growth below this
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
 999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
@@ -52,17 +48,6 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
-    0	      2	0.385714	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-    1	     20	       5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
-   38	    100	    43.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
- 0.05	   0.35	    0.26	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
-   -1	      3	 1.3e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	    3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   40	     60	    47.6	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-========
     0	      2	0.192857	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
     5	     25	      10	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
    30	    100	    41.2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
@@ -72,7 +57,6 @@
    -1	      3	 2.1e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	    2.95	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
    25	     60	      27	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
    -3	      3	   -0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
@@ -89,34 +73,13 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
-0.8	30	      10	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
-0.2	 1	0.767674	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	 2	0.411207	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
-========
-0.1	30	       5	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
-0.2	 1	0.746822	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	 2	 0.59066	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
- -5	 5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
-  0	 0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
+0.1	5	       1	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.2	1	0.746822	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
+  0	2	 0.59066	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+ -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
+  0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
 1 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
-2011 # first year of main recr_devs; early devs can preceed this era
-2018 # last year of main recr_devs; forecast devs start in following year
-2 #_recdev phase
-1 # (0/1) to read 13 advanced options
--40 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
-3 #_recdev_early_phase
-4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
-1 #_lambda for Fcast_recr_like occurring before endyr+1
-2003.1 #_last_yr_nobias_adj_in_MPD; begin of ramp
-2012.7 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-2012.9 #_last_yr_fullbias_adj_in_MPD
-2013.1 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
-0.8001 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
-========
 2012 # first year of main recr_devs; early devs can preceed this era
 2017 # last year of main recr_devs; forecast devs start in following year
 2 #_recdev phase
@@ -130,7 +93,6 @@
 2014.4 #_last_yr_fullbias_adj_in_MPD
 2015.8 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
 0.7307 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
 0 #_period of cycles in recruitment (N parms read below)
 -5 #min rec_dev
 5 #max rec_dev
@@ -147,49 +109,39 @@
 2 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
 2.9 # max F or harvest rate, depends on F_Method
 #_overall start F value; overall phase; N detailed inputs to read
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
-0.01 2 0 #_F_setup
-========
 0.01 4 0 #_F_setup
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
 #
 #_initial_F_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
-0	2	0.2	0	0	0	1	#_1
+0	0.3	0.01	0	0	0	1	#_1
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
     1	1	0	0	0	0	#_1         
+    2	1	0	0	0	0	#_2         
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
--7	5	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base
-========
--7	5	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
--7	5	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_Manua
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
+-4	2	-1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
+-4	2	-1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_Manua
 #_no timevary Q parameters
 #
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
 1	0	0	0	#_1 1
+5	0	0	1	#_2 2
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
 0	0	0	0	#_1 1
+0	0	0	0	#_2 2
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F2/control.ss
-15	40	25	0	0	0	2	0	0	0	0	0	0	0	#_1
- 0	 5	 3	0	0	0	2	0	0	0	0	0	0	0	#_2
-========
-15	50	25	  50	0	0	2	0	0	0	0	0	0	0	#_1
- 0	15	10	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
+20	32	25	  50	0	0	2	0	0	0	0	0	0	0	#_1
+ 4	12	 8	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
 -1	10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_3
 -1	10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_4
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/PRFL/Initial_Fmeth2/control.ss
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters

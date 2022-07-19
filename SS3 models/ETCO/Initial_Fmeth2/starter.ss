@@ -1,11 +1,7 @@
 #C starter file written by R function SS_writestarter
 #C rerun model to get more complete formatting in starter.ss_new
 #C should work with SS version: 3.30
-<<<<<<<< HEAD:SS3 models/VALO/Initial_F3_nohistC/starter.ss
-#C file write time: 2022-07-13 14:34:27
-========
-#C file write time: 2022-07-13 11:05:33
->>>>>>>> af3fda03c136c9eafec26c435816ca484d274037:SS3 models/ETCO/Initial_Fmeth2/starter.ss
+#C file write time: 2022-07-18 12:01:40
 #
 data.ss #_datfile
 control.ss #_ctlfile
@@ -25,7 +21,7 @@ control.ss #_ctlfile
 1969 #_minyr_sdreport
 -2 #_maxyr_sdreport
 0 #_N_STD_yrs
-1e-04 #_converge_criterion
+0.0001 #_converge_criterion
 0 #_retro_yr
 1 #_min_age_summary_bio
 2 #_depl_basis
