@@ -104,7 +104,7 @@ build_control <- function(species = species,
  if(Nsexes != 2){
    MG_parms <- MG_parms %>% filter(str_detect(rownames(.), "Male", negate = TRUE))
  }
-   
+   CTL$MG_parms <- MG_parms
 
   CTL$MGparm_seas_effects <- unlist(select(ctl.sps, contains("Mgparm_seas")))
   ## Spawner-Recruitment
