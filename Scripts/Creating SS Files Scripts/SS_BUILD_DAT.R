@@ -59,6 +59,13 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
     dplyr::arrange(Yr)
   
+  if(Nsexes == 2){
+    
+    lencomp.sp <- lencomp.sp %>% 
+      mutate(across(starts_with("l"), ~ ., .names = "{col}m")) %>% 
+      mutate(Sex = 0)
+  }
+  
   ## STEP 4. Change inputs for dat file
   
   DAT$Comments        <- paste("#C data file for", species, sep = " ")
@@ -130,8 +137,12 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
                                minsamplesize  = rep(1, DAT$Nfleets))
     
     DAT$N_lbins     <- length(select(lencomp.sp, starts_with("l")))
+    if(Nsexes == 2){
+      DAT$N_lbins = DAT$N_lbins/2
+    }
     lbin_vector <- colnames(lencomp.sp[-c(1:6)])
-    DAT$lbin_vector <- as.numeric(str_sub(lbin_vector, 2))
+    lbin_vector <- lbin_vector[!grepl("m", lbin_vector)]
+    DAT$lbin_vector <- as.numeric(str_sub(lbin_vector, start = 2))
     
     ## Add length composition data, column names: Yr, Seas, FltSVy, Gender, Part, Nsamp, length_bin_values...
     DAT$lencomp     <- as.data.frame(lencomp.sp)

@@ -207,9 +207,9 @@ build_all_ss <- function(species,
     setNames(c("Pattern", "Discard", "Male", "Special")) %>% 
     as.data.frame() 
   
-  if(Nfleets > 1){
-    
-  }
+  # if(Nfleets > 1){
+  #   
+  # }
   
   age_selex_types <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 
@@ -289,6 +289,7 @@ build_all_ss <- function(species,
     species = species,
     scenario = scenario,
     Nfleets = Nfleets,
+    Nsexes = Nsexes, 
     ctl.inputs = ctl.inputs,
     ctl.params = ctl.params,
     includeCPUE = includeCPUE,

@@ -10,6 +10,7 @@
 build_control <- function(species = species,
                           scenario = "base",
                           Nfleets = Nfleets,
+                          Nsexes = Nsexes, 
                           ctl.inputs = ctl.inputs,
                           ctl.params = ctl.params,
                           includeCPUE = TRUE,
@@ -87,21 +88,21 @@ build_control <- function(species = species,
   LW <- ctl.params[which(ctl.params$category == "LW" & ctl.params$OPTION == LW_option),]
   MAT <- ctl.params[which(ctl.params$category == "MAT" & ctl.params$OPTION == MAT_option),]
   
-  Nsex <- ctl.sps %>% select(Nsexes)
-  
- CTL$MG_parms <- bind_rows(M, MG, LW, MAT) %>% 
+ MG_parms <- bind_rows(M, MG, LW, MAT) %>% 
    select(-c(category, OPTION)) %>%
    mutate(sex = ifelse(str_detect(X1, "Fem"), 1, 2),
           sex = ifelse(str_detect(X1, "Herm"), 3, sex),
           sex = ifelse(str_detect(X1, "FracFemale|CohortGrowDev"), 4, sex)) %>% 
    column_to_rownames("X1") %>% 
    arrange(sex) %>% 
-   filter(if(Nsex$Nsexes != 2) sex != 2) %>% 
-   #filter(if(CTL$hermaphroditism_option == 0) sex != 3) %>% 
    select(-sex)
  
  if(CTL$hermaphroditism_option == 0){
-   CTL$MG_parms <- CTL$MG_parms %>% filter(str_detect(rownames(.), "Herm", negate = TRUE))
+   MG_parms <- MG_parms %>% filter(str_detect(rownames(.), "Herm", negate = TRUE))
+ }
+ 
+ if(Nsexes != 2){
+   MG_parms <- MG_parms %>% filter(str_detect(rownames(.), "Male", negate = TRUE))
  }
    
 
