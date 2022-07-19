@@ -8,7 +8,7 @@
 ## DAT file
 #  --------------------------------------------------------------------------------------------------------------
 build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo = NULL, cpue = NULL, 
-                      Nages = NULL, Narea = 1, lencomp = NULL, startyr = 1967, endyr = 2021, 
+                      Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, 
                       file_dir = "base",
                       template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
@@ -68,7 +68,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
   DAT$months_per_seas <- 12
   DAT$Nsubseasons     <- 2 #minimum number is 2
   DAT$spawn_month     <- 1
-  DAT$Nsexes          <- -1 #1 ignore fraction female in ctl file, 2 use frac female in ctl file, -1 one sex and multiply spawning biomass by frac female
+  DAT$Nsexes          <- Nsexes #1 ignore fraction female in ctl file, 2 use frac female in ctl file, -1 one sex and multiply spawning biomass by frac female
   DAT$Ngenders        <- NULL
   DAT$Nages           <- Nages
   DAT$N_areas         <- Narea #if want to explore fleets as areas, change this 
