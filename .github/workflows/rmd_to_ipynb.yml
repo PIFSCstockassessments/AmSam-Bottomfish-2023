@@ -3,6 +3,8 @@
 # Controls when the action will run. Workflow runs changes are pushed to any branch
 on:
   push:
+    paths-ignore:
+      - '*model_diags_report.rmd'
 
 name: RMD to ipynb workflow
 jobs:
