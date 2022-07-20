@@ -149,8 +149,7 @@ build_all_ss <- function(species,
   Nages <- ctl.params %>% 
        dplyr::filter(str_detect(OPTION, M_option)) %>% 
        dplyr::filter(str_detect(X1, "Nages")) %>% 
-       pull(INIT) %>% 
-       max()
+       pull(INIT) 
   
   Narea <- ctl.inputs %>% 
     select(Parameter, paste0(species)) %>% 
