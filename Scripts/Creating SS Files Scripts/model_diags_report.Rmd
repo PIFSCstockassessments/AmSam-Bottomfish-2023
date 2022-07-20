@@ -2,7 +2,7 @@
 title: "American Samoa Model Checks"
 author: "Meg Oshima"
 date: "`r Sys.Date()`"
-output: html_document
+output: github_document
 params: 
   species:
     label: "Select species"
@@ -109,7 +109,7 @@ SSplotComps(report., subplots = 1, fleets = 1)
 
 ## Retrospective and Hindcasting  
 ### Retrospective 
-```{r message=FALSE, eval = TRUE}
+```{r message=FALSE, eval = TRUE, error=TRUE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
   
   retro.dirs <- list.files(file.path(params$report, params$species, params$file_dir, "Retrospectives"),
@@ -135,7 +135,7 @@ SSplotRetro(retrosum,
 ```
 
 ### Hindcasting
-```{r eval =TRUE}
+```{r eval =TRUE,error=TRUE}
 if(dir.exists(file.path(params$report, params$species, params$file_dir, "Retrospectives"))){
   for(i in 1:n.indices){
     sspar(mfrow = c(1,2))
