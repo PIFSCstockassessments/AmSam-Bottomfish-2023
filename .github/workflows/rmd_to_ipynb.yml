@@ -28,14 +28,16 @@ jobs:
           pip install --pre -U notebook
       - name: Install a Jupyter Kernel
         run: python -m ipykernel install --name python_kernel --user
-      - name: Convert rmd files to notebook
+      - name: Convert rmd files to notebook and commit
         uses: jitterbit/get-changed-files@v1
         run: |
           for changed_file in ${{ steps.files.outputs.all }}; do
           ext=${changed_file: -3}
           if [ "$ext" = "rmd" ]; then
             jupytext --to notebook $changed_file
+            git add $changed_file
+            git commit -m 'build diags notebook' || echo "No changes to commit"
+            git push origin || echo "No changes to commit"
           fi
 done
 
- 
