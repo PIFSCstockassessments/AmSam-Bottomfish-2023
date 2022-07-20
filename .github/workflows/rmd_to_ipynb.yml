@@ -3,8 +3,8 @@
 # Controls when the action will run. Workflow runs changes are pushed to any branch
 on:
   push:
-    paths-ignore:
-      - '*model_diags_report.rmd'
+    paths:
+      - '**.rmd'
 
 name: RMD to ipynb workflow
 jobs:
@@ -21,23 +21,23 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # All dependencies but markdown-it-py
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          # Notebook pre-release version #933
-          pip install --pre -U notebook
+          # Notebook
+          pip install -U notebook
       - name: Install a Jupyter Kernel
         run: python -m ipykernel install --name python_kernel --user
       - name: Convert rmd files to notebook and commit
         uses: jitterbit/get-changed-files@v1
-        run: |
+      - run: |
           for changed_file in ${{ steps.files.outputs.all }}; do
           ext=${changed_file: -3}
           if [ "$ext" = "rmd" ]; then
             jupytext --to notebook $changed_file
-            git add $changed_file
-            git commit -m 'build diags notebook' || echo "No changes to commit"
-            git push origin || echo "No changes to commit"
           fi
-done
+          done
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v9.0.1
+        with:
+          message: "Convert RMD to Notebook"
+          add: $changed_file
+      
 
