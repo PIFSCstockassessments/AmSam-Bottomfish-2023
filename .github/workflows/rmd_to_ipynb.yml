@@ -1,0 +1,43 @@
+# This is a workflow to convert rmd file to a Jupyter notebook format. Allows rendered rmd documents to be available in GitHub repo.
+
+# Controls when the action will run. Workflow runs changes are pushed to any branch
+on:
+  push:
+    paths-ignore:
+      - '*model_diags_report.rmd'
+
+name: RMD to ipynb workflow
+jobs:
+  convert_rmd_to_ipynb:
+    runs-on: ubuntu-latest
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # All dependencies but markdown-it-py
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          # Notebook pre-release version #933
+          pip install --pre -U notebook
+      - name: Install a Jupyter Kernel
+        run: python -m ipykernel install --name python_kernel --user
+      - name: Convert rmd files to notebook and commit
+        uses: jitterbit/get-changed-files@v1
+        run: |
+          for changed_file in ${{ steps.files.outputs.all }}; do
+          ext=${changed_file: -3}
+          if [ "$ext" = "rmd" ]; then
+            jupytext --to notebook $changed_file
+            git add $changed_file
+            git commit -m 'build diags notebook' || echo "No changes to commit"
+            git push origin || echo "No changes to commit"
+          fi
+done
+

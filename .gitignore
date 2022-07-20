@@ -60,6 +60,7 @@ runnumber.ss
 *.csv
 *.zip
 *.html
+!*_SS3_Diags_Report.hmtl
 SS3 models/TEMPLATE_FILES/*
 !SS3 models/TEMPLATE_FILES/control.ss
 !SS3 models/TEMPLATE_FILES/data.ss
