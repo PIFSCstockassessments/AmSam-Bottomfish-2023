@@ -159,7 +159,10 @@ US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 #================Put size data together===============================================
 D <- rbind(US,BIO,BB)
 
-if(Combine_BB_BIO==T) D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BIO and BBS"
+if(Combine_BB_BIO==T){
+  D[SPECIES!="APVI"&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+  D[SPECIES=="APVI"&DATASET=="Biosampling"]$LENGTH_FL <- NA # The biosampling APVI size distribution are very anomalous. Exclude this data.
+}
 
 # Merge all years for Atoll
 D[AREA_C=="Atoll"]$YEAR <- 2022
