@@ -17,7 +17,7 @@ params:
     input: text
   profile:
     label: "profile"
-    value: "InitF"
+    value: "SR_LN(R0)"
     input: text
   profile_vec: 
     label: "vector of profile values"
