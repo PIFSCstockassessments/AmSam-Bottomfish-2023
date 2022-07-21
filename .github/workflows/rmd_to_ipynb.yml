@@ -4,7 +4,7 @@
 on:
   push:
     paths:
-      - '**.rmd'
+      - '**/*.rmd'
 
 name: RMD to ipynb workflow
 jobs:
