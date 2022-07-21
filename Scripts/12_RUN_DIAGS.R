@@ -31,7 +31,7 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
   if(do_retro == TRUE){
     
     ## Do Retrospectives
-    r4ss::SS_doRetro(masterdir=file.path(root_dir, "SS3 models", species, file_dir), 
+    r4ss::SS_doRetro(masterdir=file.path(root_dir, "SS3_models", species, file_dir), 
                oldsubdir="", newsubdir="Retrospectives", years=retro_years)
     
     
@@ -39,8 +39,8 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
   
   if(do_profile == TRUE){
     ## Create directory and copy inputs
-    dir.profile <- file.path(root_dir, "SS3 models", species, file_dir, paste0(profile, "_profile"))
-    r4ss::copy_SS_inputs(dir.old = file.path(root_dir, "SS3 models", species, file_dir),
+    dir.profile <- file.path(root_dir, "SS3_models", species, file_dir, paste0(profile, "_profile"))
+    r4ss::copy_SS_inputs(dir.old = file.path(root_dir, "SS3_models", species, file_dir),
                    dir.new = dir.profile,
                    create.dir = TRUE,
                    overwrite = TRUE,
@@ -48,7 +48,7 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
                    use_ss_new = TRUE,
                    copy_exe = TRUE,
                    copy_par = FALSE,
-                   dir.exe = file.path(root_dir, "SS3 models", species, file_dir),
+                   dir.exe = file.path(root_dir, "SS3_models", species, file_dir),
                    verbose = TRUE)
     
     # Make changes to starter file
@@ -77,8 +77,8 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
   
   if(do_jitter == TRUE){
     
-    dir.jitter <- file.path(root_dir, "SS3 models", species, file_dir, "jitter")
-    r4ss::copy_SS_inputs(dir.old = file.path(root_dir, "SS3 models", species, file_dir),
+    dir.jitter <- file.path(root_dir, "SS3_models", species, file_dir, "jitter")
+    r4ss::copy_SS_inputs(dir.old = file.path(root_dir, "SS3_models", species, file_dir),
                          dir.new = dir.jitter,
                          create.dir = TRUE,
                          overwrite = TRUE,
@@ -86,7 +86,7 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
                          use_ss_new = TRUE,
                          copy_exe = TRUE,
                          copy_par = TRUE,
-                         dir.exe = file.path(root_dir, "SS3 models", species, file_dir),
+                         dir.exe = file.path(root_dir, "SS3_models", species, file_dir),
                          verbose = TRUE)
     
     

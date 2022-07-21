@@ -25,8 +25,8 @@ build_control <- function(species = species,
                           age_selex_types = age_selex_types,
                           lambdas = FALSE,
                           file_dir = "base",
-                          template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
-                          out_dir = file.path(root_dir, "SS3 models")){
+                          template_dir = file.path(root_dir, "SS3_models", "TEMPLATE_FILES"),
+                          out_dir = file.path(root_dir, "SS3_models")){
   
   CTL        <- r4ss::SS_readctl_3.30(file = file.path(template_dir, "control.ss"), 
                                       datlist = file.path(template_dir, "data.ss"))

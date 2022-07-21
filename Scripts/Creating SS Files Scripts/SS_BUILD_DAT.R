@@ -11,8 +11,8 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
                       Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, 
                       file_dir = "base",
-                      template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
-                      out_dir = file.path(root_dir, "SS3 models")){
+                      template_dir = file.path(root_dir, "SS3_models", "TEMPLATE_FILES"), 
+                      out_dir = file.path(root_dir, "SS3_models")){
   
   nfleet <- length(fleets)
   

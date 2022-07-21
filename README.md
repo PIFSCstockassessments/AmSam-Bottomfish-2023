@@ -6,7 +6,7 @@ The repo folder structure is:
 
 /Outputs (outputs from R scripts)
 
-/SS3 models (SS3 files)
+/SS3_models (SS3 files)
 
 Current model development and diagnostics can be found [here.](https://github.com/PIFSCstockassessments/AmSam-Bottomfish-2023/blob/master/index.md)
 

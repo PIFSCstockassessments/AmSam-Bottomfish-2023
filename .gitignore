@@ -61,12 +61,12 @@ runnumber.ss
 *.zip
 *.html
 !*_SS3_Diags_Report.hmtl
-SS3 models/TEMPLATE_FILES/*
-!SS3 models/TEMPLATE_FILES/control.ss
-!SS3 models/TEMPLATE_FILES/data.ss
-!SS3 models/TEMPLATE_FILES/forecast.ss
-!SS3 models/TEMPLATE_FILES/starter.ss
-!SS3 models/TEMPLATE_FILES/ss_opt_win.exe
+SS3_models/TEMPLATE_FILES/*
+!SS3_models/TEMPLATE_FILES/control.ss
+!SS3_models/TEMPLATE_FILES/data.ss
+!SS3_models/TEMPLATE_FILES/forecast.ss
+!SS3_models/TEMPLATE_FILES/starter.ss
+!SS3_models/TEMPLATE_FILES/ss_opt_win.exe
 Scripts/000_Run SS models - No sync.r
 plots
 **/jitter
