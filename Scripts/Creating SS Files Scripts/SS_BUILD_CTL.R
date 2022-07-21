@@ -259,7 +259,7 @@ build_control <- function(species = species,
       filter(!is.na(value)) %>% 
       mutate(fleet = ifelse(is.na(fleet), 1, fleet)) %>% 
       pivot_wider(names_from = "name", values_from = "value", names_repair = "minimal") %>% 
-      select(-fleet) %>% 
+      select(-1) %>% 
       as.data.frame()
     
     CTL$N_lambdas <- nrow(CTL$lambdas)

@@ -87,7 +87,7 @@ for(i in 1:n.comps){
 
 ### Length Comp
 ```{r}
-SS_tune_comps(report., option = "Francis", dir = getwd(), write =F)
+report.$Length_Comp_Fit_Summary
 
 sspar(mfrow = c(1,2))
 SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1)
