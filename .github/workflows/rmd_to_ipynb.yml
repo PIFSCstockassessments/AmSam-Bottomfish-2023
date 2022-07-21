@@ -3,8 +3,6 @@
 # Controls when the action will run. Workflow runs changes are pushed to any branch
 on:
   push:
-    paths:
-      - '/SS3 models/APVI/test_ghact/*.rmd'
 
 name: RMD to ipynb workflow
 jobs:
