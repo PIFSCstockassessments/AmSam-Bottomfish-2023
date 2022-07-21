@@ -4,7 +4,7 @@
 on:
   push:
     paths:
-      - '**/*.rmd'
+      - '/SS3 models/APVI/test_ghact/*.rmd'
 
 name: RMD to ipynb workflow
 jobs:
