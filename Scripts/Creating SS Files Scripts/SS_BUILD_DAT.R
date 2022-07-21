@@ -200,7 +200,10 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     
     DAT$binwidth     <- 1
     DAT$minimum_size <- 1 #lower size of first bin
-    DAT$maximum_size <- bin.list %>% filter(str_detect(SPECIES, species)) %>% pull(max) +10#lower size of largest bin 
+    DAT$maximum_size <- bin.list %>% 
+      filter(str_detect(SPECIES, species)) %>% 
+      mutate(max = ceiling(max*1.1)) %>% 
+      pull(max) #lower size of largest bin 
     
     
   }
