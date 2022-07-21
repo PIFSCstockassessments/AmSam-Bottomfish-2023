@@ -24,7 +24,7 @@ params:
     value: !r seq(0, 2, .2)
   Njitter:
     label: "Number of jitters"
-    value: !r 7
+    value: !r 8
     
 ---
 
