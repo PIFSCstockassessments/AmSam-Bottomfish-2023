@@ -34,6 +34,7 @@ library(this.path)
 library(r4ss)
 library(ss3diags)
 library(tidyverse)
+library(gt)
 
 
 ```
@@ -70,7 +71,9 @@ report.$warnings
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
 
-report.$index_variance_tuning_check
+report.$index_variance_tuning_check %>% 
+  select(Fleet, fleetname, N, RMSE, VarAdj, New_VarAdj) %>% 
+  gt()
 
 for(i in 1:n.indices){
   sspar(mfrow = c(1,2))
@@ -87,7 +90,9 @@ for(i in 1:n.comps){
 
 ### Length Comp
 ```{r}
-SS_tune_comps(report., option = "Francis", dir = getwd(), write =F)
+SS_tune_comps(report., option = "Francis", dir = getwd(), write =F, verbose =F) %>% 
+  select('#Factor', Fleet, New_Var_adj, Type, Name) %>% 
+  gt()
 
 sspar(mfrow = c(1,2))
 SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1)
