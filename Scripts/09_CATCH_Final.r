@@ -10,9 +10,6 @@ S <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS")
 S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
 S <- select(S,SPECIES_FK=SPECIES_PK,SPECIES,SCIENTIFIC_NAME)
 
-# Load historic data from Excel document
-Hist.Catch.Option <- "PropTableOnly"
-
 C <- data.table( read.xlsx(file.path(root_dir,"Data","Historical Catch.xlsx"),sheet="Total_Bottomfish")  )
 C <- select(C,YEAR,BOTTOMFISH_LBS=CATCH_LBS)
 
@@ -23,8 +20,6 @@ P2 <- data.table( read.xlsx(file.path(root_dir,"Data","Historical Catch.xlsx"),s
 P2 <- P2[1:11,]
 P2 <- select(P2,SPECIES,PROP_1980_1985=PROP_WEIGHT_MEAN)
 
-D  <- merge(C,P1,allow.cartesian = T)
-
 # Create empty data table
 D1      <- data.table(YEAR=as.numeric(rep(seq(1967,1985), times=11)), SPECIES=unique(P1$SPECIES)) 
 D1      <- D1[order(SPECIES,YEAR)]
@@ -34,27 +29,27 @@ D1$PROP <- 0
 D1[YEAR<=1979]$PROP <- D1[YEAR<=1979]$PROP_1967_1979 
 D1[YEAR>1979]$PROP  <- D1[YEAR>1979]$PROP_1980_1985 
 D1 <- select(D1,YEAR,SPECIES,PROP)
+D1$AREA_C <- "Combined"
 
 D     <- merge(D1,C,by="YEAR",allow.cartesian=T)
 D$LBS <- D$PROP*D$BOTTOMFISH_LBS
 D     <- merge(D,S,by="SPECIES")
 
-ggplot(D,aes(x=YEAR,y=LBS))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES)
+#ggplot(D,aes(x=YEAR,y=LBS))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES)
 
 D$SOURCE     <- "Historic"
 D$SD.LBS     <- 0
-D            <- select(D,SOURCE,SPECIES_FK,YEAR,LBS,SD.LBS)
-
+D            <- select(D,SOURCE,SPECIES_FK,AREA_C,YEAR,LBS,SD.LBS)
 
 # Sum BBS and SBS catch accross areas
-A <- A[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SOURCE,SPECIES_FK,YEAR)]
-B <- B[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SOURCE,SPECIES_FK,YEAR)]
+#A <- A[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SOURCE,SPECIES_FK,YEAR)]
+#B <- B[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SOURCE,SPECIES_FK,YEAR)]
 
 # Put all catches together
 E <- rbind(A,B,D)
 E <- merge(E,S,by="SPECIES_FK")
 
-C1 <- ggplot(data=E,aes(x=YEAR,y=LBS))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
+C1 <- ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
 ggsave(plot=C1,filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=4,units="in")
 
 
