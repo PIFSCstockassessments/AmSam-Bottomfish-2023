@@ -79,9 +79,13 @@ BW         <- 1
 BLUK$BINS  <- BLUK$LENGTH_FL - (BLUK$LENGTH_FL %% BW) + BW/2 # mid-point of bins
 BLUK$COUNT <- 1
 BLUK <- BLUK[,list(COUNT=sum(COUNT)),by=list(AREA_C,BINS)]
-ggplot(data=BLUK,aes(x=BINS,y=COUNT))+geom_bar(stat="identity")+facet_wrap(~AREA_C,scales="free_y",ncol=1)
+ggplot(data=BLUK,aes(x=BINS,y=COUNT))+xlim(c(15,35))+geom_bar(stat="identity")+facet_wrap(~AREA_C,scales="free_y",ncol=1)
+ggsave(last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LUKA_BBS_byRegion.png"),width=3,height=8,units="in")
 
 write.csv(BLUK,file=paste0(root_dir,"/Outputs/Summary/LUKA_BBS_SIZE_REGION.csv"))
+
+BB[SPECIES=="LUKA",list(L99=quantile(LENGTH_FL,0.99,na.rm=T)),by=list(AREA_C)]
+
 
 # Check the distribution of the NUM_KEPT field use to calculate mean length from catch
 BN <- BA[,list(NUM_KEPT=mean(NUM_KEPT,na.rm=T)),by=list(INTERVIEW_PK,YEAR)]
