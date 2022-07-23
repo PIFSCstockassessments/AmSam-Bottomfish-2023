@@ -259,7 +259,7 @@ for(i in 1:length(Species.List)){
 
  SizeData <- SizeData[DATASET!="UVS"]
  
- saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
+ write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
 
 
 # Output a sample size summary (includes YEARs with < MinN)
