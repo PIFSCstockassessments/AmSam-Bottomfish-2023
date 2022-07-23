@@ -70,7 +70,7 @@ Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
 Z[YEAR>=1986&LOGSD.MT<0.2]$LOGSD.MT <- 0.2 # Increase min CV to 0.2
 
 
-saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
+write.csv(Z,paste0(root_dir,"/Outputs/SS3_Inputs/CATCH_Final.csv"),row.names=F)
 
 
 
