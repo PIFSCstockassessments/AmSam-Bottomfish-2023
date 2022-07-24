@@ -160,6 +160,7 @@ US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 D <- rbind(US,BIO,BB)
 
 if(Combine_BB_BIO==T){
+  #D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BIO and BBS"
   D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
   D[(SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling"]$LENGTH_FL <- NA # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
 }
@@ -260,8 +261,9 @@ for(i in 1:length(Species.List)){
  SizeData <- SizeData[DATASET!="UVS"]
  
  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
-
-
+ saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
+ 
+ 
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_C+DATASET~YEAR,value.var="N",fill=0)
