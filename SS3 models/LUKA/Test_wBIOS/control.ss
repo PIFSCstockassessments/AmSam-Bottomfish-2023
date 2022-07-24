@@ -48,20 +48,20 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	     0.9	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
-    1	     10	      20	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_3       
-   20	     40	    24.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_3       
- 0.05	    0.5	    0.38	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_3       
- 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_3        
- 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_3          
-   -1	      3	1.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	    3.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   15	     60	      15	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-   -3	      3	      -3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
-   -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
-   -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
-  0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-1e-06	0.99999	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+       0	      2	      0.9	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
+       1	     10	       20	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_3       
+      20	     40	     24.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_3       
+    0.05	    0.5	     0.38	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_3       
+    0.05	   0.25	     0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_3        
+    0.05	   0.25	     0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_3          
+      -1	      3	0.0000128	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+      -1	      4	     3.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+      15	     60	       15	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+      -3	      3	       -3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+      -3	      3	        1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
+      -3	      3	        0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
+     0.1	     10	        1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
+0.000001	0.99999	      0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
@@ -107,7 +107,7 @@
 0.3 # F ballpark
 -2000 # F ballpark year (neg value to disable)
 2 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
-5 # max F or harvest rate, depends on F_Method
+2.9 # max F or harvest rate, depends on F_Method
 #_overall start F value; overall phase; N detailed inputs to read
 0.3 4 0 #_F_setup
 #
@@ -153,19 +153,16 @@
 #_Cond -6 6 1 1 2 0.01 -4 0 0 0 0 0 0 0  #_placeholder if no parameters
 #
 # Input variance adjustments factors: 
-#_factor	fleet	Value
-1    	1	0.3	#_1         
-1    	2	0.6	#_2         
-4    	1	  1	#_3         
--9999	0	  0	#_terminator
+#_Factor Fleet Value
+-9999 1 0 # terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
 # read 2 changes to default Lambdas (default value is 1.0)
 #_likecomp	fleet	phase	value	sizefreq
-    1	1	1	1	1	#_1         
-    1	2	1	1	1	#_2         
--9999	0	0	0	0	#_terminator
+    1	1	1	0.0000001	1	#_1         
+    1	2	1	 0.000001	1	#_2         
+-9999	0	0	        0	0	#_terminator
 #
 0 # 0/1 read specs for more stddev reporting
 #
