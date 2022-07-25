@@ -100,10 +100,10 @@ build_all_ss <- function(species,
   ## Step 1. Read in all data components ###-------------------------------------------
   
   # Catch data
-  catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_final.rds"))
+  catch <- read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "CATCH_Final.csv"))
   catch <- catch %>% mutate(MT = ifelse(MT == 0, 0.001, MT))
   # Length comp data
-  lencomp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_final.rds"))
+  lencomp <- read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"))
   # DAT inputs, single value parameters
   ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   # Control and data file inputs
