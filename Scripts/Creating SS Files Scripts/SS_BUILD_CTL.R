@@ -177,7 +177,7 @@ build_control <- function(species = species,
     filter(str_detect(X1, "Q")) %>% 
     filter(str_detect(OPTION, EST_option)) %>%
     select(-c(category, OPTION)) %>%
-    slice_head(n = Nfleets) %>% 
+    slice_head(n = Nfleets*2) %>% 
     column_to_rownames("X1")
 
 
