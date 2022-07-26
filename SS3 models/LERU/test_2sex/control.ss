@@ -74,7 +74,7 @@
   0.1	    0.6	     0.4	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_StDev               
     0	      1	    0.95	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_asymprate           
   0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-1e-06	0.99999	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+1e-06	0.99999	       1	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
