@@ -58,3 +58,31 @@ C <- C[!(INTERVIEW_PK==890819113004&SPECIES_FK==245)]
 
 saveRDS(C,paste0(root_dir,"/Outputs/CPUE_C.rds"))
 
+# Create some nominal CPUE graphs
+
+C$PERIOD <- as.numeric(C$YEAR) - (as.numeric(C$YEAR) %% 5)
+
+X <- C[AREA_C=="Tutuila",list(CPUE=mean(CPUE)),by=list(SPECIES_FK,PERIOD)]
+X <- X[order(SPECIES_FK,PERIOD)]
+
+Sp <- read.xlsx(paste0(root_dir, "/Data/METADATA.xlsx"),sheet="BMUS")
+Sp <- select(Sp,SPECIES_PK,SPECIES)
+Sp$SPECIES_PK <- as.character(Sp$SPECIES_PK)
+
+X <- merge(X,Sp,by.x="SPECIES_FK",by.y="SPECIES_PK")
+
+ggplot(data=X,aes(x=PERIOD,y=CPUE))+geom_bar(stat="identity")+facet_wrap(~SPECIES,scales="free_y")
+ggsave(last_plot(),file=paste0(root_dir, "/Outputs/Summary/CPUE_Nominal.png"),widt=8,height=8)
+
+
+
+
+
+
+
+
+
+
+
+
+
