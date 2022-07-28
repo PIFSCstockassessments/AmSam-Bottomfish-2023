@@ -67,7 +67,7 @@ D$YEAR        <- factor(D$YEAR)
 
 # Backward selection: Positive catch-only models
 if(Interaction==T){
-Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR*AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
 } else{
 Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
 }
@@ -115,7 +115,7 @@ P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,
 
 # Backward selection: Probability of catch-only models
 if(Interaction==T){
-Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR*AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 } else {
 Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 }  
