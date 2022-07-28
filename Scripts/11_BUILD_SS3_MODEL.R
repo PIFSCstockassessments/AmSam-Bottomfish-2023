@@ -94,16 +94,17 @@ build_all_ss <- function(species,
                          Njitter = 200,
                          jitterFraction = 0.1,
                          printreport = TRUE,
-                         r4ssplots = TRUE
+                         r4ssplots = TRUE,
+                         toipynb = TRUE
                          ){
   
   ## Step 1. Read in all data components ###-------------------------------------------
   
   # Catch data
-  catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_final.rds"))
+  catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_Final.csv"))
   catch <- catch %>% mutate(MT = ifelse(MT == 0, 0.001, MT))
   # Length comp data
-  lencomp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_final.rds"))
+  lencomp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"))
   # DAT inputs, single value parameters
   ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   # Control and data file inputs
@@ -372,13 +373,14 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-    if(!file.exists(file.path(root_dir, "SS3_models", species, file_dir, paste0(species, "_", file_dir, "_model_diags_report.Rmd")))){
-      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
-                to = file.path(root_dir, "SS3_models", species, file_dir, paste0(species, "_", file_dir, "_model_diags_report.Rmd")))
+    if(!file.exists(file.path(root_dir, "SS3_models", species, file_dir, paste0(species, "_", file_dir, "_model_diags_report.qmd")))){
+      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.qmd"), 
+                to = file.path(root_dir, "SS3_models", species, file_dir, paste0(species, "_", file_dir, "_model_diags_report.qmd")))
     }
     
     
-    rmarkdown::render(file.path(root_dir, "SS3_models", species, file_dir, paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+    quarto::quarto_render(input = file.path(root_dir, "SS3_models", species, file_dir, 
+                                            paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
                       output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
                       output_dir =  file.path(root_dir, "SS3_models", species, file_dir),
                       params = list(
@@ -388,6 +390,10 @@ build_all_ss <- function(species,
                         profile_vec = profile.vec,
                         Njitter = Njitter
                       ))
+    if(toipynb){
+      cmd <- paste0("cd ", root_dir, "/SS3_models/", species, "/", file_dir, "/", " quarto convert ", paste0(species, "_", file_dir, "_model_diags_report.qmd"))
+      system(cmd)
+    }
   }
   
 

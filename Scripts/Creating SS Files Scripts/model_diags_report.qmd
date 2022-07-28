@@ -2,29 +2,13 @@
 title: "American Samoa Model Checks"
 author: "Meg Oshima"
 date: "`r Sys.Date()`"
-output: html_document
+format: html
 params: 
-  species:
-    label: "Select species"
-    value: APVI
-    input: select
-    choices: [APRU, APVI, CALU,
-    ETCO, LERU, LUKA, PRFL, PRZO, 
-    VALO, TEMPLATE_FILES]
-  scenario: 
-    label: "Scenario"
-    value: "base"
-    input: text
-  profile:
-    label: "profile"
-    value: "InitF"
-    input: text
-  profile_vec: 
-    label: "vector of profile values"
-    value: !r seq(0, 2, .2)
-  Njitter:
-    label: "Number of jitters"
-    value: !r 2
+  species: "APVI"
+  profile: "SR_LN(R0)"
+  scenario: "base"
+  Njitter: 2
+  profile_vec: !expr seq(0,2,.2)
     
 ---
 
