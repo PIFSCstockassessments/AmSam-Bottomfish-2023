@@ -97,8 +97,8 @@ A0   <- median(Data$A0)
 
 
 # Get VALO estimates
-# Based on L99 of 45.8 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
-Data <- Get_distributions(Family="Serranidae", Lmax.mean=458/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 47 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
+Data <- Get_distributions(Family="Serranidae", Lmax.mean=470/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
 Lmat <- median(Data$Lmat*0.87)
