@@ -81,8 +81,8 @@ build_all_ss <- function(species,
                          root_dir = this.path::here(.. = 1),
                          file_dir = scenario,
                          template_dir = file.path(this.path::here(.. = 1), 
-                                                  "SS3_models", "TEMPLATE_FILES"), 
-                         out_dir = file.path(this.path::here(.. = 1), "SS3_models"),
+                                                  "SS3 models", "TEMPLATE_FILES"), 
+                         out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
                          runmodels = TRUE,
                          ext_args = "-stopph 3 -nohess",
                          do_retro = TRUE,
@@ -101,18 +101,10 @@ build_all_ss <- function(species,
   ## Step 1. Read in all data components ###-------------------------------------------
   
   # Catch data
-<<<<<<< HEAD
-  catch <- readRDS(file.path(root_dir, "Outputs", "CATCH_Final.csv"))
-  catch <- catch %>% mutate(MT = ifelse(MT == 0, 0.001, MT))
-  # Length comp data
-  lencomp <- readRDS(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"))
-=======
   catch <- data.table(  read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "CATCH_Final.csv"))  )
   catch <- catch %>% mutate(MT = ifelse(MT == 0, 0.001, MT))
   # Length comp data
   lencomp <- data.table(  read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"),header=T)  )
-  
->>>>>>> origin/master
   # DAT inputs, single value parameters
   ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   # Control and data file inputs
@@ -129,12 +121,12 @@ build_all_ss <- function(species,
   
   ## Step 3. Create other inputs ###---------------------------------------------------
   ### Create subdirectory
-  if(!dir.exists(file.path(root_dir, "SS3_models", species, file_dir))){
-    dir.create(file.path(root_dir, "SS3_models", species, file_dir))
+  if(!dir.exists(file.path(root_dir, "SS3 models", species, file_dir))){
+    dir.create(file.path(root_dir, "SS3 models", species, file_dir))
   }
   
   ## Create text file with notes from CTL_params sheet for reference
-  sink(file.path(root_dir, "SS3_models", species, file_dir,"model_options.txt"))
+  sink(file.path(root_dir, "SS3 models", species, file_dir,"model_options.txt"))
   
   cat(paste0("M: ", M_option, ", ", ctl.params$Notes[which(ctl.params$category == "MG" & 
                                                              ctl.params$OPTION == M_option &
@@ -350,17 +342,17 @@ build_all_ss <- function(species,
   
   if(runmodels){
     ### Run Stock Synthesis ####
-    file.copy(file.path(root_dir, "SS3_models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
-              file.path(root_dir, "SS3_models", species, file_dir))
-    r4ss::run_SS_models(dirvec = file.path(root_dir, "SS3_models", species, file_dir), 
+    file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
+              file.path(root_dir, "SS3 models", species, file_dir))
+    r4ss::run_SS_models(dirvec = file.path(root_dir, "SS3 models", species, file_dir), 
                   model = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
   }
   
   if(r4ssplots){
-    report <- r4ss::SS_output(file.path(root_dir, "SS3_models", species, file_dir), 
+    report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 
                               verbose = FALSE, printstats = FALSE)
-    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3_models", species, file_dir))
-    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3_models", species, file_dir), pdf=TRUE, png=FALSE)
+    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir))
+    r4ss::SS_plots(report, dir = file.path(root_dir, "SS3 models", species, file_dir), pdf=TRUE, png=FALSE)
     
   }
   
@@ -387,35 +379,35 @@ build_all_ss <- function(species,
                 overwrite = TRUE)
   
         
-    rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
-                                paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
-                      output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
-                      output_dir =  file.path(root_dir, "SS3_models", species, file_dir),
-                      params = list(
-                        species = paste0(species),
-                        scenario = scenario,
-                        profile = profile,
-                        profile_vec = profile.vec,
-                        Njitter = Njitter
-                      ))
+    # rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
+    #                             paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+    #                   output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
+    #                   output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
+    #                   params = list(
+    #                     species = paste0(species),
+    #                     scenario = scenario,
+    #                     profile = profile,
+    #                     profile_vec = profile.vec,
+    #                     Njitter = Njitter
+    #                   ))
 
-    #quarto::quarto_render(input = file.path(root_dir, "SS3 models", species, file_dir, 
-    #                                        paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
-    #                      output_format = "html",
-    #                      execute_params = list(
-    #                        species = paste0(species),
-    #                        scenario = scenario,
-    #                        profile = profile,
-    #                        profile_vec = profile.vec,
-    #                        Njitter = Njitter
-    #                      ),
-    #                      execute_dir = file.path(root_dir, "SS3 models", species, file_dir))
-    #if(toipynb){
-    #  cd. <- "cd "
-    #  dir. <- paste0(root_dir, "/SS3 models/", species, "/", file_dir, "/") 
-    #  q.cmd <- paste0(" quarto convert ", paste0(species, "_", file_dir, "_model_diags_report.qmd"))
-    #  shell(paste0(cd., dir., " & ", q.cmd))
-    #}
+    quarto::quarto_render(input = file.path(root_dir, "SS3 models", species, file_dir,
+                                           paste0(species, "_", file_dir, "_model_diags_report.qmd")),
+                         output_format = "html",
+                         execute_params = list(
+                           species = paste0(species),
+                           scenario = scenario,
+                           profile = profile,
+                           profile_vec = profile.vec,
+                           Njitter = Njitter
+                         ),
+                         execute_dir = file.path(root_dir, "SS3 models", species, file_dir))
+    if(toipynb){
+     cd. <- "cd "
+     dir. <- paste0(root_dir, "/SS3 models/", species, "/", file_dir, "/")
+     q.cmd <- paste0(" quarto convert ", paste0(species, "_", file_dir, "_model_diags_report.qmd"))
+     shell(paste0(cd., dir., " & ", q.cmd))
+    }
   }
 
   

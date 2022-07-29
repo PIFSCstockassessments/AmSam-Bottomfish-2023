@@ -3,7 +3,7 @@ options(scipen = 999)
 root_dir <- this.path::here(.. = 1) 
 
 if(!exists(paste0(root_dir, "/Outputs/Summary"))){
-  dir.create(paste0(root_dir, "/Outputs/Summary"))
+  dir.create(paste0(root_dir, "/Outputs/Summary"), showWarnings = FALSE)
 }
 
 Z <- readRDS(paste0(root_dir,"/Outputs/CPUE_A.rds"))

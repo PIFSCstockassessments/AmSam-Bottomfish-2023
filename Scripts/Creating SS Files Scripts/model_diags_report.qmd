@@ -5,19 +5,11 @@ date: "`r Sys.Date()`"
 format: html
 params: 
   species: "APVI"
-<<<<<<< HEAD
-  profile: "SR_LN(R0)"
-  scenario: "base"
-  Njitter: 2
-  profile_vec: !expr seq(0,2,.2)
-    
-=======
   scenario: "base"
   profile: "InitF"
   profile_vec: !expr seq(0,2,0.2)
   Njitter: !expr 2
 
->>>>>>> origin/master
 ---
 
 ```{r setup, include=FALSE}
@@ -39,13 +31,9 @@ report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
 ```
 
-<<<<<<< HEAD
-# Model Output {.tabset}
-=======
 # Model Output 
 
 ::: {.panel-tabset}
->>>>>>> origin/master
 
 ## Input Data
 ```{r }
@@ -61,11 +49,8 @@ report.$warnings
 ```
 
 
-<<<<<<< HEAD
-## Fit to Model {.active}
-=======
 ## Fit to Model 
->>>>>>> origin/master
+
 ### CPUE
 
 ```{r}
@@ -255,9 +240,5 @@ if(dir.exists(file.path(getwd(), "jitter"))){
 }
 ```
 
-<<<<<<< HEAD
 
-## {-}
-=======
 :::
->>>>>>> origin/master
