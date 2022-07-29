@@ -373,13 +373,12 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
+      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.qmd"), 
                 to = file.path(root_dir, "SS3 models", species, file_dir, 
-                               paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+                               paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
                 overwrite = TRUE)
   
-    
-    
+        
     rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
                                 paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
                       output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
@@ -391,9 +390,25 @@ build_all_ss <- function(species,
                         profile_vec = profile.vec,
                         Njitter = Njitter
                       ))
-  }
-  
 
+    #quarto::quarto_render(input = file.path(root_dir, "SS3 models", species, file_dir, 
+    #                                        paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
+    #                      output_format = "html",
+    #                      execute_params = list(
+    #                        species = paste0(species),
+    #                        scenario = scenario,
+    #                        profile = profile,
+    #                        profile_vec = profile.vec,
+    #                        Njitter = Njitter
+    #                      ),
+    #                      execute_dir = file.path(root_dir, "SS3 models", species, file_dir))
+    #if(toipynb){
+    #  cd. <- "cd "
+    #  dir. <- paste0(root_dir, "/SS3 models/", species, "/", file_dir, "/") 
+    #  q.cmd <- paste0(" quarto convert ", paste0(species, "_", file_dir, "_model_diags_report.qmd"))
+    #  shell(paste0(cd., dir., " & ", q.cmd))
+    #}
+  }
 
   
 } 
