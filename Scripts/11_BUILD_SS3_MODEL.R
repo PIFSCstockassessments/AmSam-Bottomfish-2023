@@ -373,9 +373,9 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.qmd"), 
+      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
                 to = file.path(root_dir, "SS3 models", species, file_dir, 
-                               paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
+                               paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
                 overwrite = TRUE)
   
         
