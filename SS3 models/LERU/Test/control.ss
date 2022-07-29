@@ -45,36 +45,36 @@
 1 #_fecundity option:(1)eggs=Wt*(a+b*Wt);(2)eggs=a*L^b;(3)eggs=a*Wt^b; (4)eggs=a+b*L; (5)eggs=a+b*W
 1 #_hermaphroditism option:  0=none; 1=female-to-male age-specific fxn; -1=male-to-female age-specific fxn
 -1 # Hermaphro_season 
-1 # Hermaphro_maleSSB
+0 # Hermaphro_maleSSB
 1 #_parameter_offset_approach (1=none, 2= M, G, CV_G as offset from female-GP1, 3=like SS2 V1.x)
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-       0	      2	      0.4	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_4        
-       2	     15	      8.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
-      10	     50	     29.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
-    0.05	      1	     0.88	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
-    0.05	   0.25	     0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
-    0.05	   0.25	     0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
-      -1	      3	0.0000228	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-      -1	      4	     2.94	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-      10	     40	     22.6	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-      -3	      3	    -0.98	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
-      -3	      3	        1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
-      -3	      3	        0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
-       0	      2	      0.4	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Male_GP_4       
-       2	     15	     10.7	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Male_GP_2      
-      10	     50	     31.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Male_GP_2      
-    0.05	      1	     0.82	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Male_GP_2      
-    0.05	   0.25	     0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Male_GP_2       
-    0.05	   0.25	     0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Male_GP_2         
-      -1	      3	0.0000228	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
-      -1	      4	     2.94	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
-     0.5	      5	      3.5	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_inflectionage       
-     0.1	    0.6	      0.4	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_StDev               
-       0	      1	     0.95	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_asymprate           
-     0.1	     10	        1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-0.000001	0.99999	      0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+    0	   2	  0.3375	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_4        
+    2	  15	     8.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   10	  50	    29.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
+ 0.05	   1	    0.88	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+ 0.05	0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
+   -1	   3	2.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+   -1	   4	    2.94	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+   10	  40	    21.9	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+   -3	   3	   -1.47	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+   -3	   3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
+   -3	   3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
+    0	   2	  0.3375	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Male_GP_4       
+    2	  15	    10.7	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Male_GP_2      
+   10	  50	    31.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Male_GP_2      
+ 0.05	   1	    0.82	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Male_GP_2      
+ 0.05	0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Male_GP_2       
+ 0.05	0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Male_GP_2         
+   -1	   3	2.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
+   -1	   4	    2.94	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
+  0.5	   5	     3.5	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_inflectionage       
+  0.1	 0.6	     0.8	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_StDev               
+    0	   1	       1	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_asymprate           
+  0.1	  10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
+1e-06	   1	       1	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
@@ -86,7 +86,7 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-  2	5	       4	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+  2	8	       4	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
 0.2	1	0.655771	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
   0	2	0.552117	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
@@ -101,11 +101,11 @@
 3 #_recdev_early_phase
 4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
-1980.5 #_last_yr_nobias_adj_in_MPD; begin of ramp
-2007.4 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-2018.5 #_last_yr_fullbias_adj_in_MPD
-2020.1 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
-0.8565 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
+1999.3 #_last_yr_nobias_adj_in_MPD; begin of ramp
+2004.1 #_first_yr_fullbias_adj_in_MPD; begin of plateau
+2019.8 #_last_yr_fullbias_adj_in_MPD
+2020.9 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
+0.879 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
 0 #_period of cycles in recruitment (N parms read below)
 -5 #min rec_dev
 5 #max rec_dev
@@ -130,11 +130,12 @@
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
-    1	1	0	0	0	0	#_1         
+    1	1	0	1	0	0	#_1         
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--2	2	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base
+-2	2	  0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	0.4	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -160,8 +161,9 @@
 #_Cond -6 6 1 1 2 0.01 -4 0 0 0 0 0 0 0  #_placeholder if no parameters
 #
 # Input variance adjustments factors: 
-#_Factor Fleet Value
--9999 1 0 # terminator
+#_factor	fleet	Value
+4    	1	0.22	#_1         
+-9999	0	   0	#_terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
