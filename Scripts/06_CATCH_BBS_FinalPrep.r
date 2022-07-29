@@ -158,6 +158,10 @@ D[YEAR>2005&YEAR<=2015]$PERIOD  <- 2015
 D[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
 X            <- D[SPECIES_FK=="S109"|SPECIES_FK=="S110"|SPECIES_FK=="S200"|SPECIES_FK=="S210"|SPECIES_FK=="S230"|SPECIES_FK=="S240"|SPECIES_FK=="S260"|SPECIES_FK=="S380"|SPECIES_FK=="S390"]
+
+ggplot(data=X[ZONE=="Tutuila"],aes(x=YEAR,y=LBS_CAUGHT))+geom_bar(stat="identity")+facet_wrap(~SPECIES_FK,scales="free_y")
+ggsave(last_plot(),file=paste0(root_dir, "/Outputs/Summary/CATCH_GROUPED.png"),width=8,height=4)
+
 X            <- merge(X,PT,by.x=c("SPECIES_FK","PERIOD","ZONE"),by.y=c("GROUP_FK","PERIOD","AREA_C"),allow.cartesian=T)
 X$SPECIES_FK <- X$SPECIES_FK.y
 X$LBS_CAUGHT <- X$LBS_CAUGHT*X$Prop

@@ -3,7 +3,7 @@
 require(data.table); require(openxlsx); require(tidyverse); require(openxlsx); require(gridExtra);require(grid); options(scipen=999)
 root_dir <- this.path::here(.. = 1) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/Summary/Size figures"),recursive=T,showWarnings=F)
-dir.create(paste0(root_dir,"/Outputs/SS3_Inputs"),recursive=T,showWarnings=F)
+
 
 # Options
 Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
@@ -160,8 +160,9 @@ US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 D <- rbind(US,BIO,BB)
 
 if(Combine_BB_BIO==T){
-  D[SPECIES!="APVI"&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
-  D[SPECIES=="APVI"&DATASET=="Biosampling"]$LENGTH_FL <- NA # The biosampling APVI size distribution are very anomalous. Exclude this data.
+  #D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BIO and BBS"
+  D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+  D[(SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling"]$LENGTH_FL <- NA # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
 }
 
 # Merge all years for Atoll
@@ -259,9 +260,10 @@ for(i in 1:length(Species.List)){
 
  SizeData <- SizeData[DATASET!="UVS"]
  
+ write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
  saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
-
-
+ 
+ 
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_C+DATASET~YEAR,value.var="N",fill=0)

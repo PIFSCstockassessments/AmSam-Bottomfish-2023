@@ -10,47 +10,40 @@ S <- read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS")
 S$SPECIES_PK <- paste0("S",S$SPECIES_PK)
 S <- select(S,SPECIES_FK=SPECIES_PK,SPECIES,SCIENTIFIC_NAME)
 
-# Load historic data from Excel document
-Hist.Catch.Option <- "PropTableOnly"
+C <- data.table( read.xlsx(file.path(root_dir,"Data","Historical Catch.xlsx"),sheet="Total_Bottomfish")  )
+C <- select(C,YEAR,BOTTOMFISH_LBS=CATCH_LBS)
 
-# Option1: Use only proptable calculated between 1986-2005
-if(Hist.Catch.Option=="PropTableOnly"){
-PT <- readRDS(file.path(root_dir,"Outputs","BBS_Prop_Table.rds"))
-PT <- PT[GROUP_FK==200&(PERIOD==1995|PERIOD==2005),list(Prop=mean(Prop)),by=list(SPECIES_FK,AREA_C)]
-C  <- data.table( read.xlsx(file.path(root_dir,"Data","Landings_Historic_1967_1985.xlsx"),sheet="Total Bottomfishes 67_85")  )
-setnames(C,1:3,c("YEAR","AREA_C","BOTTOMFISH_LBS"))
-C <- C[1:57,1:3]
-C[AREA_C=="Banks"]$AREA_C <- "Tutuila"
-C <- C[,list(BOTTOMFISH_LBS=sum(BOTTOMFISH_LBS)),by=list(YEAR,AREA_C)]
+# Load 1967-1979 species proportions
+P1 <- data.table( read.xlsx(file.path(root_dir,"Data","Historical Catch.xlsx"),sheet="Species composition 1967_1979")  )
+P1 <- P1[1:11,1:2]
+P2 <- data.table( read.xlsx(file.path(root_dir,"Data","Historical Catch.xlsx"),sheet="Species composition 1980_1985")  )
+P2 <- P2[1:11,]
+P2 <- select(P2,SPECIES,PROP_1980_1985=PROP_WEIGHT_MEAN)
 
-D     <- merge(C,PT,by="AREA_C",allow.cartesian = T)
-D$LBS <- D$Prop*D$BOTTOMFISH_LBS
-D$SPECIES_FK <- paste0("S",D$SPECIES_FK)
-D     <- merge(D,S,by="SPECIES_FK")
+# Create empty data table
+D1      <- data.table(YEAR=as.numeric(rep(seq(1967,1985), times=11)), SPECIES=unique(P1$SPECIES)) 
+D1      <- D1[order(SPECIES,YEAR)]
+D1      <- merge(D1,P1,by="SPECIES",allow.cartesian = T)
+D1      <- merge(D1,P2,by="SPECIES",allow.cartesian = T)
+D1$PROP <- 0
+D1[YEAR<=1979]$PROP <- D1[YEAR<=1979]$PROP_1967_1979 
+D1[YEAR>1979]$PROP  <- D1[YEAR>1979]$PROP_1980_1985 
+D1 <- select(D1,YEAR,SPECIES,PROP)
+D1$AREA_C <- "Combined"
 
-ggplot(D,aes(x=YEAR,y=BOTTOMFISH_LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES)
-D$SOURCE     <- "Historic"
-D$SD.LBS     <- 0
-D            <- select(D,SOURCE,SPECIES_FK,YEAR,AREA_C,LBS,SD.LBS)
-}
+D     <- merge(D1,C,by="YEAR",allow.cartesian=T)
+D$LBS <- D$PROP*D$BOTTOMFISH_LBS
+D     <- merge(D,S,by="SPECIES")
 
-# Option 2: use a mix of proportions, including from the old reports
-if(Hist.Catch.Option=="Original"){
-D <- data.table()
-Species.list <- c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO")
-for(i in 1:length(Species.list)){
- 
-   aSp <- Species.list[i]
-   C <- data.table(   read.xlsx(paste0(root_dir,"/Data/Landings_Historic_1967_1985.xlsx"),sheet=aSp)  ); C <- select(C,1:4)
-   C$SPECIES <- aSp
-   D <- rbind(C,D)   
-}
+#ggplot(D,aes(x=YEAR,y=LBS))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES)
 
 D$SOURCE     <- "Historic"
 D$SD.LBS     <- 0
-D            <- merge(D,S,by="SPECIES")
-D            <- select(D,SOURCE,SPECIES_FK,YEAR=Year,AREA_C=Area,LBS=lbs,SD.LBS)
-}
+D            <- select(D,SOURCE,SPECIES_FK,AREA_C,YEAR,LBS,SD.LBS)
+
+# Sum BBS and SBS catch accross areas
+#A <- A[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SOURCE,SPECIES_FK,YEAR)]
+#B <- B[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SOURCE,SPECIES_FK,YEAR)]
 
 # Put all catches together
 E <- rbind(A,B,D)
@@ -76,8 +69,11 @@ Z[YEAR<=1985]$LOGSD.MT              <- 0.5 # Add some uncertainty to historic ca
 Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
 Z[YEAR>=1986&LOGSD.MT<0.2]$LOGSD.MT <- 0.2 # Increase min CV to 0.2
 
+if(!exists(paste0(root_dir,"/Outputs/SS3_Inputs"))){
+  dir.create(paste0(root_dir,"/Outputs/SS3_Inputs"),recursive=T,showWarnings=F)
+}
 
-saveRDS(Z,paste0(root_dir,"/Outputs/CATCH_Final.rds"))
+write.csv(Z,paste0(root_dir,"/Outputs/SS3_Inputs/CATCH_Final.csv"),row.names=F)
 
 
 

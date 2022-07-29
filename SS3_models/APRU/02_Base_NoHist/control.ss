@@ -88,11 +88,11 @@
 3 #_recdev_early_phase
 4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
-2002.1 #_last_yr_nobias_adj_in_MPD; begin of ramp
-2007 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-2018.3 #_last_yr_fullbias_adj_in_MPD
-2018.4 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
-0.3086 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
+1989.8 #_last_yr_nobias_adj_in_MPD; begin of ramp
+2016.8 #_first_yr_fullbias_adj_in_MPD; begin of plateau
+2016.9 #_last_yr_fullbias_adj_in_MPD
+2017 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
+0.4672 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
 0 #_period of cycles in recruitment (N parms read below)
 -5 #min rec_dev
 5 #max rec_dev
@@ -109,7 +109,7 @@
 2 # F_Method:  1=Pope; 2=instan. F; 3=hybrid (hybrid is recommended)
 2.9 # max F or harvest rate, depends on F_Method
 #_overall start F value; overall phase; N detailed inputs to read
-0.1 4 0 #_F_setup
+0.01 4 0 #_F_setup
 #
 #_initial_F_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
@@ -117,31 +117,26 @@
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
-    1	1	0	0	0	0	#_1         
-    2	1	0	0	0	0	#_2         
+    1	1	0	1	0	0	#_1         
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--2	2	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
--2	2	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_Manua
+-5	3	  0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	0.4	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
 1	0	0	0	#_1 1
-5	0	0	1	#_2 2
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
 0	0	0	0	#_1 1
-0	0	0	0	#_2 2
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
 20	55	40	0	0	0	2	0	0	0	0	0	0	0	#_1
  5	30	15	0	0	0	2	0	0	0	0	0	0	0	#_2
--1	10	 0	0	0	0	2	0	0	0	0	0	0	0	#_3
--1	10	 0	0	0	0	2	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
@@ -156,7 +151,7 @@
 #_factor	fleet	Value
 1    	1	    0	#_1         
 1    	2	    0	#_2         
-4    	1	0.327	#_3         
+4    	1	0.362	#_3         
 -9999	0	    0	#_terminator
 #
 5 #_maxlambdaphase

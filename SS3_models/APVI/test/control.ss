@@ -49,11 +49,11 @@
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
     0	      2	 0.16875	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-   10	     60	       0	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_2       
-   50	    100	   72.02	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_2       
- 0.05	    0.5	    0.33	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_2       
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_2        
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_2          
+   10	     60	    51.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   50	    100	    76.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
+ 0.05	    0.5	   0.136	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+ 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
    -1	      3	1.18e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	   3.043	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
    35	     60	    44.8	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
@@ -117,31 +117,26 @@
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
-    1	1	0	0	0	0	#_1         
-    2	1	0	0	0	0	#_2         
+    1	1	0	1	0	0	#_1         
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--1	2	0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
--1	2	0	0	0	0	1	0	0	0	0	0	0	0	#_LNQ_base_manua
+-1	2	  0	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	0.4	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
 1	0	0	0	#_1 1
-5	0	0	1	#_2 2
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
 0	0	0	0	#_1 1
-0	0	0	0	#_2 2
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
 35	45	40	0	0	0	2	0	0	0	0	0	0	0	#_1
  6	15	10	0	0	0	2	0	0	0	0	0	0	0	#_2
--1	10	 0	0	0	0	2	0	0	0	0	0	0	0	#_3
--1	10	 0	0	0	0	2	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
@@ -154,10 +149,10 @@
 #
 # Input variance adjustments factors: 
 #_factor	fleet	Value
-1    	1	     0	#_1         
-1    	2	     0	#_2         
-4    	1	0.5372	#_3         
--9999	0	     0	#_terminator
+1    	1	   0	#_1         
+1    	2	   0	#_2         
+4    	1	0.65	#_3         
+-9999	0	   0	#_terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter

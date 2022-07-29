@@ -57,7 +57,7 @@
    -1	      3	 4.25e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	     2.75	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
    40	     75	     62.2	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-   -3	      3	    -0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+   -3	      3	    -0.16	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	        1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	        0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
   0.1	     10	        1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
@@ -117,31 +117,26 @@
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
-    1	1	0	0	0	0	#_1         
-    2	1	0	0	0	0	#_2         
+    1	1	0	1	0	0	#_1         
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--7	5	-1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
--7	5	-1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_Manua
+-7	5	 -1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	0.4	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
 1	0	0	0	#_1 1
-5	0	0	1	#_2 2
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
 0	0	0	0	#_1 1
-0	0	0	0	#_2 2
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
 15	100	25	  50	0	0	2	0	0	0	0	0	0	0	#_1
  0	 70	 3	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
--1	 10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_3
--1	 10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
@@ -154,9 +149,7 @@
 #
 # Input variance adjustments factors: 
 #_factor	fleet	Value
-1    	1	  0	#_1         
-1    	2	  0	#_2         
-4    	1	0.4	#_3         
+4    	1	0.4	#_1         
 -9999	0	  0	#_terminator
 #
 5 #_maxlambdaphase

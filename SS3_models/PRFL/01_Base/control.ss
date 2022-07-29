@@ -117,31 +117,26 @@
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
-    1	1	0	0	0	0	#_1         
-    2	1	0	0	0	0	#_2         
+    1	1	0	1	0	0	#_1         
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--4	2	-1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base      
--4	2	-1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_Manua
+-4	2	 -1	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	0.4	0	0	0	1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
 1	0	0	0	#_1 1
-5	0	0	1	#_2 2
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
 0	0	0	0	#_1 1
-0	0	0	0	#_2 2
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
 20	32	25	  50	0	0	2	0	0	0	0	0	0	0	#_1
  4	12	 8	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
--1	10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_3
--1	10	 0	   0	0	0	2	0	0	0	0	0	0	0	#_4
 #_AgeSelex
 #_No age_selex_parm
 #_no timevary selex parameters
@@ -153,8 +148,9 @@
 #_Cond -6 6 1 1 2 0.01 -4 0 0 0 0 0 0 0  #_placeholder if no parameters
 #
 # Input variance adjustments factors: 
-#_Factor Fleet Value
--9999 1 0 # terminator
+#_factor	fleet	Value
+4    	1	14	#_1         
+-9999	0	 0	#_terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
