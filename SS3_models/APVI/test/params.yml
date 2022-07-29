@@ -1,7 +1,0 @@
-params: 
-  species: "APVI"
-  scenario: "base"
-  profile: "SR_LN(R0)"
-  profile_vec: seq(0,2,.2)
-  Njitter: 2
-    
