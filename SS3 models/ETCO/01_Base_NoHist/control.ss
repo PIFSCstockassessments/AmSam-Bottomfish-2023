@@ -49,17 +49,25 @@
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
     0	      2	0.0981818	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-    5	     60	     12.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_2       
-   50	    100	     86.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_2       
- 0.05	   0.25	    0.113	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_2       
- 0.05	   0.25	     0.05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_2        
- 0.05	   0.25	     0.05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_2          
+    5	     60	     12.7	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   50	    100	     89.9	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
+ 0.05	   0.25	    0.105	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+ 0.05	   0.25	     0.05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	   0.25	     0.05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
    -1	      3	 4.25e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
    -1	      4	     2.75	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
    40	     75	     62.2	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
    -3	      3	    -0.16	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
    -3	      3	        1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
    -3	      3	        0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
+    0	      2	0.0981818	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Male_GP_1       
+    5	     60	     14.1	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Male_GP_1      
+   50	    100	       84	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Male_GP_1      
+ 0.05	   0.25	    0.116	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Male_GP_1      
+ 0.05	   0.25	     0.05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Male_GP_1       
+ 0.05	   0.25	     0.05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Male_GP_1         
+   -1	      3	 4.25e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
+   -1	      4	     2.75	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
   0.1	     10	        1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
 1e-06	0.99999	      0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
@@ -148,9 +156,8 @@
 #_Cond -6 6 1 1 2 0.01 -4 0 0 0 0 0 0 0  #_placeholder if no parameters
 #
 # Input variance adjustments factors: 
-#_factor	fleet	Value
-4    	1	0.4	#_1         
--9999	0	  0	#_terminator
+#_Factor Fleet Value
+-9999 1 0 # terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
