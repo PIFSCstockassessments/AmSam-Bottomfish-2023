@@ -11,7 +11,7 @@ Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
 MinN           <- 40 # Minimum sample size to do size frequency
 AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
-                       BINWIDTH=c(5,5,5,5,5,2,1,5,5,3,3)) # in cm
+                       BINWIDTH=c(5,5,5,5,5,2,1,5,4,3,3)) # in cm
 
 # Load metadata tables (Area, Method, Species)
 A            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="AREAS")   )
@@ -161,8 +161,8 @@ D <- rbind(US,BIO,BB)
 
 if(Combine_BB_BIO==T){
   #D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BIO and BBS"
-  D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
-  D[(SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling"]$LENGTH_FL <- NA # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
+  D[(SPECIES!="APVI"&SPECIES!="LUKA"&SPECIES!="CALU")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+  D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA"|SPECIES=="CALU")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
 }
 
 # Merge all years for Atoll
@@ -171,7 +171,12 @@ D[AREA_C=="Atoll"]$YEAR <- 2022
 # Add some LH info
 LH <- select(S,SPECIES,LMAX)
 D  <- merge(D,LH,by="SPECIES")
+
+# Remove lengths that are unrealistically big (see METADATA.xlsx file for source)
 D  <- D[LENGTH_FL<=LMAX]
+
+# Remove lengths that realistically can't be caught on bottomfish gear
+D <- D[LENGTH_FL >= 15]
 
 # Add region weights
 D <- merge(D,AW,by="AREA_C")
@@ -260,8 +265,9 @@ for(i in 1:length(Species.List)){
 
  SizeData <- SizeData[DATASET!="UVS"]
  
- write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
- saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
+  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
+ 
+ #saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
  
  
 # Output a sample size summary (includes YEARs with < MinN)
