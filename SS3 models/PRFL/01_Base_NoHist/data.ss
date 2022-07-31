@@ -112,22 +112,22 @@
 2 # length bin method: 1=use databins; 2=generate from binwidth,min,max below; 3=read vector
 1 # binwidth for population size comp
 1 # minimum size in the population (lower edge of first bin and size at age 0.00)
-61 # maximum size in the population (lower edge of last bin)
+53 # maximum size in the population (lower edge of last bin)
 1 #_use_lencomp
 #
 #_len_info
 #_mintailcomp	addtocomp	combine_M_F	CompressBins	CompError	ParmSelect	minsamplesize
 0	1e-07	0	0	0	0	1	#_1
-8 #_N_lbins
+10 #_N_lbins
 #_lbin_vector
-20 25 30 35 40 45 50 55 #_lbin_vector
+21 24 27 30 33 36 39 42 45 48 #_lbin_vector
 #
 #_lencomp
-#_Yr	Seas	FltSvy	Sex	Part	Nsamp	l20	l25	l30	l35	l40	l45	l50	l55
- 2012	1	1	0	0	84.84	4	19	33	22	17	4	2	0	#_1         
- 2013	1	1	0	0	89.88	3	15	38	30	15	3	1	2	#_2         
- 2015	1	1	0	0	42.84	1	 5	16	16	10	2	1	0	#_3         
--9999	0	0	0	0	    0	0	 0	 0	 0	 0	0	0	0	#_terminator
+#_Yr	Seas	FltSvy	Sex	Part	Nsamp	l21	l24	l27	l30	l33	l36	l39	l42	l45	l48
+ 2012	1	1	0	0	83.16	3	8	12	21	16	13	13	9	2	2	#_1         
+ 2013	1	1	0	0	87.36	2	7	 9	24	18	22	10	9	3	0	#_2         
+ 2015	1	1	0	0	   42	0	1	 5	 8	13	 9	 6	6	1	1	#_3         
+-9999	0	0	0	0	    0	0	0	 0	 0	 0	 0	 0	0	0	0	#_terminator
 0 #_N_agebins
 #
 #_MeanSize_at_Age_obs
