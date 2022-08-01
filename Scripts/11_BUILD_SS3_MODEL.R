@@ -163,23 +163,28 @@ build_all_ss <- function(species,
     pull()
   
   # CPUE data
-  cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
-                           pattern = species,
-                           full.names = TRUE)
-  
-  cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
-  area <- unlist(str_extract_all(cpue_files, 
-                                 pattern = c("Manua|Tutuila")))
-  
-  cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
-    mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
-    rbindlist() %>% 
-    mutate(seas = 7,
-           index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
-    select(year, seas, index, obs, se_log) %>% 
-    filter(index %in% fleets) %>% 
-    filter(year >= startyr & year <= endyr) %>% 
-    as.data.frame()
+  if(includeCPUE){
+    cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
+                             pattern = species,
+                             full.names = TRUE)
+    
+    cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
+    area <- unlist(str_extract_all(cpue_files, 
+                                   pattern = c("Manua|Tutuila")))
+    
+    cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
+      mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
+      rbindlist() %>% 
+      mutate(seas = 7,
+             index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
+      select(year, seas, index, obs, se_log) %>% 
+      filter(index %in% fleets) %>% 
+      filter(year >= startyr & year <= endyr) %>% 
+      as.data.frame()
+    
+  }else{
+    cpue <- NULL
+  }
   
   # Length Bins
   Species.List <- unique(lencomp$SPECIES)
@@ -222,16 +227,20 @@ build_all_ss <- function(species,
     slice(rep(1:n(), each = Nfleets)) #assume same selectivity pattern for both areas
     
   # Catchability options
-  Q.options <- ctl.inputs %>% 
-    select(Parameter, contains(paste0(species))) %>% 
-    filter(str_detect(Parameter, "Q.opt")) %>% 
-    mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
-             as.numeric(),
-           Parameter = str_remove_all(Parameter, "_[0-9]*$")) %>% 
-    filter(Fleet %in% fleets) %>% 
-    pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
-    setNames(c("fleet", "link", "link_info", "extra_se", "biasadj", "float"))
-  
+  if(includeCPUE){
+    Q.options <- ctl.inputs %>% 
+      select(Parameter, contains(paste0(species))) %>% 
+      filter(str_detect(Parameter, "Q.opt")) %>% 
+      mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
+               as.numeric(),
+             Parameter = str_remove_all(Parameter, "_[0-9]*$")) %>% 
+      filter(Fleet %in% fleets) %>% 
+      pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
+      setNames(c("fleet", "link", "link_info", "extra_se", "biasadj", "float"))
+  }else{
+    Q.options <- NULL
+  }
+
   # Fleet and CPUE info
   cpueinfo <- as.data.frame(matrix(data = fleets, nrow = Nfleets, ncol = 4))
   colnames(cpueinfo) <- c("Fleet", "Units", "Errtype", "SD_Report")

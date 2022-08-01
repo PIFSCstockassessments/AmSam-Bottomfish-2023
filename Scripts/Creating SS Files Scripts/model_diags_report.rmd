@@ -57,7 +57,8 @@ report.$warnings
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
 
-report.$index_variance_tuning_check %>% 
+if(n.indices > 0){
+  report.$index_variance_tuning_check %>% 
   select(Fleet, fleetname, N, RMSE, VarAdj, New_VarAdj) %>% 
   gt()
 
@@ -71,6 +72,10 @@ for(i in 1:n.comps){
   sspar(mfrow = c(1,1))
   SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i)
 }
+}else{
+  print("No CPUE included in model")
+}
+
 
 ```
 
