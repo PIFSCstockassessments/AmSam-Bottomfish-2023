@@ -11,7 +11,7 @@ Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
 MinN           <- 40 # Minimum sample size to do size frequency
 AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
-                       BINWIDTH=c(5,5,5,5,5,3,1,5,3,2,3)) # in cm
+                       BINWIDTH=c(5,5,5,5,5,3.5,2,5,3,2,3)) # in cm
 
 # Load metadata tables (Area, Method, Species)
 A            <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="AREAS")   )
@@ -160,9 +160,10 @@ US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 D <- rbind(US,BIO,BB)
 
 if(Combine_BB_BIO==T){
-  #D[DATASET=="Biosampling"|DATASET=="BBS"]$DATASET <- "BIO and BBS"
-  D[(SPECIES!="APVI"&SPECIES!="LUKA"&SPECIES!="CALU")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
-  D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA"|SPECIES=="CALU")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
+  #D[(SPECIES!="APVI"&SPECIES!="LUKA"&SPECIES!="CALU")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+  #D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA"|SPECIES=="CALU")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
+  D[(SPECIES!="APVI")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+  D <- D[!((SPECIES=="APVI")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
 }
 
 # Merge all years for Atoll
@@ -192,6 +193,8 @@ for(i in 1:length(Species.List)){
    BIN_SIZE  <- BIN.LIST[SPECIES==Sp]$BINWIDTH
    E         <- D[SPECIES==Sp&LENGTH_FL>0]
    
+   if(Combine_Areas==T)  E[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
+   
    # Filter YEARs with low N
    NB         <- data.table( table(E$DATASET,E$YEAR,E$AREA_C) )
    NB$V2      <- as.numeric(NB$V2)
@@ -206,8 +209,6 @@ for(i in 1:length(Species.List)){
    SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(DATASET,YEAR)]
    G             <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
    
-   if(Combine_Areas==T)  G[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
-   
    Fld <- paste0(root_dir,"/Outputs/Summary/Size figures/")
    if(nrow(G[DATASET=="Biosampling"])>0){
       ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
@@ -217,9 +218,9 @@ for(i in 1:length(Species.List)){
       ggplot(data=G[DATASET=="UVS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
       ggsave(paste0(Fld,Sp,"_Freq_","US",".png"),width=20,height=10,unit="cm")}
    
-   if(nrow(G[DATASET=="BIO"])>0){
-      ggplot(data=G[DATASET=="BIO"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
-      ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"),width=20,height=10,unit="cm")}
+   if(nrow(G[DATASET=="BBS"])>0){
+     ggplot(data=G[DATASET=="BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
+     ggsave(paste0(Fld,Sp,"_Freq_","BB",".png"),width=20,height=10,unit="cm")}
    
    if(nrow(G[DATASET=="BIO and BBS"])>0){
       ggplot(data=G[DATASET=="BIO and BBS"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
@@ -265,10 +266,7 @@ for(i in 1:length(Species.List)){
 
  SizeData <- SizeData[DATASET!="UVS"]
  
-  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
- 
- #saveRDS(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.rds"))
- 
+ write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
  
 # Output a sample size summary (includes YEARs with < MinN)
 Summary <- do.call(rbind.data.frame, NList)
