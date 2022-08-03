@@ -9,8 +9,8 @@
 #  --------------------------------------------------------------------------------------------------------------
 build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo = NULL, cpue = NULL, 
                       Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
-                      bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, 
-                      file_dir = "base",
+                      bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, superyear = FALSE, 
+                      superyear_blocks = NULL, file_dir = "base",
                       template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
                       out_dir = file.path(root_dir, "SS3 models")){
   
@@ -39,25 +39,68 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     dplyr::select(-SPECIES) %>% 
     dplyr::select(year, seas, fleet, catch, catch_se)
   
-  # Nages <- life.history %>% 
-  #   dplyr::filter(str_detect(OPTION, M_option_sp)) %>% 
-  #   dplyr::filter(str_detect(X1, "Nages")) %>% 
-  #   pull(INIT)
+  if(superyear == TRUE & is.null(superyear_blocks)){
+    
+    warning("No years were specified for super period. Please give a list of vectors containing start and end years.")
+    
+  }
   
-  lencomp.sp     <- lencomp %>% 
-    dplyr::filter(str_detect(SPECIES, species)) %>% 
-    dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
-    dplyr::arrange(LENGTH_BIN_START) %>% 
-    dplyr::mutate(Seas = 1,
-           FltSvy = as.numeric(factor(DATASET)), 
-           Sex = 0, 
-           Part = 0, 
-           LENGTH_BIN_START = paste0("l",LENGTH_BIN_START)) %>% 
-    dplyr::rename(Yr = YEAR,
-           Nsamp = EFFN) %>% 
-    dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
-    tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
-    dplyr::arrange(Yr)
+  if(superyear == FALSE){
+    
+    lencomp.sp     <- lencomp %>% 
+      dplyr::filter(str_detect(SPECIES, species)) %>% 
+      dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
+      dplyr::arrange(LENGTH_BIN_START) %>% 
+      dplyr::mutate(Seas = 1,
+                    FltSvy = as.numeric(factor(DATASET)), 
+                    Sex = 0, 
+                    Part = 0, 
+                    LENGTH_BIN_START = paste0("l",LENGTH_BIN_START)) %>% 
+      dplyr::rename(Yr = YEAR,
+                    Nsamp = EFFN) %>% 
+      dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
+      tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
+      dplyr::arrange(Yr)
+    
+  }else{
+    
+    n.superperiods <- length(superyear_blocks)
+    
+    lencomp.sp     <- lencomp %>% 
+      dplyr::filter(str_detect(SPECIES, species)) %>% 
+      dplyr::filter(YEAR >= startyr & YEAR <= endyr) %>% 
+      dplyr::arrange(LENGTH_BIN_START) %>% 
+      dplyr::mutate(Seas = 1,
+                    FltSvy = as.numeric(factor(DATASET)), 
+                    Sex = 0, 
+                    Part = 0, 
+                    LENGTH_BIN_START = paste0("l",LENGTH_BIN_START)) %>% 
+      dplyr::rename(Yr = YEAR,
+                    Nsamp = EFFN) %>% 
+      dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
+      dplyr::arrange(Yr)
+
+    new.data <- list()
+    for(i in 1:n.superperiods){
+      new.data[[i]] <- lencomp.sp %>% 
+        dplyr::filter(Yr >= superyear_blocks[[i]][1] & Yr <= superyear_blocks[[i]][2]) %>% 
+        dplyr::group_by(LENGTH_BIN_START) %>% 
+        dplyr::summarise(Nsamp = sum(Nsamp),
+          N = sum(N)) 
+    
+      lencomp.sp[which(lencomp.sp$Yr == superyear_blocks[[i]][1]), "N"] <- new.data[[i]]$N
+      lencomp.sp[which(lencomp.sp$Yr == superyear_blocks[[i]][1]), "Nsamp"] <- new.data[[i]]$Nsamp
+      lencomp.sp[which(lencomp.sp$Yr > superyear_blocks[[i]][1] & lencomp.sp$Yr <= superyear_blocks[[i]][2]), "FltSvy"] <- -1
+      lencomp.sp[which(lencomp.sp$Yr == superyear_blocks[[i]][1]), "Seas"] <- -1
+      lencomp.sp[which(lencomp.sp$Yr == superyear_blocks[[i]][2]), "Seas"] <- -1
+      
+    }
+    
+    lencomp.sp <- lencomp.sp %>% 
+      tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N)
+    
+  }
+ 
   
   if(Nsexes == 2){
     

@@ -15,6 +15,9 @@
 #' @param EST_option see M_option (model estimated parameters: R0, Q, selectivity)
 #' @param lambdas dataframe of lambda values, default is NULL 
 #' @param includeCPUE default is true, if excluding CPUE, set to FALSE
+#' @param superyear default is FALSE, to use super periods for length comp data set to TRUE
+#' @param superyear_blocks a list of vectors, each vector contains the start and end year of a super period block 
+#' (ie list(c(2004,2006))), if there are 2 super periods then length(superyear_blocks) = 2
 #' @param init_values use ss.par file to run ss model (1), or no (0) (starter.ss input)
 #' @param parmtrace can switch to 1 to turn on, helpful for debugging model (starter.ss input)
 #' @param N_boot number of bootstrap files to produce (N >= 3 to run bootstrap) (starter.ss input)
@@ -63,6 +66,8 @@ build_all_ss <- function(species,
                          EST_option = "Option1",
                          lambdas = NULL,
                          includeCPUE = TRUE,
+                         superyear = FALSE,
+                         superyear_blocks = NULL,
                          init_values = 0, 
                          parmtrace = 0,
                          N_boot = 1,
@@ -212,9 +217,6 @@ build_all_ss <- function(species,
     setNames(c("Pattern", "Discard", "Male", "Special")) %>% 
     as.data.frame() 
   
-  # if(Nfleets > 1){
-  #   
-  # }
   
   age_selex_types <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 
@@ -289,6 +291,8 @@ build_all_ss <- function(species,
     fleets = fleets,
     fleetinfo = fleetinfo,
     lbin_method = 2,
+    superyear = superyear,
+    superyear_blocks = superyear_blocks,
     file_dir = file_dir,
     template_dir = template_dir,
     out_dir = out_dir
