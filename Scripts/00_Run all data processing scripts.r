@@ -46,13 +46,13 @@ Area.List    <- c("Tutuila","Manua")
 
 # Run CPUE standardization for all species, areas combined in a loop
 for(i in 1:length(Species.List)){
-    Standardize_CPUE2(Sp=Species.List[i],Interaction=T)
+    Standardize_CPUE2(Sp=Species.List[i],Interaction=T,minYr=2016,maxYr=2021)
 }
 
 
 # Or run a single model
 #Standardize_CPUE(Sp = "APRU" , Ar = c("Tutuila","Manua") [1])
-Standardize_CPUE2(Sp = "APRU", Interaction=T)
-Sp<-"VALO"; Ar<-"Tutuila"; minYr=1988; maxYr=2021; Interaction<-T
+Standardize_CPUE2(Sp = "VALO")
+Sp<-"VALO"; Ar<-"Tutuila"; minYr=2016; maxYr=2021; Interaction<-T
 
 
