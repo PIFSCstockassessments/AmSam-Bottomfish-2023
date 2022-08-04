@@ -8,7 +8,7 @@ dir.create(paste0(root_dir,"/Outputs/Summary/Size figures"),recursive=T,showWarn
 # Options
 Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
 Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
-MinN           <- 40 # Minimum sample size to do size frequency
+MinN           <- 0 # Minimum sample size to do size frequency
 AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
                        BINWIDTH=c(5,5,5,5,5,3.5,2,5,3,2,3)) # in cm
