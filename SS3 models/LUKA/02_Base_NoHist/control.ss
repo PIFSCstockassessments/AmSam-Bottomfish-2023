@@ -33,7 +33,7 @@
 0 #_natM_type:_0=1Parm; 1=N_breakpoints;_2=Lorenzen;_3=agespecific;_4=agespec_withseasinterpolate;_5=Maunder_M;_6=Age-range_Lorenzen
 #_no additional input for selected M option; read 1P per morph
 1 # GrowthModel: 1=vonBert with L1&L2; 2=Richards with L1&L2; 3=age_specific_K_incr; 4=age_specific_K_decr;5=age_specific_K_each; 6=NA; 7=NA; 8=growth cessation
-1 #_Age(post-settlement)_for_L1;linear growth below this
+0 #_Age(post-settlement)_for_L1;linear growth below this
 999 #_Growth_Age_for_L2 (999 to use as Linf)
 -999 #_exponential decay for growth above maxage (value should approx initial Z; -999 replicates 3.24; -998 to not allow growth above maxage)
 0 #_placeholder for future growth feature
@@ -48,20 +48,20 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	   0.675	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
-    1	     10	      20	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_3       
-   20	     40	    24.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_3       
- 0.05	    0.5	    0.38	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_3       
- 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_3        
- 0.05	   0.25	    0.08	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_3          
-   -1	      3	1.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	    3.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   15	     60	      15	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-   -3	      3	      -3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
-   -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
-   -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
-  0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-1e-06	0.99999	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+       0	      2	    0.675	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_3        
+       1	     10	     5.45	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_3       
+      20	     40	     24.6	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_3       
+    0.05	    0.5	     0.38	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_3       
+    0.05	   0.25	     0.06	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_3        
+    0.05	   0.25	     0.06	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_3          
+      -1	      3	0.0000128	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+      -1	      4	     3.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+      15	     60	       15	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+      -3	      3	       -3	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+      -3	      3	        1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
+      -3	      3	        0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
+     0.1	     10	        1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
+0.000001	0.99999	      0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
@@ -88,11 +88,11 @@
 3 #_recdev_early_phase
 4 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
-1990.8 #_last_yr_nobias_adj_in_MPD; begin of ramp
-2019.8 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-2019.9 #_last_yr_fullbias_adj_in_MPD
-2020 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
-0.7332 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
+1988.9 #_last_yr_nobias_adj_in_MPD; begin of ramp
+2016.8 #_first_yr_fullbias_adj_in_MPD; begin of plateau
+2016.9 #_last_yr_fullbias_adj_in_MPD
+2017.1 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
+0.8014 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
 0 #_period of cycles in recruitment (N parms read below)
 -5 #min rec_dev
 5 #max rec_dev
@@ -148,16 +148,13 @@
 #_Cond -6 6 1 1 2 0.01 -4 0 0 0 0 0 0 0  #_placeholder if no parameters
 #
 # Input variance adjustments factors: 
-#_factor	fleet	Value
-4    	1	0.34	#_1         
--9999	0	   0	#_terminator
+#_Factor Fleet Value
+-9999 1 0 # terminator
 #
 5 #_maxlambdaphase
 1 #_sd_offset; must be 1 if any growthCV, sigmaR, or survey extraSD is an estimated parameter
-# read 1 changes to default Lambdas (default value is 1.0)
-#_likecomp	fleet	phase	value	sizefreq
-    1	1	1	0.5	1	#_1         
--9999	0	0	  0	0	#_terminator
+# read 0 changes to default Lambdas (default value is 1.0)
+-9999 0 0 0 0 # terminator
 #
 0 # 0/1 read specs for more stddev reporting
 #

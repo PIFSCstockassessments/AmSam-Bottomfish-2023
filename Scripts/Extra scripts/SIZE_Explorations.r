@@ -190,7 +190,7 @@ ggsave(last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LUKA_
 write.csv(LKA2,file=paste0(root_dir,"/Outputs/Summary/LUKA_Diver_Lengths.csv"))
 
 quantile(US[SPECIES=="LUKA"&AREA_C=="Atoll"]$LENGTH_FL,.99)
-quantile(BA[SPECIES=="LUKA"&AREA_C=="Manua"]$LENGTH_FL,.99,na.rm=T)
+quantile(US[SPECIES=="LUKA"&AREA_C=="Manua"]$LENGTH_FL,.99,na.rm=T)
 
 # CALU explorations
 

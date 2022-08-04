@@ -4,28 +4,12 @@ author: "Meg Oshima"
 date: "`r Sys.Date()`"
 output: html_document
 params: 
-  species:
-    label: "Select species"
-    value: APVI
-    input: select
-    choices: [APRU, APVI, CALU,
-    ETCO, LERU, LUKA, PRFL, PRZO, 
-    VALO, TEMPLATE_FILES]
-  scenario: 
-    label: "Scenario"
-    value: "base"
-    input: text
-  profile:
-    label: "profile"
-    value: "InitF"
-    input: text
-  profile_vec: 
-    label: "vector of profile values"
-    value: !r seq(0, 2, .2)
-  Njitter:
-    label: "Number of jitters"
-    value: !r 2
-    
+  species: "APVI"
+  scenario: "base"
+  profile: "InitF"
+  profile_vec: !r seq(0,2,0.2)
+  Njitter: !r 2
+
 ---
 
 ```{r setup, include=FALSE}
@@ -49,6 +33,8 @@ report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
 # Model Output {.tabset}
 
+
+
 ## Input Data
 ```{r }
 SSplotData(report.)
@@ -71,7 +57,8 @@ report.$warnings
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
 
-report.$index_variance_tuning_check %>% 
+if(n.indices > 0){
+  report.$index_variance_tuning_check %>% 
   select(Fleet, fleetname, N, RMSE, VarAdj, New_VarAdj) %>% 
   gt()
 
@@ -85,6 +72,10 @@ for(i in 1:n.comps){
   sspar(mfrow = c(1,1))
   SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i)
 }
+}else{
+  print("No CPUE included in model")
+}
+
 
 ```
 
@@ -253,5 +244,4 @@ if(dir.exists(file.path(getwd(), "jitter"))){
 }
 ```
 
-
-## {-}
+## 
