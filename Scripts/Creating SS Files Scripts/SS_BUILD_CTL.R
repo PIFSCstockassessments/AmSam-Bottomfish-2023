@@ -44,6 +44,10 @@ build_control <- function(species = species,
   CTL$EmpiricalWAA       <- ctl.sps$EprircalWAA #if want to use wtatage.ss file change to 1
   CTL$N_GP               <- ctl.sps$N_GP
   CTL$N_platoon          <- ctl.sps$N_platoon #number of platoons within growth pattern
+  if(CTL$N_platoon>1){
+   CTL$sd_ratio          <- ctl.sps$Platoon_SDratio # Platoon within/between standard deviation ratio.
+   CTL$submorphdist      <- c(-1, rep(0,CTL$N_platoon-1)) # Distribution of variability among platoons. -1 followed by zero follows normal distribution.
+  }
   CTL$recr_dist_method   <- ctl.sps$recr_dist_method #main effects for GP, area, settle timing
   CTL$recr_dist_read     <- ctl.sps$recr_dist_read
   CTL$recr_dist_pattern #dataframe with column names: GPattern, month, area, age. Just need to adjust month if assuming settlement doesn't happen in January. If settlement happens after age 0 need to adjust that too.
