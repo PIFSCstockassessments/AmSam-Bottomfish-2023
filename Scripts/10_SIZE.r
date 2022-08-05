@@ -265,6 +265,7 @@ for(i in 1:length(Species.List)){
  SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
 
  SizeData <- SizeData[DATASET!="UVS"]
+ SizeData <- SizeData[order(SPECIES,DATASET,YEAR,LENGTH_BIN_START)]
  
  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
  
