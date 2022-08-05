@@ -74,31 +74,6 @@ BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 table(BB$METHOD_C,BB$SPECIES)
 BB <- BB[METHOD_C=="Bottomfishing"]  # This filters a few spearfishing records for some species. Main impact is for VALO with 51 records removed.
 
-# Convert weights to lengths and verify
-BB$GRAMS                <- BB$LBS*0.453592*1000
-BB$LENGTH_FROM_WEIGHT <-(BB$GRAMS/ BB$LW_A)^(1/BB$LW_B)
-
-# Calculate sample sizes
-BB$N_LFL <- 0; BB[!is.na(LENGTH_FL)]$N_LFL          <- 1
-BB$N_LFW <- 0; BB[!is.na(LENGTH_FROM_WEIGHT)]$N_LFW <- 1
-BB_N     <- BB[,list(N_LFL_TOT=sum(N_LFL),N_LFW_TOT=sum(N_LFW)),by=list(SPECIES,YEAR)]
-BB       <- merge(BB,BB_N,by=c("SPECIES","YEAR"))
-
-# Calculate mean weight from total pounds caught (alternative)
-BC               <- BB[!(is.na(NUM_KEPT))&NUM_KEPT>0,list(LBS_CAUGHT=max(LBS_CAUGHT),NUM_KEPT=max(NUM_KEPT)),by=list(INTERVIEW_PK,YEAR,SPECIES,LW_A,LW_B)]
-BC$MWfromCATCH   <- BC$LBS_CAUGHT/BC$NUM_KEPT
-BC$MWfromCATCH   <- BC$MWfromCATCH*0.453592*1000
-BC$ML_FROM_CATCH <- (BC$MWfromCATCH/BC$LW_A)^(1/BC$LW_B)
-BC$N_LFC         <- 0; BC[ML_FROM_CATCH>0]$N_LFC <- 1
-BC_N             <- BC[,list(N_LFC_TOT=sum(N_LFC)),by=list(SPECIES,YEAR)]
-BC2              <- BC[,list(ML_FROM_CATCH=mean(ML_FROM_CATCH)),by=list(YEAR,SPECIES)]
-BC2               <- merge(BC2,BC_N,by=c("SPECIES","YEAR"))
-
-#Filter year with low sample size
-BB[N_LFL_TOT<=15]$LENGTH_FL          <- NA
-BB[N_LFW_TOT<=15]$LENGTH_FROM_WEIGHT <- NA
-BC2[N_LFC_TOT<=15]$ML_FROM_CATCH     <- NA
-
 # Final options for BBS data
 BB <- BB[!is.na(LENGTH_FL)]
 BB <- select(BB,DATASET,SPECIES,YEAR,AREA_C,LENGTH_FL)
@@ -199,7 +174,8 @@ for(i in 1:length(Species.List)){
    NB         <- data.table( table(E$DATASET,E$YEAR,E$AREA_C) )
    NB$V2      <- as.numeric(NB$V2)
    setnames(NB,c("V1","V2","V3"),c("DATASET","YEAR","AREA_C"))
-   NB2        <- NB[N>=MinN]
+   NB         <- NB[order(DATASET,YEAR,AREA_C)]
+   NB2        <- NB  #[N>=MinN]
    G          <- merge(E,NB2,by=c("DATASET","YEAR","AREA_C"))
    NB$SPECIES <- Sp
    
@@ -247,6 +223,8 @@ for(i in 1:length(Species.List)){
    G <- dcast.data.table(G,SPECIES+DATASET+AREA_C+EFFN+YEAR~LENGTH_BIN_START,value.var="N",fill=0)
    G <- melt(G,id.vars=1:5,value.name="N",variable.name="LENGTH_BIN_START")
    G <- G[DATASET!="FAKE"]
+   
+   G <- G[order(DATASET,AREA_C,YEAR)]
    
    NList[[i]] <- NB 
    GList[[i]] <- G
