@@ -61,7 +61,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
       dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
       tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
       dplyr::arrange(Yr) %>% 
-      dplyr::filter(Nsamp > 40)
+      dplyr::filter(Nsamp >= 40)
     
   }else{
     
