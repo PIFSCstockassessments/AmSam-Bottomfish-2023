@@ -10,7 +10,7 @@
 build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo = NULL, cpue = NULL, 
                       Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, superyear = FALSE, 
-                      superyear_blocks = NULL, file_dir = "base",
+                      superyear_blocks = NULL, Nsamp = 40, file_dir = "base",
                       template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
                       out_dir = file.path(root_dir, "SS3 models")){
   
@@ -61,7 +61,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
       dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
       tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
       dplyr::arrange(Yr) %>% 
-      dplyr::filter(Nsamp >= 40)
+      dplyr::filter(Nsamp >= Nsamp)
     
   }else{
     
@@ -101,9 +101,9 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     lencomp.sp <- lencomp.sp %>% 
       tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N)
     
-    lencomp.sp <- lencomp.sp[-which(is.na(lencomp.sp$SP) & lencomp.sp$Nsamp < 40),]
+    lencomp.sp <- lencomp.sp[-which(is.na(lencomp.sp$SP) & lencomp.sp$Nsamp < Nsamp),]
       
-    sp_to_remove <- lencomp.sp[which(lencomp.sp$Seas == -1 & lencomp.sp$FltSvy == 1 & lencomp.sp$Nsamp < 40), "SP"]
+    sp_to_remove <- lencomp.sp[which(lencomp.sp$Seas == -1 & lencomp.sp$FltSvy == 1 & lencomp.sp$Nsamp < Nsamp), "SP"]
     
     lencomp.sp <- lencomp.sp %>% 
       dplyr::filter(is.na(SP) | SP != sp_to_remove$SP) %>% 
