@@ -89,6 +89,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
         dplyr::summarise(Nsamp = sum(Nsamp),
           N = sum(N)) 
     
+      lencomp.sp[which(lencomp.sp$Yr >= superyear_blocks[[i]][1] & lencomp.sp$Yr <= superyear_blocks[[i]][2]), "SP"] <- i
       lencomp.sp[which(lencomp.sp$Yr == superyear_blocks[[i]][1]), "N"] <- new.data[[i]]$N
       lencomp.sp[which(lencomp.sp$Yr == superyear_blocks[[i]][1]), "Nsamp"] <- new.data[[i]]$Nsamp
       lencomp.sp[which(lencomp.sp$Yr > superyear_blocks[[i]][1] & lencomp.sp$Yr <= superyear_blocks[[i]][2]), "FltSvy"] <- -1
@@ -98,7 +99,15 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     }
     
     lencomp.sp <- lencomp.sp %>% 
-      tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) 
+      tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N)
+    
+    lencomp.sp <- lencomp.sp[-which(is.na(lencomp.sp$SP) & lencomp.sp$Nsamp < 40),]
+      
+    sp_to_remove <- lencomp.sp[which(lencomp.sp$Seas == -1 & lencomp.sp$FltSvy == 1 & lencomp.sp$Nsamp < 40), "SP"]
+    
+    lencomp.sp <- lencomp.sp %>% 
+      dplyr::filter(is.na(SP) | SP != sp_to_remove$SP) %>% 
+      select(-SP)
     
   }
  
