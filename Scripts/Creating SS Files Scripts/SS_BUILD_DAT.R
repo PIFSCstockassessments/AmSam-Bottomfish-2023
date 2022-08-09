@@ -10,7 +10,7 @@
 build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo = NULL, cpue = NULL, 
                       Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, superyear = FALSE, 
-                      superyear_blocks = NULL, Nsamp = 40, file_dir = "base",
+                      superyear_blocks = NULL, N_samp = 40, file_dir = "base",
                       template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
                       out_dir = file.path(root_dir, "SS3 models")){
   
@@ -55,13 +55,16 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
                     FltSvy = as.numeric(factor(DATASET)), 
                     Sex = 0, 
                     Part = 0, 
-                    LENGTH_BIN_START = paste0("l",LENGTH_BIN_START)) %>% 
+                    LENGTH_BIN_START = paste0("l",LENGTH_BIN_START),
+                    N = as.numeric(N)) %>% 
       dplyr::rename(Yr = YEAR,
                     Nsamp = EFFN) %>% 
       dplyr::select(Yr, Seas, FltSvy, Sex, Part, Nsamp, LENGTH_BIN_START, N) %>% 
       tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
       dplyr::arrange(Yr) %>% 
-      dplyr::filter(Nsamp >= Nsamp)
+      dplyr::mutate(totN = rowSums(select(., starts_with("l")))) %>% 
+      dplyr::filter(totN >= N_samp) %>% 
+      dplyr::select(-totN)
     
   }else{
     
@@ -99,19 +102,20 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     }
     
     lencomp.sp <- lencomp.sp %>% 
-      tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N)
+      tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
+      dplyr::mutate(totN = rowSums(select(., starts_with("l"))))
     
-    lencomp.sp <- lencomp.sp[which(is.na(lencomp.sp$SP) & lencomp.sp$Nsamp > Nsamp | !is.na(lencomp.sp$SP)), ]
+    lencomp.sp <- lencomp.sp[which(is.na(lencomp.sp$SP) & lencomp.sp$Nsamp > N_samp | !is.na(lencomp.sp$SP)), ]
       
-    sp_to_remove <- lencomp.sp[which(lencomp.sp$Seas == -1 & lencomp.sp$FltSvy == 1 & lencomp.sp$Nsamp < Nsamp), "SP"]
+    sp_to_remove <- lencomp.sp[which(lencomp.sp$Seas == -1 & lencomp.sp$FltSvy == 1 & lencomp.sp$totN < N_samp), "SP"]
     
     if(nrow(sp_to_remove) > 0){
       lencomp.sp <- lencomp.sp %>% 
         dplyr::filter(is.na(SP) | SP != sp_to_remove$SP) %>% 
-        select(-SP)
+        dplyr::select(-c(SP, totN))
     }else{
       lencomp.sp <- lencomp.sp %>% 
-        select(-SP)
+        dplyr::select(-c(SP, totN))
     }
     
   }
