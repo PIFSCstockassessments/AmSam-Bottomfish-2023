@@ -114,8 +114,6 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
         select(-SP)
     }
     
-    
-    
   }
  
   
