@@ -396,6 +396,7 @@ build_all_ss <- function(species,
         
     rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
                                 paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+                      output_format = "html_document",
                       output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
                       output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
                       params = list(
@@ -406,23 +407,19 @@ build_all_ss <- function(species,
                         Njitter = Njitter
                       ))
 
-    #quarto::quarto_render(input = file.path(root_dir, "SS3 models", species, file_dir, 
-    #                                        paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
-    #                      output_format = "html",
-    #                      execute_params = list(
-    #                        species = paste0(species),
-    #                        scenario = scenario,
-    #                        profile = profile,
-    #                        profile_vec = profile.vec,
-    #                        Njitter = Njitter
-    #                      ),
-    #                      execute_dir = file.path(root_dir, "SS3 models", species, file_dir))
-    #if(toipynb){
-    #  cd. <- "cd "
-    #  dir. <- paste0(root_dir, "/SS3 models/", species, "/", file_dir, "/") 
-    #  q.cmd <- paste0(" quarto convert ", paste0(species, "_", file_dir, "_model_diags_report.qmd"))
-    #  shell(paste0(cd., dir., " & ", q.cmd))
-    #}
+    rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
+                                paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+                      output_format = "pdf_document",
+                      output_file = paste(species, file_dir, "SS3_Diags_Report", sep = "_"),
+                      output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
+                      params = list(
+                        species = paste0(species),
+                        scenario = scenario,
+                        profile = profile,
+                        profile_vec = profile.vec,
+                        Njitter = Njitter
+                      ))
+
   }
 
   
