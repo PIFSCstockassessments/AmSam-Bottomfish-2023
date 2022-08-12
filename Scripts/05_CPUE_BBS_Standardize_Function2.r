@@ -1,4 +1,4 @@
-Standardize_CPUE2 <- function(Sp, Interaction,minYr=1988,maxYr=2021) {
+Standardize_CPUE2 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
@@ -20,7 +20,7 @@ C <- C[HOURS_FISHED<=24]; length(unique(C$INTERVIEW_PK))
 C <- C[as.numeric(YEAR)>=minYr&as.numeric(YEAR)<=maxYr]; length(unique(C$INTERVIEW_PK))
 C <- C[!(AREA_C=="Manua"&YEAR>=2009)] # Remove the 7 random post-2008 Manua interviews
 
-C[AREA_C=="Bank"]$AREA_C <-"Tutuila" # Merge Bank with Tutuila 
+#C[AREA_C=="Bank"]$AREA_C <-"Tutuila" # Merge Bank with Tutuila 
 
 D <- C[SPECIES==Sp]
 
@@ -60,7 +60,7 @@ D$W.B <- 1
 D$W.P <- 1
 
 # Factors
-D$AREA_C      <- factor(D$AREA_C,levels=c("Tutuila","Manua"))
+D$AREA_C      <- factor(D$AREA_C,levels=c("Tutuila","Bank"))
 D$SEASON      <- factor(D$SEASON,levels=c("fall","spring","summer","winter"))
 D$TYPE_OF_DAY <- factor(D$TYPE_OF_DAY,levels=c("WD","WE"))
 D$YEAR        <- factor(D$YEAR)
@@ -72,9 +72,14 @@ Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+YEAR:AREA
 Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
 }
 
-if(Sp=="LERU"){
-  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+if(Sp=="PRFL"){
+  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
 }
+
+if(Sp=="VALO"){
+  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+}
+
 
 #if(Sp=="VALO")    Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+SEASON+s(PC1), method="REML")'
 
@@ -90,8 +95,9 @@ for(i in 1:10){
   if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
-  c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
-  if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
+  #c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
+  c             <- c[!(TERMS=="YEAR")] # Keep those 2 variables, no matter what
+    if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
@@ -120,8 +126,8 @@ Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FI
 Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 }  
 
-if(Sp=="LERU"){
-  Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+if(Sp=="VALO"){
+  Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
 }
 
 aModel        <- eval(parse(text=Model.String))
@@ -135,7 +141,8 @@ for(i in 1:10){
   if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
-  c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
+  #c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
+  c             <- c[!(TERMS=="YEAR")] # Keep those 2 variables, no matter what
   if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
@@ -240,8 +247,8 @@ WLT$WINDSPEED    <- median(D$WINDSPEED)
 
 # Give AREAS their geographical weights
 WLT$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
-WLT[AREA_C=="Tutuila"]$WEIGHT <- 0.87
-WLT[AREA_C=="Manua"]$WEIGHT   <- 0.13
+WLT[AREA_C=="Tutuila"]$WEIGHT <- 0.89
+WLT[AREA_C=="Bank"]$WEIGHT    <- 0.11
 
 # Calculate standardize index for all positive-only models
 Results.P <- list()

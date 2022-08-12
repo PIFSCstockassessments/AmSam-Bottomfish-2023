@@ -150,7 +150,7 @@ ggsave(plot=last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/
 load(paste0(root_dir,"/Data/ALL_REA_FISH_RAW.rdata"))
 US <- rapply(df, as.character, classes="factor", how="replace")
 US <- data.table(US)
-US <- US[REGION=="SAMOA"]
+US <- US[REGION=="SAMOA"|REGION=="PRIAs"]
 US <- US[METHOD!="nSPC-CCR"&METHOD!="SPC"]
 US <- US[EXCLUDE_FLAG!=-1]
 US <- subset(US,select=-c(LW_A,LW_B))
@@ -171,7 +171,7 @@ US$AREA        <- paste(US$AREA_C,"_",US$DEPTH_BIN,sep="")
 US$AREA_WEIGHT <- US$AREA_WEIGHT/2  # Divide by 2 to distribute weights equally between deep and shallow. Temporary fix. This should be improved with more accurate accounting.
 
 # Select BMUS
-US <- US[SPECIES=="VALO"|SPECIES=="LERU"|SPECIES=="APVI"|SPECIES=="LUKA"]
+US <- US[SPECIES=="VALO"|SPECIES=="LERU"|SPECIES=="APVI"|SPECIES=="LUKA"|SPECIES=="CALU"]
 
 # Convert TL to FL using metadata file
 US$LENGTH_FL <- US$LENGTH_TL*US$TL_TO_FL
@@ -189,8 +189,31 @@ ggsave(last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LUKA_
 
 write.csv(LKA2,file=paste0(root_dir,"/Outputs/Summary/LUKA_Diver_Lengths.csv"))
 
-
-
 quantile(US[SPECIES=="LUKA"&AREA_C=="Atoll"]$LENGTH_FL,.99)
-quantile(BA[SPECIES=="LUKA"&AREA_C=="Manua"]$LENGTH_FL,.99,na.rm=T)
+quantile(US[SPECIES=="LUKA"&AREA_C=="Manua"]$LENGTH_FL,.99,na.rm=T)
+
+# CALU explorations
+
+LUG <- US[SPECIES=="CALU"]
+
+nrow(LUG)
+hist(LUG$LENGTH_FL)
+max(LUG$LENGTH_FL)
+
+nrow(LUG[REGION=="SAMOA"])
+hist(LUG[REGION=="SAMOA"]$LENGTH_FL)
+max(LUG[REGION=="SAMOA"]$LENGTH_FL)
+
+
+quantile(LUG[AREA_C=="Atoll"]$LENGTH_FL,.99,na.rm=T)
+
+quantile(LUG$LENGTH_FL,.99,na.rm=T)
+
+
+
+
+
+
+
+
 

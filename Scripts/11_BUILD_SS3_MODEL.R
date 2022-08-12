@@ -15,6 +15,9 @@
 #' @param EST_option see M_option (model estimated parameters: R0, Q, selectivity)
 #' @param lambdas dataframe of lambda values, default is NULL 
 #' @param includeCPUE default is true, if excluding CPUE, set to FALSE
+#' @param superyear default is FALSE, to use super periods for length comp data set to TRUE
+#' @param superyear_blocks a list of vectors, each vector contains the start and end year of a super period block 
+#' (ie list(c(2004,2006))), if there are 2 super periods then length(superyear_blocks) = 2
 #' @param init_values use ss.par file to run ss model (1), or no (0) (starter.ss input)
 #' @param parmtrace can switch to 1 to turn on, helpful for debugging model (starter.ss input)
 #' @param N_boot number of bootstrap files to produce (N >= 3 to run bootstrap) (starter.ss input)
@@ -63,6 +66,9 @@ build_all_ss <- function(species,
                          EST_option = "Option1",
                          lambdas = NULL,
                          includeCPUE = TRUE,
+                         superyear = FALSE,
+                         superyear_blocks = NULL,
+                         N_samp = 40,
                          init_values = 0, 
                          parmtrace = 0,
                          N_boot = 1,
@@ -163,23 +169,28 @@ build_all_ss <- function(species,
     pull()
   
   # CPUE data
-  cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
-                           pattern = species,
-                           full.names = TRUE)
-  
-  cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
-  area <- unlist(str_extract_all(cpue_files, 
-                                 pattern = c("Manua|Tutuila")))
-  
-  cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
-    mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
-    rbindlist() %>% 
-    mutate(seas = 7,
-           index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
-    select(year, seas, index, obs, se_log) %>% 
-    filter(index %in% fleets) %>% 
-    filter(year >= startyr & year <= endyr) %>% 
-    as.data.frame()
+  if(includeCPUE){
+    cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
+                             pattern = species,
+                             full.names = TRUE)
+    
+    cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
+    area <- unlist(str_extract_all(cpue_files, 
+                                   pattern = c("Manua|Tutuila")))
+    
+    cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
+      mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
+      rbindlist() %>% 
+      mutate(seas = 7,
+             index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
+      select(year, seas, index, obs, se_log) %>% 
+      filter(index %in% fleets) %>% 
+      filter(year >= startyr & year <= endyr) %>% 
+      as.data.frame()
+    
+  }else{
+    cpue <- NULL
+  }
   
   # Length Bins
   Species.List <- unique(lencomp$SPECIES)
@@ -207,9 +218,6 @@ build_all_ss <- function(species,
     setNames(c("Pattern", "Discard", "Male", "Special")) %>% 
     as.data.frame() 
   
-  # if(Nfleets > 1){
-  #   
-  # }
   
   age_selex_types <- ctl.inputs %>% 
     select(Parameter, contains(paste0(species))) %>% 
@@ -222,16 +230,20 @@ build_all_ss <- function(species,
     slice(rep(1:n(), each = Nfleets)) #assume same selectivity pattern for both areas
     
   # Catchability options
-  Q.options <- ctl.inputs %>% 
-    select(Parameter, contains(paste0(species))) %>% 
-    filter(str_detect(Parameter, "Q.opt")) %>% 
-    mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
-             as.numeric(),
-           Parameter = str_remove_all(Parameter, "_[0-9]*$")) %>% 
-    filter(Fleet %in% fleets) %>% 
-    pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
-    setNames(c("fleet", "link", "link_info", "extra_se", "biasadj", "float"))
-  
+  if(includeCPUE){
+    Q.options <- ctl.inputs %>% 
+      select(Parameter, contains(paste0(species))) %>% 
+      filter(str_detect(Parameter, "Q.opt")) %>% 
+      mutate(Fleet = str_extract(Parameter, "[0-9]*$") %>% 
+               as.numeric(),
+             Parameter = str_remove_all(Parameter, "_[0-9]*$")) %>% 
+      filter(Fleet %in% fleets) %>% 
+      pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
+      setNames(c("fleet", "link", "link_info", "extra_se", "biasadj", "float"))
+  }else{
+    Q.options <- NULL
+  }
+
   # Fleet and CPUE info
   cpueinfo <- as.data.frame(matrix(data = fleets, nrow = Nfleets, ncol = 4))
   colnames(cpueinfo) <- c("Fleet", "Units", "Errtype", "SD_Report")
@@ -280,6 +292,9 @@ build_all_ss <- function(species,
     fleets = fleets,
     fleetinfo = fleetinfo,
     lbin_method = 2,
+    superyear = superyear,
+    superyear_blocks = superyear_blocks,
+    N_samp = 40,
     file_dir = file_dir,
     template_dir = template_dir,
     out_dir = out_dir
@@ -373,9 +388,9 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.qmd"), 
+      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
                 to = file.path(root_dir, "SS3 models", species, file_dir, 
-                               paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
+                               paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
                 overwrite = TRUE)
   
         
