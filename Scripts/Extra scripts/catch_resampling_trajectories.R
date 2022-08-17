@@ -22,13 +22,14 @@ catchresample <- catch %>%
 
 ## All species catch
 catchresample %>% 
-  ggplot(aes(x = YEAR, y = catch1, group = SPECIES)) +
-  geom_line(color = 2, size = 1.2, alpha = .5) +
-  geom_line(aes(x = YEAR, y = catch2), color = 3, size = 1.2, alpha = .5) +
-  geom_line(aes(x = YEAR, y = catch3), color = 4, size = 1.2, alpha = .5) +
-  geom_line(aes(x = YEAR, y = catch4), color = 5, size = 1.2, alpha = .5) +
-  geom_line(aes(x = YEAR, y = catch5), color = 6, size = 1.2, alpha = .5) +
-  geom_line(aes(x = YEAR, y = MT), color = "grey30", size = 1.2) +
+  ggplot(aes(x = YEAR, y = MT, group = SPECIES)) +
+  geom_line(color = "grey88", size = 5) +
+  geom_line(aes(x = YEAR, y = catch1), color = 2, size = .75, alpha = .85) +
+  geom_line(aes(x = YEAR, y = catch2), color = 3, size = .75, alpha = .85) +
+  geom_line(aes(x = YEAR, y = catch3), color = 4, size = .75, alpha = .85) +
+  geom_line(aes(x = YEAR, y = catch4), color = 5, size = .75, alpha = .85) +
+  geom_line(aes(x = YEAR, y = catch5), color = 6, size = .75, alpha = .85) +
+  #geom_line(aes(x = YEAR, y = MT), color = "grey30", size = 1.2) +
   theme_classic() +
   labs(y = "Catch (mt)", x = "Year") +
   facet_wrap(~SPECIES, scales = "free")
@@ -39,13 +40,13 @@ for(i in unique(catch$SPECIES)){
   
   catchresample %>% 
     filter(SPECIES == paste0(i)) %>% 
-    ggplot(aes(x = YEAR, y = catch1, group = SPECIES)) +
-    geom_line(color = 2, size = 1.2, alpha = .5) +
-    geom_line(aes(x = YEAR, y = catch2), color = 3, size = 1.2, alpha = .5) +
-    geom_line(aes(x = YEAR, y = catch3), color = 4, size = 1.2, alpha = .5) +
-    geom_line(aes(x = YEAR, y = catch4), color = 5, size = 1.2, alpha = .5) +
-    geom_line(aes(x = YEAR, y = catch5), color = 6, size = 1.2, alpha = .5) +
-    geom_line(aes(x = YEAR, y = MT), color = "grey30", size = 1.2) +
+    ggplot(aes(x = YEAR, y = MT)) +
+    geom_line(color = "grey88", size = 5) +
+    geom_line(aes(x = YEAR, y = catch1), color = 2, size = 1, alpha = .85) +
+    geom_line(aes(x = YEAR, y = catch2), color = 3, size = 1, alpha = .85) +
+    geom_line(aes(x = YEAR, y = catch3), color = 4, size = 1, alpha = .85) +
+    geom_line(aes(x = YEAR, y = catch4), color = 5, size = 1, alpha = .85) +
+    geom_line(aes(x = YEAR, y = catch5), color = 6, size = 1, alpha = .85) +
     theme_classic() +
     scale_x_continuous(breaks = seq(1967, 2021, by = 3)) +
     labs(y = "Catch (mt)", x = "Year", subtitle = paste0(i))
