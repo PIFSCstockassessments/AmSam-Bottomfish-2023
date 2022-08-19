@@ -13,6 +13,7 @@
 #' @param SR_option see M_option (stock-recruitment, except R0)
 #' @param Q_option see M_option (catchability)
 #' @param EST_option see M_option (model estimated parameters: R0, Q, selectivity)
+#' @param initF turn initial F estimation on (default is FALSE)
 #' @param lambdas dataframe of lambda values, default is NULL 
 #' @param includeCPUE default is true, if excluding CPUE, set to FALSE
 #' @param superyear default is FALSE, to use super periods for length comp data set to TRUE
@@ -64,6 +65,7 @@ build_all_ss <- function(species,
                          MAT_option = "Option1",
                          SR_option = "Option1",
                          EST_option = "Option1",
+                         initF = FALSE,
                          lambdas = NULL,
                          includeCPUE = TRUE,
                          superyear = FALSE,
@@ -283,6 +285,7 @@ build_all_ss <- function(species,
     startyr = startyr,
     endyr = endyr,
     catch = catch,
+    initF = initF,
     CPUEinfo = cpueinfo,
     cpue = cpue,
     Nages = Nages,
@@ -317,6 +320,7 @@ build_all_ss <- function(species,
     EST_option = EST_option,
     size_selex_types = size_selex_types,
     age_selex_types = age_selex_types,
+    initF = initF,
     lambdas = lambdas,
     file_dir = file_dir,
     template_dir = template_dir,

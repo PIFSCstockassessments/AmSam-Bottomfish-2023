@@ -56,3 +56,29 @@ for(i in unique(catch$SPECIES)){
 }
 
 
+### Creating 100 trajectories of catch
+apruC <- catch %>% filter(SPECIES == "APRU")
+cmat <- matrix(data = NA, nrow = nrow(apruC), ncol = 100)
+
+for(i in 1:nrow(apruC)){
+  
+  cmat[,i] <- rlnorm(100, apruC[i,"MT"], apruC[i, "LOGSD.MT"])
+  
+}
+
+c.traj <- as.data.frame(cmat) %>% 
+  mutate(Year = apruC$YEAR) %>% 
+  pivot_longer(cols = -101, values_to = "MT") %>% 
+  select(-name) 
+
+c.traj %>% 
+  group_by(Year) %>% 
+  summarise(med = median(MT),
+            high = quantile(MT, .95),
+            low =  quantile(MT, .05)) %>% 
+  ggplot() + 
+  geom_point(data = c.traj, aes(x = Year, y = MT), color = "grey85") +
+  geom_line(aes(x = Year, y = med), size = 1.3) +
+  geom_line(aes(x = Year, y = high), color = 4, size = 1.2) +
+  geom_line(aes(x = Year, y = low), color = 4, size = 1.1) +
+  theme_classic()

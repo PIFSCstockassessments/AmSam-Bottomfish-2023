@@ -7,7 +7,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 ## DAT file
 #  --------------------------------------------------------------------------------------------------------------
-build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo = NULL, cpue = NULL, 
+build_dat <- function(species = NULL, scenario = "base", catch = NULL, initF = F, CPUEinfo = NULL, cpue = NULL, 
                       Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, superyear = FALSE, 
                       superyear_blocks = NULL, N_samp = 40, file_dir = "base",
@@ -149,10 +149,18 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, CPUEinfo 
     
     ## Add catch, column names: year, seas, fleet, catch, catch_se
     ## NOTE: will need to adjust if there are multiple fleets with catch
-    init.catch <- data.frame(year = -999, 
-                             seas = 1, fleet = 1, 
-                             catch = catch.sp[catch.sp$year == startyr, "catch"], 
-                             catch_se = catch.sp[catch.sp$year == startyr, "catch_se"])
+    if(initF == TRUE){
+      init.catch <- data.frame(year = -999, 
+                               seas = 1, fleet = 1, 
+                               catch = catch.sp[catch.sp$year == startyr, "catch"], 
+                               catch_se = catch.sp[catch.sp$year == startyr, "catch_se"])
+    }else{
+      init.catch <- data.frame(year = -999, 
+                               seas = 1, fleet = 1, 
+                               catch = 0, 
+                               catch_se = 0.01)
+    }
+
     DAT$catch  <- rbind(init.catch, catch.sp) 
     print(DAT$catch)
     
