@@ -23,6 +23,7 @@ build_control <- function(species = species,
                           EST_option = "Option1",
                           size_selex_types = size_selex_types,
                           age_selex_types = age_selex_types,
+                          initF = FALSE,
                           lambdas = FALSE,
                           file_dir = "base",
                           template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"),
@@ -162,10 +163,13 @@ build_control <- function(species = species,
   }
   CTL$maxF            <- ctl.sps$maxF
   
-  CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
+  if(initF == T){
+    CTL$init_F <- ctl.params %>% filter(str_detect(X1, "initial_F")) %>% 
       rename("LABEL" = "X1") %>% 
       select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
       as.data.table()
+  }
+
   
   ## Catchability
   if(includeCPUE == TRUE){
