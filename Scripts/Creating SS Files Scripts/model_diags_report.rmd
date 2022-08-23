@@ -2,7 +2,7 @@
 title: "American Samoa Model Checks"
 author: "Meg Oshima"
 date: "`r Sys.Date()`"
-output: html_document
+output: pdf_document
 params: 
   species: "APVI"
   scenario: "base"
@@ -25,7 +25,7 @@ library(gt)
 
 **This is a summary report for the `r params$species` `r params$scenario` model run.** 
 
-```{r}
+```{r get-rep-file}
 #file.path(params$report, params$species, params$file_dir)
 report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
@@ -36,12 +36,12 @@ report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
 
 ## Input Data
-```{r }
+```{r data-plot}
 SSplotData(report.)
 ```
 
 ## Convergence Check
-```{r}
+```{r converge-check}
 data.frame(Converged = file.exists(file.path(getwd(), "ss.std")), 
            MaxGrad = report.$maximum_gradient_component)
 
@@ -52,7 +52,7 @@ report.$warnings
 ## Fit to Model {.active}
 ### CPUE
 
-```{r fig.align='center', out.width='.49\\linewidth', message=FALSE}
+```{r cpue-fit, fig.show="hold", out.width="50%", message=FALSE}
 
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
@@ -80,7 +80,7 @@ for(i in 1:n.comps){
 ```
 
 ### Length Comp
-```{r fig.align='center', out.width='.49\\linewidth', message=FALSE}
+```{r length-fits, fig.show="hold", out.width="50%", message=FALSE}
 SS_tune_comps(report., option = "Francis", dir = getwd(), write =F, verbose =F) %>% 
   select('#Factor', Fleet, New_Var_adj, Type, Name) %>% 
   gt()

@@ -392,37 +392,56 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.Rmd"), 
+      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.qmd"), 
                 to = file.path(root_dir, "SS3 models", species, file_dir, 
-                               paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+                               paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
                 overwrite = TRUE)
   
+    quarto::quarto_render(input = file.path(root_dir, "SS3 models", species, file_dir,
+                                            paste0(species, "_", file_dir, 
+                                                   "_model_diags_report.qmd")),
+                          output_format = c("pdf", "html"),
+                          execute_params = list(
+                            species = paste0(species),
+                            scenario = scenario,
+                            profile = profile,
+                            profile_vec = profile.vec,
+                            Njitter = Njitter
+                          ),
+                          execute_dir = file.path(root_dir, "SS3 models", species, file_dir))
+    
+    file.rename(from = file.path(root_dir, "SS3 models", species, file_dir,
+                                 paste0(species, "_", file_dir, 
+                                        "_model_diags_report.pdf")),
+                to = file.path(root_dir, "SS3 models", species, file_dir,
+                               paste0("0_", species, "_", file_dir, 
+                                      "_model_diags_report.pdf")))
         
-    rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
-                                paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
-                      output_format = "html_document",
-                      output_file = paste("0", species, file_dir, "SS3_Diags_Report", sep = "_"),
-                      output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
-                      params = list(
-                        species = paste0(species),
-                        scenario = scenario,
-                        profile = profile,
-                        profile_vec = profile.vec,
-                        Njitter = Njitter
-                      ))
+    # rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
+    #                             paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+    #                   output_format = c("pdf_document"),
+    #                   output_file = paste("0", species, file_dir, "SS3_Diags_Report", sep = "_"),
+    #                   output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
+    #                   params = list(
+    #                     species = paste0(species),
+    #                     scenario = scenario,
+    #                     profile = profile,
+    #                     profile_vec = profile.vec,
+    #                     Njitter = Njitter
+    #                   ))
 
-    rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
-                                paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
-                      output_format = "pdf_document",
-                      output_file = paste("0", species, file_dir, "SS3_Diags_Report", sep = "_"),
-                      output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
-                      params = list(
-                        species = paste0(species),
-                        scenario = scenario,
-                        profile = profile,
-                        profile_vec = profile.vec,
-                        Njitter = Njitter
-                      ))
+    # rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
+    #                             paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
+    #                   output_format = "pdf_document",
+    #                   output_file = paste("0", species, file_dir, "SS3_Diags_Report", sep = "_"),
+    #                   output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
+    #                   params = list(
+    #                     species = paste0(species),
+    #                     scenario = scenario,
+    #                     profile = profile,
+    #                     profile_vec = profile.vec,
+    #                     Njitter = Njitter
+    #                   ))
 
   }
 

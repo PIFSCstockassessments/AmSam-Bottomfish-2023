@@ -1,8 +1,10 @@
 ---
 title: "American Samoa Model Checks"
-author: "Meg Oshima"
+author: ""
 date: "`r Sys.Date()`"
-format: html
+format: 
+  html:
+    self-contained: true
 params: 
   species: "APVI"
   scenario: "base"
@@ -12,8 +14,11 @@ params:
 
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE, 
+                      warning=FALSE)
 library(this.path)
 library(r4ss)
 library(ss3diags)
@@ -26,7 +31,7 @@ library(gt)
 **This is a summary report for the `r params$species` `r params$scenario` model run.** 
 
 ```{r}
-#file.path(params$report, params$species, params$file_dir)
+
 report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
 ```
@@ -53,37 +58,50 @@ report.$warnings
 ### CPUE
 
 ```{r}
+#| fig-show: hold
+#| message: false
+#| fig-align: center
 
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
 
-report.$index_variance_tuning_check %>% 
+if(n.indices > 0){
+  report.$index_variance_tuning_check %>% 
   select(Fleet, fleetname, N, RMSE, VarAdj, New_VarAdj) %>% 
   gt()
 
 for(i in 1:n.indices){
   sspar(mfrow = c(1,2))
   SSplotIndices(report., subplots = 2, fleets = i)
-  SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i)
+  SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5,.5))
 }
 
 for(i in 1:n.comps){
   sspar(mfrow = c(1,1))
-  SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i)
+  SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5, .5))
+}
+}else{
+  print("No CPUE included in model")
 }
 
 ```
 
 ### Length Comp
 ```{r}
+#| fig-show: hold
+#| message: false
+#| fig-align: center
 SS_tune_comps(report., option = "Francis", dir = getwd(), write =F, verbose =F) %>% 
   select('#Factor', Fleet, New_Var_adj, Type, Name) %>% 
   gt()
 
 sspar(mfrow = c(1,2))
-SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1)
-SSplotJABBAres(report., subplots = "len", add = TRUE, indexselect = 1)
+SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.5,.5))
+SSplotJABBAres(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.4,.4))
+```
 
+```{r}
+#| fig-align: center
 SSplotComps(report., subplots = 8, fleets = 1)
 SSplotComps(report., subplots = 21, fleets = 1)
 SSplotComps(report., subplots = 1, fleets = 1)
@@ -93,7 +111,10 @@ SSplotComps(report., subplots = 1, fleets = 1)
 
 ## Retrospective and Hindcasting  
 ### Retrospective 
-```{r message=FALSE, eval = TRUE, error=TRUE}
+```{r }
+#| message: false
+#| eval: true
+#| error: true
 if(dir.exists(file.path(getwd(), "Retrospectives"))){
   
   retro.dirs <- list.files(file.path(getwd(), "Retrospectives"),
@@ -119,7 +140,10 @@ SSplotRetro(retrosum,
 ```
 
 ### Hindcasting
-```{r eval =TRUE,error=TRUE}
+```{r}
+#| eval: true
+#| error: true
+
 if(dir.exists(file.path(getwd(), "Retrospectives"))){
   for(i in 1:n.indices){
     sspar(mfrow = c(1,2))
@@ -147,7 +171,7 @@ SSplotRecdevs(report., subplots = c(2,3))
 
 ## Likelihood Profile
 
-```{r eval=TRUE}
+```{r }
 if(dir.exists(file.path(getwd(), paste0(params$profile, "_profile")))){
   
 r0.vec <- params$profile_vec
@@ -189,7 +213,7 @@ PinerPlot(profilesummary, component = "Surv_like",
 ```
 
 ## Management Quantities  
-```{r eval=TRUE}
+```{r }
 
 mvln <- SSdeltaMVLN(report.)
 SSplotEnsemble(mvln$kb, subplots = c("stock", "harvest", "SSB", "F"), add = TRUE)
@@ -199,7 +223,7 @@ dev.off()
 
 
 ## Jitter  
-```{r message = FALSE, warning=FALSE}
+```{r}
 if(dir.exists(file.path(getwd(), "jitter"))){
   
   jittermods <- SSgetoutput(keyvec=1:params$Njitter,
@@ -233,7 +257,7 @@ if(dir.exists(file.path(getwd(), "jitter"))){
 
 
     
-```{r  message = FALSE, warning=FALSE}  
+```{r }  
 if(dir.exists(file.path(getwd(), "jitter"))){
    SSplotComparisons(jittersum, subplots = c(2,8,10), new = F)
 }
