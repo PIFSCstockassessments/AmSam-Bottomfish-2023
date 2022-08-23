@@ -2,15 +2,14 @@
 title: "American Samoa Model Checks"
 author: "Meg Oshima"
 date: "`r Sys.Date()`"
-output:
-  pdf_document: default
-  html_document: default
-params:
-  species: APRU
-  scenario: base
-  profile: InitF
+output: html_document
+params: 
+  species: "APVI"
+  scenario: "base"
+  profile: "InitF"
   profile_vec: !r seq(0,2,0.2)
-  Njitter: '!r 2'
+  Njitter: !r 2
+
 ---
 
 ```{r setup, include=FALSE}
