@@ -16,7 +16,7 @@
 1	-1	1	1	0	FISHERY	#_1
 #_Catch data
 #_year	season	fleet	catch	catch_se
- -999	1	1	      0	    0.01	#_1         
+ -999	1	1	0.01724	     0.5	#_1         
  1967	1	1	0.01724	     0.5	#_2         
  1968	1	1	0.06033	     0.5	#_3         
  1969	1	1	 0.0186	     0.5	#_4         
@@ -110,7 +110,7 @@
 #
 #_len_info
 #_mintailcomp	addtocomp	combine_M_F	CompressBins	CompError	ParmSelect	minsamplesize
-0	0.0000001	0	0	0	0	1	#_1
+0	1e-07	0	0	0	0	1	#_1
 15 #_N_lbins
 #_lbin_vector
 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 #_lbin_vector
