@@ -174,6 +174,11 @@ build_all_ss <- function(species,
     filter(str_detect(Parameter, "Nsexes")) %>% 
     pull()
   
+  CompError <- ctl.inputs %>% 
+    select(Parameter, paste0(species)) %>% 
+    filter(str_detect(Parameter, "CompError")) %>% 
+    pull()
+  
   # CPUE data
   if(includeCPUE){
     cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
@@ -294,6 +299,7 @@ build_all_ss <- function(species,
     cpue = cpue,
     Nages = Nages,
     Nsexes = Nsexes,
+    CompError = CompError,
     lencomp = lencomp,
     bin.list = BIN.LIST,
     fleets = fleets,
@@ -311,7 +317,8 @@ build_all_ss <- function(species,
     species = species,
     scenario = scenario,
     Nfleets = Nfleets,
-    Nsexes = Nsexes, 
+    Nsexes = Nsexes,
+    CompError = CompError,
     ctl.inputs = ctl.inputs,
     ctl.params = ctl.params,
     includeCPUE = includeCPUE,

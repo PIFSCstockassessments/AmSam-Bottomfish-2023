@@ -10,7 +10,8 @@
 build_control <- function(species = species,
                           scenario = "base",
                           Nfleets = Nfleets,
-                          Nsexes = Nsexes, 
+                          Nsexes = Nsexes,
+                          CompError = CompError,
                           ctl.inputs = ctl.inputs,
                           ctl.params = ctl.params,
                           includeCPUE = TRUE,
@@ -236,6 +237,19 @@ build_control <- function(species = species,
 
   }
 
+  # Dirichlet length comp error distribution needs the Theta parameter from the Par sheet
+  if(CompError==1){
+    
+    CTL$dirichlet_parms <- ctl.params %>%
+      filter(str_detect(category, "EST")) %>%
+      filter(str_detect(X1, "Dirichlet")) %>% 
+      filter(str_detect(OPTION, EST_option)) %>%
+      select(-c(category, OPTION)) %>%
+      slice_head(n = Nfleets*2) %>% 
+      column_to_rownames("X1")
+  }
+  
+  
   CTL$Use_2D_AR1_selectivity <- 0 #no 2D_AR1 offset
 
   ## Tagging data

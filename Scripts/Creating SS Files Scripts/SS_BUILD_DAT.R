@@ -8,7 +8,7 @@
 ## DAT file
 #  --------------------------------------------------------------------------------------------------------------
 build_dat <- function(species = NULL, scenario = "base", catch = NULL, initF = F, CPUEinfo = NULL, cpue = NULL, 
-                      Nages = NULL, Narea = 1, Nsexes = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
+                      Nages = NULL, Narea = 1, Nsexes = NULL, CompError = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, superyear = FALSE, 
                       superyear_blocks = NULL, N_samp = 40, file_dir = "base",
                       template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES"), 
@@ -198,6 +198,7 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, initF = F
   if(exists("lencomp.sp")){
     
     ## Length Composition 
+    if(CompError==0){
     DAT$len_info    <- data.frame(mintailcomp = rep(-1, DAT$Nfleets),
                                addtocomp      = rep(0.001, DAT$Nfleets),
                                combine_M_F    = rep(0, DAT$Nfleets),
@@ -205,6 +206,15 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, initF = F
                                CompError      = rep(0, DAT$Nfleets),
                                ParmSelect     = rep(0, DAT$Nfleets),
                                minsamplesize  = rep(0.001, DAT$Nfleets))
+    } else if (CompError==1){
+    DAT$len_info    <- data.frame(mintailcomp = rep(-1, DAT$Nfleets),
+                               addtocomp      = rep(0.001, DAT$Nfleets),
+                               combine_M_F    = rep(0, DAT$Nfleets),
+                               CompressBins   = rep(0, DAT$Nfleets),
+                               CompError      = rep(1, DAT$Nfleets),
+                               ParmSelect     = seq(1, DAT$Nfleets),
+                               minsamplesize  = rep(0.001, DAT$Nfleets))  
+    }
     
     DAT$N_lbins     <- length(select(lencomp.sp, starts_with("l")))
     if(Nsexes == 2){
