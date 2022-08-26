@@ -37,6 +37,7 @@
 #' @param file_dir name of subdirectory to save files to, default is same as scenario
 #' @param template_dir path to template SS files
 #' @param out_dir first part of path to directory for saving files to, do not include species name or scenario
+#' @param write_files default TRUE, create new input files for ss models
 #' @param runmodels default TRUE, runs ss model
 #' @param est_args extra arguments that can be added to ss call (i.e. -nohess)
 #' @param do_retro TRUE or FALSE to run retrospective
@@ -73,7 +74,7 @@ build_all_ss <- function(species,
                          N_samp = 40,
                          init_values = 0, 
                          parmtrace = 0,
-                         N_boot = 1,
+                         N_boot = 0,
                          last_est_phs = 10,
                          seed = 0123,
                          benchmarks = 1,
@@ -91,6 +92,7 @@ build_all_ss <- function(species,
                          template_dir = file.path(this.path::here(.. = 1), 
                                                   "SS3 models", "TEMPLATE_FILES"), 
                          out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
+                         write_files = TRUE,
                          runmodels = TRUE,
                          ext_args = "-stopph 3 -nohess",
                          do_retro = TRUE,
@@ -105,6 +107,8 @@ build_all_ss <- function(species,
                          r4ssplots = TRUE
                          ){
   
+  if(write_files){
+    
   ## Step 1. Read in all data components ###-------------------------------------------
   
   # Catch data
@@ -335,7 +339,6 @@ build_all_ss <- function(species,
     out_dir = out_dir,
     init_values = init_values,
     parmtrace = parmtrace,
-    N_boot = N_boot,
     last_est_phs = last_est_phs,
     seed = seed
   )
@@ -358,14 +361,41 @@ build_all_ss <- function(species,
     Fcast_years = Fcast_years,
     ControlRule = ControlRule
   )
+  }
+  
+  model_dir <- file.path(root_dir, "SS3 models", species, file_dir)
   
   if(runmodels){
     ### Run Stock Synthesis ####
     file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
-              file.path(root_dir, "SS3 models", species, file_dir))
-    r4ss::run_SS_models(dirvec = file.path(root_dir, "SS3 models", species, file_dir), 
+              model_dir)
+    r4ss::run_SS_models(dirvec = model_dir, 
                   model = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
   }
+  
+  if(N_boot > 0){
+    
+    source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SSbootstrap.R"))
+    
+    boot_dir <- file.path(model_dir, "bootstrap")
+    if(!exists(boot_dir)){
+      dir.create(boot_dir)
+    }
+    message(paste0("Creating bootstrap data files in ", boot_dir))
+    
+    file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
+              to = boot_dir)
+    start <- r4ss::SS_readstarter(file = file.path(boot_dir, "starter.ss"))
+    start$N_bootstraps <- N_boot + 2
+    r4ss::SS_writestarter(start, dir = boot_dir, overwrite = T)
+    r4ss::run_SS_models(dirvec = boot_dir, 
+                        model = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE)
+    
+    SSbootstrap2(boot_dir, N_boot = N_boot)
+    
+  }
+  
+  
   
   if(r4ssplots){
     report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 

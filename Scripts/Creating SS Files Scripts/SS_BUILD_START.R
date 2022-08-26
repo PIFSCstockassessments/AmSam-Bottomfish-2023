@@ -14,7 +14,6 @@ build_starter <- function(species,
                           out_dir = file.path(root_dir, "SS3 models"),
                           init_values = 0,
                           parmtrace = 0,
-                          N_boot = 1,
                           last_est_phs = 10,
                           seed = 0123){
   ## STEP 1. Read in template starter file
@@ -27,8 +26,8 @@ build_starter <- function(species,
   START$ctlfile <- "control.ss"
   START$init_values_src <- init_values #switch 1 if want to use parameter values from par.ss
   START$parmtrace <- parmtrace #can switch to 1 to turn on, helpful for debugging model
-  START$N_bootstraps <- N_boot #change to 3 if you want to run bootstrap
   START$last_estimation_phase <- last_est_phs #turn to 0 if you don't want estimation
+  START$N_bootstraps <- 1
   START$maxyr_sdreport <- -2
   START$seed <- seed
   
