@@ -198,13 +198,13 @@ build_dat <- function(species = NULL, scenario = "base", catch = NULL, initF = F
   if(exists("lencomp.sp")){
     
     ## Length Composition 
-    DAT$len_info    <- data.frame(mintailcomp = rep(0, DAT$Nfleets),
-                               addtocomp      = rep(0.0000001, DAT$Nfleets),
+    DAT$len_info    <- data.frame(mintailcomp = rep(-1, DAT$Nfleets),
+                               addtocomp      = rep(0.001, DAT$Nfleets),
                                combine_M_F    = rep(0, DAT$Nfleets),
                                CompressBins   = rep(0, DAT$Nfleets),
                                CompError      = rep(0, DAT$Nfleets),
                                ParmSelect     = rep(0, DAT$Nfleets),
-                               minsamplesize  = rep(1, DAT$Nfleets))
+                               minsamplesize  = rep(0.001, DAT$Nfleets))
     
     DAT$N_lbins     <- length(select(lencomp.sp, starts_with("l")))
     if(Nsexes == 2){
