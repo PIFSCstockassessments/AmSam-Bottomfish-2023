@@ -12,7 +12,7 @@
 1 #_N_areas
 1 #_Nfleets
 #_fleetinfo
-#_type	surveytiming	units	area	need_catch_mult	fleetname
+#_type	surveytiming	area	units	need_catch_mult	fleetname
 1	-1	1	1	0	FISHERY	#_1
 #_Catch data
 #_year	season	fleet	catch	catch_se
@@ -78,7 +78,7 @@
 #_Errtype:  -1=normal; 0=lognormal; >0=T
 #_SD_Report: 0=no sdreport; 1=enable sdreport
 #_Fleet	Units	Errtype	SD_Report
-1	1	0	0	#_1
+1	1	0	0	#_FISHERY
 #
 #_CPUE_data
 #_year	seas	index	obs	se_log
@@ -110,13 +110,13 @@
 #
 #_len_info
 #_mintailcomp	addtocomp	combine_M_F	CompressBins	CompError	ParmSelect	minsamplesize
--1	0.001	0	0	1	1	0.001	#_1
+-1	0.001	0	0	0	0	0.001	#_FISHERY
 15 #_N_lbins
 #_lbin_vector
 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 #_lbin_vector
 #
 #_lencomp
-#_Yr	Seas	FltSvy	Sex	Part	Nsamp	l15	l20	l25	l30	l35	l40	l45	l50	l55	l60	l65	l70	l75	l80	l85
+#_Yr	Seas	FltSvy	Gender	Part	Nsamp	l15	l20	l25	l30	l35	l40	l45	l50	l55	l60	l65	l70	l75	l80	l85
  2004	 1	 1	0	0	  69.2	0	0	0	2	15	18	18	15	 9	 3	 2	 1	1	0	0	#_1         
  2005	-1	 1	0	0	  50.4	0	0	0	2	 2	11	13	11	10	 8	 1	 1	0	0	1	#_2         
  2006	-1	-1	0	0	  25.2	0	0	0	0	 1	 5	 7	 5	 4	 5	 1	 1	0	0	1	#_3         

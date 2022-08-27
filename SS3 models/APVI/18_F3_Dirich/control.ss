@@ -50,20 +50,20 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	 0.16875	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-    0	     60	      40	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_2       
-   50	    100	    69.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_2       
- 0.05	    0.5	   0.307	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_2       
- 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_2        
- 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_2          
-   -1	      3	1.47e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	  3.0033	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   35	     60	    44.8	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
-   -4	      3	   -3.44	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
-   -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
-   -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
-  0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-1e-06	0.99999	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+    0	      2	 0.16875	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1  
+    0	     60	      40	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1 
+   50	    100	    69.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1 
+ 0.05	    0.5	   0.307	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1 
+ 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1  
+ 0.05	   0.25	    0.14	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1    
+   -1	      3	1.47e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1   
+   -1	      4	  3.0033	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1   
+   35	     60	    44.8	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1    
+   -4	      3	   -3.44	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1 
+   -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs_alpha_Fem_GP_1
+   -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs_beta_Fem_GP_1 
+  0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev      
+1e-06	0.99999	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1    
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
@@ -116,30 +116,28 @@
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
-    1	1	0	1	0	0	#_1         
+    1	1	0	1	0	0	#_FISHERY   
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--1	2	0.76	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
- 0	2	   0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
+-1	2	0.76	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base_FISHERY(1) 
+ 0	2	   0	0	0	0	-1	0	0	0	0	0	0	0	#_Q_extraSD_FISHERY(1)
 #_no timevary Q parameters
 #
 #_size_selex_patterns
 #_Pattern	Discard	Male	Special
-1	0	0	0	#_1 1
+1	0	0	0	#_1 FISHERY
 #
 #_age_selex_patterns
 #_Pattern	Discard	Male	Special
-0	0	0	0	#_1 1
+0	0	0	0	#_1 FISHERY
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-20	50	43	0	0	0	2	0	0	0	0	0	0	0	#_1
- 1	20	13	0	0	0	2	0	0	0	0	0	0	0	#_2
+20	50	43	0	0	0	2	0	0	0	0	0	0	0	#_SizeSel_P_1_FISHERY(1)
+ 1	20	13	0	0	0	2	0	0	0	0	0	0	0	#_SizeSel_P_2_FISHERY(1)
 #_AgeSelex
 #_No age_selex_parm
-#_Dirichlet parameters
--5	10	0	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
 #_no timevary selex parameters
 #
 0 #  use 2D_AR1 selectivity(0/1):  experimental feature
