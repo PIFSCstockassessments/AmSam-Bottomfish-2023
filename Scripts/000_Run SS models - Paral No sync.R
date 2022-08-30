@@ -23,7 +23,7 @@ for(i in 1:9){
 cl    <- makeCluster (7)
 Input <- Lt
 
-lapply(list(Lt[[1]]),function(x)     { # Run a single model
+lapply(list(Lt[[5]]),function(x)     { # Run a single model
 #parLapply(cl,Input,function(x){ # Run all models
 
     
