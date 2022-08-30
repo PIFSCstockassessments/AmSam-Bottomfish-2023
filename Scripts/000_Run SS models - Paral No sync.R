@@ -1,6 +1,4 @@
-require(pacman); pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,
-                                httr,lubridate,lunar,parallel,purrr,googledrive,googlesheets4,gt,quarto,RColorBrewer,
-                                tidyverse,this.path,viridis,r4ss,nFactors,openxlsx)
+require(pacman); pacman::p_load(this.path, parallel)
 
 root_dir <- here(..=1)
 
@@ -22,13 +20,15 @@ for(i in 1:9){
   names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","SY","SY_block","root")
 }
 
-cl <- makeCluster (7)
+cl    <- makeCluster (7)
+Input <- Lt
 
-parLapply(cl,Lt,function(x){
-  
-  require(pacman); pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,
-                                  httr,lubridate,lunar,parallel,purrr,googledrive,googlesheets4,gt,quarto,RColorBrewer,
-                                  tidyverse,this.path,viridis,r4ss,nFactors,openxlsx)
+lapply(list(Lt[[1]]),function(x)     { # Run a single model
+#parLapply(cl,Input,function(x){ # Run all models
+
+    
+  require(pacman); pacman::p_load(boot,data.table,httr,lubridate,parallel,purrr,
+                                  googledrive,googlesheets4,gt,quarto,tidyverse,r4ss)
   
   
   source(file.path(x$root,"Scripts","11_BUILD_SS3_MODEL.R"))
