@@ -3,6 +3,7 @@ library(ss3diags)
 library(data.table)
 library(r4ss)
 library(ggsidekick)
+library(tidyverse)
 
 mods <- SSgetoutput(keyvec = paste0("_", seq(1,N_boot)),
                     dirvec = file.path(root_dir, "SS3 Models", species, file_dir, "bootstrap"))
@@ -93,3 +94,54 @@ mods %>%
   scale_x_continuous(breaks = seq(1967, 2021, by = 4)) +
   ggsidekick::theme_sleek()
 ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap", "bootstrap_catch.png"))
+
+## CPUE 
+mods %>% 
+  purrr::map("cpue") %>% 
+  purrr::map(~ select(., Yr, Obs)) %>% 
+  purrr::map2(., run, ~cbind(.x, Run = .y)) %>% 
+  rbindlist() %>% 
+  ggplot() +
+  geom_line(data = . %>% filter(Run == "original"), aes(x = Yr, y = Obs), color = "grey80", size = 3) +
+  geom_point(data = . %>% filter(Run != "original"),
+            aes(x = Yr, y = Obs, color = Run), size = 2, alpha = .65) + 
+  geom_line(data = . %>% filter(Run != "original"),
+            aes(x = Yr, y = Obs, color = Run), size = 1.1, alpha = .65) + 
+  labs(x = "Year", y = "CPUE") +
+  ggsidekick::theme_sleek()
+ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap", "bootstrap_cpue.png"))
+
+
+## Length comps
+original.lencomp <- mods %>% 
+  purrr::map("lendbase") %>% 
+  purrr::map(~ select(., Yr, Obs, Bin)) %>% 
+  purrr::map2(., run, ~cbind(.x, Run = .y)) %>% 
+  rbindlist() %>% 
+  filter(Run == "original") %>% 
+  mutate(Run = NULL)
+
+
+mods %>% 
+  purrr::map("lendbase") %>% 
+  purrr::map(~ select(., Yr, Obs, Bin)) %>% 
+  purrr::map2(., run, ~cbind(.x, Run = .y)) %>% 
+  rbindlist() %>% 
+  filter(Run != "original") %>% 
+  ggplot() +
+  geom_col(aes(x = Bin, y = Obs, fill = Run)) +
+  facet_wrap(~Run) +
+  geom_col(data = original.lencomp,aes(x = Bin, y = Obs),fill="grey15", alpha = .5) +
+  labs(x = "Length Bin", y = "") +
+  ggsidekick::theme_sleek()
+ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap", "bootstrap_lencomp.png"))
+
+mods %>% 
+  purrr::map("catch") %>% 
+  purrr::map(~ select(., Yr, Obs)) %>% 
+  purrr::map2(., run, ~cbind(.x, Run = .y)) %>% 
+  rbindlist() %>% 
+  filter(Obs <= .001) %>% 
+  group_by(Run) %>% 
+  summarise(n())
+  
