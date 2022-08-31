@@ -87,11 +87,11 @@ build_all_ss <- function(species,
                          Nforeyrs = 10, 
                          Fcast_years = c(0,0,-10,0,-999,0),
                          ControlRule = 0,
-                         root_dir = this.path::here(.. = 1),
+                         root_dir = NA,
                          file_dir = scenario,
-                         template_dir = file.path(this.path::here(.. = 1), 
+                         template_dir = file.path(root_dir, 
                                                   "SS3 models", "TEMPLATE_FILES"), 
-                         out_dir = file.path(this.path::here(.. = 1), "SS3 models"),
+                         out_dir = file.path(root_dir, "SS3 models"),
                          write_files = TRUE,
                          runmodels = TRUE,
                          ext_args = "-stopph 3 -nohess",
@@ -172,6 +172,11 @@ build_all_ss <- function(species,
   Nsexes <- ctl.inputs %>% 
     select(Parameter, paste0(species)) %>% 
     filter(str_detect(Parameter, "Nsexes")) %>% 
+    pull()
+  
+  CompError <- ctl.inputs %>% 
+    select(Parameter, paste0(species)) %>% 
+    filter(str_detect(Parameter, "CompError")) %>% 
     pull()
   
   # CPUE data
@@ -294,6 +299,7 @@ build_all_ss <- function(species,
     cpue = cpue,
     Nages = Nages,
     Nsexes = Nsexes,
+    CompError = CompError,
     lencomp = lencomp,
     bin.list = BIN.LIST,
     fleets = fleets,
@@ -311,7 +317,8 @@ build_all_ss <- function(species,
     species = species,
     scenario = scenario,
     Nfleets = Nfleets,
-    Nsexes = Nsexes, 
+    Nsexes = Nsexes,
+    CompError = CompError,
     ctl.inputs = ctl.inputs,
     ctl.params = ctl.params,
     includeCPUE = includeCPUE,

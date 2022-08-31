@@ -68,6 +68,7 @@ SS3 models/TEMPLATE_FILES/*
 !SS3 models/TEMPLATE_FILES/starter.ss
 !SS3 models/TEMPLATE_FILES/ss_opt_win.exe
 Scripts/000_Run SS models - No sync.r
+Scripts/000_Run SS models - Paral No sync.R
 plots
 **/jitter
 **/Retrospectives
