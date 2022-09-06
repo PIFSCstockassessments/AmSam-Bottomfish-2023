@@ -52,7 +52,6 @@ E <- merge(E,S,by="SPECIES_FK")
 C1 <- ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
 ggsave(plot=C1,filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=4,units="in")
 
-
 # Save final catch file
 Z          <- E[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SPECIES,YEAR)]
 Z          <- Z[order(SPECIES,YEAR)]
@@ -63,8 +62,17 @@ Z[is.na(LOGSD.MT)]$LOGSD.MT <- 0
 
 Z <- select(Z,SPECIES,YEAR,MT,LOGSD.MT)  
 
-# Variance min/max adjustments
+# Add catch data from 2 life history program cruise (2012 and 2016)
+LHC <- read.xlsx(file.path(root_dir,"Data","AmSam_LHP_cruise_summary.xlsx"),sheet="summary")
+LHC <- select(LHC,YEAR,SPECIES,LHP_CATCH_MT)
 
+Z   <- merge(Z,LHC,by=c("YEAR","SPECIES"),all.x=T)
+
+Z[!is.na(LHP_CATCH_MT)]$MT     <- Z[!is.na(LHP_CATCH_MT)]$MT+Z[!is.na(LHP_CATCH_MT)]$LHP_CATCH_MT
+
+Z <- select(Z,-LHP_CATCH_MT)
+
+# Variance min/max adjustments
 Z[YEAR<=1985]$LOGSD.MT              <- 0.5 # Add some uncertainty to historic catch
 #Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
 #Z[YEAR>=1986&LOGSD.MT<0.2]$LOGSD.MT <- 0.2 # Increase min CV to 0.2
