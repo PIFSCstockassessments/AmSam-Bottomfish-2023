@@ -24,6 +24,7 @@ SSbootstrap2 <- function(boot_dir, N_boot){
                      overwrite = T)
     # change data file name in starter file
     starter[["datfile"]] <- paste("data_boot_", bootn[iboot], ".ss", sep = "")
+    starter[["N_bootstraps"]] <- 1
     # replace starter file with modified version
     SS_writestarter(starter, dir = boot_dir, overwrite = TRUE)
     
