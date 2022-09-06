@@ -19,7 +19,7 @@ for(i in 1:length(mods)){
   
 }
 
-mv <- rbindlist(mvlns)
+mv2 <- rbindlist(mvlns)
 
 SSplotEnsemble(mv, print_plot = T, use_png = T, 
                plotdir = file.path(root_dir, "SS3 Models", species, file_dir, "bootstrap"))
@@ -145,3 +145,52 @@ mods %>%
   group_by(Run) %>% 
   summarise(n())
   
+
+mv1ssb <- mv1 %>% 
+  filter(run != "original") %>% 
+  select(c(year, SSB, stock)) %>% 
+  pivot_longer(cols = -year, names_to = "variable") %>% 
+  group_by(year, variable) %>% 
+  summarise(
+    med = quantile(value, probs = 0.5),
+    u95 = quantile(value, probs = .95),
+    l95 = quantile(value, probs = .05)
+  ) %>% 
+  filter(variable == "SSB")
+
+mv2ssb <- mv2 %>% 
+  filter(run != "original") %>% 
+  select(c(year, SSB, stock)) %>% 
+  pivot_longer(cols = -year, names_to = "variable") %>% 
+  group_by(year, variable) %>% 
+  summarise(
+    med = quantile(value, probs = 0.5),
+    u95 = quantile(value, probs = .95),
+    l95 = quantile(value, probs = .05)
+  ) %>% 
+  filter(variable == "SSB")
+
+mv3ssb <- mv3 %>% 
+  filter(run != "original") %>% 
+  select(c(year, SSB, stock)) %>% 
+  pivot_longer(cols = -year, names_to = "variable") %>% 
+  group_by(year, variable) %>% 
+  summarise(
+    med = quantile(value, probs = 0.5),
+    u95 = quantile(value, probs = .95),
+    l95 = quantile(value, probs = .05)
+  ) %>% 
+  filter(variable == "SSB")
+
+mv4ssb <- mv %>% 
+  filter(run != "original") %>% 
+  select(c(year, SSB, stock)) %>% 
+  pivot_longer(cols = -year, names_to = "variable") %>% 
+  group_by(year, variable) %>% 
+  summarise(
+    med = quantile(value, probs = 0.5),
+    u95 = quantile(value, probs = .95),
+    l95 = quantile(value, probs = .05)
+  ) %>% 
+  filter(variable == "SSB")
+mv4ssb
