@@ -35,6 +35,14 @@ ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(e
 
 ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Growth.png")),width=15,height=7,units="cm")
 
+# Mean length graph
+
+LC <- data.table( SS.results$len_comp_fit_table )
+setnames(LC,c("All_exp_5%","All_exp_95%"),c("All_exp_05","All_exp_95"))
+
+ggplot(data=LC)+geom_line(aes(x=Yr,y=All_exp_mean))+geom_point(aes(x=Yr,y=All_obs_mean))+geom_errorbar(aes(x=Yr,ymin=All_exp_05,ymax=All_exp_95))
+
+
 
 # Derived quantities graphs
 SS         <- data.table( SS.results$derived_quants )
@@ -61,15 +69,15 @@ TA$F95U   <- TA$F+1.96*(TA$F_CV*TA$F)
 TA$F95L   <- TA$F-1.96*(TA$F_CV*TA$F)
 
 
-P1 <- ggplot(data=TA)+geom_line(aes(x=YEAR,y=TBIO))+geom_point(aes(x=1967,y=B0),col="red",size=3)+
+P1 <- ggplot(data=TA)+geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")+geom_point(aes(x=1967,y=B0),col="red",size=3)+
   geom_ribbon(aes(x=YEAR,ymin=SSB95L,ymax=SSB95U),alpha=0.3)+scale_y_continuous(limits=c(0,B0*1.1),expand=c(0,0))+
   scale_x_continuous(breaks=seq(1960,2030,10))+
-  geom_line(aes(x=YEAR,y=SSB))+geom_hline(aes(yintercept=SSB_MSST),linetype="dashed",col="blue")+
-  theme_bw()+theme(axis.text.x=element_blank(),axis.title.x=element_blank())+ylab("Biomass (MT)")
+  geom_line(aes(x=YEAR,y=SSB),linetype="solid")+geom_hline(aes(yintercept=SSB_MSST),linetype="dotdash",col="blue")+
+  theme_bw()+theme(axis.text.x=element_blank(),axis.title.x=element_blank())+ylab("Biomass (mt)")
 
 P2 <- ggplot(data=TA,aes(x=YEAR,y=F))+geom_ribbon(aes(ymin=F95L,ymax=F95U),alpha=0.3)+geom_line()+
   scale_x_continuous(breaks=seq(1960,2030,10))+
-  scale_y_continuous(expand=c(0,0))+theme_bw()+xlab("Year")+ylab("Fishing mortality (yr-1)")
+  scale_y_continuous(expand=c(0,0))+theme_bw()+xlab("Year")+ylab(expression(Fishing~mortality~(year^-1)))
   
 P1 <- ggplotGrob(P1)
 P2 <- ggplotGrob(P2)
@@ -79,7 +87,7 @@ g$widths <- unit.pmax(P1$widths, P2$widths)
 grid.newpage()
 grid.draw(g)
 
-ggsave(g,file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Quants.png")),width=10,height=10,units="cm")
+ggsave(g,file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Quants.png")),width=14,height=10,units="cm")
 
 
 # Stock-recruitment relationship
@@ -99,7 +107,7 @@ colnames(DAT) <- c("Year","SSB","REC")
 SR_plot <- ggplot(data=DAT)+scale_x_continuous(limits=c(0,SSB_VIRG+1),expand=c(0,0))+scale_y_continuous(limits=c(0,REC_VIRG+1),expand=c(0,0))+
   stat_function(fun=function(x) alpha*x/(beta+x),xlim=c(0,SSB_VIRG))+
   geom_point(aes(x=SSB,y=REC,col=Year),size=2)+geom_point(aes(x=SSB_VIRG,y=REC_VIRG),size=4,col="red",shape=18)+
-  scale_color_gradientn(colors=rainbow(4))+theme_bw()+xlab("Spawning biomass (SSB; metric tons)")+ylab("Recruitment (1000 recruits)")
+  scale_color_gradientn(colors=rainbow(4))+theme_bw()+xlab("Spawning biomass (SSB; mt)")+ylab("Recruitment (1000 recruits)")
 
 ggsave(last_plot(),filename=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_SR.png")),width=14,height=7,units="cm",dpi=300)
 
