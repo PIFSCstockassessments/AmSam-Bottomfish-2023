@@ -11,19 +11,21 @@ for(s in 1:9){
 Sp <- Species.List[s]
 
 SS.results <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
+PAR        <- data.table( SS.results$parameters )
 
 # Growth curve graph
 
 GR     <- data.table( SS.results$endgrowth )
-Lamin  <- SS.results$parameters[2,3]
-CV_yg  <- SS.results$parameters[5,3]
-CV_old <- SS.results$parameters[5,3]
+Lamin  <- PAR[2]$Value
+CV_yg  <- PAR[5]$Value
+CV_old <- PAR[6]$Value
   
 MG    <- GR[Platoon==2]
 MG$SD <- MG$Len_Beg*CV_old 
 MG[Len_Beg<=Lamin]$SD <- MG[Len_Beg<=Lamin]$Len_Beg*CV_yg   
-ymax <- 1.2*(GR[max(Len_Beg)]$Len_Beg+1.96*GR[max(Len_Beg)]$SD_Beg)
+ymax  <- 1.2*(GR[Len_Beg==max(Len_Beg)]$Len_Beg+1.96*GR[Len_Beg==max(Len_Beg)]$SD_Beg)
 
+if(max(GR$Sex)!=2){
 ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(expand=c(0,0))+
  # geom_line(data=GR[Platoon==1],aes(x=Age_Beg,y=Len_Beg-1.96*SD_Beg),linetype="dotted")+
  #  geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg+1.96*SD_Beg),linetype="dotted")+
@@ -32,8 +34,23 @@ ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(e
   geom_line(data=GR[Platoon==2],aes(x=Age_Beg,y=Len_Beg),col="black")+
   geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+theme_bw()+
   labs(x="Age (year)",y="Length FL (cm)")
+  
+  ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Growth.png")),width=15,height=7,units="cm")
+  
+} else{
+  ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(expand=c(0,0))+
+    # geom_line(data=GR[Platoon==1],aes(x=Age_Beg,y=Len_Beg-1.96*SD_Beg),linetype="dotted")+
+    #  geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg+1.96*SD_Beg),linetype="dotted")+
+    geom_ribbon(data=MG,aes(x=Age_Beg,ymin=Len_Beg-1.96*SD,ymax=Len_Beg+1.96*SD),alpha=0.15)+
+    geom_line(data=GR[Platoon==1],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+
+    geom_line(data=GR[Platoon==2],aes(x=Age_Beg,y=Len_Beg),col="black")+
+    geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+theme_bw()+
+    labs(x="Age (year)",y="Length FL (cm)")+facet_wrap(~Sex,labeller=labeller(Sex=c("1"="Female","2"="Male")))
 
-ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Growth.png")),width=15,height=7,units="cm")
+  ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Growth.png")),width=18,height=7,units="cm")
+}
+
+
 
 # Mean length graph
 
@@ -68,14 +85,16 @@ TA$SSB95L <- TA$SSB-1.96*(TA$SSB_CV*TA$SSB)
 TA$F95U   <- TA$F+1.96*(TA$F_CV*TA$F)
 TA$F95L   <- TA$F-1.96*(TA$F_CV*TA$F)
 
+TA[SSB95L<0]$SSB95L <- 0
+TA[F95L<0]$F95L     <- 0
 
-P1 <- ggplot(data=TA)+geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")+geom_point(aes(x=1967,y=B0),col="red",size=3)+
-  geom_ribbon(aes(x=YEAR,ymin=SSB95L,ymax=SSB95U),alpha=0.3)+scale_y_continuous(limits=c(0,B0*1.1),expand=c(0,0))+
+P1 <- ggplot(data=TA)+geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")+geom_point(aes(x=1967,y=B0),col="red",size=1.5)+
+  geom_ribbon(aes(x=YEAR,ymin=SSB95L,ymax=SSB95U),alpha=0.1)+scale_y_continuous(limits=c(0,B0*1.1),expand=c(0,0))+
   scale_x_continuous(breaks=seq(1960,2030,10))+
   geom_line(aes(x=YEAR,y=SSB),linetype="solid")+geom_hline(aes(yintercept=SSB_MSST),linetype="dotdash",col="blue")+
   theme_bw()+theme(axis.text.x=element_blank(),axis.title.x=element_blank())+ylab("Biomass (mt)")
 
-P2 <- ggplot(data=TA,aes(x=YEAR,y=F))+geom_ribbon(aes(ymin=F95L,ymax=F95U),alpha=0.3)+geom_line()+
+P2 <- ggplot(data=TA,aes(x=YEAR,y=F))+geom_ribbon(aes(ymin=F95L,ymax=F95U),alpha=0.1)+geom_line()+
   scale_x_continuous(breaks=seq(1960,2030,10))+
   scale_y_continuous(expand=c(0,0))+theme_bw()+xlab("Year")+ylab(expression(Fishing~mortality~(year^-1)))
   
@@ -91,21 +110,26 @@ ggsave(g,file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Quants.pn
 
 
 # Stock-recruitment relationship
-SS          <- data.table( SS.results$derived_quants )
-SSB         <- SS[str_detect(SS$Label,"SSB")][3:57,2]
-REC         <- SS[str_detect(SS$Label,"Recr")][3:57,2]
+SS      <- data.table( SS.results$derived_quants )
+SSB     <- SS[str_detect(SS$Label,"SSB")][3:57,2]
+REC     <- SS[str_detect(SS$Label,"Recr")][3:57,2]
+YEAR    <- seq(1967,2021)
+
+SSB      <- cbind(SSB,YEAR)
+REC      <- cbind(REC,YEAR)
+DAT      <- merge(SSB,REC,by="YEAR")
+colnames(DAT) <- c("Year","SSB","REC")
 
 SSB_VIRG <- as.numeric( SS[str_detect(SS$Label,"SSB_Virgin")][,2] )
 REC_VIRG <- as.numeric( SS[str_detect(SS$Label,"Recr_Virgin")][,2] )
-STEEP    <- SS.results$parameters$Value[16]
-alpha    <- 4*STEEP*REC_VIRG/(5*STEEP-1)
-beta     <- SSB_VIRG*(1-STEEP)/(5*STEEP-1)
+STEEP    <- PAR[str_detect(PAR$Label,"steep")]$Value
 
-DAT <- cbind(Year=seq(1967,2021),SSB,REC)
-colnames(DAT) <- c("Year","SSB","REC")
+SR <- data.table( SS.results$SPAWN_RECR_CURVE )
+SR <- SR[`SSB/SSB_virgin`<=1]
 
-SR_plot <- ggplot(data=DAT)+scale_x_continuous(limits=c(0,SSB_VIRG+1),expand=c(0,0))+scale_y_continuous(limits=c(0,REC_VIRG+1),expand=c(0,0))+
-  stat_function(fun=function(x) alpha*x/(beta+x),xlim=c(0,SSB_VIRG))+
+SR_plot <- ggplot(data=DAT)+scale_x_continuous(limits=c(0,SSB_VIRG*1.1),expand=c(0,0))+scale_y_continuous(limits=c(0,REC_VIRG*1.1),expand=c(0,0))+
+  #stat_function(fun=function(x) 4*STEEP*REC_VIRG*x/(SSB_VIRG*(1-STEEP)+x*(5*STEEP-1)) ,xlim=c(0,SSB_VIRG))+
+  geom_line(data=SR,aes(x=SSB,y=Recruitment))+
   geom_point(aes(x=SSB,y=REC,col=Year),size=2)+geom_point(aes(x=SSB_VIRG,y=REC_VIRG),size=4,col="red",shape=18)+
   scale_color_gradientn(colors=rainbow(4))+theme_bw()+xlab("Spawning biomass (SSB; mt)")+ylab("Recruitment (1000 recruits)")
 
@@ -131,6 +155,7 @@ nyears <- nrow(TS)
 
 ##SD of ratios in the terminal year
 Fratio_SD   <- as.double(TS$Fratio[nyears]*sqrt((Fstd[nyears,2]/Fstd[nyears,1])^2+(F_MSY[2]/F_MSY[1])^2))
+if(is.na(Fratio_SD)) Fratio_SD <- 0
 Fratio_95   <- TS$Fratio[nyears]+1.96*Fratio_SD
 Fratio_05   <- TS$Fratio[nyears]-1.96*Fratio_SD
 SSBratio_95 <- SSBratio_TermYr[1]+1.96*SSBratio_TermYr[2]
@@ -139,7 +164,7 @@ SSBratio_05 <- SSBratio_TermYr[1]-1.96*SSBratio_TermYr[2]
 # Kobe plot layout setting, adjust as needed
 x_max  <- max(TS$SSBratio,SSBratio_95,3)*1.05
 x_min  <- 0
-y_max  <- max(TS$Fratio,Fratio_95,1.5)
+y_max  <- max(TS$Fratio,Fratio_95,1.5)*1.05
 y_min  <- 0
 MSST_x <- 0.9
 max_yr <- 2021
