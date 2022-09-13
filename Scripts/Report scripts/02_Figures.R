@@ -154,8 +154,13 @@ TS   <- data.table(YEAR=seq(1968,2021),SSBratio=SS[str_detect(SS$Label,"Bratio_"
 nyears <- nrow(TS)
 
 ##SD of ratios in the terminal year
-Fratio_SD   <- as.double(TS$Fratio[nyears]*sqrt((Fstd[nyears,2]/Fstd[nyears,1])^2+(F_MSY[2]/F_MSY[1])^2))
-if(is.na(Fratio_SD)) Fratio_SD <- 0
+if(is.na(Fratio_SD)) { Fratio_SD <- 0 } else {
+
+Fratio_MC <- rnorm(10000,mean=Fstd[nyears]$Value,sd=Fstd[nyears]$StdDev)/rnorm(10000,mean=F_MSY[1],sd=F_MSY[2])
+Fratio_SD <- sd(Fratio_MC)
+
+}
+
 Fratio_95   <- TS$Fratio[nyears]+1.96*Fratio_SD
 Fratio_05   <- TS$Fratio[nyears]-1.96*Fratio_SD
 SSBratio_95 <- SSBratio_TermYr[1]+1.96*SSBratio_TermYr[2]
@@ -181,10 +186,9 @@ K <- ggplot()+geom_polygon(aes(x=tri_x,y=tri_y),fill="khaki1",col="black")+geom_
          geom_segment(aes(x=1,xend=1,y=0,yend=1))+
          scale_x_continuous(expand=c(0,0),limits=c(0,x_max))+scale_y_continuous(expand=c(0,0),limits=c(0,y_max))+labs(x=expression(SSB/SSB[MSY]),y=expression(F/F[MSY]))
 K <- K + geom_line(data=TS,aes(x=SSBratio,y=Fratio),size=0.1)+scale_fill_gradientn(colors=rev(rainbow(4)))+geom_point(data=TS,aes(x=SSBratio,y=Fratio,fill=YEAR),shape = 21,colour="black")
-K <- K + geom_linerange(data=TS,aes(xmin=SSBratio_05,xmax=SSBratio_95,y=Fratio[nyears]),linetype="dashed")
+K <- K + geom_linerange(data=TS,aes(xmin=SSBratio_05,xmax=SSBratio_95,y=TS$Fratio[nyears]),linetype="dashed")
+K <- K + geom_linerange(data=TS,aes(ymin=Fratio_05,ymax=Fratio_95,x=TS$SSBratio[nyears]),linetype="dashed")
 K <- K + geom_point(data=TS,aes(x=SSBratio[nyears],y=Fratio[nyears]),shape=21,fill="red",col="black",size=3)
-
-K
 
 ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Kobe.png")),width=14,height=10,units="cm")
 
