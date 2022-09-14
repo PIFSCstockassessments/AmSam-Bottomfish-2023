@@ -72,6 +72,13 @@ Z[!is.na(LHP_CATCH_MT)]$MT     <- Z[!is.na(LHP_CATCH_MT)]$MT+Z[!is.na(LHP_CATCH_
 
 Z <- select(Z,-LHP_CATCH_MT)
 
+# For PRZO and PRFL, 2021 had "0" catch since the species were not intercepted.
+# For these, CPUE per domain from 2020 were used and combined with expanded effort per domain in 2021 to obtain the 2021 catch values + SD
+
+CORR.ZEROES <- data.table(YEAR=2021,SPECIES=c("PRFL","PRZO"),MT=c(25.1*0.453592/1000,14.06*0.453592/1000),LOGSD.MT=c(sqrt(108.9)*0.453592/1000,sqrt(45.2)*0.453592/1000))
+Z           <- rbind(Z,CORR.ZEROES)
+ 
+
 # Variance min/max adjustments
 Z[YEAR<=1985]$LOGSD.MT              <- 0.5 # Add some uncertainty to historic catch
 #Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
