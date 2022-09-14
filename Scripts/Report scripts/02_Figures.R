@@ -5,6 +5,9 @@ Model <- "23_F3_Dirich_NewCatch"
 
 dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)
 
+# Catch data
+Raw.C  <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv"))
+
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 for(s in 1:9){
 
@@ -13,8 +16,22 @@ Sp <- Species.List[s]
 SS.results <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
 PAR        <- data.table( SS.results$parameters )
 
-# Growth curve graph
+# Catch graph
+CA <- Raw.C[SPECIES==Sp]
+CA <- select(CA,-SPECIES)
 
+ggplot(data=CA,aes(x=YEAR,y=MT))+geom_bar(stat="identity",fill="blue",col="black")+labs(x="Year",y="Total catch (mt)")+
+  geom_vline(aes(xintercept=1985.5),linetype="dashed",col="black",size=0.5)+
+  scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=c(0,0),limits=c(0,max(CA$MT)*1.1))+theme_bw()
+
+ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Catch.png")),width=15,height=7,units="cm")
+
+
+
+?geom_vline
+
+
+# Growth curve graph
 GR     <- data.table( SS.results$endgrowth )
 Lamin  <- PAR[2]$Value
 CV_yg  <- PAR[5]$Value
