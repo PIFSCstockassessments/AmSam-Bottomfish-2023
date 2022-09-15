@@ -12,52 +12,33 @@ for(s in 1:9){
   
   Sp <- Species.List[s]
 
-# Catch table
-C <- Raw.C[SPECIES==Sp]
-C <- select(C,-SPECIES)
-
-C$MT       <- round(C$MT,3)
-C$LOGSD.MT <- round(C$LOGSD.MT,2)
-
-Ca <- C[YEAR<=1980]
-Cb <- C[YEAR>1980&YEAR<=1994]
-Cc <- C[YEAR>1994&YEAR<=2008]
-Cd <- C[YEAR>2008]
-
-C.Final <- cbind(Ca,Cb,Cc,Cd) 
-C.Final[14,10:12] <- NA
-
-# CPUE table
-CP <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CPUE", paste0("CPUE_",Sp,"_Tutuila.csv")))
-
-CP$CPUE_TOT       <- round(CP$CPUE_TOT,3)
-CP$LOGSD.CPUE_TOT <- round(CP$LOGSD.CPUE_TOT,2)
-
-# Tot. biomass, SSB, Recruits, and F
-SS.results  <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
-SS          <- data.table( SS.results$derived_quants )
-SS$CV       <- round(SS$StdDev/SS$Value,2)
-SS$Value    <- round(SS$Value,3)
-SS          <- select(SS,Label,Value,CV)
-
-SSB   <- SS[str_detect(SS$Label,"SSB")][3:57,2:3]
-REC   <- SS[str_detect(SS$Label,"Recr")][3:57,2:3]
-FMORT <- SS[str_detect(SS$Label,"F_")][1:55,2:3]
-
-TBIO  <- data.table(TOT_BIO=SS.results$timeseries$Bio_all)[3:57]
-
-TA <- cbind(YEAR=seq(1967,2021),TBIO,SSB,REC,FMORT)
-
-colnames(TA) <- c("YEAR","TBIO","SSB","SSB_CV","REC","REC_CV","F","F_CV")
-
-# Split table in two (make it longer and shorter)
-TA1 <- TA[YEAR<=1994]
-TA2 <- TA[YEAR>1994]
+  # Tot. biomass, SSB, Recruits, and F
+  SS.results  <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
+  SS          <- data.table( SS.results$derived_quants )
+  SS$CV       <- round(SS$StdDev/SS$Value,2)
+  SS$Value    <- round(SS$Value,3)
+  SS          <- select(SS,Label,Value,CV)
   
-TA.Final <- cbind(TA1,TA2)
-TA.Final[28,9:16] <- NA
-
-
+  SSB   <- SS[str_detect(SS$Label,"SSB")][3:57,2:3]
+  REC   <- SS[str_detect(SS$Label,"Recr")][3:57,2:3]
+  FMORT <- SS[str_detect(SS$Label,"F_")][1:55,2:3]
+  
+  TBIO  <- data.table(TOT_BIO=SS.results$timeseries$Bio_all)[3:57]
+  
+  TA <- cbind(YEAR=seq(1967,2021),TBIO,SSB,REC,FMORT)
+  
+  colnames(TA) <- c("YEAR","TBIO","SSB","SSB_CV","REC","REC_CV","F","F_CV")
+  
+  # Split table in two (make it longer and shorter)
+  TA1 <- TA[YEAR<=1994]
+  TA2 <- TA[YEAR>1994]
+  
+  TA.Final <- cbind(TA1,TA2)
+  TA.Final[28,9:16] <- NA
+  
+  # Catch data to calculate catch 2019-2022
+  C <- Raw.C[SPECIES==Sp]  
+  
 # Reference points
 RP <- data.table(REF_POINT=c("Fmsy","F2021","F2021/Fmsy","SSBmsy","SSBmsst","SSB2021","SSB2021/SSBmsst",
                              "MSY","Catch2019-2021","SPRmsy","SPR2021"),VALUE=numeric())
@@ -83,14 +64,14 @@ SE <- data.table()
 PR <- data.table()
 
 # Put all tables into a single list
-Table.List <- list(C.Final,CP,TA.Final,RP,SE,PR)
+Table.List <- list(TA.Final,RP,SE,PR)
 
 # Add tables to excel worksheet
 File.Name <- file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_tables.xlsx"))
 wb        <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook(File.Name)})
-Sheets    <- c("01_Catch", "02_CPUE","03_Quants","04_RefPoints","05_Sensitivies","06_Projections")
+Sheets    <- c("01_Quants","02_RefPoints","03_Sensitivies","04_Projections")
 
-for(i in 1:6){
+for(i in 1:4){
   if(Sheets[i] %in% sheets(wb)) removeWorksheet(wb,Sheets[i]) # Remove sheets if there already
   addWorksheet(wb, sheetName = Sheets[i])
   writeData(wb, sheet = Sheets[i], Table.List[[i]],colNames=T)
@@ -100,4 +81,73 @@ for(i in 1:6){
 saveWorkbook(wb,File.Name,overwrite = T)
 
 }
-warnings()
+
+
+# Tables for all species to be inserted in the general section of the report
+
+C.List  <- list()
+CP.List <- list() 
+for(s in 1:9){
+
+Sp <- Species.List[s]
+  
+C <- Raw.C[SPECIES==Sp]  
+C <- select(C,-SPECIES)
+  
+# Catch table
+
+C$MT       <- round(C$MT,3)
+C$LOGSD.MT <- round(C$LOGSD.MT,2)
+
+Ca <- C[YEAR<=1980]
+Cb <- C[YEAR>1980&YEAR<=1994]
+Cc <- C[YEAR>1994&YEAR<=2008]
+Cd <- C[YEAR>2008]
+
+C.all <- cbind(Ca,Cb,Cc,Cd) 
+C.all[14,10:12] <- NA
+C.all$SP <- Sp
+C.all <- C.all[,c(13,1:12)]
+
+C.List[[Sp]] <- C.all
+
+# CPUE table
+CP <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CPUE", paste0("CPUE_",Sp,"_Tutuila.csv")))
+
+CP$SPECIES <- Sp
+CP$CPUE_TOT       <- round(CP$CPUE_TOT,3)
+CP$LOGSD.CPUE_TOT <- round(CP$LOGSD.CPUE_TOT,2)
+
+CP <- CP[,c(4,1:3)]
+
+CP.List[[Sp]] <- CP
+
+}
+
+C.Final  <- rbindlist(C.List)
+CP.Final <- rbindlist(CP.List)
+
+colnames(C.Final) <- c("Sp","Yr","MT","CV","Yr","MT","CV","Yr","MT","CV","Yr","MT","CV")
+
+# Add tables to excel worksheet
+File.Name <- file.path(root_dir,"Outputs","Report_Inputs","Catch_CPUE_tables.xlsx")
+wb        <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook(File.Name)})
+Sheets    <- c("Catch","CPUE")
+
+for(i in 1:2){
+  if(Sheets[i] %in% sheets(wb)) removeWorksheet(wb,Sheets[i]) # Remove sheets if there already
+  addWorksheet(wb, sheetName = Sheets[i])
+}
+
+  writeData(wb, sheet = Sheets[1], C.Final,colNames=T)
+  setColWidths(wb,widths="auto",sheet=Sheets[i],cols=1:15)
+
+  writeData(wb, sheet = Sheets[2], CP.Final,colNames=T)
+  setColWidths(wb,widths="auto",sheet=Sheets[i],cols=1:15)
+
+saveWorkbook(wb,File.Name,overwrite = T)
+
+
+
+
+
