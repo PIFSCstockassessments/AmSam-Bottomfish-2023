@@ -17,7 +17,7 @@ for(s in 1:9){
   SS          <- data.table( SS.results$derived_quants )
   SS$CV       <- round(SS$StdDev/SS$Value,2)
   SS$Value    <- round(SS$Value,3)
-  SS          <- select(SS,Label,Value,CV)
+  SS          <- select(SS,Label,Value,CV,StdDev)
   
   SSB   <- SS[str_detect(SS$Label,"SSB")][3:57,2:3]
   REC   <- SS[str_detect(SS$Label,"Recr")][3:57,2:3]
@@ -41,21 +41,29 @@ for(s in 1:9){
   
 # Reference points
 RP <- data.table(REF_POINT=c("Fmsy","F2021","F2021/Fmsy","SSBmsy","SSBmsst","SSB2021","SSB2021/SSBmsst",
-                             "MSY","Catch2019-2021","SPRmsy","SPR2021"),VALUE=numeric())
-RP[1]$VALUE  <- SS[str_detect(SS$Label,"annF_MSY")][,2]
-RP[2]$VALUE  <- SS[str_detect(SS$Label,"F_2021")][,2]
+                             "MSY","Catch2019-2021","SPRmsy","SPR2021"),VALUE=0,SD=0)
+
+SS <- select(SS,-CV)
+
+RP[1,2:3]    <- SS[str_detect(SS$Label,"annF_MSY")][,2:3]
+RP[2,2:3]    <- SS[str_detect(SS$Label,"F_2021")][,2:3]
 RP[3]$VALUE  <- RP[2]$VALUE/RP[1]$VALUE
-RP[4]$VALUE  <- SS[str_detect(SS$Label,"SSB_MSY")][,2]
+RP[3]$SD     <- sd( rnorm(1000,RP[2]$VALUE,RP[2]$SD)/rnorm(1000,RP[1]$VALUE,RP[1]$SD) )
+RP[4,2:3]    <- SS[str_detect(SS$Label,"SSB_MSY")][,2:3]
 RP[5]$VALUE  <- 0.9*RP[4]$VALUE
-RP[6]$VALUE  <- SS[str_detect(SS$Label,"SSB_2021")][,2]
+RP[5]$SD     <- 0.9*RP[4]$SD
+RP[6,2:3]    <- SS[str_detect(SS$Label,"SSB_2021")][,2:3]
 RP[7]$VALUE  <- RP[6]$VALUE/RP[5]$VALUE
-RP[8]$VALUE  <- SS[str_detect(SS$Label,"Dead_Catch_MSY")][,2]
+RP[7]$SD     <- sd( rnorm(1000,RP[6]$VALUE,RP[6]$SD)/rnorm(1000,RP[5]$VALUE,RP[5]$SD) )
+RP[8,2:3]    <- SS[str_detect(SS$Label,"Dead_Catch_MSY")][,2:3]
 RP[9]$VALUE  <- sum(C[YEAR>=2019&YEAR<=2021]$MT)/3
-RP[10]$VALUE <- SS[str_detect(SS$Label,"SPR_MSY")][,2]
+RP[9]$SD     <- sum(C[YEAR>=2019&YEAR<=2021]$LOGSD.MT)/3*RP[9]$VALUE
+RP[10,2:3]   <- SS[str_detect(SS$Label,"SPR_MSY")][,2:3]
 RP[11]$VALUE <- 1-as.numeric(SS[str_detect(SS$Label,"SPRratio_2021")][,2])
+RP[11]$SD    <- as.numeric(SS[str_detect(SS$Label,"SPRratio_2021")][,3])
 
-RP$VALUE <- round(RP$VALUE,2)
-
+RP[1:3,2:3] <- round(RP[1:3,2:3],3)
+RP[4:11,2:3] <- round(RP[4:11,2:3],3)
 
 # Sensitivity runs key values
 SE <- data.table()
