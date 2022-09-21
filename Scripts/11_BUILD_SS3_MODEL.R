@@ -181,7 +181,7 @@ build_all_ss <- function(species,
   
   # Determine min-max age when reporting F (starter file option)
   FminAge <- if(Nages>=15){5} else {3}
-  FmaxAge <- Nages-1
+  FmaxAge <- Nages-2
   
   # CPUE data
   if(includeCPUE){
