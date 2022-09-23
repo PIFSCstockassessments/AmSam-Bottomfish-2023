@@ -60,7 +60,7 @@ SSbootstrap2 <- function(boot_dir, N_boot, endyr){
   
   mv <- data.table::rbindlist(mvlns)
   save(mv, file = file.path(boot_dir, "mvln_draws.RData"))
-  mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9)
+  mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
   save(mv_fore, file = file.path(boot_dir, "mv_projections.RData"))
   
 }
