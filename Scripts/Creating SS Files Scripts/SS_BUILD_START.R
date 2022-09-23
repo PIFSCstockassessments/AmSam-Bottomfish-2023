@@ -16,7 +16,8 @@ build_starter <- function(species,
                           F_age_range =NA,
                           parmtrace = 0,
                           last_est_phs = 10,
-                          seed = 0123){
+                          seed = 0123, 
+                          F_report_basis = 2){
   ## STEP 1. Read in template starter file
   START <- r4ss::SS_readstarter(file = file.path(template_dir, "starter.ss"))
   
@@ -34,6 +35,7 @@ build_starter <- function(species,
   START$F_report_units <- 4
   START$F_age_range   <- F_age_range
   START$seed <- seed
+  START$F_report_basis <- F_report_basis
   
   ## STEP 3. Save updated starter file
   #  --------------------------------------------------------------------------------------------------------------

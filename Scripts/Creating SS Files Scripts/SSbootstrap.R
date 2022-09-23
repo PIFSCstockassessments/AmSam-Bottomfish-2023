@@ -2,7 +2,7 @@
 #' @param N_boot number of bootstrap models to run (>= 3)
 
 
-SSbootstrap2 <- function(boot_dir, N_boot){
+SSbootstrap2 <- function(boot_dir, N_boot, endyr){
   
   # Directory where bootstrap will be run.
   
@@ -34,7 +34,7 @@ SSbootstrap2 <- function(boot_dir, N_boot){
     file.remove(file.path(boot_dir, "covar.sso"))
     
     # run model
-    run_SS_models(dirvec = boot_dir, model = "ss_opt_win.exe",
+    r4ss::run(dir = boot_dir, exe = "ss_opt_win.exe",
                   skipfinished = F)
 
     # copy output files (might be good to use "file.exists" command first to check if they exist
@@ -44,5 +44,23 @@ SSbootstrap2 <- function(boot_dir, N_boot){
     # other .sso files could be copied as well
   }
   
+  mods <- SSgetoutput(keyvec = paste0("_", seq(1, N_boot)), 
+                      dirvec = file.path(boot_dir), verbose = F)
+  mvlns <- list()
+  
+  for(i in 1:length(mods)){
+    
+    mvlns[[i]] <- ss3diags::SSdeltaMVLN(mods[[i]], mc = 5000, 
+                              weight = 1, 
+                              run = paste0("boot", i), 
+                              plot = F,
+                              addprj = T)$kb
+    
+  }
+  
+  mv <- data.table::rbindlist(mvlns)
+  save(mv, file = file.path(boot_dir, "mvln_draws.RData"))
+  mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
+  save(mv_fore, file = file.path(boot_dir, "mv_projections.RData"))
   
 }
