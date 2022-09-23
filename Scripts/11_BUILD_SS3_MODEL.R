@@ -183,6 +183,10 @@ build_all_ss <- function(species,
     filter(str_detect(Parameter, "CompError")) %>% 
     pull()
   
+  # Determine min-max age when reporting F (starter file option)
+  FminAge <- if(Nages>=15){5} else {3}
+  FmaxAge <- Nages-2
+  
   # CPUE data
   if(includeCPUE){
     cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
@@ -346,6 +350,7 @@ build_all_ss <- function(species,
     species = species,
     scenario = scenario,
     file_dir = file_dir,
+    F_age_range = c(FminAge,FmaxAge),
     template_dir = template_dir, 
     out_dir = out_dir,
     init_values = init_values,

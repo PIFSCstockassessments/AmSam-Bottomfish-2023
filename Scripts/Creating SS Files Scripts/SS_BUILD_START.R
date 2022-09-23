@@ -13,12 +13,14 @@ build_starter <- function(species,
                           template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "starter.ss"), 
                           out_dir = file.path(root_dir, "SS3 models"),
                           init_values = 0,
+                          F_age_range =NA,
                           parmtrace = 0,
                           last_est_phs = 10,
                           seed = 0123, 
                           F_report_basis = 2){
   ## STEP 1. Read in template starter file
   START <- r4ss::SS_readstarter(file = file.path(template_dir, "starter.ss"))
+  
   
   ## STEP 2. Make any changes necessary
   #  --------------------------------------------------------------------------------------------------------------
@@ -28,8 +30,10 @@ build_starter <- function(species,
   START$init_values_src <- init_values #switch 1 if want to use parameter values from par.ss
   START$parmtrace <- parmtrace #can switch to 1 to turn on, helpful for debugging model
   START$last_estimation_phase <- last_est_phs #turn to 0 if you don't want estimation
-  START$N_bootstraps <- 1
+  START$N_bootstraps   <- 1
   START$maxyr_sdreport <- -2
+  START$F_report_units <- 4
+  START$F_age_range   <- F_age_range
   START$seed <- seed
   START$F_report_basis <- F_report_basis
   
