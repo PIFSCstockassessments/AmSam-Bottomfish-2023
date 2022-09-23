@@ -20,9 +20,10 @@ build_forecast <- function(species,
                            Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
                            Bmark_relF_Basis = 1,
                            Forecast = 1,
-                           Nforeyrs = 10, 
+                           Nforeyrs = 5, 
                            Fcast_years = c(0,0,-10,0,-999,0),
-                           ControlRule = 0){
+                           ControlRule = 0,
+                           Fixed_forecatch = 1){
   ## STEP 1. Read in template forecast file
   FORE <- r4ss::SS_readforecast(file = file.path(template_dir, "forecast.ss"))
   
@@ -33,6 +34,7 @@ build_forecast <- function(species,
   FORE$MSY                                <- MSY #calculate F(MSY)
   FORE$SPRtarget                          <- SPR.target
   FORE$Btarget                            <- Btarget
+  FORE$fcast_rec_option                   <- 0 #SR curve
   
   FORE$Bmark_years                        <- Bmark_years 
   FORE$Bmark_relF_Basis                   <- Bmark_relF_Basis #use year range
@@ -42,8 +44,20 @@ build_forecast <- function(species,
   #beg_selex, end_selex, beg_relF, end_relF, beg_mean recruits, end_recruits
   FORE$Fcast_years                        <- Fcast_years
   FORE$ControlRuleMethod                  <- ControlRule
+  if(Nforeyrs > 1){
+    FORE$FirstYear_for_caps_and_allocations <- endyr + Nforeyrs + 1
+  }else{
+    FORE$FirstYear_for_caps_and_allocations <- endyr + 2
+  }
   
-  FORE$FirstYear_for_caps_and_allocations <- endyr + 2
+  FORE$basis_for_fcast_catch_tuning       <- 2
+  FORE$InputBasis                         <- 2
+  if(Nforeyrs > 1){
+    FORE$ForeCatch                        <- data.frame(Year = seq(endyr+1, endyr + Nforeyrs, by = 1),
+                                                        Season = 1, 
+                                                        Fleet = 1,
+                                                        Catch = Fixed_forecatch)
+  }
   
   ## STEP 3. Save updated file
   #  --------------------------------------------------------------------------------------------------------------

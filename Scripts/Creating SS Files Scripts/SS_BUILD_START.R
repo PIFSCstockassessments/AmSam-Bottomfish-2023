@@ -15,7 +15,8 @@ build_starter <- function(species,
                           init_values = 0,
                           parmtrace = 0,
                           last_est_phs = 10,
-                          seed = 0123){
+                          seed = 0123, 
+                          F_report_basis = 2){
   ## STEP 1. Read in template starter file
   START <- r4ss::SS_readstarter(file = file.path(template_dir, "starter.ss"))
   
@@ -30,6 +31,7 @@ build_starter <- function(species,
   START$N_bootstraps <- 1
   START$maxyr_sdreport <- -2
   START$seed <- seed
+  START$F_report_basis <- F_report_basis
   
   ## STEP 3. Save updated starter file
   #  --------------------------------------------------------------------------------------------------------------

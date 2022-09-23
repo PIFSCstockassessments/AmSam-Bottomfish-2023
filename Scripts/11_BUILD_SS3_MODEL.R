@@ -24,6 +24,7 @@
 #' @param N_boot number of bootstrap files to produce (N >= 3 to run bootstrap) (starter.ss input)
 #' @param last_est_phs last phase for estimation (starter.ss input)
 #' @param seed value to set seed for run
+#' @param F_report_basis the denominator used to report out F std. Default is 2 (FMSY). See user manual for all options.
 #' @param benchmarks default set to 1, see forecast file for options (forecast.ss input)
 #' @param MSY default set to 2, see forecast file for options (forecast.ss input)
 #' @param SPR.target value to set target SPR at (forecast.ss input)
@@ -33,6 +34,7 @@
 #' @param Nforeyears number of years to forecast for (forecast.ss input)
 #' @param Fcast_years years for forecast settings, see forecast file for options (forecast.ss input)
 #' @param ControlRule apply reductions to catch or F based on a control rule, see forecast file for options (forecast.ss input)
+#' @param Fixed_forecatch the catch (in metric tons) to be fixed for the forecast period. Can be a single value or vector that is the same length as Nforeyears.  
 #' @param root_dir path to root directory
 #' @param file_dir name of subdirectory to save files to, default is same as scenario
 #' @param template_dir path to template SS files
@@ -77,6 +79,7 @@ build_all_ss <- function(species,
                          N_boot = 0,
                          last_est_phs = 10,
                          seed = 0123,
+                         F_report_basis = 2, 
                          benchmarks = 1,
                          MSY = 2,
                          SPR.target = 0.4,
@@ -87,6 +90,7 @@ build_all_ss <- function(species,
                          Nforeyrs = 10, 
                          Fcast_years = c(0,0,-10,0,-999,0),
                          ControlRule = 0,
+                         Fixed_forecatch = 1,
                          root_dir = NA,
                          file_dir = scenario,
                          template_dir = file.path(root_dir, 
@@ -347,7 +351,8 @@ build_all_ss <- function(species,
     init_values = init_values,
     parmtrace = parmtrace,
     last_est_phs = last_est_phs,
-    seed = seed
+    seed = seed,
+    F_report_basis = F_report_basis
   )
   
   build_forecast(
@@ -366,7 +371,8 @@ build_all_ss <- function(species,
     Forecast = Forecast,
     Nforeyrs = Nforeyrs, 
     Fcast_years = Fcast_years,
-    ControlRule = ControlRule
+    ControlRule = ControlRule,
+    Fixed_forecatch = Fixed_forecatch
   )
   }
   
@@ -376,8 +382,8 @@ build_all_ss <- function(species,
     ### Run Stock Synthesis ####
     file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
               model_dir)
-    r4ss::run_SS_models(dirvec = model_dir, 
-                  model = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
+    r4ss::run(dir = model_dir, 
+                  exe = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
   }
   
   if(N_boot > 0){
@@ -395,10 +401,10 @@ build_all_ss <- function(species,
     start <- r4ss::SS_readstarter(file = file.path(boot_dir, "starter.ss"))
     start$N_bootstraps <- N_boot + 2
     r4ss::SS_writestarter(start, dir = boot_dir, overwrite = T)
-    r4ss::run_SS_models(dirvec = boot_dir, 
-                        model = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE)
+    r4ss::run(dir = boot_dir, 
+                        exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE)
     
-    SSbootstrap2(boot_dir, N_boot = N_boot)
+    SSbootstrap2(boot_dir, N_boot = N_boot, endyr = endyr)
     
   }
   

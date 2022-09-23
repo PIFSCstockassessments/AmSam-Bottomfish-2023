@@ -27,6 +27,7 @@ SSplotEnsemble(mv5, print_plot = T, use_png = T,
 SSplotEnsemble(mv, subplots = "Catch", add = T)
 
 mv5 %>% 
+  filter(run != "original") %>% 
   select(c(year, stock, harvest, SSB, F, Recr, Catch)) %>% 
   pivot_longer(cols = -year, names_to = "variable") %>% 
   group_by(year, variable) %>% 
@@ -42,7 +43,74 @@ mv5 %>%
   facet_wrap(~variable, scales = "free") +
   ggsidekick::theme_sleek()
 ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap_figs", "mvln_fig.png"))
-# ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap_figs", "harvest_stock_fig.png"))
+
+
+ssb <- mods$original$timeseries %>% 
+  select(Yr, SpawnBio) %>% 
+  filter(Yr >= 1967) 
+f <- mods$original$exploitation %>% 
+  select(Yr, annual_F) 
+harvest <- mods$original$Kobe %>% 
+  select(Yr, F.Fmsy)
+stock <- mods$original$Kobe %>% 
+  select(Yr, B.Bmsy)
+Recr <- mods$original$recruit %>% 
+  select(Yr, exp_recr)
+Catch <- mods$original$catch %>% 
+  select(Yr, Obs)
+
+orig.quants <- full_join(Catch, f, by = "Yr") %>% 
+  full_join(harvest, by = "Yr") %>% 
+  full_join(Recr, by = "Yr") %>% 
+  full_join(ssb, by = "Yr") %>% 
+  full_join(stock, by = "Yr") %>% 
+  filter(Yr > 1966 & Yr < 2022) %>% 
+  rename("year" = "Yr",
+         "Catch" = "Obs",
+         "F" = "annual_F",
+         "harvest" = "F.Fmsy",
+         "Recr" = "exp_recr",
+         "SSB" = "SpawnBio",
+         "stock" = "B.Bmsy") %>% 
+  pivot_longer(cols = -year, names_to = "variable", values_to = "med") %>% 
+  mutate(mod = "original") 
+
+
+mv5 %>% 
+  filter(run != "original") %>% 
+  select(c(year, stock, harvest, SSB, F, Recr, Catch)) %>% 
+  pivot_longer(cols = -year, names_to = "variable") %>% 
+  group_by(year, variable) %>% 
+  summarise(
+    med = quantile(value, probs = 0.5),
+    u95 = quantile(value, probs = .95),
+    l95 = quantile(value, probs = .05)
+  ) %>% 
+  mutate(mod = "mvln") %>% 
+  bind_rows(orig.quants) %>% 
+  ggplot(aes(x = year, y = med, group = mod, color = mod)) +
+  geom_line(size = 1.1) +
+  facet_wrap(~variable, scales = "free") +
+  ggsidekick::theme_sleek()
+ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap_figs", "mvln_orig_comp_fig.png"))
+
+mv5 %>% 
+  filter(run != "original") %>% 
+  select(c(year, harvest)) %>% 
+  pivot_longer(cols = -year, names_to = "variable") %>% 
+  group_by(year, variable) %>% 
+  summarise(
+    med = quantile(value, probs = 0.5),
+    u95 = quantile(value, probs = .95),
+    l95 = quantile(value, probs = .05)
+  ) %>%
+  ggplot(aes(x = year, y = med)) +
+  geom_line() +
+  geom_line(data = mods$original$exploitation %>% filter(Yr > 1966 & Yr < 2022),
+            aes(x = Yr, y = annual_F/.144941), color = "red") +
+  theme_sleek() + 
+  labs(y = "F/FMSY")
+ggsave(filename = file.path(root_dir, "SS3 models", species, file_dir, "bootstrap_figs", "f.fmsy.png"))
 
 mv.ssb <- mv %>% 
   filter(run != "original") %>% 
@@ -50,10 +118,9 @@ mv.ssb <- mv %>%
   pivot_longer(cols = -year, names_to = "variable") %>% 
   group_by(year, variable) %>% 
   summarise(
-    med = quantile(value, probs = 0.5),
-    u95 = quantile(value, probs = .95),
-    l95 = quantile(value, probs = .05)
-  ) 
+    med = quantile(value, probs = 0.5)
+  ) %>% 
+  bind_rows(orig.quants)
 
 orig.ssb <- mods$original$derived_quants %>% 
   filter(str_detect(Label, "SSB_19|SSB_20")) %>% 
