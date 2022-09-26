@@ -164,6 +164,7 @@ US         <- merge(US,A[DATASET=="UVS"], by.x=c("SITE","DATASET"),by.y=c("AREA_
 US         <- merge(US,S,by=c("SCIENTIFIC_NAME","SPECIES"))
 
 # Assign area and weight
+US[DEPTH_BIN=="SHALLOW"]$DEPTH_BIN <- "DEEP"
 US[DEPTH_BIN=="Mid"]$DEPTH_BIN  <- "DEEP"
 US[DEPTH_BIN=="Deep"]$DEPTH_BIN <- "DEEP"
 
@@ -180,17 +181,17 @@ US$LENGTH_FL <- US$LENGTH_TL*US$TL_TO_FL
 LKA  <- US[SPECIES=="LUKA"&LENGTH_FL>=15,list(ML=sum(LENGTH_FL*COUNT)/sum(COUNT),N=sum(COUNT)),by=list(OBS_YEAR,AREA_C)]
 ggplot(data=LKA[N>15],aes(x=OBS_YEAR,y=ML,col=AREA_C))+geom_line()+theme_bw()
 
-BW <- 2
+BW <- 1
 US$BINS <- US$LENGTH_FL - (US$LENGTH_FL %% BW) + BW/2 # mid-point of bins
 
-LKA2 <-US[SPECIES=="LUKA",list(COUNT=sum(COUNT)),by=list(AREA_C,BINS)]
-ggplot(data=LKA2)+geom_bar(aes(x=BINS,y=COUNT),stat="identity")+facet_wrap(~AREA_C,scales="free_y",ncol=1)
+LKA2 <-US[SPECIES=="LUKA",list(COUNT=sum(COUNT)),by=list(REGION,BINS)]
+ggplot(data=LKA2)+geom_bar(aes(x=BINS,y=COUNT),stat="identity")+facet_wrap(~REGION,scales="free_y",ncol=1)
 ggsave(last_plot(),filename=paste0(root_dir,"/Outputs/Summary/Size figures/LUKA_DIVER_SIZE_STRUCTURES.png"),width=3,height=8,units="in")
 
 write.csv(LKA2,file=paste0(root_dir,"/Outputs/Summary/LUKA_Diver_Lengths.csv"))
 
-quantile(US[SPECIES=="LUKA"&AREA_C=="Atoll"]$LENGTH_FL,.99)
-quantile(US[SPECIES=="LUKA"&AREA_C=="Manua"]$LENGTH_FL,.99,na.rm=T)
+quantile(US[SPECIES=="LUKA"&REGION=="PRIAs"]$LENGTH_FL,.99)
+quantile(US[SPECIES=="LUKA"&REGION=="SAMOA"]$LENGTH_FL,.99,na.rm=T)
 
 # CALU explorations
 
@@ -209,9 +210,22 @@ quantile(LUG[AREA_C=="Atoll"]$LENGTH_FL,.99,na.rm=T)
 
 quantile(LUG$LENGTH_FL,.99,na.rm=T)
 
+# LUKA explorations
+
+LUK <- US[SPECIES=="LUKA"]
+
+nrow(LUK)
+hist(LUK$LENGTH_FL)
+max(LUK$LENGTH_FL)
+
+nrow(LUK[REGION=="SAMOA"])
+hist(LUK[REGION=="SAMOA"]$LENGTH_FL)
+max(LUK[REGION=="SAMOA"]$LENGTH_FL)
 
 
+quantile(LUK[AREA_C=="Atoll"]$LENGTH_FL,.99,na.rm=T)
 
+quantile(LUK$LENGTH_FL,.99,na.rm=T)
 
 
 

@@ -135,10 +135,10 @@ US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 D <- rbind(US,BIO,BB)
 
 if(Combine_BB_BIO==T){
-  #D[(SPECIES!="APVI"&SPECIES!="LUKA"&SPECIES!="CALU")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
-  #D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA"|SPECIES=="CALU")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
-  D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
-  D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
+#  D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+#  D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
+  D[(SPECIES!="APVI")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
+  D <- D[!((SPECIES=="APVI")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
 }
 
 # Merge all years for Atoll
