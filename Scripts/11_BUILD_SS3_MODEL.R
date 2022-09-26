@@ -388,7 +388,7 @@ build_all_ss <- function(species,
     file.copy(file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "ss_opt_win.exe"), 
               model_dir)
     r4ss::run(dir = model_dir, 
-                  exe = "ss_opt_win", extras = ext_args,  skipfinished = FALSE)
+                  exe = "ss_opt_win", extras = ext_args,  skipfinished = FALSE, show_in_console = TRUE)
   }
   
   if(N_boot > 0){
@@ -407,7 +407,7 @@ build_all_ss <- function(species,
     start$N_bootstraps <- N_boot + 2
     r4ss::SS_writestarter(start, dir = boot_dir, overwrite = T)
     r4ss::run(dir = boot_dir, 
-                        exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE)
+                        exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
     
     SSbootstrap2(boot_dir, N_boot = N_boot, endyr = endyr)
     
