@@ -3,21 +3,20 @@ require(data.table); require(this.path); require(openxlsx); require(ggplot2); re
 dir <- this.path::here(.. = 2)
 
 # APVI data
-D <- data.table( read.xlsx(file.path(dir,"Data","APVI_EVB for SAP.xlsx")) )
-D <- select(D,REGION=location,LENGTH_FL=length,AGE=age)
+#D <- data.table( read.xlsx(file.path(dir,"Data","APVI_EVB for SAP.xlsx")) )
+#D <- select(D,REGION=location,LENGTH_FL=length,AGE=age)
 
 # ETCO data
-#D <- data.table( read.xlsx(file.path(dir,"Data","ETCO_MHI preliminary length at age 2022.xlsx")) )
-#D <- select(D,SEX,LENGTH_FL=LENGTH_CM,AGE=Final.Age)
-#ggplot(data=D,aes(x=AGE,y=LENGTH_FL,col=SEX))+geom_point()
+D <- data.table( read.xlsx(file.path(dir,"Data","ETCO_MHI preliminary length at age 2022.xlsx")) )
+D <- select(D,SEX,LENGTH_FL=LENGTH_CM,AGE=Final.Age)
+ggplot(data=D,aes(x=AGE,y=LENGTH_FL,col=SEX))+geom_point()
 
-BreakAge <- 2.0
+BreakAge <- 0
 
 VB <- function(VBpar,x){ VBpar[1]*(1-exp(-VBpar[2]*(x-VBpar[3]))) }
 VB2_Fit <- function(param,BreakAge,x){
   
-  Linf<-param[1]; K<-param[2]; a0<-param[3]; Slope<-param[4]
-  SD_Yg<-param[5]; CV_Old<-param[6]
+  Linf<-param[1]; K<-param[2]; a0<-param[3]; Slope<-param[4]; SD_Yg<-param[5]; CV_Old<-param[6]
   
   ExpLength_Yg  <- x[AGE<BreakAge]$AGE*Slope   
   ExpLength_Old <- VB(c(Linf,K,a0),x[AGE>=BreakAge]$AGE)   
