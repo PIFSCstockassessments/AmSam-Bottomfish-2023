@@ -41,7 +41,8 @@ A0   <- median(Data$A0)
 
 # Get ETCO estimates
 # Based on L99 of 93.2 cm (FL) from BBS
-Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=(932/0.86), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 88.1 cm (FL) from BBS+Biosampling
+Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=(881/0.86), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.86)
 Lmat <- median(Data$Lmat*0.86)
