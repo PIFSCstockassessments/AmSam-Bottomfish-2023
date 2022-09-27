@@ -31,7 +31,7 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
   if(do_retro == TRUE){
     
     ## Do Retrospectives
-    r4ss::SS_doRetro(masterdir=file.path(root_dir, "SS3 models", species, file_dir), 
+    r4ss::retro(masterdir=file.path(root_dir, "SS3 models", species, file_dir), 
                oldsubdir="", newsubdir="Retrospectives", years=retro_years)
     
     
