@@ -31,8 +31,8 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
   if(do_retro == TRUE){
     
     ## Do Retrospectives
-    r4ss::SS_doRetro(masterdir=file.path(root_dir, "SS3 models", species, file_dir), 
-               oldsubdir="", newsubdir="Retrospectives", years=retro_years)
+    r4ss::retro(dir=file.path(root_dir, "SS3 models", species, file_dir), 
+               oldsubdir="", newsubdir="Retrospectives", years=retro_years, exe = "ss_opt_win")
     
     
   }
@@ -64,10 +64,10 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
     #Nprofile <- length(profile.vec)
     
     ## Do Profiling
-    profile <- r4ss::SS_profile(
+    profile <- r4ss::profile(
       dir = dir.profile, 
-      model = "ss_opt_win",
-      masterctlfile = "control.ss",
+      exe = "ss_opt_win",
+      oldctlfile = "control.ss",
       newctlfile = "control_modified.ss",
       string = profile,
       profilevec = profile.vec
@@ -91,8 +91,8 @@ run_diags <- function(root_dir = this.path::here(.. = 1),
     
     
     # Step 7. Run jitter using this function (deafult is nohess)
-    jit.likes <- r4ss::SS_RunJitter(mydir=dir.jitter, 
-                                    model = "ss_opt_win.exe",
+    jit.likes <- r4ss::jitter(dir=dir.jitter, 
+                                    exe = "ss_opt_win.exe",
                               Njitter=Njitter, 
                               jitter_fraction = jitterFraction, 
                               init_values_src = 1)
