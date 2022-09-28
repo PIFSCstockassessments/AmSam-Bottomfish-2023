@@ -61,8 +61,10 @@ S$LMAX       <- S$LMAX/10
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
 BB[SPECIES_FK=="243"]$SPECIES_FK <- "241"
+
 # Change P. filamentosus (242) to P. flavipinnis (241) between 2010-2014, they both can be called "palu sina" and there is a clear absence/presence pattern for these species in these years.
 BB[YEAR>=2010&YEAR<=2014&SPECIES_FK=="242"]$SPECIES_FK <- "241"
+
 # Pre-2015, all Variola sp. identified as VAAL or VALO (code 229) in different period. Need to delete all pre-2015 size data.
 BB <- BB[!(SPECIES_FK=="229"&YEAR<2015)] 
 
