@@ -18,7 +18,7 @@ ggplot(data=D,aes(x=AGE,y=LENGTH_FL,col=SEX))+geom_point()
 BreakAge <- 0
 
 VB       <- function(VBpar,x){ VBpar[1]*(1-exp(-VBpar[2]*(x-VBpar[3]))) }
-VB_FixA0 <- function(VBpar,x){ VBpar[1]*(1-exp(-VBpar[2]*(x))) }
+VB_noA0 <- function(VBpar,x){ VBpar[1]*(1-exp(-VBpar[2]*(x))) }
 
 VB2_Fit <- function(param,BreakAge,x){
   
@@ -37,12 +37,16 @@ VB2_Fit <- function(param,BreakAge,x){
   
 }
 
-# Females
-R1F <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE))),data=D[SEX=="F"|SEX=="U"],start=list(Linf=70,K=0.4))
-R2F <- nlm(VB2_Fit,p=c(60,0.25,-5,16,5,0.12),BreakAge=BreakAge,x=D[SEX=="F"|SEX=="U"])
+# Non-linear least square - No A0
+R1F.noA0 <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE))),data=D[SEX=="F"|SEX=="U"],start=list(Linf=70,K=0.4))
+R1M.noA0 <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE))),data=D[SEX=="M"|SEX=="U"],start=list(Linf=70,K=0.4))
 
-# Males
-R1M <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE))),data=D[SEX=="M"|SEX=="U"],start=list(Linf=70,K=0.4))
+# Non-linear least square - with A0
+R1F <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE-a0))),data=D[SEX=="F"|SEX=="U"],start=list(Linf=90,K=0.1,a0=-1))
+R1M <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE-a0))),data=D[SEX=="M"|SEX=="U"],start=list(Linf=70,K=0.4,a0=-1))
+
+# GLM
+R2F <- nlm(VB2_Fit,p=c(60,0.25,-5,16,5,0.12),BreakAge=BreakAge,x=D[SEX=="F"|SEX=="U"])
 R2M <- nlm(VB2_Fit,p=c(60,0.25,-5,16,5,0.12),BreakAge=BreakAge,x=D[SEX=="M"|SEX=="U"])
 
 
@@ -60,8 +64,13 @@ E$LENGTH_FL_M  <- VB(R2M$estimate[1:3],E$AGE)
 ggplot()+geom_point(data=D,aes(x=AGE,y=LENGTH_FL,col=SEX))+
   geom_line(data=E,aes(x=AGE,y=LENGTH_FL_F),col="red",size=1)+
   geom_line(data=E,aes(x=AGE,y=LENGTH_FL_M),col="blue",size=1)+
-  geom_line(aes(x=E$AGE,y=VB_FixA0(coef(R1F),E$AGE)),col="red",size=0.5,linetype="dashed")+
-  geom_line(aes(x=E$AGE,y=VB_FixA0(coef(R1M),E$AGE)),col="blue",size=0.5,linetype="dashed")
+  geom_line(aes(x=E$AGE,y=VB_noA0(coef(R1F),E$AGE)),col="red",size=0.5,linetype="dashed")+
+  geom_line(aes(x=E$AGE,y=VB_noA0(coef(R1M),E$AGE)),col="blue",size=0.5,linetype="dashed")
   
+ggplot()+geom_point(data=D,aes(x=AGE,y=LENGTH_FL,col=SEX))+
+  geom_line(data=E,aes(x=AGE,y=LENGTH_FL_F),col="red",size=1)+
+  geom_line(data=E,aes(x=AGE,y=LENGTH_FL_M),col="blue",size=1)+
+  geom_line(aes(x=E$AGE,y=VB(coef(R1F),E$AGE)),col="red",size=0.5,linetype="dashed")+
+  geom_line(aes(x=E$AGE,y=VB(coef(R1M),E$AGE)),col="blue",size=0.5,linetype="dashed")
 
 
