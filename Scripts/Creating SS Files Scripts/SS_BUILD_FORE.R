@@ -20,7 +20,7 @@ build_forecast <- function(species,
                            Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
                            Bmark_relF_Basis = 1,
                            Forecast = 1,
-                           Nforeyrs = 5, 
+                           Nforeyrs = 1, 
                            Fcast_years = c(0,0,-10,0,-999,0),
                            ControlRule = 0,
                            Fixed_forecatch = 1){
@@ -52,12 +52,8 @@ build_forecast <- function(species,
   
   FORE$basis_for_fcast_catch_tuning       <- 2
   FORE$InputBasis                         <- 2
-  if(Nforeyrs > 1){
-    FORE$ForeCatch                        <- data.frame(Year = seq(endyr+1, endyr + Nforeyrs, by = 1),
-                                                        Season = 1, 
-                                                        Fleet = 1,
-                                                        Catch = Fixed_forecatch)
-  }
+ 
+  
   
   ## STEP 3. Save updated file
   #  --------------------------------------------------------------------------------------------------------------
