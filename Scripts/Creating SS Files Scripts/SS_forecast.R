@@ -5,17 +5,18 @@
 
 SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   
-  FixedCatchVec <- seq(FixedCatchSeq[1],FixedCatchSeq[2],FixedCatchSeq[3])
-  
-  #N_BootxCatch  <- N_boot*length(FixedCatchVec)
-  N_ForeCatch <- length(FixedCatchVec)
-  
   fore_dir <- file.path(model_dir,"forecast")
+  
+  FixedCatchVec <- seq(FixedCatchSeq[1],FixedCatchSeq[2],FixedCatchSeq[3])
+  N_ForeCatch   <- length(FixedCatchVec)
   
   # Directory where forecasts will be run.
   if(!exists(fore_dir)){
     dir.create(fore_dir)
   }
+  
+  # Delete all files in that directory
+  unlink(file.path(fore_dir,"*"))
   
   # Run model one time to generate the data bootrap files
   file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
@@ -25,7 +26,6 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   r4ss::SS_writestarter(start, dir = fore_dir, overwrite = T)
   r4ss::run(dir = fore_dir, 
             exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
-  
   
   message(paste0("Creating forecast data files in ", fore_dir))
   
@@ -61,6 +61,7 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
         forecast.file <- SS_readforecast(file =  file.path(fore_dir, "forecast.ss")) # read forecast file
          
         # Modify the forecast to include a new Fixed Catch to use in the projections
+        forecast.file$Nforecastyrs <- N_foreyrs
         forecast.file$ForeCatch <- data.frame(Year = seq(endyr+1, endyr + N_foreyrs, by = 1),
                                                                        Season = 1, 
                                                                        Fleet = 1,
@@ -74,7 +75,6 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
         file.remove(file.path(fore_dir, "CompReport.sso"))
         file.remove(file.path(fore_dir, "covar.sso"))
         
-        
         # run model
         r4ss::run(dir = fore_dir, exe = "ss_opt_win.exe", skipfinished = F)
     
@@ -87,27 +87,29 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
        }  # End of Fixed Catch loop
   } # End of Bootstrap loop
   
-  
+  # Generate model names
   boot.names  <- paste0("B",rep(1:N_boot, each=N_ForeCatch))
   catch.names <- paste0("C",rep(1:N_ForeCatch, times=N_boot))
   model.names <- paste0(boot.names,catch.names)
   
-  
+  # Read all model files and generate a list
   models <- SSgetoutput(keyvec = paste0("_",model.names), 
                       dirvec = file.path(fore_dir), verbose = F)
   
-
   mvlns <- list()
   for(i in 1:length(models)){
+    
+    print(i)
     
     #TS          <- data.table( models[[i]]$timeseries )
     #aFixedCatch <- max( TS[Era=="FORE"]$`dead(B):_1`)
     
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
+    try(  mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
                                         weight = 1, 
                                         run = paste0("Model ",model.names[i]), 
                                         plot = F,
                                         addprj = T)$kb
+      , silent=TRUE)
   }
   
   mv            <- data.table::rbindlist(mvlns)
@@ -129,7 +131,10 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   
   saveRDS(mv_fore, file = file.path(fore_dir, "mv_projections.rds"))
   
-  # Delete all other files except the forecast results
+  # Create projection table and figures
+  require(ggplot2)
   
+  mv_fore <- readRDS(file=file.path(fore_dir,"mv_projections.rds"))
+    
   
 }
