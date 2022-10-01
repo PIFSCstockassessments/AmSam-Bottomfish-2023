@@ -5,6 +5,8 @@
 
 SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   
+  require(data.table); require(ggplot2); require(ggpubr)
+  
   fore_dir <- file.path(model_dir,"forecast")
   
   FixedCatchVec <- seq(FixedCatchSeq[1],FixedCatchSeq[2],FixedCatchSeq[3])
@@ -103,38 +105,84 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
     
     #TS          <- data.table( models[[i]]$timeseries )
     #aFixedCatch <- max( TS[Era=="FORE"]$`dead(B):_1`)
-    
-    try(  mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
+    #try(
+      mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
                                         weight = 1, 
                                         run = paste0("Model ",model.names[i]), 
                                         plot = F,
                                         addprj = T)$kb
-      , silent=TRUE)
+      #, silent=TRUE)
   }
   
   mv            <- data.table::rbindlist(mvlns)
   
-  # Retrieve the fixed catch from the run name
-  #Tp            <- str_split_fixed(mv$run, '_', 2)
-  #mv$FixedCatch <- as.numeric( Tp[,1] )
-  #saveRDS(mv, file = file.path(fore_dir, "mvln_draws.rds"))
-  
- # mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB_SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
-  
   mv_fore             <- mv[year>endyr]
+  mv_fore$Fmsy        <- mv_fore$F/mv_fore$harvest
   mv_fore$SSBmsst     <- mv_fore$SSB/mv_fore$stock*0.9 
   mv_fore$SSB_SSBmsst <- mv_fore$SSB/mv_fore$SSBmsst
+  
+  
   mv_fore             <- select(mv_fore,-c(type,iter,Recr))
   
   # Delete all files and save final result
-  unlink(file.path(fore_dir,"*"))
+  # unlink(file.path(fore_dir,"*"))
   
   saveRDS(mv_fore, file = file.path(fore_dir, "mv_projections.rds"))
   
-  # Create projection table and figures
-  require(ggplot2)
+#=================Create projection table and figures
   
-  mv_fore <- readRDS(file=file.path(fore_dir,"mv_projections.rds"))
+  #mv_fore        <- readRDS(file="SS3 models/APRU/32_TestForecast/forecast/mv_projections.rds")
+  mv_fore$F_Fmsy <- mv_fore$F/0.134428
+  
+  Z       <- mv_fore[,list(F_Fmsy=mean(harvest),SSB_SSBmsst=mean(SSB_SSBmsst)),by=list(year,Catch)]
+  
+  P1 <- ggplot(data=Z,aes(x=Catch,y=SSB_SSBmsst,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="SSB/SSBmsst")+
+    theme_bw()+theme(legend.position="none")
+  
+  P2 <- ggplot(data=Z,aes(x=Catch,y=F_Fmsy,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="F/Fmsy")+
+    guides(linetype=guide_legend(title="Final year"))+theme_bw()
+  
+  aLegend <- get_legend(P2)
+  ggarrange(P1,P2,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
+  ggsave(last_plot(),file=file.path(fore_dir,"Catch_MeanStatus.png"),height=8, width=16,units="cm")
+  
+  
+  # Calculate number of iterations by Catch and Year...
+  A <- mv_fore[,list(N_tot=.N),by=list(year,Catch)]
+  
+  # ...That is under overfishing
+  B <- mv_fore[F_Fmsy>1,list(N_overfishing=.N),by=list(year,Catch)]
+  C <- merge(A,B,by=c("year","Catch"),all.x=T)
+  C[is.na(C$N_overfishing)]$N_overfishing <- 0
+  C$ProbOverfishing <- C$N_overfishing/C$N_tot
+  
+  # ...That is overfished
+  D <- mv_fore[SSB_SSBmsst<1,list(N_overfished=.N),by=list(year,Catch)]
+  E <- merge(A,D,by=c("year","Catch"),all.x=T)
+  E[is.na(E$N_overfished)]$N_overfished <- 0
+  E$ProbOverfished <- E$N_overfished/E$N_tot
+  
+  P3 <- ggplot(data=C[year>=2024],aes(x=Catch,y=ProbOverfishing,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="Prob. F > Fmsy")+
+    theme_bw()+theme(legend.position="none")
+  
+  P4 <- ggplot(data=E[year>=2024],aes(x=Catch,y=ProbOverfished,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="Prob. SSB < SSBmsst")+
+    guides(linetype=guide_legend(title="Final year"))+theme_bw()
+  
+  aLegend <- get_legend(P4)
+  ggarrange(P3,P4,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
+  ggsave(last_plot(),file=file.path(fore_dir,"Catch_ProbStatus.png"),height=8, width=16,units="cm")
+  
+  # Catch risk table 
+  G           <- select(C[ProbOverfishing<1],-N_tot,-N_overfishing)
+  G$ProbBins  <- round(G$ProbOverfishing,2)
+  G           <- select(G,-ProbOverfishing)
+  G           <- G[,list(Catch=mean(Catch)),by=list(year,ProbBins)]
+  
+  Final.Table <- data.table( spread(G,year,Catch) )
+  Final.Table <- Final.Table[order(-ProbBins)]
+  Final.Table <- Final.Table[ProbBins<=0.5]
+  
+  write.csv(Final.Table,file=file.path(fore_dir,"Catch_Table.csv"))
     
   
 }
