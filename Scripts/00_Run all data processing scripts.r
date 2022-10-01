@@ -1,6 +1,6 @@
 # Check if all required packages are installed, and install if not. Note: You need r4ss v.1.44.0 and ss3diags obtained from github repos.
 require(pacman)
-pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis,r4ss,nFactors,openxlsx)
+pacman::p_load(boot,data.table,ggfortify,grid,gridExtra,directlabels,ggpubr,mgcv,ncdf4,httr,lubridate,lunar,purrr,googledrive,googlesheets4,RColorBrewer,tidyverse,this.path,viridis,r4ss,nFactors,openxlsx)
 
 ########## DOWNLOAD DATA FROM GOOGLE DRIVE ###############
 # Check latest data from Google Drive but only download if its more recent than on local repo
