@@ -20,7 +20,7 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   # Delete all files in that directory
   unlink(file.path(fore_dir,"*"))
   
-  # Run model one time to generate the data bootrap files
+  # Run model one time to generate the data bootstrap files
   file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
             to = fore_dir)
   start <- r4ss::SS_readstarter(file = file.path(fore_dir, "starter.ss"))
@@ -105,13 +105,13 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
     
     #TS          <- data.table( models[[i]]$timeseries )
     #aFixedCatch <- max( TS[Era=="FORE"]$`dead(B):_1`)
-    #try(
+    try(
       mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
                                         weight = 1, 
                                         run = paste0("Model ",model.names[i]), 
                                         plot = F,
                                         addprj = T)$kb
-      #, silent=TRUE)
+      , silent=TRUE)
   }
   
   mv            <- data.table::rbindlist(mvlns)
@@ -125,25 +125,30 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   mv_fore             <- select(mv_fore,-c(type,iter,Recr))
   
   # Delete all files and save final result
-  # unlink(file.path(fore_dir,"*"))
+   unlink(file.path(fore_dir,"*"))
   
   saveRDS(mv_fore, file = file.path(fore_dir, "mv_projections.rds"))
   
 #=================Create projection table and figures
   
-  mv_fore  <- readRDS(file="SS3 models/APRU/32_TestForecast/forecast/mv_projections.rds")
-  fore_dir  <- file.path(root_dir,"SS3 models","APRU","32_TestForecast","forecast")
+  mv_fore  <- readRDS(file="SS3 models/APRU/33_TestForecast/forecast/mv_projections.rds")
+  fore_dir  <- file.path(root_dir,"SS3 models","APRU","33_TestForecast","forecast")
   
-
-  hist(mv_fore$Fmsy)
-  median(mv_fore$Fmsy)
+  #hist(mv_fore$Fmsy)
+  # median(mv_fore$Fmsy)
   
-  hist(mv_fore$SSBmsst/0.9)
-  median(mv_fore$SSB/mv_fore$stock)
+  #hist(mv_fore$SSBmsst/0.9)
+   #median(mv_fore$SSB/mv_fore$stock)
   
-    setnames(mv_fore,"harvest","F_Fmsy") 
+  setnames(mv_fore,"harvest","F_Fmsy") 
+  
+  # DELETE THIS LINE
+           mv_fore <- mv_fore[Catch<=3.5]
+  
   
   Z  <- mv_fore[,list(F_Fmsy=median(F_Fmsy),SSB_SSBmsst=median(SSB_SSBmsst)),by=list(year,Catch)]
+  
+  
   
   P1 <- ggplot(data=Z,aes(x=Catch,y=SSB_SSBmsst,linetype=as.character(year)))+geom_point(size=0.1)+labs(x="Fixed catch (mt)",y="SSB/SSBmsst")+
           theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5,span=1)
@@ -182,37 +187,31 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   ggsave(last_plot(),file=file.path(fore_dir,"Catch_ProbStatus.png"),height=8, width=16,units="cm")
   
   # Catch risk table 
-  G           <- select(C[ProbOverfishing<1],-N_tot,-N_overfishing)
-  G$ProbBins  <- round(G$ProbOverfishing,2)
-  G           <- select(G,-ProbOverfishing)
-  G           <- G[,list(Catch=mean(Catch)),by=list(year,ProbBins)]
+  G       <- select(C[ProbOverfishing>=0.1&ProbOverfishing<=0.6],-N_tot,-N_overfishing)
+  Preds.x <- expand.grid(ProbOverfishing=seq(0.1,0.5,by=0.01),year=seq(min(G$year),max(G$year)))
+  G$year  <- factor(G$year)
+  model   <- gam(data=G,Catch~year+s(ProbOverfishing,by=year),method="REML")
+  Preds   <- predict.gam(model,newdata=Preds.x)
+  Preds   <- cbind(Preds.x,Preds)
   
-  # Fill in missing combinations of year x prob. overfishing with NAs
-  G <- data.table( spread(G,year,Catch) )
-  G <- data.table( gather(G,year,Catch,2:9) )
+  # Check the GAM model fit and range of data
+  G$year <- as.character(G$year)
+  ggplot()+geom_line(data=Preds,aes(x=Preds,y=ProbOverfishing,col=as.character(year)))+geom_point(data=G,aes(x=Catch,y=ProbOverfishing,col=as.character(year)),shape=2,size=2)+
+         theme_bw()+labs(x="Catch",y="Prob. overfishing")
+  ggsave(last_plot(),file=file.path(fore_dir,"Catch_CheckModelFit.png"),height=8, width=15,units="cm")
   
- 
-  G$year <- factor(G$year)
-  G      <- G[ProbBins>=0.10] # Filter low overfishing prob. bins for better modeling
+  # Create Prob. overfishing bins
+  G$ProbOverfishing     <- round(G$ProbOverfishing,2)
   
-  model  <- gam(data=G,Catch~year+s(ProbBins,by=year),method="REML")
-  Preds  <- predict.gam(model,newdata=G)
+  H <- merge(Preds,G,by.x=c("year","ProbOverfishing"),by.y=c("year","ProbOverfishing"),all.x=T)
+  H <- select(H,year,ProbOverfishing,Catch,Preds)
   
+  # Fill in the blanks
+  H <- H %>% mutate(Catch=coalesce(Catch,Preds)) %>% select(-Preds) %>% 
+           group_by(year,ProbOverfishing) %>% summarize(Catch=round(mean(Catch),1)) %>% 
+             spread(year,Catch) %>% arrange(-ProbOverfishing)
   
-  G      <- cbind(G,Preds)
-  G[is.na(Catch)]$Catch <- G[is.na(Catch)]$Preds
-  G      <- select(G,-Preds)
-  
-  ggplot(data=G,aes(x=Catch,y=ProbBins,col=year))+geom_point()
-  
-  Final.table <- data.table( spread(G,year,Catch))
-  Final.Table <- Final.Table[order(-ProbBins)]
-  Final.Table <- Final.Table[ProbBins<=0.5]
-  
-  
-  
-  
-  write.csv(Final.Table,file=file.path(fore_dir,"Catch_Table.csv"))
+  write.csv(H,file=file.path(fore_dir,"Catch_Table.csv"),row.names = F)
     
   
 }
