@@ -65,36 +65,46 @@ report.$warnings
 n.indices <- length(unique(report.$cpue$Fleet))
 n.comps <- length(unique(report.$lendbase$Fleet))
 
+
 if(n.indices > 0){
-  report.$index_variance_tuning_check %>% 
-  select(Fleet, fleetname, N, RMSE, VarAdj, New_VarAdj) %>% 
-  gt()
+  # report.$index_variance_tuning_check %>% 
+  # select(Fleet, fleetname, N, RMSE, VarAdj, New_VarAdj) %>% 
+  # gt()
 
 for(i in 1:n.indices){
   sspar(mfrow = c(1,2))
-  SSplotIndices(report., subplots = 2, fleets = i)
-  SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5,.5))
+  SSplotIndices(report., subplots = 2, fleets = i, verbose = F)
+  SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5,.5), verbose = F)
 }
+ SSrmse(report., quants = "cpue")$RMSE %>% gt()
 
-for(i in 1:n.comps){
-  sspar(mfrow = c(1,1))
-  SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5, .5))
-}
-}else{
-  print("No CPUE included in model")
-}
+# for(i in 1:n.comps){
+#   sspar(mfrow = c(1,1))
+#   SSplotJABBAres(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5, .5))
+# }
+# }else{
+#   print("No CPUE included in model")
+ }
 
 ```
 
+
 ### Length Comp
+```{r}
+SSrmse(report., quants = "len")$RMSE %>% gt()
+```
+
+
 ```{r}
 #| fig-show: hold
 #| message: false
 #| fig-align: center
+#| layout-ncol: 2
 
-sspar(mfrow = c(1,2))
-SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.5,.5))
-SSplotJABBAres(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.4,.4))
+#sspar(mfrow = c(1,2))
+SSplotComps(report., subplots = 8, fleets = 1, new = F, verbose = F)
+runs <- SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.3,.3), verbose = F)
+#SSplotJABBAres(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.4,.4))
 ```
 
 ```{r}
