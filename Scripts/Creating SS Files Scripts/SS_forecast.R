@@ -5,7 +5,7 @@
 
 SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   
-  require(data.table); require(ggplot2); require(ggpubr)
+  require(data.table); require(ggplot2); require(ggpubr); require(tidyverse); require(mgcv)
   
   fore_dir <- file.path(model_dir,"forecast")
   
@@ -131,20 +131,29 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   
 #=================Create projection table and figures
   
-  #mv_fore        <- readRDS(file="SS3 models/APRU/32_TestForecast/forecast/mv_projections.rds")
-  mv_fore$F_Fmsy <- mv_fore$F/0.134428
+  mv_fore  <- readRDS(file="SS3 models/APRU/32_TestForecast/forecast/mv_projections.rds")
+  fore_dir  <- file.path(root_dir,"SS3 models","APRU","32_TestForecast","forecast")
   
-  Z       <- mv_fore[,list(F_Fmsy=mean(harvest),SSB_SSBmsst=mean(SSB_SSBmsst)),by=list(year,Catch)]
+
+  hist(mv_fore$Fmsy)
+  median(mv_fore$Fmsy)
   
-  P1 <- ggplot(data=Z,aes(x=Catch,y=SSB_SSBmsst,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="SSB/SSBmsst")+
-    theme_bw()+theme(legend.position="none")
+  hist(mv_fore$SSBmsst/0.9)
+  median(mv_fore$SSB/mv_fore$stock)
   
-  P2 <- ggplot(data=Z,aes(x=Catch,y=F_Fmsy,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="F/Fmsy")+
-    guides(linetype=guide_legend(title="Final year"))+theme_bw()
+    setnames(mv_fore,"harvest","F_Fmsy") 
+  
+  Z  <- mv_fore[,list(F_Fmsy=median(F_Fmsy),SSB_SSBmsst=median(SSB_SSBmsst)),by=list(year,Catch)]
+  
+  P1 <- ggplot(data=Z,aes(x=Catch,y=SSB_SSBmsst,linetype=as.character(year)))+geom_point(size=0.1)+labs(x="Fixed catch (mt)",y="SSB/SSBmsst")+
+          theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5,span=1)
+  
+  P2 <- ggplot(data=Z,aes(x=Catch,y=F_Fmsy,linetype=as.character(year)))+geom_point(size=0.1)+labs(x="Fixed catch (mt)",y="F/Fmsy")+
+          guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5)
   
   aLegend <- get_legend(P2)
   ggarrange(P1,P2,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
-  ggsave(last_plot(),file=file.path(fore_dir,"Catch_MeanStatus.png"),height=8, width=16,units="cm")
+  ggsave(last_plot(),file=file.path(fore_dir,"Catch_MedianStatus.png"),height=8, width=16,units="cm")
   
   
   # Calculate number of iterations by Catch and Year...
@@ -162,11 +171,11 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   E[is.na(E$N_overfished)]$N_overfished <- 0
   E$ProbOverfished <- E$N_overfished/E$N_tot
   
-  P3 <- ggplot(data=C[year>=2024],aes(x=Catch,y=ProbOverfishing,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="Prob. F > Fmsy")+
-    theme_bw()+theme(legend.position="none")
+  P3 <- ggplot(data=C[year>=2024],aes(x=Catch,y=ProbOverfishing,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. F > Fmsy")+
+         theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5,span=0.5)
   
-  P4 <- ggplot(data=E[year>=2024],aes(x=Catch,y=ProbOverfished,linetype=as.character(year)))+geom_line()+labs(x="Fixed catch (mt)",y="Prob. SSB < SSBmsst")+
-    guides(linetype=guide_legend(title="Final year"))+theme_bw()
+  P4 <- ggplot(data=E[year>=2024],aes(x=Catch,y=ProbOverfished,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. SSB < SSBmsst")+
+         guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5,span=0.5)
   
   aLegend <- get_legend(P4)
   ggarrange(P3,P4,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
@@ -178,9 +187,30 @@ SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   G           <- select(G,-ProbOverfishing)
   G           <- G[,list(Catch=mean(Catch)),by=list(year,ProbBins)]
   
-  Final.Table <- data.table( spread(G,year,Catch) )
+  # Fill in missing combinations of year x prob. overfishing with NAs
+  G <- data.table( spread(G,year,Catch) )
+  G <- data.table( gather(G,year,Catch,2:9) )
+  
+ 
+  G$year <- factor(G$year)
+  G      <- G[ProbBins>=0.10] # Filter low overfishing prob. bins for better modeling
+  
+  model  <- gam(data=G,Catch~year+s(ProbBins,by=year),method="REML")
+  Preds  <- predict.gam(model,newdata=G)
+  
+  
+  G      <- cbind(G,Preds)
+  G[is.na(Catch)]$Catch <- G[is.na(Catch)]$Preds
+  G      <- select(G,-Preds)
+  
+  ggplot(data=G,aes(x=Catch,y=ProbBins,col=year))+geom_point()
+  
+  Final.table <- data.table( spread(G,year,Catch))
   Final.Table <- Final.Table[order(-ProbBins)]
   Final.Table <- Final.Table[ProbBins<=0.5]
+  
+  
+  
   
   write.csv(Final.Table,file=file.path(fore_dir,"Catch_Table.csv"))
     
