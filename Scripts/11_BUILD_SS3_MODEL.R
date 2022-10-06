@@ -21,7 +21,6 @@
 #' (ie list(c(2004,2006))), if there are 2 super periods then length(superyear_blocks) = 2
 #' @param init_values use ss.par file to run ss model (1), or no (0) (starter.ss input)
 #' @param parmtrace can switch to 1 to turn on, helpful for debugging model (starter.ss input)
-#' @param N_boot number of bootstrap files to produce (N >= 3 to run bootstrap) (starter.ss input)
 #' @param last_est_phs last phase for estimation (starter.ss input)
 #' @param seed value to set seed for run
 #' @param F_report_basis the denominator used to report out F std. Default is 2 (FMSY). See user manual for all options.
@@ -31,10 +30,8 @@
 #' @param Btarget value to set B-ratio target at (forecast.ss input)
 #' @param Bmark_years years for forecasting settings, see forecast file for options (forecast.ss input)
 #' @param Bmark_relF_Basis how forecast catches are calculated and removed default = 1, use FSPR (forecast.ss input)
-#' @param Nforeyears number of years to forecast for (forecast.ss input)
 #' @param Fcast_years years for forecast settings, see forecast file for options (forecast.ss input)
 #' @param ControlRule apply reductions to catch or F based on a control rule, see forecast file for options (forecast.ss input)
-#' @param Fixed_forecatch the catch (in metric tons) to be fixed for the forecast period. Can be a single value or vector that is the same length as Nforeyears.  
 #' @param root_dir path to root directory
 #' @param file_dir name of subdirectory to save files to, default is same as scenario
 #' @param template_dir path to template SS files
@@ -76,7 +73,6 @@ build_all_ss <- function(species,
                          N_samp = 40,
                          init_values = 0, 
                          parmtrace = 0,
-                         N_boot = 0,
                          last_est_phs = 10,
                          seed = 0123,
                          F_report_basis = 2, 
@@ -86,11 +82,10 @@ build_all_ss <- function(species,
                          Btarget = 0.4,
                          Bmark_years = c(0,0,0,0,0,0,0,0,0,0),
                          Bmark_relF_Basis = 1,
-                         Forecast = 1,
-                         Nforeyrs = 10, 
-                         Fcast_years = c(0,0,-10,0,-999,0),
+                         Forecast = 2,
+                         Nforeyrs = 1, 
+                         Fcast_years = c(0,0,0,0,-999,0),
                          ControlRule = 0,
-                         Fixed_forecatch = 1,
                          root_dir = NA,
                          file_dir = scenario,
                          template_dir = file.path(root_dir, 
@@ -377,8 +372,7 @@ build_all_ss <- function(species,
     Nforeyrs = Nforeyrs, 
     Fcast_years = Fcast_years,
     ControlRule = ControlRule,
-    Fixed_forecatch = Fixed_forecatch
-  )
+    )
   }
   
   model_dir <- file.path(root_dir, "SS3 models", species, file_dir)
@@ -390,30 +384,7 @@ build_all_ss <- function(species,
     r4ss::run(dir = model_dir, 
                   exe = "ss_opt_win", extras = ext_args,  skipfinished = FALSE, show_in_console = TRUE)
   }
-  
-  if(N_boot > 0){
-    
-    source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SSbootstrap.R"))
-    
-    boot_dir <- file.path(model_dir, "bootstrap")
-    if(!exists(boot_dir)){
-      dir.create(boot_dir)
-    }
-    message(paste0("Creating bootstrap data files in ", boot_dir))
-    
-    file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
-              to = boot_dir)
-    start <- r4ss::SS_readstarter(file = file.path(boot_dir, "starter.ss"))
-    start$N_bootstraps <- N_boot + 2
-    r4ss::SS_writestarter(start, dir = boot_dir, overwrite = T)
-    r4ss::run(dir = boot_dir, 
-                        exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
-    
-    SSbootstrap2(boot_dir, N_boot = N_boot, endyr = endyr)
-    
-  }
-  
-  
+
   
   if(r4ssplots){
     report <- r4ss::SS_output(file.path(root_dir, "SS3 models", species, file_dir), 

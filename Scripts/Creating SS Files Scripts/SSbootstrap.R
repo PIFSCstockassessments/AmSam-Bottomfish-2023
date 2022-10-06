@@ -1,10 +1,26 @@
-#' @param boot_dir directory where bootstraps are run
+#' @param model_dir directory where the key model files are located
 #' @param N_boot number of bootstrap models to run (>= 3)
 
 
-SSbootstrap2 <- function(boot_dir, N_boot, endyr){
+SSbootstrap2 <- function(model_dir, N_boot, endyr){
+  
+  boot_dir <- file.path(model_dir,"bootstrap")
   
   # Directory where bootstrap will be run.
+  if(!exists(boot_dir)){
+    dir.create(boot_dir)
+  }
+  
+  message(paste0("Creating bootstrap data files in ", boot_dir))
+  
+  # Run model one time to generate the data bootrap files
+  file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
+            to = boot_dir)
+  start <- r4ss::SS_readstarter(file = file.path(boot_dir, "starter.ss"))
+  start$N_bootstraps <- N_boot + 2
+  r4ss::SS_writestarter(start, dir = boot_dir, overwrite = T)
+  r4ss::run(dir = boot_dir, 
+            exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
   
   starter <- SS_readstarter(file =  file.path(boot_dir, "starter.ss")) # read starter file
   file.copy(file.path(boot_dir, "starter.ss"), file.path(boot_dir, "starter_backup.ss")) # make backup
@@ -54,13 +70,15 @@ SSbootstrap2 <- function(boot_dir, N_boot, endyr){
                               weight = 1, 
                               run = paste0("boot", i), 
                               plot = F,
-                              addprj = T)$kb
+                              addprj = F)$kb
     
   }
   
   mv <- data.table::rbindlist(mvlns)
-  save(mv, file = file.path(boot_dir, "mvln_draws.RData"))
-  mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
-  save(mv_fore, file = file.path(boot_dir, "mv_projections.RData"))
+  saveRDS(mv, file = file.path(boot_dir, "mvln_draws.rds"))
+  
+  # Projections are handled elsewhere, this can be deleted
+  #mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
+  #saveRDS(mv_fore, file = file.path(boot_dir, "mv_projections.rds"))
   
 }
