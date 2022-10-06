@@ -2,21 +2,23 @@
 #C generic forecast file
 # for all year entries except rebuilder; enter either: actual year, -999 for styr, 0 for endyr, neg number for rel. endyr
 1 # Benchmarks: 0=skip; 1=calc F_spr,F_btgt,F_msy; 2=calc F_spr,F0.1,F_msy; 3=add F_Blimit; 
-2 # Do_MSY: 1= set to F(SPR); 2=calc F(MSY); 3=set to F(Btgt) or F0.1; 4=set to F(endyr); 5=calc F(MEY) with MSY_unit options
+2 # Do_MSY: 1= set to F(SPR); 2=calc F(MSY); 3=set to F(Btgt) or F0.1; 4=set to F(endyr); 5=calc F(MEY) with MSY_unit options; how Fmsy should be calculated for the population
 # if Do_MSY=5, enter MSY_Units; then list fleet_ID, cost/F, price/mt, include_in_Fmey_scaling; # -fleet_ID to fill; -9999 to terminate
-0.4 # SPR target (e.g. 0.40)
-0.342 # Biomass target (e.g. 0.40)
+0.4 # SPR target (e.g. 0.40); SS3 searches for the F multiplier that will produce this level of spawning biomass per recruit relative to unfished
+0.342 # Biomass target (e.g. 0.40); SS3 searches for the F multiplier that will produce this level of spawning biomass relative to unfished value (not per recruit and takes SR relationship into account)
 #_Bmark_years: beg_bio, end_bio, beg_selex, end_selex, beg_relF, end_relF, beg_recr_dist, end_recr_dist, beg_SRparm, end_SRparm (enter actual year, or values of 0 or -integer to be rel. endyr)
+# these are the years for each quantity that is used to calculate the benchmark quantities
  2001 2001 2001 2001 2001 2001 1971 2001 1971 2001
 #  2001 2001 2001 2001 2001 2001 1971 2001 1971 2001
 # value <0 convert to endyr-value; except -999 converts to start_yr; must be >=start_yr and <=endyr
 1 #Bmark_relF_Basis: 1 = use year range; 2 = set relF same as forecast below
 #
-1 # Forecast: -1=none; 0=simple_1yr; 1=F(SPR); 2=F(MSY) 3=F(Btgt) or F0.1; 4=Ave F (uses first-last relF yrs); 5=input annual F scalar
+1 # Forecast: -1=none; 0=simple_1yr; 1=F(SPR); 2=F(MSY) 3=F(Btgt) or F0.1; 4=Ave F (uses first-last relF yrs); 5=input annual F scalar; how forecasts are calculated and removed from the population. If option = 2 (Fmsy) then it uses whatever you chose for MSY method
 # where none and simple require no input after this line; simple sets forecast F same as end year F
 10 # N forecast years 
 0.2 # Fmult (only used for Do_Forecast==5) such that apical_F(f)=Fmult*relF(f)
 #_Fcast_years:  beg_selex, end_selex, beg_relF, end_relF, beg_mean recruits, end_recruits  (enter actual year, or values of 0 or -integer to be rel. endyr)
+ #these are the years for each quantity that are used to calculate the forecast catch
  0 0 -10 0 -999 0
 #  2001 2001 1991 2001 1971 2001
 0 # Forecast selectivity (0=fcast selex is mean from year range; 1=fcast selectivity from annual time-vary parms)
