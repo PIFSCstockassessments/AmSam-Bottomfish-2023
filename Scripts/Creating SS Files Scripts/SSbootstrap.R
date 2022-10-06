@@ -70,13 +70,15 @@ SSbootstrap2 <- function(model_dir, N_boot, endyr){
                               weight = 1, 
                               run = paste0("boot", i), 
                               plot = F,
-                              addprj = T)$kb
+                              addprj = F)$kb
     
   }
   
   mv <- data.table::rbindlist(mvlns)
   saveRDS(mv, file = file.path(boot_dir, "mvln_draws.rds"))
-  mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
-  saveRDS(mv_fore, file = file.path(boot_dir, "mv_projections.rds"))
+  
+  # Projections are handled elsewhere, this can be deleted
+  #mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
+  #saveRDS(mv_fore, file = file.path(boot_dir, "mv_projections.rds"))
   
 }
