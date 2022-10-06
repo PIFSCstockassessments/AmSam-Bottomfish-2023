@@ -51,8 +51,8 @@ for(s in 1:9){
   TS <- merge(TS,TBIO,by="YEAR")
   
   # Split table in two (make it longer and shorter)
-  TA  <- TS %>% select(YEAR,SSB.50,SSB.CV,REC.50,REC.CV,FMORT.50,FMORT.CV)
-  TA  <- TA %>% mutate(SSB.50=round(SSB.50,1),SSB.CV=round(SSB.CV,2),REC.50=round(REC.50,2),
+  TA  <- TS %>% select(YEAR,TOT_BIO,SSB.50,SSB.CV,REC.50,REC.CV,FMORT.50,FMORT.CV)
+  TA  <- TA %>% mutate(TOT_BIO=round(TOT_BIO,2),SSB.50=round(SSB.50,1),SSB.CV=round(SSB.CV,2),REC.50=round(REC.50,2),
                        REC.CV=round(REC.CV,2),FMORT.50=round(FMORT.50,3),FMORT.CV=round(FMORT.CV,2))
   
   TA1 <- TA %>% filter(YEAR<=1995)
@@ -80,8 +80,12 @@ RP[10,2:4]<- SPR2021
   
   
 # Round values
+RP[4:10,2:4] <- round(RP[4:10,2:4],2)
 RP[1:3,2:4]  <- round(RP[1:3,2:4],3)
-RP[4:10,2:4] <- round(RP[4:10,2:4],3)
+
+RP$ALL <- paste0(RP$MEDIAN," ","(",RP$L95," - ",RP$U95,")")
+RP     <- select(RP,REF_POINT,ALL)
+
 
 # Sensitivity runs key values
 SE <- data.table()
