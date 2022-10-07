@@ -2,7 +2,7 @@ require(data.table); require(tidyverse); require(gridExtra); require(directlabel
 options(scipen = 999)
 
 # establish directories using this.path::
-root_dir <- this.path::here(.. = 1)
+root_dir <- this.path::here(.. = 2)
 set.seed(111) # It is critical to fix the random number generation for reproducability
 
 # ----------- STEP 1: read in the complete "flatview" datafile for AmSam Shore based survey, 

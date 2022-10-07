@@ -1,8 +1,8 @@
-Standardize_CPUE <- function(Sp, Ar,minYr=1988,maxYr=2021) {
+Standardize_CPUE2 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
-root_dir <- this.path::here(.. = 1) # establish directories using this.path
+root_dir <- this.path::here(.. = 2) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),recursive=T,showWarnings=F)
 dir.create(paste0(root_dir,"/Outputs/Summary/CPUE figures"),recursive=T,showWarnings=F)
                                                               
@@ -18,17 +18,16 @@ length(unique(C$INTERVIEW_PK))
 C <- C[NUM_GEAR<=6]; length(unique(C$INTERVIEW_PK))
 C <- C[HOURS_FISHED<=24]; length(unique(C$INTERVIEW_PK))
 C <- C[as.numeric(YEAR)>=minYr&as.numeric(YEAR)<=maxYr]; length(unique(C$INTERVIEW_PK))
+C <- C[!(AREA_C=="Manua"&YEAR>=2009)] # Remove the 7 random post-2008 Manua interviews
+
+#C[AREA_C=="Bank"]$AREA_C <-"Tutuila" # Merge Bank with Tutuila 
 
 D <- C[SPECIES==Sp]
 
+if(Sp=="LERU") D <- D[AREA_C!="Manua"] # Filter out Manua data for LERU, it's too bad to use
+
 # Run selections
-if(Ar=="Tutuila") D <- D[AREA_C=="Tutuila"|AREA_C=="Bank"] 
-if(Ar=="Manua")   D <- D[AREA_C=="Manua"&YEAR<=2008]
 #if(Sp=="VALO")    D <- D[YEAR>=2016]
-
-if(Sp=="VALO"&Ar=="Manua") return(message("Cannot run VALO for Manua, since no good VALO data before 2015 and no data after 2010 in the Manuas."))
-if(Sp=="LERU"&Ar=="Manua")  return(message("No LERU data in the Manuas."))
-
 
 nrow(D); nrow(D[CPUE>0]) # Check interview counts
 
@@ -37,6 +36,7 @@ YR.CATCH <- D[,list(CPUE=sum(CPUE)),by=YEAR]
 YR.CATCH <- YR.CATCH[CPUE>0]
 YR.CATCH <- select(YR.CATCH,-CPUE)
 D        <- merge(D,YR.CATCH,by="YEAR")
+
 
 # Add data point weights so that each YxMxR strata have the same weight in the GAM  models
 WGHT.P                <- data.table(  table(D[CPUE>0]$YEAR,D[CPUE>0]$SEASON,D[CPUE>0]$AREA_C)  ); setnames(WGHT.P,c("YEAR","SEASON","AREA_C","N"))# }
@@ -59,14 +59,30 @@ D                     <- merge(D,WGHT.B,by=c("YEAR","SEASON","AREA_C"),all.x=T)
 D$W.B <- 1
 D$W.P <- 1
 
+# Factors
+D$AREA_C      <- factor(D$AREA_C,levels=c("Tutuila","Bank"))
+D$SEASON      <- factor(D$SEASON,levels=c("fall","spring","summer","winter"))
+D$TYPE_OF_DAY <- factor(D$TYPE_OF_DAY,levels=c("WD","WE"))
+D$YEAR        <- factor(D$YEAR)
 
 # Backward selection: Positive catch-only models
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C, method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
-if(Sp=="VALO")    Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+SEASON+s(PC1), method="REML")'
-  
-#if(Ar=="Tutuila") Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C, method="REML")'
-#if(Ar=="Manua")   Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+if(Interaction==T){
+Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+} else{
+Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+}
+
+if(Sp=="PRFL"){
+  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+}
+
+if(Sp=="VALO"){
+  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+}
+
+
+#if(Sp=="VALO")    Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+SEASON+s(PC1), method="REML")'
+
 
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
@@ -79,8 +95,9 @@ for(i in 1:10){
   if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
-  c             <- c[TERMS!="YEAR"]
-  if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
+  #c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
+  c             <- c[!(TERMS=="YEAR")] # Keep those 2 variables, no matter what
+    if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
@@ -103,12 +120,15 @@ P.SelResults$CPUE_TYPE <- "Positive-only CPUE"
 P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Backward selection: Probability of catch-only models
-if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
-if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+if(Interaction==T){
+Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+} else {
+Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+}  
 
-#if(Ar=="Tutuila") Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY+AREA_C,family=binomial(link="logit"),method="REML")'
-#if(Ar=="Manua")   Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
-
+if(Sp=="VALO"){
+  Model.String  <- 'gam(data=D,weights=W.B,PRES~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY,family=binomial(link="logit"),method="REML")'
+}
 
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
@@ -121,7 +141,8 @@ for(i in 1:10){
   if(nrow(a)>0&nrow(b)>0)  c <- rbind(a,b)
   if(nrow(b)==0) c <- a
   if(nrow(a)==0) c <- b
-  c             <- c[TERMS!="YEAR"]
+  #c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
+  c             <- c[!(TERMS=="YEAR")] # Keep those 2 variables, no matter what
   if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
@@ -164,7 +185,7 @@ Final[2:nrow(Final)]$TIMESTAMP <- NA
 # Add table to excel worksheet
 File.Name    <- paste0(root_dir,"/Outputs/Summary/CPUE models.xlsx")
 wb <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook()})
-Sheet.Name   <- paste0(Sp,"_",substr(Ar,1,1))
+Sheet.Name   <- paste0(Sp,"_Int")
 if(Sheet.Name %in% sheets(wb)) removeWorksheet(wb,Sheet.Name)
 addWorksheet(wb, sheetName = Sheet.Name)
 writeData(wb, sheet = Sheet.Name, Final,colNames=T)
@@ -226,8 +247,8 @@ WLT$WINDSPEED    <- median(D$WINDSPEED)
 
 # Give AREAS their geographical weights
 WLT$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
-WLT[AREA_C=="Tutuila"]$WEIGHT <- 0.91
-WLT[AREA_C=="Bank"]$WEIGHT    <- 0.09
+WLT[AREA_C=="Tutuila"]$WEIGHT <- 0.89
+WLT[AREA_C=="Bank"]$WEIGHT    <- 0.11
 
 # Calculate standardize index for all positive-only models
 Results.P <- list()
@@ -284,6 +305,10 @@ Best.Mod <- dcast(Best.Mod,YEAR+SEASON+AREA_C+WEIGHT~CPUE_TYPE,value.var=c("MODE
 Best.Mod$CPUE_TOT    <- Best.Mod$CPUE_POS*Best.Mod$CPUE_PROB
 Best.Mod$SD.CPUE_TOT <- sqrt(  Best.Mod$SD.CPUE_POS^2*Best.Mod$SD.CPUE_PROB^2+Best.Mod$SD.CPUE_POS^2*Best.Mod$CPUE_PROB^2+Best.Mod$SD.CPUE_PROB^2*Best.Mod$CPUE_POS^2    )
 
+# These 2 lines are to export the CPUE timeseries before merging the two areas (for diagnostic purposes only)
+#Best.Mod <- Best.Mod[,list(CPUE_TOT=mean(CPUE_TOT),SD.CPUE_TOT=mean(SD.CPUE_TOT),CPUE_POS=mean(CPUE_POS),CPUE_PROB=mean(CPUE_PROB)),by=list(MODEL_POS,MODEL_PROB,AREA_C,YEAR)] # Average all 12 SEASONs per year
+#write.xlsx(Best.Mod,file=paste0(root_dir,"/Outputs/Summary/CPUE_APRU_TutVMan2.xlsx"))
+
 Best.Mod <- Best.Mod[,list(CPUE_TOT=sum(CPUE_TOT*WEIGHT),SD.CPUE_TOT=sqrt(sum(SD.CPUE_TOT^2*WEIGHT^2)),CPUE_POS=sum(CPUE_POS*WEIGHT),CPUE_PROB=sum(CPUE_PROB*WEIGHT)),by=list(MODEL_POS,MODEL_PROB,YEAR,SEASON)] # Sum abundance in all region, by regional weight
 Best.Mod <- Best.Mod[,list(CPUE_TOT=mean(CPUE_TOT),SD.CPUE_TOT=mean(SD.CPUE_TOT),CPUE_POS=mean(CPUE_POS),CPUE_PROB=mean(CPUE_PROB)),by=list(MODEL_POS,MODEL_PROB,YEAR)] # Average all 12 SEASONs per year
 
@@ -298,7 +323,7 @@ Best.Mod$LOGSD.CPUE_TOT <- sqrt( log((Best.Mod$SD.CPUE_TOT/Best.Mod$CPUE_TOT)^2+
 Best.Mod.Final <- select(Best.Mod,YEAR,CPUE_TOT,LOGSD.CPUE_TOT)
 Best.Mod.Final[LOGSD.CPUE_TOT<0.2]$LOGSD.CPUE_TOT <- 0.2 # Insure that the CV for any year is at least 0.2
   
-write.csv(Best.Mod.Final,file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_",Ar,".csv"),row.names =F)
+write.csv(Best.Mod.Final,file=paste0(root_dir,"/Outputs/SS3_Inputs/CPUE/CPUE_",Sp,"_Tutuila.csv"),row.names =F)
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR,SEASON,AREA_C)]
@@ -306,8 +331,8 @@ NOMI               <- D[,list(CPUE_TOT=mean(CPUE),CPUE_PROB=mean(PRES)),by=list(
 NOMI               <- merge(NOMI,NOMI1,by=c("YEAR","SEASON","AREA_C"))
 NOMI$CPUE_TOT      <- NOMI$CPUE_PROB*NOMI$CPUE_POS
 NOMI$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
-NOMI[AREA_C=="Tutuila"]$WEIGHT <- 0.91
-NOMI[AREA_C=="Bank"]$WEIGHT    <- 0.09
+NOMI[AREA_C=="Tutuila"]$WEIGHT <- 0.87
+NOMI[AREA_C=="Manua"]$WEIGHT   <- 0.13
 NOMI <- NOMI[,list(CPUE_TOT=sum(CPUE_TOT*WEIGHT),CPUE_POS=sum(CPUE_POS*WEIGHT),CPUE_PROB=sum(CPUE_PROB*WEIGHT)),by=list(YEAR,SEASON)] # Sum abundance in all region, by regional weight
 NOMI <- NOMI[,list(CPUE_TOT=mean(CPUE_TOT),CPUE_POS=mean(CPUE_POS),CPUE_PROB=mean(CPUE_PROB)),by=list(YEAR)] # Average all 12 SEASONs per year
 NOMI$CPUE_TOT.STD  <- NOMI$CPUE_TOT/mean(NOMI$CPUE_TOT)*100
@@ -326,11 +351,11 @@ Best.Mod[MODEL_POS=="NOMI"]$MODLABEL <- "Nominal"
 # Best model vs. NOMI graph
 P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=MODLABEL))+geom_line()+
        facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Positive-only CPUE","CPUE_PROB.STD"="Probability CPUE")))+
-       labs(col=paste0("Models (",Ar,")"),linetype=paste0("Models (",Ar,")"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+
+       labs(col=paste0("Model type"),linetype=paste0("Model type"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+
        theme(axis.title=element_text(size=8),legend.text=element_text(size=6),legend.key.height=unit(1.5,'cm'))
 
 #print(P1)
-ggsave(P1,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_",Ar,"_BestModel.png"),height=2,width=8,unit="in")
+ggsave(P1,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_Inter","_BestModel.png"),height=2,width=8,unit="in")
 
 
 #=======================Create trend comparison graphs==============================
@@ -366,7 +391,9 @@ P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",s
 gA <- ggplotGrob(P3)
 gB <- ggplotGrob(P4)
 Comp.Graph <- rbind(gA,gB)
-ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_",Ar,"_ModelComps.png"),height=5,width=8,unit="in")
+ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_Inter","_ModelComps.png"),height=5,width=8,unit="in")
+
+print(paste("Done with", Sp))
 
 } # End of function
 

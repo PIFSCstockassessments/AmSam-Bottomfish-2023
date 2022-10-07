@@ -3,7 +3,7 @@
 #' @param N_foreyrs number of forecast years
 #' @param FixedCatchSeq Sequence of catch containing start, end, and steps of the Fixed Catch values to forecast (ex. start=0, end=1.7 mt, by=0.1)
 
-SSForecast <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
+Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr){
   
   require(data.table); require(ggplot2); require(ggpubr); require(tidyverse); require(mgcv)
   

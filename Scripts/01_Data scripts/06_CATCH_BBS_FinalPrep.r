@@ -1,6 +1,6 @@
 require(tidyverse); require(this.path); require(data.table); require(openxlsx)
 
-root_dir <- this.path::here(.. = 1)
+root_dir <- this.path::here(.. = 2)
 options(scipen = 999)
 
 D <- fread(paste0(root_dir, "/Data/AS_BBS_SPC_correctLog2.csv"), stringsAsFactors=FALSE) 

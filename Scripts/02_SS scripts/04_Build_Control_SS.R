@@ -7,7 +7,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 #CTL file 
 #  --------------------------------------------------------------------------------------------------------------
-build_control <- function(species = species,
+Build_Control <- function(species = species,
                           scenario = "base",
                           Nfleets = Nfleets,
                           Nsexes = Nsexes,

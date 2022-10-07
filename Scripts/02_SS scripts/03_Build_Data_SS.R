@@ -7,7 +7,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 ## DAT file
 #  --------------------------------------------------------------------------------------------------------------
-build_dat <- function(species = NULL, scenario = "base", catch = NULL, initF = F, CPUEinfo = NULL, cpue = NULL, 
+Build_Data <- function(species = NULL, scenario = "base", catch = NULL, initF = F, CPUEinfo = NULL, cpue = NULL, 
                       Nages = NULL, Narea = 1, Nsexes = NULL, CompError = NULL, lencomp = NULL, startyr = 1967, endyr = 2021, 
                       bin.list = NULL, fleets = 1, fleetinfo = NULL, lbin_method = 1, superyear = FALSE, 
                       superyear_blocks = NULL, N_samp = 40, file_dir = "base",

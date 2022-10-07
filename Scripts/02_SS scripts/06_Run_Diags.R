@@ -15,7 +15,7 @@
 
 
 
-run_diags <- function(root_dir = this.path::here(.. = 1),
+Run_Diags <- function(root_dir = this.path::here(.. = 1),
                       species = "APVI",
                       file_dir = "base",
                       do_retro = TRUE,

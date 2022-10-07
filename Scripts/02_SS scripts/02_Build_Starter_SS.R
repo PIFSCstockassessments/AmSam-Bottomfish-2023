@@ -7,7 +7,7 @@
 #  --------------------------------------------------------------------------------------------------------------
 ## Starter file
 #  --------------------------------------------------------------------------------------------------------------
-build_starter <- function(species,
+Build_Starter <- function(species,
                           scenario = "base",
                           file_dir = "base",
                           template_dir = file.path(root_dir, "SS3 models", "TEMPLATE_FILES", "starter.ss"), 

@@ -2,7 +2,7 @@
 #' @param N_boot number of bootstrap models to run (>= 3)
 
 
-SSbootstrap2 <- function(model_dir, N_boot, endyr){
+Run_Bootstraps <- function(model_dir, N_boot, endyr){
   
   boot_dir <- file.path(model_dir,"bootstrap")
   

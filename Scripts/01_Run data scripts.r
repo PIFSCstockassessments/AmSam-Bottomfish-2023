@@ -17,22 +17,22 @@ Date.GoogleFolder <- as_datetime(map_chr(a$drive_resource, "modifiedTime"))
     unzip(file.path(here(..=1),a$name),exdir=here(..=1))  
     }          
 
-########## PROCESS CATCH AND CPUE DATA ################
-source(paste0(here(..=1),"/Scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())
-source(paste0(here(..=1),"/Scripts/02_CPUE_BBS_PropTable.r"));  rm(list=ls()) 
-source(paste0(here(..=1),"/Scripts/03a_CPUE_BBS_Wind.r"));      rm(list=ls())
-source(paste0(here(..=1),"/Scripts/03b_CPUE_BBS_PCA.r"));       rm(list=ls()) 
-source(paste0(here(..=1),"/Scripts/04_CPUE_BBS_FinalPrep.r"));  rm(list=ls())
-source(paste0(here(..=1),"/Scripts/06_CATCH_BBS_FinalPrep.r")); rm(list=ls()) 
-source(paste0(here(..=1),"/Scripts/07_CATCH_SBS_PropTable.r")); rm(list=ls()) 
-source(paste0(here(..=1),"/Scripts/08_CATCH_SBS_FinalPrep.r")); rm(list=ls())
-source(paste0(here(..=1),"/Scripts/09_CATCH_Final.r"));         rm(list=ls())
-source(paste0(here(..=1),"/Scripts/10_SIZE.r"));                rm(list=ls()) 
+########## PROCESS CATCH, CPUE, AND SIZE DATA ################
+source(paste0(here(..=1),"/Scripts/01_Data scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())
+source(paste0(here(..=1),"/Scripts/01_Data scripts/02_CPUE_BBS_PropTable.r"));  rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/01_Data scripts/03a_CPUE_BBS_Wind.r"));      rm(list=ls())
+source(paste0(here(..=1),"/Scripts/01_Data scripts/03b_CPUE_BBS_PCA.r"));       rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/01_Data scripts/04_CPUE_BBS_FinalPrep.r"));  rm(list=ls())
+source(paste0(here(..=1),"/Scripts/01_Data scripts/06_CATCH_BBS_FinalPrep.r")); rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/01_Data scripts/07_CATCH_SBS_PropTable.r")); rm(list=ls()) 
+source(paste0(here(..=1),"/Scripts/01_Data scripts/08_CATCH_SBS_FinalPrep.r")); rm(list=ls())
+source(paste0(here(..=1),"/Scripts/01_Data scripts/09_CATCH_Final.r"));         rm(list=ls())
+source(paste0(here(..=1),"/Scripts/01_Data scripts/10_SIZE.r"));                rm(list=ls()) 
 
 ################ RUN CPUE STANDARDIZATION############################
 # Run CPUE standardization and export indices for input into SS
 #source(paste0(here(..=1),"/Scripts/05_CPUE_BBS_Standardize_Function.r"))
-source(paste0(here(..=1),"/Scripts/05_CPUE_BBS_Standardize_Function2.r"))
+source(paste0(here(..=1),"/Scripts/01_Data scripts/05_CPUE_BBS_Standardize_Function2.r"))
 
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
@@ -54,6 +54,6 @@ for(i in 1:length(Species.List)){
 # Or run a single model
 #Standardize_CPUE(Sp = "APRU" , Ar = c("Tutuila","Manua") [1])
 Standardize_CPUE2(Sp = "VALO")
-Sp<-"VALO"; Ar<-"Tutuila"; minYr=2016; maxYr=2021; Interaction<-T
+Sp<-"APRU"; Ar<-"Tutuila"; minYr=2016; maxYr=2021; Interaction<-T
 
 

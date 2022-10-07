@@ -12,7 +12,7 @@
 
 #  --------------------------------------------------------------------------------------------------------------
    require(ncdf4); require(httr); require(tidyverse); require(this.path); require(data.table)
-   root_dir <- this.path::here(.. = 1)
+   root_dir <- this.path::here(.. = 2)
 
 #  originally I was downloading the .nc s through R, but something is wrong now. Instead, download the .ncs using the web interface, put them in the working directory,
 #	then read into R.  

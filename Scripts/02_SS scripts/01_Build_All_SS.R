@@ -54,7 +54,7 @@
 
 
 
-build_all_ss <- function(species,
+Build_All_SS <- function(species,
                          scenario = "base",
                          startyr = 1967,
                          endyr = 2021,
@@ -125,11 +125,11 @@ build_all_ss <- function(species,
   
   ## Step 2. Source scripts with each function ###-------------------------------------
   ### Call the functions to build the SS3 files ####
-  source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_DAT.R"))
-  source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_START.R"))
-  source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_FORE.R"))
-  source(file.path(root_dir, "Scripts", "Creating SS Files Scripts", "SS_BUILD_CTL.R"))
-  
+  source(file.path(root_dir, "Scripts", "02_SS scripts", "02_Build_Starter_SS.R"))
+  source(file.path(root_dir, "Scripts", "02_SS scripts", "03_Build_Data_SS.R"))
+  source(file.path(root_dir, "Scripts", "02_SS scripts", "04_Build_Control_SS.R"))
+  source(file.path(root_dir, "Scripts", "02_SS scripts", "05_Build_Forecast_SS.R"))
+ 
   ## Step 3. Create other inputs ###---------------------------------------------------
   ### Create subdirectory
   if(!dir.exists(file.path(root_dir, "SS3 models", species, file_dir))){
@@ -291,7 +291,7 @@ build_all_ss <- function(species,
  
   
   ## Step 4. Create SS3 input files
-  build_dat(
+  Build_Data(
     species = species,
     scenario = scenario,
     startyr = startyr,
@@ -316,7 +316,7 @@ build_all_ss <- function(species,
     out_dir = out_dir
   )
   
-  build_control(
+  Build_Control(
     species = species,
     scenario = scenario,
     Nfleets = Nfleets,
@@ -341,7 +341,7 @@ build_all_ss <- function(species,
     out_dir = out_dir
   )
   
-  build_starter(
+  Build_Starter(
     species = species,
     scenario = scenario,
     file_dir = file_dir,
@@ -355,7 +355,7 @@ build_all_ss <- function(species,
     F_report_basis = F_report_basis
   )
   
-  build_forecast(
+  Build_Forecast(
     species = species,
     scenario = scenario,
     file_dir = file_dir,
@@ -394,9 +394,9 @@ build_all_ss <- function(species,
     
   }
   
-  source(file.path(root_dir, "Scripts", "12_RUN_DIAGS.R"))
+  source(file.path(root_dir, "Scripts","02_SS scripts" ,"06_Run_Diags.R"))
   
-  run_diags(root_dir = root_dir,
+  Run_Diags(root_dir = root_dir,
             species = species,
             file_dir = file_dir,
             do_retro = do_retro,
@@ -411,7 +411,7 @@ build_all_ss <- function(species,
   
   if(printreport){
     ### Create Summary Report ####
-      file.copy(from = file.path(root_dir,"/Scripts/Creating SS Files Scripts/model_diags_report.qmd"), 
+      file.copy(from = file.path(root_dir,"Scripts","SS scripts","model_diags_report.qmd"), 
                 to = file.path(root_dir, "SS3 models", species, file_dir, 
                                paste0(species, "_", file_dir, "_model_diags_report.qmd")), 
                 overwrite = TRUE)

@@ -2,7 +2,7 @@ require(data.table); require(tidyverse); require(gridExtra); require(directlabel
 options(scipen = 999)
 
 # establish directories using this.path::
-root_dir <- this.path::here(.. = 1)
+root_dir <- this.path::here(.. = 2)
 
 # Read in the expanded landings data
 D <- fread(file=paste0(root_dir, "/Data/SPC_AS_SBS.csv"),stringsAsFactors=FALSE) 

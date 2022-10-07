@@ -1,9 +1,9 @@
 require(data.table); require(tidyverse); require(gridExtra); require(directlabels);require(openxlsx)
 options(scipen = 999)
-root_dir <- this.path::here(.. = 1) 
+root_dir <- this.path::here(.. = 2) 
 
 if(!exists(paste0(root_dir, "/Outputs/Summary"))){
-  dir.create(paste0(root_dir, "/Outputs/Summary"))
+  dir.create(paste0(root_dir, "/Outputs/Summary"),showWarnings = FALSE)
 }
 
 Z <- readRDS(paste0(root_dir,"/Outputs/CPUE_A.rds"))
