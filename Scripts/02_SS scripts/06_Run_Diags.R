@@ -15,7 +15,7 @@
 
 
 
-Run_Diags <- function(root_dir = this.path::here(.. = 1),
+Run_Diags <- function(root_dir = NA,
                       species = "APVI",
                       file_dir = "base",
                       do_retro = TRUE,
@@ -24,7 +24,7 @@ Run_Diags <- function(root_dir = this.path::here(.. = 1),
                       profile = "SR_LN(R0)",
                       profile.vec = seq(8.2, 8.4, .1),
                       do_jitter = TRUE,
-                      Njitter = 200,
+                      Njitter = 100,
                       jitterFraction = 0.1
                       ){
   
