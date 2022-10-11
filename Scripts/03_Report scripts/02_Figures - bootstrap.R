@@ -13,6 +13,10 @@ for(s in 1:9){
 
 Sp <- Species.List[s]
 
+# Create output directory
+Out_dir <- file.path(root_dir,"Outputs","Report_Inputs",Sp)
+dir.create(Out_dir,recursive=T,showWarnings=F)
+
 SS.results <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
 PAR        <- data.table( SS.results$parameters )
 
@@ -24,7 +28,7 @@ ggplot(data=CA,aes(x=YEAR,y=MT))+geom_bar(stat="identity",fill="blue",col="black
   geom_vline(aes(xintercept=1985.5),linetype="dashed",col="black",size=0.5)+
   scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=c(0,0),limits=c(0,max(CA$MT)*1.1))+theme_bw()
 
-ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Catch.png")),width=15,height=7,units="cm")
+ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Catch.png")),width=15,height=7,units="cm")
 
 # Growth curve graph
 GR     <- data.table( SS.results$endgrowth )
@@ -47,7 +51,7 @@ ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(e
   geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+theme_bw()+
   labs(x="Age (year)",y="Length FL (cm)")
   
-  ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Growth.png")),width=15,height=7,units="cm")
+  ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Growth.png")),width=15,height=7,units="cm")
   
 } else{
   ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(expand=c(0,0))+
@@ -59,7 +63,7 @@ ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(e
     geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+theme_bw()+
     labs(x="Age (year)",y="Length FL (cm)")+facet_wrap(~Sex,labeller=labeller(Sex=c("1"="Female","2"="Male")))
 
-  ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Growth.png")),width=18,height=7,units="cm")
+  ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Growth.png")),width=18,height=7,units="cm")
 }
 
 
@@ -120,7 +124,7 @@ g$widths <- unit.pmax(P1$widths, P2$widths)
 grid.newpage()
 grid.draw(g)
 
-ggsave(g,file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Quants.png")),width=14,height=10,units="cm")
+ggsave(g,file=file.path(Out_dir,paste0(Sp,"_Quants.png")),width=14,height=10,units="cm")
 
 
 # Stock-recruitment relationship
@@ -147,7 +151,7 @@ SR_plot <- ggplot(data=DAT)+scale_x_continuous(limits=c(0,SSB_VIRG*1.1),expand=c
   geom_point(aes(x=SSB,y=REC,col=Year),size=2)+geom_point(aes(x=SSB_VIRG,y=REC_VIRG),size=4,col="red",shape=18)+
   scale_color_gradientn(colors=rainbow(4))+theme_bw()+xlab("Spawning biomass (SSB; mt)")+ylab("Recruitment (1000 recruits)")
 
-ggsave(last_plot(),filename=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_SR.png")),width=14,height=7,units="cm",dpi=300)
+ggsave(last_plot(),filename=file.path(Out_dir,paste0(Sp,"_SR.png")),width=14,height=7,units="cm",dpi=300)
 
 # Kobe plot
 SS         <- data.table( SS.results$derived_quants )
@@ -188,7 +192,7 @@ K <- K + geom_line(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50),size=0.1)+scale_fill_gr
          geom_point(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50,fill=YEAR),shape = 21,colour="black")
 K <- K + geom_point(data=TS[YEAR==max(YEAR)],aes(x=B_BMSST.50,y=F_FMSY.50),shape=21,fill="red",col="black",size=3)
 
-ggsave(last_plot(),file=file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_Kobe.png")),width=14,height=10,units="cm")
+ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Kobe.png")),width=14,height=10,units="cm")
 
 }
 
