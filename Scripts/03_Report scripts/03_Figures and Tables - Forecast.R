@@ -6,8 +6,9 @@ Model <- "40_Base" # Select the model to be summarize
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 
 for(s in 1:9){
-
-  Sp <- Species.List[s]
+  
+  Sp <- "APRU"
+  #Sp <- Species.List[s]
 
   # Create output directory
   Out_dir <- file.path(root_dir,"Outputs","Report_Inputs",Sp)
