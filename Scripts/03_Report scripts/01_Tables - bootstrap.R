@@ -12,6 +12,12 @@ for(s in 1:9){
   
   Sp <- Species.List[s]
 
+  
+  # Create output directory
+  Out_dir <- file.path(root_dir,"Outputs","Report_Inputs",Sp)
+  dir.create(Out_dir,recursive=T,showWarnings=F)
+  
+  
   # Catch data to calculate catch 2019-2022
   C <- Raw.C[SPECIES==Sp]  
   
@@ -94,7 +100,7 @@ SE <- data.table()
 Table.List <- list(TA.Final,RP,SE)
 
 # Add tables to excel worksheet
-File.Name <- file.path(root_dir,"Outputs","Report_Inputs",paste0(Sp,"_tables.xlsx"))
+File.Name <- file.path(Out_dir,paste0(Sp,"_tables.xlsx"))
 wb        <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook(File.Name)})
 Sheets    <- c("01_Quants","02_RefPoints","03_Sensitivies")
 
