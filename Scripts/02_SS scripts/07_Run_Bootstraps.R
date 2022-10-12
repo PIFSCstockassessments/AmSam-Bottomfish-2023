@@ -65,13 +65,13 @@ Run_Bootstraps <- function(model_dir, N_boot, endyr){
   mvlns <- list()
   
   for(i in 1:length(mods)){
-    
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(mods[[i]], mc = 5000, 
+    try(
+    mvlns[[i]] <- ss3diags::SSdeltaMVLN(mods[[i]], mc = 1000, 
                               weight = 1, 
                               run = paste0("boot", i), 
                               plot = F,
                               addprj = F)$kb
-    
+    , silent=F)
   }
   
   mv <- data.table::rbindlist(mvlns)
