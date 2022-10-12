@@ -2,7 +2,7 @@ require(pacman); pacman::p_load(data.table,openxlsx,r4ss,this.path,tidyverse)
 root_dir <- this.path::here(..=2)
 
 
-Model <- "34_TestBootstrap" # Select the model to be summarize
+Model <- "40_Base" # Select the model to be summarize
 
 Raw.C  <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv"))
 dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)
@@ -58,14 +58,18 @@ for(s in 1:9){
   
   # Split table in two (make it longer and shorter)
   TA  <- TS %>% select(YEAR,TOT_BIO,SSB.50,SSB.CV,REC.50,REC.CV,FMORT.50,FMORT.CV)
+  
   TA  <- TA %>% mutate(TOT_BIO=round(TOT_BIO,2),SSB.50=round(SSB.50,1),SSB.CV=round(SSB.CV,2),REC.50=round(REC.50,2),
                        REC.CV=round(REC.CV,2),FMORT.50=round(FMORT.50,3),FMORT.CV=round(FMORT.CV,2))
   
-  TA1 <- TA %>% filter(YEAR<=1995)
+  TA  <- TA %>% mutate(TOT_BIO=format(TOT_BIO,nsmall=2),SSB.50=format(SSB.50,nsmall=1),SSB.CV=format(SSB.CV,nsmall=2),REC.50=format(REC.50,nsmall=2),
+                       REC.CV=format(REC.CV,nsmall=2),FMORT.50=format(FMORT.50,nsmall=3),FMORT.CV=format(FMORT.CV,nsmall=2))
+  
+  TA1 <- TA %>% filter(YEAR>=1969&YEAR<=1995)
   TA2 <- TA %>% filter(YEAR>1995) %>% rbind(NA)
   TA.Final <- cbind(TA1,TA2)
   
-  
+
 # Reference points
 RP <- data.table(REF_POINT=c("Fmsy","F2021","F2021/Fmsy","SSBmsst","SSB2021","SSB2021/SSBmsst",
                              "MSY","Catch2019-2021","SPRmsy","SPR2021"),MEDIAN=0,L95=0,U95=0)

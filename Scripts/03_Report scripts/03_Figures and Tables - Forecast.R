@@ -89,10 +89,11 @@ H <- select(H,Year=year,ProbOverfishing,Catch,Preds)
 H$Year <- as.numeric(as.character(H$Year))
 
 # Fill in the catch advice using the model predictions
-H <- H %>% mutate(Catch=Preds) %>% select(-Preds) %>%  
+H <- H %>% mutate(Catch=Preds) %>% select(-Preds) %>%  filter(Year>=2024) %>% 
   group_by(Year,ProbOverfishing) %>% summarize(Catch=round(mean(Catch),2)) %>% 
-  filter(Year>=2024) %>%  spread(Year,Catch) %>% arrange(-ProbOverfishing)
+  mutate(Catch=format(Catch,nsmall=2),ProbOverfishing=format(ProbOverfishing,nsmall=2)) %>% 
+  spread(Year,Catch) %>% arrange(desc(ProbOverfishing))
 
-write.csv(H,file=file.path(Out_dir,paste0(Sp,"_Proj_Table.csv")),row.names = F)
+write.xlsx(H,file=file.path(Out_dir,paste0(Sp,"_Proj_Table.xlsx")),sheets="CatchProj")
 
 }

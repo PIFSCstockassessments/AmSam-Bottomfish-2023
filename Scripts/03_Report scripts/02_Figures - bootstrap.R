@@ -1,7 +1,7 @@
 require(pacman); pacman::p_load(data.table,grid,gtable,openxlsx,r4ss,this.path,tidyverse)
 root_dir <- this.path::here(..=2)
 
-Model <- "34_TestBootstrap" # Select the model to be summarize
+Model <- "40_Base" # Select the model to be summarize
 
 dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)
 
@@ -98,7 +98,7 @@ TS <- BS %>% group_by(YEAR) %>%  summarize(SSB.50=median(SSB),SSB.05=quantile(SS
 SSB_MSST <- BS %>% summarize(BMSST.50=median(BMSST)) %>% as.numeric()
 
 
-# Other quantities taken staright from report.sso
+# Other quantities taken straight from report.sso
 SS         <- data.table( SS.results$timeseries )
 SS         <- SS %>% select(Yr,Era,Bio_all)
 B0         <- SS %>% filter(Era=="VIRG") %>% select(Bio_all) %>% as.numeric()
@@ -114,7 +114,7 @@ P1 <- ggplot(data=TS)+geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")+geom_point
 
 P2 <- ggplot(data=TS,aes(x=YEAR,y=FMORT.50))+geom_ribbon(aes(ymin=FMORT.05,ymax=FMORT.95),alpha=0.1)+geom_line()+
   scale_x_continuous(breaks=seq(1960,2030,10))+
-  scale_y_continuous(expand=c(0,0))+theme_bw()+xlab("Year")+ylab(expression(Fishing~mortality~(year^-1)))
+  scale_y_continuous(expand=c(0,0))+theme_bw()+xlab("Year")+ylab(expression(Fishing~mortality~(yr^-1)))
   
 P1 <- ggplotGrob(P1)
 P2 <- ggplotGrob(P2)
