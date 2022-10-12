@@ -16,14 +16,14 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (5)
-lapply(list(Lt[[1]]),function(x)     { # Run a single model
+lapply(list(Lt[[8]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
   DirName   <- "40_Base"
-  runmodels <- F   # Turn off if you want to process results only
+  runmodels <- T   # Turn off if you want to process results only
   N_boot    <- 10   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 7 #7   # Set to 0 to turn forecast off
-  RD        <- F   # Run Diagnostics (jitter, profile, retro)
+  N_foreyrs <- 0 #7   # Set to 0 to turn forecast off
+  RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
   Begin     <- c(1967,1986)[1]
   
