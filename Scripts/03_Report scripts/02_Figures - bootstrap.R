@@ -165,9 +165,9 @@ SSBratio_TermYr <- TS %>% filter(YEAR==max(YEAR)) %>% select(B_BMSST.50,B_BMSST.
 Fratio_Term     <- TS %>% filter(YEAR==max(YEAR)) %>% select(F_FMSY.50,F_FMSY.05,F_FMSY.95)
 
 # Kobe plot layout setting, adjust as needed
-x_max  <- max(TS$B_BMSST.95,3)*1.05
+x_max  <- max(TS$B_BMSST.50,3)*1.05
 x_min  <- 0
-y_max  <- max(TS$F_FMSY.95,1.5)*1.05
+y_max  <- max(TS$F_FMSY.50,1.5)*1.05
 y_min  <- 0
 MSST_x <- 0.9
 max_yr <- max(TS$YEAR)
@@ -180,7 +180,7 @@ poly_x <- c(x_min,x_min,MSST_x,MSST_x)
 
 # Subsample of last year position
 Last.Year <- BS[YEAR==max(YEAR)] 
-Last.Year <- Last.Year[sample(1:nrow(Last.Year),1000)]
+Last.Year <- Last.Year[sample(1:nrow(Last.Year),2000)]
 
 # Plot
 K <- ggplot()+geom_polygon(aes(x=tri_x,y=tri_y),fill="khaki1",col="black")+geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_min,y_min)),fill="palegreen",col="black")+

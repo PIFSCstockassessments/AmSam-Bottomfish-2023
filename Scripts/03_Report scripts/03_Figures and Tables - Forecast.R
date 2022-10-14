@@ -5,9 +5,9 @@ Model <- "40_Base" # Select the model to be summarize
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 
-for(s in 1:9){
+#for(s in 1:9){
   
-  Sp <- "APRU"
+  Sp <- "CALU"
   #Sp <- Species.List[s]
 
   # Create output directory
@@ -96,4 +96,4 @@ H <- H %>% mutate(Catch=Preds) %>% select(-Preds) %>%  filter(Year>=2024) %>%
 
 write.xlsx(H,file=file.path(Out_dir,paste0(Sp,"_Proj_Table.xlsx")),sheets="CatchProj")
 
-}
+#}

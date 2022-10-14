@@ -34,7 +34,7 @@ for(s in 1:9){
   SPR.MSY <- data.table(SPR.MSY.50=SPR.MSY$Value,SPR.MSY.05=SPR.MSY$Value-SPR.MSY$StdDev*1.96,SPR.MSY.95=SPR.MSY$Value+SPR.MSY$StdDev*1.96)
   
   SPR2021 <- as.numeric(QT[str_detect(QT$Label,"SPRratio_2021")][,2:3])
-  SPR2021 <- data.table(SPR2021.50=SPR2021[1],SPR2021.05=SPR2021[1]-SPR2021[2]*1.96,SPR2021.95=SPR2021[1]+SPR2021[2]*1.96)
+  SPR2021 <- data.table(SPR2021.50=SPR2021[1],SPR2021.05=SPR2021[1]+SPR2021[2]*1.96,SPR2021.95=SPR2021[1]-SPR2021[2]*1.96)
   SPR2021 <- 1-SPR2021
   
   # Get the bootstrapped results
