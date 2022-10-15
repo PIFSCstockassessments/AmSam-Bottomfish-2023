@@ -16,10 +16,10 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (5)
-lapply(list(Lt[[1]]),function(x)     { # Run a single model
+lapply(list(Lt[[2]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "41_Var_2T_Mean_No"
+  DirName   <- "45_TestReorg"
   runmodels <- T   # Turn off if you want to process results only
   N_boot    <- 10   # Set to 0 to turn bootstrap off
   N_foreyrs <- 0   # Set to 0 to turn forecast off
@@ -29,8 +29,9 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
   DeleteForecastFiles <- T
   SavedCores <- 2
   
-  require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,parallel,purrr,googledrive,googlesheets4,gt,quarto,tidyverse,r4ss)
+  require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
+  model_dir <- file.path(x$root,"SS3 models",x$N,DirName)
   
   # Species options
   Build_All_SS(species       = x$N, EST_option = "Normal", scenario = "base",
@@ -49,15 +50,19 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
                file_dir = DirName, root_dir = x$root, template_dir = file.path(x$root, "SS3 models", "TEMPLATE_FILES"), out_dir = file.path(x$root, "SS3 models"))
   
   if(N_boot!=0 & N_foreyrs==0){
-    source(file.path(x$root, "Scripts", "02_SS scripts", "07_Run_Bootstraps.R"))
-    Run_Bootstraps(model_dir=file.path(x$root,"SS3 models",x$N,DirName), N_boot=N_boot, endyr=2021)
-  }
+    source(file.path(x$root, "Scripts","02_SS scripts","07_Run_Bootstraps.R"))
+    source(file.path(x$root, "Scripts","03_Report scripts","Create_Boot_Tables.R"))
+    source(file.path(x$root, "Scripts","03_Report scripts","Create_Boot_Figs.R"))
+    Run_Bootstraps(model_dir, N_boot=N_boot, endyr=2021)
+    Create_Boot_Tables(x$root,model_dir)
+    Create_Boot_Figs(x$root,model_dir)
+}
   
   if(N_foreyrs>0){  
     source(file.path(x$root, "Scripts", "02_SS scripts", "08_Run_Forecasts.R"))
-    Run_Forecasts(model_dir=file.path(x$root,"SS3 models",x$N,DirName), N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,
-                  SavedCores,DeleteForecastFiles)
-  }    
+    Run_Forecasts(model_dir, N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles)
+    Create_Forecast_Figs_Tables(x$root,model_dir)
+   }    
 })
 
 stopCluster (cl)
