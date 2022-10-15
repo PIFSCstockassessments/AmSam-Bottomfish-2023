@@ -69,8 +69,8 @@ Run_Bootstraps <- function(model_dir, N_boot, endyr){
     mvlns[[i]] <- ss3diags::SSdeltaMVLN(mods[[i]], mc = 3000, 
                               weight = 1, 
                               run = paste0("boot", i),
-                              variance_method = "2T", #"ww2019"
-                              bias_correct_mean = N,
+                              variance_method = "2T", 
+                              bias_correct_mean = T,
                               plot = F,
                               addprj = F)$kb
     , silent=F)
@@ -79,8 +79,5 @@ Run_Bootstraps <- function(model_dir, N_boot, endyr){
   mv <- data.table::rbindlist(mvlns)
   saveRDS(mv, file = file.path(boot_dir, "mvln_draws.rds"))
   
-  # Projections are handled elsewhere, this can be deleted
-  #mv_fore <- mv %>% filter(year > endyr) %>% mutate(SSB.SSBmsst = (SSB/stock)*0.9) %>% select(-c(type, iter, Recr))
-  #saveRDS(mv_fore, file = file.path(boot_dir, "mv_projections.rds"))
-  
+
 }

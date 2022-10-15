@@ -1,34 +1,18 @@
-require(pacman); pacman::p_load(data.table,grid,gtable,openxlsx,r4ss,this.path,tidyverse)
-root_dir <- this.path::here(..=2)
+Create_Boot_Figs <- function(root_dir,model_dir){
 
-Model <- "41_Var_2T_Mean_No" # Select the model to be summarize
-
-dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)
-
-# Catch data
-Raw.C  <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv"))
-
-Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
-#for(s in 1:9){
-
-Sp <- Species.List[s]
-
-# Create output directory
-Out_dir <- file.path(root_dir,"Outputs","Report_Inputs",Sp)
-dir.create(Out_dir,recursive=T,showWarnings=F)
-
-SS.results <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
+  boot_dir <- file.path(model_dir,"bootstrap")
+  
+SS.results <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
 PAR        <- data.table( SS.results$parameters )
 
 # Catch graph
-CA <- Raw.C[SPECIES==Sp]
-CA <- select(CA,-SPECIES)
+CA <- SS.results$catch %>% select(Yr,Obs,LOGSD.MT=se)
 
-ggplot(data=CA,aes(x=YEAR,y=MT))+geom_bar(stat="identity",fill="blue",col="black")+labs(x="Year",y="Total catch (mt)")+
+ggplot(data=CA,aes(x=Yr,y=Obs))+geom_bar(stat="identity",fill="blue",col="black")+labs(x="Year",y="Total catch (mt)")+
   geom_vline(aes(xintercept=1985.5),linetype="dashed",col="black",size=0.5)+
-  scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=c(0,0),limits=c(0,max(CA$MT)*1.1))+theme_bw()
+  scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=c(0,0),limits=c(0,max(CA$Obs)*1.1))+theme_bw()
 
-ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Catch.png")),width=15,height=7,units="cm")
+ggsave(last_plot(),file=file.path(boot_dir,"01_Catch.png"),width=15,height=7,units="cm")
 
 # Growth curve graph
 GR     <- data.table( SS.results$endgrowth )
@@ -51,7 +35,7 @@ ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(e
   geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+theme_bw()+
   labs(x="Age (year)",y="Length FL (cm)")
   
-  ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Growth.png")),width=15,height=7,units="cm")
+  ggsave(last_plot(),file=file.path(boot_dir,"02_Growth.png"),width=15,height=7,units="cm")
   
 } else{
   ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(expand=c(0,0))+
@@ -63,24 +47,20 @@ ggplot()+scale_y_continuous(expand=c(0,0),limits=c(0,ymax))+scale_x_continuous(e
     geom_line(data=GR[Platoon==3],aes(x=Age_Beg,y=Len_Beg),col="black",linetype="dashed")+theme_bw()+
     labs(x="Age (year)",y="Length FL (cm)")+facet_wrap(~Sex,labeller=labeller(Sex=c("1"="Female","2"="Male")))
 
-  ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Growth.png")),width=18,height=7,units="cm")
+  ggsave(last_plot(),file=file.path(boot_dir,"02_Growth.png"),width=18,height=7,units="cm")
 }
-
 
 
 # Mean length graph
 
-LC <- data.table( SS.results$len_comp_fit_table )
-setnames(LC,c("All_exp_5%","All_exp_95%"),c("All_exp_05","All_exp_95"))
-
-ggplot(data=LC)+geom_line(aes(x=Yr,y=All_exp_mean))+geom_point(aes(x=Yr,y=All_obs_mean))+geom_errorbar(aes(x=Yr,ymin=All_exp_05,ymax=All_exp_95))
-
-
+#LC <- data.table( SS.results$len_comp_fit_table )
+#setnames(LC,c("All_exp_5%","All_exp_95%"),c("All_exp_05","All_exp_95"))
+#ggplot(data=LC)+geom_line(aes(x=Yr,y=All_exp_mean))+geom_point(aes(x=Yr,y=All_obs_mean))+geom_errorbar(aes(x=Yr,ymin=All_exp_05,ymax=All_exp_95))
 
 # Derived quantities graphs
 
 # Get the bootstrapped results
-BS <- readRDS(file.path(root_dir,"SS3 models",Sp, Model,"bootstrap","mvln_draws.rds"))
+BS <- readRDS(file.path(boot_dir,"mvln_draws.rds"))
 setnames(BS,c("year","stock","harvest","F","Recr"),c("YEAR","B_BMSY","F_FMSY","FMORT","REC"))
 colnames(BS) <- toupper(colnames(BS))
 BS <- BS[TYPE=="fit"]
@@ -124,7 +104,7 @@ g$widths <- unit.pmax(P1$widths, P2$widths)
 grid.newpage()
 grid.draw(g)
 
-ggsave(g,file=file.path(Out_dir,paste0(Sp,"_Quants.png")),width=14,height=10,units="cm")
+ggsave(g,file=file.path(boot_dir,"03_Quants.png"),width=14,height=10,units="cm")
 
 
 # Stock-recruitment relationship
@@ -151,7 +131,7 @@ SR_plot <- ggplot(data=DAT)+scale_x_continuous(limits=c(0,SSB_VIRG*1.1),expand=c
   geom_point(aes(x=SSB,y=REC,col=Year),size=2)+geom_point(aes(x=SSB_VIRG,y=REC_VIRG),size=4,col="red",shape=18)+
   scale_color_gradientn(colors=rainbow(4))+theme_bw()+xlab("Spawning biomass (SSB; mt)")+ylab("Recruitment (1000 recruits)")
 
-ggsave(last_plot(),filename=file.path(Out_dir,paste0(Sp,"_SR.png")),width=14,height=7,units="cm",dpi=300)
+ggsave(last_plot(),filename=file.path(boot_dir,"04_SR.png"),width=14,height=7,units="cm",dpi=300)
 
 # Kobe plot
 SS         <- data.table( SS.results$derived_quants )
@@ -192,7 +172,7 @@ K <- K + geom_line(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50),size=0.1)+scale_fill_gr
          geom_point(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50,fill=YEAR),shape = 21,colour="black")
 K <- K + geom_point(data=TS[YEAR==max(YEAR)],aes(x=B_BMSST.50,y=F_FMSY.50),shape=21,fill="red",col="black",size=3)
 
-ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Kobe.png")),width=14,height=10,units="cm")
+ggsave(last_plot(),file=file.path(boot_dir,"05_Kobe.png"),width=14,height=10,units="cm")
 
-#}
+}
 

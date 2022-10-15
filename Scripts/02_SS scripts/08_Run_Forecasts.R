@@ -139,8 +139,8 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
                                         weight = 1, 
                                         run =model.info$model.names[i], 
                                         plot = F,
-                                        variance_method = "ww2019", #"ww2019"
-                                        bias_correct_mean = F,
+                                        variance_method = "2T", #"ww2019"
+                                        bias_correct_mean = T,
                                         addprj = T)$kb
       , silent=TRUE)
   }

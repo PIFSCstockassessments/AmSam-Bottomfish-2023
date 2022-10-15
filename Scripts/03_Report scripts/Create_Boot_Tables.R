@@ -1,28 +1,16 @@
-require(pacman); pacman::p_load(data.table,openxlsx,r4ss,this.path,tidyverse)
-root_dir <- this.path::here(..=2)
+#require(pacman); pacman::p_load(data.table,openxlsx,r4ss,this.path,tidyverse)
+#root_dir <- this.path::here(..=2)
 
+Create_Boot_Tables <- function(root_dir,model_dir){
 
-Model <- "41_Var_2T_Mean_No" # Select the model to be summarize
+  boot_dir <- file.path(model_dir,"bootstrap")
 
-Raw.C  <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv"))
-dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)
-
-Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
-for(s in 1:9){
-  
-  Sp <- Species.List[s]
-
-  
-  # Create output directory
-  Out_dir <- file.path(root_dir,"Outputs","Report_Inputs",Sp)
-  dir.create(Out_dir,recursive=T,showWarnings=F)
-  
-  
-  # Catch data to calculate catch 2019-2022
-  C <- Raw.C[SPECIES==Sp]  
-  
   # Get the base non-bootstrapped results for total biomass (and other results?)
-  SS.results    <- r4ss::SS_output(file.path(root_dir,"SS3 models",Sp, Model),verbose = FALSE, printstats = FALSE)
+  SS.results    <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
+
+  # Catch data to calculate catch 2019-2022
+  C <- SS.results$catch %>% select(Yr,Obs,LOGSD.MT=se)
+  
   TBIO          <- data.table(YEAR=SS.results$timeseries$Yr,ERA=SS.results$timeseries$Era,TOT_BIO=SS.results$timeseries$Bio_all)
   TBIO          <- select(TBIO[ERA=="TIME"],-ERA,)
   
@@ -38,7 +26,7 @@ for(s in 1:9){
   SPR2021 <- 1-SPR2021
   
   # Get the bootstrapped results
-  SS <- readRDS(file.path(root_dir,"SS3 models",Sp, Model,"bootstrap","mvln_draws.rds"))
+  SS <- readRDS(file.path(boot_dir,"mvln_draws.rds"))
   setnames(SS,c("year","stock","harvest","F","Recr"),c("YEAR","B_BMSY","F_FMSY","FMORT","REC"))
   colnames(SS) <- toupper(colnames(SS))
   SS <- SS[TYPE=="fit"]
@@ -81,10 +69,9 @@ RP[4,2:4] <- SS %>% summarize(BMSST.50=median(BMSST),BMSST.05=quantile(BMSST,0.0
 RP[5,2:4] <- TS %>% filter(YEAR==2021) %>% select(SSB.50,SSB.05,SSB.95)
 RP[6,2:4] <- data.frame( RP[5]$MEDIAN/RP[4]$MEDIAN,RP[5]$L95/RP[4]$L95,RP[5]$U95/RP[4]$U95 )
 RP[7,2:4] <- MSY
-RP[8,2]   <- SS %>% filter(YEAR>=2019) %>% summarize(CATCH=mean(CATCH))
-RP[8,2]   <- sum(C[YEAR>=2019&YEAR<=2021]$MT)/3
-RP[8,3]   <- RP[8]$MEDIAN-sum(RP[8]$MEDIAN*C[YEAR>=2019&YEAR<=2021]$LOGSD.MT)/3*1.96
-RP[8,4]   <- RP[8]$MEDIAN+sum(RP[8]$MEDIAN*C[YEAR>=2019&YEAR<=2021]$LOGSD.MT)/3*1.96
+RP[8,2]   <- C %>% filter(Yr>=2019&Yr<=2021) %>% summarize(Catch=sum(Obs)/3) 
+RP[8,3]   <- C %>% filter(Yr>=2019&Yr<=2021) %>% summarize(L95=RP[8]$MEDIAN-sum(RP[8]$MEDIAN*LOGSD.MT)/3*1.96)
+RP[8,4]   <- C %>% filter(Yr>=2019&Yr<=2021) %>% summarize(L95=RP[8]$MEDIAN+sum(RP[8]$MEDIAN*LOGSD.MT)/3*1.96)
 RP[9,2:4] <- SPR.MSY
 RP[10,2:4]<- SPR2021
   
@@ -104,7 +91,7 @@ SE <- data.table()
 Table.List <- list(TA.Final,RP,SE)
 
 # Add tables to excel worksheet
-File.Name <- file.path(Out_dir,paste0(Sp,"_tables.xlsx"))
+File.Name <- file.path(boot_dir,"01_tables.xlsx")
 wb        <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook(File.Name)})
 Sheets    <- c("01_Quants","02_RefPoints","03_Sensitivies")
 
@@ -118,73 +105,5 @@ for(i in 1:3){
 saveWorkbook(wb,File.Name,overwrite = T)
 
 }
-
-
-# Tables for all species to be inserted in the general section of the report
-
-C.List  <- list()
-CP.List <- list() 
-for(s in 1:9){
-
-Sp <- Species.List[s]
-  
-C <- Raw.C[SPECIES==Sp]  
-C <- select(C,-SPECIES)
-  
-# Catch table
-
-C$MT       <- round(C$MT,3)
-C$LOGSD.MT <- round(C$LOGSD.MT,2)
-
-Ca <- C[YEAR<=1980]
-Cb <- C[YEAR>1980&YEAR<=1994]
-Cc <- C[YEAR>1994&YEAR<=2008]
-Cd <- C[YEAR>2008]
-
-C.all <- cbind(Ca,Cb,Cc,Cd) 
-C.all[14,10:12] <- NA
-C.all$SP <- Sp
-C.all <- C.all[,c(13,1:12)]
-
-C.List[[Sp]] <- C.all
-
-# CPUE table
-CP <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CPUE", paste0("CPUE_",Sp,"_Tutuila.csv")))
-
-CP$SPECIES <- Sp
-CP$CPUE_TOT       <- round(CP$CPUE_TOT,3)
-CP$LOGSD.CPUE_TOT <- round(CP$LOGSD.CPUE_TOT,2)
-
-CP <- CP[,c(4,1:3)]
-
-CP.List[[Sp]] <- CP
-
-}
-
-C.Final  <- rbindlist(C.List)
-CP.Final <- rbindlist(CP.List)
-
-colnames(C.Final) <- c("Sp","Yr","MT","CV","Yr","MT","CV","Yr","MT","CV","Yr","MT","CV")
-
-# Add tables to excel worksheet
-File.Name <- file.path(root_dir,"Outputs","Report_Inputs","Catch_CPUE_tables.xlsx")
-wb        <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook(File.Name)})
-Sheets    <- c("Catch","CPUE")
-
-for(i in 1:2){
-  if(Sheets[i] %in% sheets(wb)) removeWorksheet(wb,Sheets[i]) # Remove sheets if there already
-  addWorksheet(wb, sheetName = Sheets[i])
-}
-
-  writeData(wb, sheet = Sheets[1], C.Final,colNames=T)
-  setColWidths(wb,widths="auto",sheet=Sheets[i],cols=1:15)
-
-  writeData(wb, sheet = Sheets[2], CP.Final,colNames=T)
-  setColWidths(wb,widths="auto",sheet=Sheets[i],cols=1:15)
-
-saveWorkbook(wb,File.Name,overwrite = T)
-
-
-
 
 

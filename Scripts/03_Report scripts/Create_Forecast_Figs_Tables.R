@@ -1,21 +1,10 @@
-require(pacman); pacman::p_load(data.table,grid,gtable,ggpubr,openxlsx,r4ss,this.path,tidyverse)
-root_dir <- this.path::here(..=2)
+Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 
-Model <- "41_TestNewMVLN" # Select the model to be summarize
+#require(pacman); pacman::p_load(data.table,grid,gtable,ggpubr,openxlsx,r4ss,this.path,tidyverse)
+#root_dir <- this.path::here(..=2)
 
-Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
-
-#for(s in 1:9){
+  fore_dir <- file.path(model_dir,"forecast")
   
-  Sp <- "APRU"
-  #Sp <- Species.List[s]
-
-  # Create output directory
-  Out_dir <- file.path(root_dir,"Outputs","Report_Inputs",Sp)
-  dir.create(Out_dir,recursive=T,showWarnings=F)
-  
-  fore_dir  <- file.path(root_dir,"SS3 models",Sp,Model,"forecast")
- 
   if(!file.exists(file.path(fore_dir,"mv_projections.rds"))){ print(paste0("No projections file found for ",Sp)); next }
   
   mv_fore   <- readRDS(file=file.path(fore_dir,"mv_projections.rds"))
@@ -39,7 +28,7 @@ P2 <- ggplot(data=Z,aes(x=Catch,y=SSB_SSBmsst,linetype=as.character(year)))+geom
 
 aLegend <- get_legend(P2)
 ggarrange(P1,P2,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
-ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Proj_MedianStatus.png")),height=8, width=16,units="cm")
+ggsave(last_plot(),file=file.path(fore_dir,"01_Proj_MedianStatus.png"),height=8, width=16,units="cm")
 
 
 # Calculate number of iterations by Catch and Year...
@@ -65,7 +54,7 @@ P4 <- ggplot(data=E,aes(x=Catch,y=ProbOverfished,linetype=as.character(year)))+g
 
 aLegend <- get_legend(P4)
 ggarrange(P3,P4,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
-ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Proj_ProbStatus.png")),height=8, width=16,units="cm")
+ggsave(last_plot(),file=file.path(fore_dir,"02_Proj_ProbStatus.png"),height=8, width=16,units="cm")
 
 # Catch risk table 
 G <- C %>% filter(ProbOverfishing>=0.1&ProbOverfishing<=0.6) %>% select(-N_tot,-N_overfishing)
@@ -82,7 +71,7 @@ Preds   <- cbind(Preds.x,Preds)
 G$year <- as.character(G$year)
 ggplot()+geom_line(data=Preds,aes(x=Preds,y=ProbOverfishing,col=as.character(year)))+geom_point(data=G,aes(x=Catch,y=ProbOverfishing,col=as.character(year)),shape=2,size=2)+
   theme_bw()+labs(x="Catch",y="Prob. overfishing")
-ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Proj_CheckModelFit.png")),height=8, width=15,units="cm")
+ggsave(last_plot(),file=file.path(fore_dir,"03_Proj_CheckModelFit.png"),height=8, width=15,units="cm")
 
 # Create Prob. overfishing bins
 G$ProbOverfishing     <- round(G$ProbOverfishing,2)
@@ -97,6 +86,6 @@ H <- H %>% mutate(Catch=Preds) %>% select(-Preds) %>%  filter(Year>=2024) %>%
   mutate(Catch=format(Catch,nsmall=2),ProbOverfishing=format(ProbOverfishing,nsmall=2)) %>% 
   spread(Year,Catch) %>% arrange(desc(ProbOverfishing))
 
-write.xlsx(H,file=file.path(Out_dir,paste0(Sp,"_Proj_Table.xlsx")),sheets="CatchProj")
+write.xlsx(H,file=file.path(fore_dir,"04_Proj_Table.xlsx"),sheets="CatchProj")
 
-#}
+}
