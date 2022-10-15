@@ -2,7 +2,7 @@ require(pacman); pacman::p_load(data.table,openxlsx,r4ss,this.path,tidyverse)
 root_dir <- this.path::here(..=2)
 
 
-Model <- "40_Base" # Select the model to be summarize
+Model <- "41_Var_2T_Mean_No" # Select the model to be summarize
 
 Raw.C  <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv"))
 dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)

@@ -1,13 +1,13 @@
 require(pacman); pacman::p_load(data.table,grid,gtable,ggpubr,openxlsx,r4ss,this.path,tidyverse)
 root_dir <- this.path::here(..=2)
 
-Model <- "40_Base" # Select the model to be summarize
+Model <- "41_TestNewMVLN" # Select the model to be summarize
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 
 #for(s in 1:9){
   
-  Sp <- "CALU"
+  Sp <- "APRU"
   #Sp <- Species.List[s]
 
   # Create output directory
@@ -20,10 +20,12 @@ Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO"
   
   mv_fore   <- readRDS(file=file.path(fore_dir,"mv_projections.rds"))
  
-setnames(mv_fore,"harvest","F_Fmsy") 
+  setnames(mv_fore,"harvest","F_Fmsy") 
 
 # Start projection analyses at first year of new catch advice (ex. 2021=last year in model,2024=first year model will be used to generate catch advice) 
-mv_fore <- mv_fore %>% filter(year>min(year)+1)
+# and this steps filters iterations where SS had to reduce the Fixed Catch to prevent Catch > Population. These are not valid iterations.
+  
+  mv_fore <- mv_fore %>% filter(year>min(year)+1) %>% filter(Catch==FixedCatch)
 
 
 Z  <- mv_fore[Catch==FixedCatch,list(F_Fmsy=median(F_Fmsy),SSB_SSBmsst=median(SSB_SSBmsst)),by=list(year,Catch=FixedCatch)]
@@ -41,7 +43,7 @@ ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Proj_MedianStatus.png")),h
 
 
 # Calculate number of iterations by Catch and Year...
-A <- mv_fore[,list(N_tot=.N),by=list(year,Catch)]
+A <- mv_fore %>% group_by(year,Catch) %>% summarize(N_tot=n())
 
 # ...That is under overfishing
 B <- mv_fore[F_Fmsy>1,list(N_overfishing=.N),by=list(year,Catch)]
@@ -52,8 +54,8 @@ C$ProbOverfishing <- C$N_overfishing/C$N_tot
 # ...That is overfished
 D <- mv_fore[SSB_SSBmsst<1,list(N_overfished=.N),by=list(year,Catch)]
 E <- merge(A,D,by=c("year","Catch"),all.x=T)
-E[is.na(E$N_overfished)]$N_overfished <- 0
-E$ProbOverfished <- E$N_overfished/E$N_tot
+E <- E %>% mutate(N_overfished=replace(N_overfished,is.na(N_overfished),0)) %>% 
+  mutate(ProbOverfished=N_overfished/N_tot)
 
 P3 <- ggplot(data=C,aes(x=Catch,y=ProbOverfishing,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. F > Fmsy")+
   theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5,span=0.3)
@@ -66,7 +68,8 @@ ggarrange(P3,P4,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
 ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Proj_ProbStatus.png")),height=8, width=16,units="cm")
 
 # Catch risk table 
-G       <- select(C[ProbOverfishing>=0.1&ProbOverfishing<=0.6],-N_tot,-N_overfishing)
+G <- C %>% filter(ProbOverfishing>=0.1&ProbOverfishing<=0.6) %>% select(-N_tot,-N_overfishing)
+
 Preds.x <- expand.grid(ProbOverfishing=seq(0.1,0.5,by=0.01),year=as.factor(seq(min(G$year),max(G$year))))
 G$year  <- factor(G$year)
 #model   <- gam(data=G,Catch~year+s(ProbOverfishing,by=year),method="REML")

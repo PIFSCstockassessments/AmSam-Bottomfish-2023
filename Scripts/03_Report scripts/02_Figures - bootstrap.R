@@ -1,7 +1,7 @@
 require(pacman); pacman::p_load(data.table,grid,gtable,openxlsx,r4ss,this.path,tidyverse)
 root_dir <- this.path::here(..=2)
 
-Model <- "40_Base" # Select the model to be summarize
+Model <- "41_Var_2T_Mean_No" # Select the model to be summarize
 
 dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarnings=F)
 
@@ -9,7 +9,7 @@ dir.create(file.path(root_dir,"Outputs","Report_Inputs"),recursive=T,showWarning
 Raw.C  <- fread(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv"))
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
-for(s in 1:9){
+#for(s in 1:9){
 
 Sp <- Species.List[s]
 
@@ -194,5 +194,5 @@ K <- K + geom_point(data=TS[YEAR==max(YEAR)],aes(x=B_BMSST.50,y=F_FMSY.50),shape
 
 ggsave(last_plot(),file=file.path(Out_dir,paste0(Sp,"_Kobe.png")),width=14,height=10,units="cm")
 
-}
+#}
 

@@ -3,7 +3,7 @@
 #' @param N_foreyrs number of forecast years
 #' @param FixedCatchSeq Sequence of catch containing start, end, and steps of the Fixed Catch values to forecast (ex. start=0, end=1.7 mt, by=0.1)
 
-Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2){
+Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T){
   
   require(data.table);  require(tidyverse)
   
@@ -135,10 +135,12 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
     model.info$FixedCatch[i] <- aTS[Era=="FORE"]$`dead(B):_1`[3] # Skip the first 2 years since they are not using the "fixed" catch (i.e. years between model end and start management)
     
     try(
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
+    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 3000, 
                                         weight = 1, 
                                         run =model.info$model.names[i], 
                                         plot = F,
+                                        variance_method = "ww2019", #"ww2019"
+                                        bias_correct_mean = F,
                                         addprj = T)$kb
       , silent=TRUE)
   }
@@ -153,6 +155,7 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   mv_fore             <- select(mv_fore,-c(type,iter,Recr))
   
   # Delete all files and save final result
+  if(DeleteForecastFiles==T)
    unlink(file.path(fore_dir,"*"),recursive=TRUE)
   
   saveRDS(mv_fore, file = file.path(fore_dir, "mv_projections.rds"))

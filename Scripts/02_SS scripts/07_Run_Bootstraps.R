@@ -66,9 +66,11 @@ Run_Bootstraps <- function(model_dir, N_boot, endyr){
   
   for(i in 1:length(mods)){
     try(
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(mods[[i]], mc = 1000, 
+    mvlns[[i]] <- ss3diags::SSdeltaMVLN(mods[[i]], mc = 3000, 
                               weight = 1, 
-                              run = paste0("boot", i), 
+                              run = paste0("boot", i),
+                              variance_method = "2T", #"ww2019"
+                              bias_correct_mean = N,
                               plot = F,
                               addprj = F)$kb
     , silent=F)
