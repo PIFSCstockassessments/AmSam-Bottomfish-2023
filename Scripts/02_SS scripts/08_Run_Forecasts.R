@@ -135,11 +135,11 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
     model.info$FixedCatch[i] <- aTS[Era=="FORE"]$`dead(B):_1`[3] # Skip the first 2 years since they are not using the "fixed" catch (i.e. years between model end and start management)
     
     try(
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 3000, 
+    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1500, 
                                         weight = 1, 
                                         run =model.info$model.names[i], 
                                         plot = F,
-                                        variance_method = "2T", #"ww2019"
+                                        variance_method = "ww2019", #"ww2019"
                                         bias_correct_mean = T,
                                         addprj = T)$kb
       , silent=TRUE)
@@ -152,7 +152,8 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   mv_fore$SSBmsst     <- mv_fore$SSB/mv_fore$stock*0.9 
   mv_fore$SSB_SSBmsst <- mv_fore$SSB/mv_fore$SSBmsst
   mv_fore             <- merge(mv_fore,model.info,by.x="run",by.y="model.names")
-  mv_fore             <- select(mv_fore,-c(type,iter,Recr))
+  setnames(mv_fore,"harvest","F_Fmsy") 
+  mv_fore             <- select(mv_fore,-c(stock,type,iter,Recr))
   
   # Delete all files and save final result
   if(DeleteForecastFiles==T)

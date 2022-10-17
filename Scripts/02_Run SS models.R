@@ -5,8 +5,8 @@ Lt     <-vector("list",9) # Species options
 Lt[[1]]<-list("APRU", "SW_Then",         "SW_BBS",          "Kamikawa",    "SW_BBS",   F, c(0.4,1.4), 0.29,    T, list(c(2019,2020)),                           c(1,4,0.2)) 
 Lt[[2]]<-list("APVI", "OMalley_Then",    "OMalley2",        "Biosampling", "Everson",  F, c(0.6,1.6), 0.29,    T, list(c(2004,2006),c(2010,2012)),              c(1.4,3,0.1)) 
 Lt[[3]]<-list("CALU", "Fry_Then",        "SW_DIV",          "Kamikawa",    "SW_DIV",   F, c(1.3,2.1), 0.29,    T, list(c(2009,2011),c(2016,2017),c(2018,2020)), c(1,4,0.2)) 
-Lt[[4]]<-list("ETCO", "Andrews_Then",    "Andrews_Sex",     "Kamikawa",    "Reed",     F, c(0.5,1.3), 0.29,    T, list(c(2018,2020)),                           c(1,4,0.2)) 
-Lt[[5]]<-list("LERU", "Loubens_Then",    "Loubens",         "Kamikawa",    "Loubens",  T, c(3.2,4.2), 0.29,    F, NA,                                           c(1,4,0.2)) 
+Lt[[4]]<-list("ETCO", "Andrews_Then",    "Andrews_Sex",     "Kamikawa",    "Reed",     F, c(0.5,1.3), 0.29,    T, list(c(2018,2020)),                           c(1,2.5,0.1)) 
+Lt[[5]]<-list("LERU", "Loubens_Then",    "Loubens",         "Kamikawa",    "Loubens",  T, c(2.6,3.6), 0.29,    F, NA,                                           c(2,4.5,0.2)) 
 Lt[[6]]<-list("LUKA", "Morales_Then",    "Loubens2",        "Kamikawa",    "SW_BBS",   T, c(5.4,7.0), 0.23,    F, list(c(2012,2013)),                           c(1,4,0.2)) 
 Lt[[7]]<-list("PRFL", "OMalley_Then",    "OMalley",         "Kamikawa",    "Brouard",  F, c(0.5,1.5), 0.29,    T, list(c(2004,2005),c(2011,2012),c(2018,2020)), c(1,4,0.2)) 
 Lt[[8]]<-list("PRZO", "Schemmel_Then",   "Schemmel_Sex",    "Kamikawa",    "Schemmel", F, c(0.5,1.3), 0.29,    T, list(c(2009,2011),c(2012,2014),c(2015,2016),c(2018,2020)),c(1,4,0.2)) 
@@ -16,13 +16,13 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (5)
-lapply(list(Lt[[2]]),function(x)     { # Run a single model
+lapply(list(Lt[[5]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "45_TestReorg"
-  runmodels <- T   # Turn off if you want to process results only
+  DirName   <- "50_Base"
+  runmodels <- F   # Turn off if you want to process results only
   N_boot    <- 10   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 0   # Set to 0 to turn forecast off
+  N_foreyrs <- 7   # Set to 0 to turn forecast off
   RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
   Begin     <- c(1967,1986)[1]
@@ -60,8 +60,9 @@ lapply(list(Lt[[2]]),function(x)     { # Run a single model
   
   if(N_foreyrs>0){  
     source(file.path(x$root, "Scripts", "02_SS scripts", "08_Run_Forecasts.R"))
+    source(file.path(root_dir,"Scripts","03_Report scripts","Create_Forecast_Figs_Tables.R"))
     Run_Forecasts(model_dir, N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles)
-    Create_Forecast_Figs_Tables(x$root,model_dir)
+    Create_Forecast_Figs_Tables(root_dir,model_dir)
    }    
 })
 
