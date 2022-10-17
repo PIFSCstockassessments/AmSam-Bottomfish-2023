@@ -2,13 +2,19 @@ Create_General_Tables <- function(root_dir){
   
   # Tables for all species to be inserted in the general section of the report
   
+  require(data.table); require(openxlsx); require(this.path); require(tidyverse)
+  
+  
+  
   Out_dir <- file.path(root_dir,"Outputs","Summary")
   
   dir.create(Out_dir,recursive=T,showWarnings=F)
   
+  Raw.C <- data.table( read.csv(file.path(root_dir,"Outputs","SS3_Inputs","CATCH_Final.csv")) )
   
   C.List  <- list()
-  CP.List <- list() 
+  CP.List <- list()
+  Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
   for(s in 1:9){
     
     Sp <- Species.List[s]
@@ -52,7 +58,7 @@ Create_General_Tables <- function(root_dir){
   colnames(C.Final) <- c("Sp","Yr","MT","CV","Yr","MT","CV","Yr","MT","CV","Yr","MT","CV")
   
   # Add tables to excel worksheet
-  File.Name <- file.path(root_dir,"Outputs","Summary","Catch_CPUE_Report_tables.xlsx")
+  File.Name <- file.path(root_dir,"Outputs","Summary","CATCH_CPUE_Report_tables.xlsx")
   wb        <- tryCatch({loadWorkbook(File.Name)}, error=function(e){createWorkbook(File.Name)})
   Sheets    <- c("Catch","CPUE")
   
