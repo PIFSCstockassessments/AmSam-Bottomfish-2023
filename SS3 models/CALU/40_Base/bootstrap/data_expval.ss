@@ -4,7 +4,7 @@
 #_User_support_available_at:NMFS.Stock.Synthesis@noaa.gov
 #_User_info_available_at:https://vlab.noaa.gov/group/stock-synthesis
 #_Source_code_at:_https://github.com/nmfs-stock-synthesis/stock-synthesis
-#_Start_time: Fri Oct 07 10:55:54 2022
+#_Start_time: Tue Oct 11 12:44:28 2022
 #_expected_values
 #C data file for CALU
 #V3.30.19.01;_fast(opt);_compile_date:_Apr 15 2022;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.3
@@ -169,7 +169,7 @@
 #_minsamplesize: minimum sample size; set to 1 to match 3.24, minimum value is 0.001
 #
 #_mintailcomp addtocomp combM+F CompressBins CompError ParmSelect minsamplesize
-# 0 0 0 1149239296 0 0 0 #_fleet:1_FISHERY
+# 0 0 590381056 -750223360 0 0 0 #_fleet:1_FISHERY
 # 0 #_Lbin_method_for_Age_Data: 1=poplenbins; 2=datalenbins; 3=lengths
 # sex codes:  0=combined; 1=use female only; 2=use male only; 3=use both as joint sexxlength distribution
 # partition codes:  (0=combined; 1=discard; 2=retained

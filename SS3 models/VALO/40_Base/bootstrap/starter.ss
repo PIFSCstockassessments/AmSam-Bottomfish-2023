@@ -1,7 +1,7 @@
 #C starter file written by R function SS_writestarter
 #C rerun model to get more complete formatting in starter.ss_new
 #C should work with SS version: 3.30
-#C file write time: 2022-10-07 17:10:28
+#C file write time: 2022-10-11 12:37:22
 #
 data_boot_010.ss #_datfile
 control.ss #_ctlfile
@@ -13,7 +13,7 @@ control.ss #_ctlfile
 0 #_cumreport
 1 #_prior_like
 1 #_soft_bounds
-1 #_N_bootstraps
+12 #_N_bootstraps
 10 #_last_estimation_phase
 0 #_MCMCburn
 1 #_MCMCthin
