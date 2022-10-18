@@ -53,6 +53,8 @@ Create_Boot_Tables <- function(root_dir,model_dir){
   TA  <- TA %>% mutate(TOT_BIO=format(TOT_BIO,nsmall=2),SSB.50=format(SSB.50,nsmall=1),SSB.CV=format(SSB.CV,nsmall=2),REC.50=format(REC.50,nsmall=2),
                        REC.CV=format(REC.CV,nsmall=2),FMORT.50=format(FMORT.50,nsmall=3),FMORT.CV=format(FMORT.CV,nsmall=2))
   
+  TA <- TA %>% select(-TOT_BIO)
+  
   TA1 <- TA %>% filter(YEAR>=1969&YEAR<=1995)
   TA2 <- TA %>% filter(YEAR>1995) %>% rbind(NA)
   TA.Final <- cbind(TA1,TA2)

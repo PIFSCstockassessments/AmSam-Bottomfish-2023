@@ -80,14 +80,15 @@ SSB_MSST <- BS %>% summarize(BMSST.50=median(BMSST)) %>% as.numeric()
 
 # Other quantities taken straight from report.sso
 SS         <- data.table( SS.results$timeseries )
+SSB0       <- SS %>% filter(Era=="VIRG") %>% select(SpawnBio) %>% as.numeric()
 SS         <- SS %>% select(Yr,Era,Bio_all)
 B0         <- SS %>% filter(Era=="VIRG") %>% select(Bio_all) %>% as.numeric()
 TBIO       <- SS %>% filter(Era=="TIME") %>% select(Yr,Bio_all) %>% rename("TBIO"="Bio_all")
 
 TS <- TS %>% merge(TBIO,by.x="YEAR",by.y="Yr")
 
-P1 <- ggplot(data=TS)+geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")+geom_point(aes(x=1967,y=B0),col="red",size=1.5)+
-  geom_ribbon(aes(x=YEAR,ymin=SSB.05,ymax=SSB.95),alpha=0.1)+scale_y_continuous(limits=c(0,B0*1.1),expand=c(0,0))+
+P1 <- ggplot(data=TS)+geom_point(aes(x=1967,y=SSB0),col="red",size=1.5)+#geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")
+  geom_ribbon(aes(x=YEAR,ymin=SSB.05,ymax=SSB.95),alpha=0.1)+scale_y_continuous(limits=c(0,max(TS$SSB.95)*1.1),expand=c(0,0))+
   scale_x_continuous(breaks=seq(1960,2030,10))+
   geom_line(aes(x=YEAR,y=SSB.50),linetype="solid")+geom_hline(aes(yintercept=SSB_MSST),linetype="dotdash",col="blue")+
   theme_bw()+theme(axis.text.x=element_blank(),axis.title.x=element_blank())+ylab("Biomass (mt)")
@@ -160,7 +161,7 @@ poly_x <- c(x_min,x_min,MSST_x,MSST_x)
 
 # Subsample of last year position
 Last.Year <- BS[YEAR==max(YEAR)] 
-Last.Year <- Last.Year[sample(1:nrow(Last.Year),2000)]
+Last.Year <- Last.Year[sample(1:nrow(Last.Year),1000)]
 
 # Plot
 K <- ggplot()+geom_polygon(aes(x=tri_x,y=tri_y),fill="khaki1",col="black")+geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_min,y_min)),fill="palegreen",col="black")+
