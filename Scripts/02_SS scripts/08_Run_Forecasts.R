@@ -36,19 +36,19 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   dat <- SS_readdat_3.30(file = file.path(fore_dir, "data.ss"))
   
   #create the forecast data file numbers (pad with leading 0s)
-  bootn <- stringr::str_pad(seq(1, N_boot, by = 1), 3, pad = "0")
-  foren <- stringr::str_pad(seq(1, N_ForeCatch, by = 1), 3, pad = "0")
+  #bootn <- stringr::str_pad(seq(1, N_boot, by = 1), 2, pad = "0")
+  #foren <- stringr::str_pad(seq(1, N_ForeCatch, by = 1), 2, pad = "0")
   
   # loop over bootstrap files
   for (iboot in 1:N_boot) {
     
     # replace only original catch data with bootstrapped catch
-    dat_boot  <- SS_readdat_3.30(file = file.path(fore_dir, paste0("data_boot_", bootn[iboot], ".ss")))
+    dat_boot  <- SS_readdat_3.30(file = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")))
     dat$catch <- dat_boot$catch
-    SS_writedat_3.30(dat, outfile = file.path(fore_dir, paste0("data_boot_", bootn[iboot], ".ss")), overwrite = T)
+    SS_writedat_3.30(dat, outfile = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")), overwrite = T)
     
     # change data file name in starter file and overwrite the original starter file
-    starter[["datfile"]] <- paste("data_boot_", bootn[iboot], ".ss", sep = "")
+    starter[["datfile"]] <- paste("data_boot_", str_pad(iboot,3,pad="0"), ".ss", sep = "")
     starter[["N_bootstraps"]] <- 1
     SS_writestarter(starter, dir = fore_dir, overwrite = TRUE)
     
@@ -74,17 +74,17 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
          cat("\n##### Running forecast number", icatch, " #########\n","of ","bootstrap model number", iboot, " #########\n")
         
         # Create a temp directory to run a model from
-        temp_dir <- file.path(fore_dir,paste0("B",iboot,"C",icatch))
+        temp_dir <- file.path(fore_dir,paste0("B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0")))
         if(!exists(temp_dir)){ dir.create(temp_dir) }
        
         # Copy necessary model files from fore_dir to temp_dir
         file.copy(list.files(fore_dir, pattern = "control|starter|forecast|.exe", full.names = T),to = temp_dir)
         
         # Copy the relevant bootstrapped data files to the temp_dir
-        file.copy(list.files(fore_dir,pattern=paste0("data_boot_",bootn[iboot],".ss"),full.names=T),to=temp_dir)
+        file.copy(list.files(fore_dir,pattern=paste0("data_boot_",str_pad(iboot,3,pad="0"),".ss"),full.names=T),to=temp_dir)
         
         # Obtain bootstrapped catch between 2019-2021 to use for projected catches in 2022 and 2023 (new ACLs starts in 2024)
-        aDat           <- SS_readdat_3.30(file = file.path(temp_dir, paste0("data_boot_", bootn[iboot], ".ss")))
+        aDat           <- SS_readdat_3.30(file = file.path(temp_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")))
         aCatch         <- aDat$catch
         aCatch_Last3yr <- aCatch %>% filter(year>=max(year)-2) %>% summarize(Catch=mean(catch)) %>% as.numeric()
         
@@ -110,9 +110,9 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
         r4ss::run(dir = temp_dir, exe = "ss_opt_win.exe", skipfinished = F)
     
         # copy output files (might be good to use "file.exists" command first to check if they exist
-        file.copy(file.path(temp_dir, "Report.sso"), paste0(fore_dir, "/Report_B",iboot,"C",icatch,".sso"))
-        file.copy(file.path(temp_dir, "CompReport.sso"), paste0(fore_dir, "/CompReport_B",iboot,"C",icatch,".sso"))
-        file.copy(file.path(temp_dir, "covar.sso"), paste0(fore_dir, "/covar_B",iboot,"C",icatch,".sso"))
+        file.copy(file.path(temp_dir, "Report.sso"), paste0(fore_dir, "/Report_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
+        file.copy(file.path(temp_dir, "CompReport.sso"), paste0(fore_dir, "/CompReport_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
+        file.copy(file.path(temp_dir, "covar.sso"), paste0(fore_dir, "/covar_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
         # other .sso files could be copied as well
 
        })  # End of Fixed Catch loop
@@ -120,8 +120,8 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   } # End of Bootstrap loop
   
   # Generate model names
-  boot.names  <- paste0("B",rep(1:N_boot, each=N_ForeCatch))
-  catch.names <- paste0("C",rep(1:N_ForeCatch, times=N_boot))
+  boot.names  <- paste0(  "B",str_pad(rep(1:N_boot, each=N_ForeCatch),2,pad="0")   )
+  catch.names <- paste0(  "C",str_pad(rep(1:N_ForeCatch, times=N_boot),2,pad="0")    )
   model.info  <- data.table( model.names=paste0(boot.names,catch.names))
   
     # Read all model files and generate a list
@@ -135,14 +135,14 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
     model.info$FixedCatch[i] <- aTS[Era=="FORE"]$`dead(B):_1`[3] # Skip the first 2 years since they are not using the "fixed" catch (i.e. years between model end and start management)
     
     try(
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1500, 
+    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
                                         weight = 1, 
                                         run =model.info$model.names[i], 
                                         plot = F,
-                                        variance_method = "ww2019", #"ww2019"
+                                        variance_method = "2T", #ww2019 or 2T
                                         bias_correct_mean = T,
                                         addprj = T)$kb
-      , silent=TRUE)
+      , silent=F)
   }
   
   mv                  <- data.table::rbindlist(mvlns)
