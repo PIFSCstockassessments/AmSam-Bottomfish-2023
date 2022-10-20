@@ -30,7 +30,8 @@ A0   <- median(Data$A0)
 # Based on L99 of 75.8 cm (FL) from BBS
 # Base on L99 of 60.5 cm (FL) from Rose+Swains divers (n=120)
 # Based on L99 of 75.2 cm (FL) from BBS+BIOS
-Data <- Get_distributions(Family="Carangidae", Lmax.mean=(605/0.87), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 66 cm (FL) from BIOS
+Data <- Get_distributions(Family="Carangidae", Lmax.mean=(660/0.87), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
 Lmat <- median(Data$Lmat*0.87)
