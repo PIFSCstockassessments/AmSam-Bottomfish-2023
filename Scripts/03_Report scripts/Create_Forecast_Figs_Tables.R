@@ -2,7 +2,7 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 
 
   # COMMENT OUT THIS LINE
- # model_dir <- file.path(root_dir,"SS3 models","ETCO","50_Base")
+#  model_dir <- file.path(root_dir,"SS3 models","VALO","50_Base")
   
   
   
@@ -10,30 +10,35 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
   
   if(!file.exists(file.path(fore_dir,"mv_projections.rds"))){ print(paste0("No projections file found for ",Sp)); next }
   
-  mv_fore   <- readRDS(file=file.path(fore_dir,"mv_projections.rds"))
-
+  mv_fore   <- data.table( readRDS(file=file.path(fore_dir,"mv_projections.rds")) )
+  mv_fore   <- mv_fore %>% mutate(BootRun=substring(run,1,3),CatchRun=substring(run,4,7))
+  
 # Start projection analyses at first year of new catch advice (ex. 2021=last year in model,2024=first year model will be used to generate catch advice) 
-# and this steps filters iterations where SS had to reduce the Fixed Catch to prevent Catch > Population. These are not valid iterations.
+  mv_fore <- mv_fore %>% filter(year>min(year)+1) 
   
-  mv_fore <- mv_fore %>% filter(year>min(year)+1) %>% filter(Catch==FixedCatch)
+  # Code below is for troubleshooting
+ # BootSummary <- mv_fore %>% group_by(BootRun,CatchRun,year,FixedCatch) %>% summarize(F_Fmsy=round(median(F_Fmsy),4),SSB_SSBmsst=round(median(SSB_SSBmsst),3)) %>% as.data.table()
+ #  ggplot(BootSummary[year==2026],aes(x=FixedCatch,y=F_Fmsy,linetype=as.character(year)))+geom_point()+facet_wrap(~BootRun)
+ # ggplot(mv_fore,aes(x=Catch))+geom_histogram()+facet_wrap(~run)
+#  ggplot(mv_fore[FixedCatch==1.8&year==2028],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))+facet_wrap(~BootRun)
+  #ggplot(mv_fore[FixedCatch==2.8&year==2028],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))
+  
+  
+# Set project x limits (sometimes necessary for high variance, low selectivity, low biomass species)
+  xmax <- 9999
 
-# Explore why 2T method is giving weird results  
-  
-#  Test <- mv_fore %>% select(run,year,SSB_SSBmsst,SSB,SSBmsst,FixedCatch) %>%  filter(year==2024,FixedCatch==0.999999)
-  
-#  All  <- Test %>% group_by(run) %>% summarize(SSB_SSBmsst=median(SSB_SSBmsst),SSB=median(SSB),SSBmsst=median(SSBmsst),Count=n())
-#  Over <- Test %>% group_by(run) %>% filter(SSB_SSBmsst>1) %>%  summarize(Count=n())
-#   ggplot(data=Test,aes(x=SSB_SSBmsst))+geom_histogram()+facet_wrap(~run)+xlim(c(0,5))
-  
-  
 
-Z <- mv_fore %>% group_by(year,FixedCatch) %>% summarize(F_Fmsy=median(F_Fmsy),SSB_SSBmsst=median(SSB_SSBmsst))
+Z <- mv_fore %>%  group_by(year,FixedCatch) %>% 
+        summarize(F_Fmsy=median(F_Fmsy),SSB_SSBmsst=median(SSB_SSBmsst)) %>% 
+          filter(FixedCatch<=xmax)
+      
 
 P1 <- ggplot(data=Z,aes(x=FixedCatch,y=F_Fmsy,linetype=as.character(year)))+geom_point(size=0.1)+labs(x="Fixed catch (mt)",y="F/Fmsy")+
-  guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5,span=1.5)
+  guides(linetype=guide_legend(title="Final year"))+theme_bw()+stat_smooth(col="black",se=F,size=0.5,method="lm",formula=y~poly(x,2,raw=T))+
+  scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=c(0,0))
 
 P2 <- ggplot(data=Z,aes(x=FixedCatch,y=SSB_SSBmsst,linetype=as.character(year)))+geom_point(size=0.1)+labs(x="Fixed catch (mt)",y="SSB/SSBmsst")+
-  theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5,span=3)
+  theme_bw()+theme(legend.position="none")+stat_smooth(col="black",se=F,size=0.5,method="lm",formula=y~poly(x,2,raw=T))
 
 
 aLegend <- get_legend(P2)
@@ -42,10 +47,12 @@ ggsave(last_plot(),file=file.path(fore_dir,"01_Proj_MedianStatus.png"),height=8,
 
 
 # Calculate number of iterations by Catch and Year...
-A <- mv_fore %>% group_by(year,FixedCatch) %>% summarize(N_tot=n())
+Y <- mv_fore %>% filter(FixedCatch<=xmax)
+
+A <- Y %>% group_by(year,FixedCatch) %>% summarize(N_tot=n())
 
 # ...That is under overfishing
-B <- mv_fore %>% filter(F_Fmsy>1) %>% group_by(year,FixedCatch) %>% summarize(N_overfishing=n())
+B <- Y %>% filter(F_Fmsy>1) %>% group_by(year,FixedCatch) %>% summarize(N_overfishing=n())
 
 C <- merge(A,B,by=c("year","FixedCatch"),all.x=T)
 
@@ -53,23 +60,25 @@ C <- C %>% mutate(N_overfishing=replace_na(N_overfishing,0)) %>%
             mutate(ProbOverfishing=N_overfishing/N_tot)
 
 # ...That is overfished
-D <- mv_fore %>% filter(SSB_SSBmsst<1) %>% group_by(year,FixedCatch) %>% summarize(N_overfished=n())
+D <- Y %>% filter(SSB_SSBmsst<1) %>% group_by(year,FixedCatch) %>% summarize(N_overfished=n())
 E <- merge(A,D,by=c("year","FixedCatch"),all.x=T)
 E <- E %>% mutate(N_overfished=replace(N_overfished,is.na(N_overfished),0)) %>% 
   mutate(ProbOverfished=N_overfished/N_tot)
 
 P3 <- ggplot(data=C,aes(x=FixedCatch,y=ProbOverfishing,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. F > Fmsy")+
-  theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5,span=0.7)
+  theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5)+scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+  scale_x_continuous(limits=c(min(C$FixedCatch),max(C$FixedCatch)),expand=c(0,0))#+geom_point(aes(fill=as.character(year)),size=1,shape=21)
 
 P4 <- ggplot(data=E,aes(x=FixedCatch,y=ProbOverfished,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. SSB < SSBmsst")+
-  guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5,span=1.5)
+  guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5)+scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+  scale_x_continuous(limits=c(min(C$FixedCatch),max(C$FixedCatch)),expand=c(0,0))
 
 aLegend <- get_legend(P4)
 ggarrange(P3,P4,ncol=2,common.legend = T,legend.grob = aLegend,legend="right")
 ggsave(last_plot(),file=file.path(fore_dir,"02_Proj_ProbStatus.png"),height=8, width=16,units="cm")
 
 # Catch risk table 
-G <- C %>% filter(ProbOverfishing>=0.1&ProbOverfishing<=0.6) %>% select(-N_tot,-N_overfishing)
+G <- C %>% filter(ProbOverfishing>=0.1&ProbOverfishing<=0.6&FixedCatch<=xmax) %>% select(-N_tot,-N_overfishing)
 
 Preds.x <- expand.grid(ProbOverfishing=seq(0.1,0.5,by=0.01),year=as.factor(seq(min(G$year),max(G$year))))
 G$year  <- factor(G$year)
