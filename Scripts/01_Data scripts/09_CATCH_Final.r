@@ -84,8 +84,8 @@ Z           <- rbind(Z,CORR.ZEROES)
 
 # Variance min/max adjustments
 Z[YEAR<=1985]$LOGSD.MT              <- 0.5 # Add some uncertainty to historic catch
-#Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
-#Z[YEAR>=1986&LOGSD.MT<0.2]$LOGSD.MT <- 0.2 # Increase min CV to 0.2
+Z[YEAR>=1986&LOGSD.MT>0.5]$LOGSD.MT <- 0.5 # Reduce max CV to 0.5
+Z[YEAR>=1986&LOGSD.MT<0.2]$LOGSD.MT <- 0.2 # Increase min CV to 0.2
 
 if(!exists(paste0(root_dir,"/Outputs/SS3_Inputs"))){
   dir.create(paste0(root_dir,"/Outputs/SS3_Inputs"),recursive=T,showWarnings=F)
