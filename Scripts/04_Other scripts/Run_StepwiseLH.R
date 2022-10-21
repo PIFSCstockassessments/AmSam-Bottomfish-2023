@@ -66,8 +66,8 @@ A0   <- median(Data$A0)
 # Get LUKA estimates
 # Based on L99 of UVS 33.2 cm (TL) or L99 of 27.5cm (FL) from BBS
 # Based on L99 of UVS 30.5 cm (FL) 
-# Based on L99 of 25.6 cm FL from biosampling
-Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=256/0.97, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 26.1 cm FL from biosampling+creel
+Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=261/0.97, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.97)
 Lmat <- median(Data$Lmat*0.97)
