@@ -11,7 +11,6 @@ params:
   profile: "InitF"
   profile_vec: !expr seq(0,2,0.2)
   Njitter: !expr 2
-
 ---
 
 ```{r setup}
@@ -28,7 +27,7 @@ library(gt)
 
 ```
 
-**This is a summary report for the `r params$species` `r params$scenario` model run.** 
+**This is a summary report for the `r params$species` `r params$scenario` model run.**
 
 ```{r}
 
@@ -36,16 +35,17 @@ report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
 ```
 
-# Model Output 
+# Model Output
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ## Input Data
+
 ```{r }
 SSplotData(report.)
 ```
 
 ## Convergence Check
+
 ```{r}
 data.frame(Converged = file.exists(file.path(getwd(), "ss.std")), 
            MaxGrad = report.$maximum_gradient_component)
@@ -53,8 +53,8 @@ data.frame(Converged = file.exists(file.path(getwd(), "ss.std")),
 report.$warnings
 ```
 
+## Fit to Model
 
-## Fit to Model 
 ### CPUE
 
 ```{r}
@@ -88,12 +88,11 @@ for(i in 1:n.indices){
 
 ```
 
-
 ### Length Comp
+
 ```{r}
 SSrmse(report., quants = "len")$RMSE %>% gt()
 ```
-
 
 ```{r}
 #| fig-show: hold
@@ -116,8 +115,10 @@ SSplotComps(report., subplots = 1, fleets = 1)
 
 ```
 
-## Retrospective and Hindcasting  
-### Retrospective 
+## Retrospective and Hindcasting
+
+### Retrospective
+
 ```{r }
 #| message: false
 #| eval: true
@@ -147,6 +148,7 @@ SSplotRetro(retrosum,
 ```
 
 ### Hindcasting
+
 ```{r}
 #| eval: true
 #| error: true
@@ -169,12 +171,11 @@ if(dir.exists(file.path(getwd(), "Retrospectives"))){
 
 ```
 
+## Recruitment Deviations
 
-## Recruitment Deviations 
 ```{r}
 SSplotRecdevs(report., subplots = c(2,3))
 ```
-
 
 ## Likelihood Profile
 
@@ -219,7 +220,8 @@ PinerPlot(profilesummary, component = "Surv_like",
 
 ```
 
-## Management Quantities  
+## Management Quantities
+
 ```{r }
 
 mvln <- SSdeltaMVLN(report.)
@@ -228,8 +230,8 @@ dev.off()
 
 ```
 
+## Jitter
 
-## Jitter  
 ```{r}
 if(dir.exists(file.path(getwd(), "jitter"))){
   
@@ -262,12 +264,9 @@ if(dir.exists(file.path(getwd(), "jitter"))){
   
 ```
 
-
-    
-```{r }  
+```{r }
 if(dir.exists(file.path(getwd(), "jitter"))){
    SSplotComparisons(jittersum, subplots = c(2,8,10), new = F)
 }
 ```
-
 :::
