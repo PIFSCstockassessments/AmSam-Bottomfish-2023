@@ -1,6 +1,6 @@
 #install_github("PIFSCstockassessments/StepwiseLH")
 
-require(StepwiseLH); require(ggplot2)
+require(StepwiseLH); require(ggplot2); set.seed(123)
 
 # Get APRU estimates
 # Based on L99 of BBS+Biosampling of 85.8 mm (FL)
@@ -30,8 +30,8 @@ A0   <- median(Data$A0)
 # Based on L99 of 75.8 cm (FL) from BBS
 # Base on L99 of 60.5 cm (FL) from Rose+Swains divers (n=120)
 # Based on L99 of 75.2 cm (FL) from BBS+BIOS
-# Based on L99 of 66 cm (FL) from BIOS
-Data <- Get_distributions(Family="Carangidae", Lmax.mean=(660/0.87), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 66.1 cm (FL) from BIOS+Creel
+Data <- Get_distributions(Family="Carangidae", Lmax.mean=(661/0.87), Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
 Lmat <- median(Data$Lmat*0.87)
@@ -66,8 +66,8 @@ A0   <- median(Data$A0)
 # Get LUKA estimates
 # Based on L99 of UVS 33.2 cm (TL) or L99 of 27.5cm (FL) from BBS
 # Based on L99 of UVS 30.5 cm (FL) 
-# Based on L99 of 25.6 cm FL from biosampling
-Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=256/0.97, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 26.1 cm FL from biosampling+creel
+Data <- Get_distributions(Family="Lutjanidae", Lmax.mean=261/0.97, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.97)
 Lmat <- median(Data$Lmat*0.97)
@@ -101,7 +101,9 @@ A0   <- median(Data$A0)
 
 # Get VALO estimates
 # Based on L99 of 47 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
-Data <- Get_distributions(Family="Serranidae", Lmax.mean=470/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
+# Based on L99 of 49.4 cm (FL) from creel+biosamplling (note: very similar to diver survey value)
+
+Data <- Get_distributions(Family="Serranidae", Lmax.mean=494/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=3000)
 
 Linf <- median(Data$Linf*0.87)
 Lmat <- median(Data$Lmat*0.87)
