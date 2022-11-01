@@ -53,7 +53,7 @@
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is one EST_LBS value per CATCH_PK, instead of the value being repeated
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
-                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)]
+                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR,TOT_EST_LBS)] #TOT_EST_LBS
    
    A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
    A$MONTH        <- as.numeric(month(A$SAMPLE_DATE))
@@ -277,13 +277,13 @@ for (i in 1:length(CATCH_PK.list)){
 B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME,-BMUS)
 setnames(B,"SPECIES_FK2","SPECIES_FK")
 B <- merge(B,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
-length(unique(B$INTERVIEW_PK))
+length(unique(B$INTERVIEW_PK)) #3203
 
 # Add proportion unidentified per INTERVIEW_PK
 SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
 SUM.BMUS    <- B[BMUS=="BMUS_Species",list(LBS_BMUS=sum(EST_LBS)),by=list(INTERVIEW_PK)]
 P           <- merge(SUM.GROUP,SUM.BMUS,by="INTERVIEW_PK",all=T)
-P[is.na(P)] <- 0
+P[is.na(P)] <- 0 
 P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3) 
 P           <- select(P,INTERVIEW_PK,PROP_UNID)
 B           <- merge(B,P,by="INTERVIEW_PK",all.x=T)
@@ -299,9 +299,9 @@ B <- B[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEA
 B <- B[order(SAMPLE_DATE,INTERVIEW_TIME_LOCAL,INTERVIEW_PK)]
 
 # save in nullfile()# save in the output folder.
-length(unique(B$INTERVIEW_PK))
-length(unique(B[METHOD_FK==4]$INTERVIEW_PK))
-length(unique(B[METHOD_FK==5]$INTERVIEW_PK))
+length(unique(B$INTERVIEW_PK)) #3203  #3205
+length(unique(B[METHOD_FK==4]$INTERVIEW_PK)) #2427  #2428
+length(unique(B[METHOD_FK==5]$INTERVIEW_PK)) #776   #777
 
 
 saveRDS(B,file=paste0(root_dir,"/Outputs/CPUE_A.rds"))
