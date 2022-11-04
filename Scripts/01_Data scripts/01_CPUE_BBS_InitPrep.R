@@ -15,7 +15,7 @@
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 2) # establish directories using this.path
   	dir.create(paste0(root_dir,"/Outputs"),showWarnings=F)
-  	set.seed(111) # It is critical to fix the random number generation for reproducability
+  	set.seed(123) # It is critical to fix the random number generation for reproducability
   	
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
@@ -53,7 +53,7 @@
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is one EST_LBS value per CATCH_PK, instead of the value being repeated
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
-                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR,TOT_EST_LBS)] #TOT_EST_LBS
+                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR,TOT_EST_LBS)]
    
    A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
    A$MONTH        <- as.numeric(month(A$SAMPLE_DATE))
@@ -136,12 +136,15 @@
  # So, eliminate the erroneous 'no catch' CATCH_PK, but keep remainder of interview
   A <- A[!(FAMILY=="No Catch"&TOT_EST_LBS>0)]
 
- # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0
+ # -- 146 records where EST_LBS = 0 but TOT_EST_LBS > 0 (i.e. there's no species-specific catch but the total catch for interview is > 0)
   A <- A[!(EST_LBS==0&TOT_EST_LBS>0)]
 
  # -- 11 interviews where TOT_EST_LBS > 0 but most other fields, including SPECIES_FK and CATCH_PK are NULL
   A <- A[!(TOT_EST_LBS>0&SPECIES_FK=="NULL")]
   A <- A[!(TOT_EST_LBS>0&CATCH_PK=="NULL")]
+  
+  # Drop the TOT_EST_LBS variable
+  A <- select(A,-TOT_EST_LBS)
   
   # Check that covariates don't have NAs or other weird values
   table(A$TYPE_OF_DAY,exclude=NULL)
