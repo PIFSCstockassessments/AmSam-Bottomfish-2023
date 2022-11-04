@@ -2,7 +2,7 @@ Standardize_CPUE2 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
-root_dir <- this.path::here(.. = 2) # establish directories using this.path
+root_dir <- this.path::here(.. = 1) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),recursive=T,showWarnings=F)
 dir.create(paste0(root_dir,"/Outputs/Summary/CPUE figures"),recursive=T,showWarnings=F)
                                                               
@@ -67,6 +67,7 @@ D$YEAR        <- factor(D$YEAR)
 
 # Backward selection: Positive catch-only models
 if(Interaction==T){
+  #interaction between area and year "YEAR:AREA_C"
 Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
 } else{
 Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
@@ -88,7 +89,7 @@ aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
 P.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
 for(i in 1:10){
- 
+
   a             <- data.table( TERMS=rownames(anova(aModel)$pTerms.pv), PVALUE=as.numeric(anova(aModel)$pTerms.pv) )
   b             <- data.table( TERMS=rownames(anova(aModel)$s.table), PVALUE=as.numeric(anova(aModel)$s.table[,4]) )
   if((nrow(a)==1&nrow(b)==0)) break
@@ -103,6 +104,7 @@ for(i in 1:10){
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
   RM            <- paste0("+",RM)
   Model.String  <- gsub(RM,"",Model.String,fixed=T)
+  LastModel     <- aModel
   aModel        <- eval(parse(text=Model.String))
   NewAIC        <- AIC(aModel)
   Diff          <- NewAIC-PreviousAIC
@@ -134,7 +136,7 @@ aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
 B.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
 for(i in 1:10){
-  
+
   a             <- data.table( TERMS=rownames(anova(aModel)$pTerms.pv), PVALUE=anova(aModel)$pTerms.pv )
   b             <- data.table( TERMS=rownames(anova(aModel)$s.table), PVALUE=anova(aModel)$s.table[,4] )
   if((nrow(a)==1&nrow(b)==0)) break
@@ -149,11 +151,12 @@ for(i in 1:10){
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
   RM            <- paste0("+",RM)
   Model.String  <- gsub(RM,"",Model.String,fixed=T)
+  LastModel     <- aModel
   aModel        <- eval(parse(text=Model.String))
   NewAIC        <- AIC(aModel)
   Diff          <- NewAIC-PreviousAIC
   
-  if(Diff>2){ break; } else { 
+  if(Diff>2){ break; } else {
     B.SelResults <- rbind(B.SelResults,data.table(DESCRIPTION="Reduced model",FORMULA=gsub("+","-",RM,fixed=T),AIC=NewAIC,DELT_AIC=Diff))
     PreviousAIC  <- NewAIC 
     LastModel    <- aModel

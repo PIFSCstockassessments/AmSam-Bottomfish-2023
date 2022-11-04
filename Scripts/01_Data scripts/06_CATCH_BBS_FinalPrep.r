@@ -51,6 +51,7 @@ D[SPECIES_FK=="S243"]$SPECIES_FK<-"S241"
 D <- D[METHOD=="4"|METHOD=="5"|METHOD=="6"|METHOD=="8"|METHOD=="61"]
 
 # Select only necessary columns
+#summing the lbs caught and variance of the lbs caught by year-area-fishing method-species combination
 D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)]
 
 #==================Fix Variola louti (229) and V. albimarginata (220) issue (species IDed together from 1986 to 2015)======================
@@ -58,12 +59,13 @@ D[YEAR<=2015&(SPECIES_FK=="S229"|SPECIES_FK=="S220")]$SPECIES_FK <- "S99999" # A
 
 D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)] # Sum records together
 
-# Re-assign 1986-2015 "S99999" to both V. louti and V. albi, based on the 2016-2021 occurence ratio obtained in 01_BBS_data_prep.r
+# Re-assign 1986-2015 "S99999" to both V. louti and V. albi, based on the 2016-2021 occurrence ratio obtained in 01_BBS_data_prep.r
 # These ratios are: V. louti 0.236 and V.albimarginata 0.764
 
 Prop.Louti <- 0.236; Prop.Albi <- 1-Prop.Louti
 
 # For the catch
+#spreading out the lbs caught by species for each year-area-fishing method (any missing values were 0s)
 D.LBS                  <- dcast(D,YEAR+ZONE+METHOD~SPECIES_FK,value.var="LBS_CAUGHT",fill=0)
 D.LBS[YEAR<=2015]$S220 <- D.LBS[YEAR<=2015]$S99999*Prop.Albi  # Assign Prop.louti proportion to Variola catch
 D.LBS[YEAR<=2015]$S229 <- D.LBS[YEAR<=2015]$S99999*Prop.Louti # Assign Prop.louti proportion to Variola catch
@@ -84,7 +86,7 @@ D$SPECIES_FK <- as.character(D$SPECIES_FK)
 #==================Fix Pristipomoides flavipinnis (241) and P. filamentosus (242) issue (species IDed together from 2010 to 2015)======================
 D[(YEAR>=2010&YEAR<=2015)&(SPECIES_FK=="S241"|SPECIES_FK=="S242")]$SPECIES_FK <- "S99999" # Assign all records to a dummy species code (for now)
 
-D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)] # Sum records together
+D <- D[,list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(YEAR,ZONE,METHOD,SPECIES_FK)] # Sum records together by year-area-fishing method-species combination
 
 # Re-assign 2010-2015 "S99999" to both P. flavi and P. filamen, based on the 2016-2021 occurrence ratio obtained in 01_BBS_data_prep.r
 # These ratios are: P. flavi 0.934 and P. filamentosus 0.
@@ -159,7 +161,9 @@ D[YEAR>2015&YEAR<=2025]$PERIOD  <- 2025
 
 X            <- D[SPECIES_FK=="S109"|SPECIES_FK=="S110"|SPECIES_FK=="S200"|SPECIES_FK=="S210"|SPECIES_FK=="S230"|SPECIES_FK=="S240"|SPECIES_FK=="S260"|SPECIES_FK=="S380"|SPECIES_FK=="S390"]
 
-ggplot(data=X[ZONE=="Tutuila"],aes(x=YEAR,y=LBS_CAUGHT))+geom_bar(stat="identity")+facet_wrap(~SPECIES_FK,scales="free_y")
+ggplot(data=X[ZONE=="Tutuila"],aes(x=YEAR,y=LBS_CAUGHT))+
+  geom_bar(stat="identity")+
+  facet_wrap(~SPECIES_FK,scales="free_y")
 ggsave(last_plot(),file=paste0(root_dir, "/Outputs/Summary/CATCH_GROUPED.png"),width=8,height=4)
 
 X            <- merge(X,PT,by.x=c("SPECIES_FK","PERIOD","ZONE"),by.y=c("GROUP_FK","PERIOD","AREA_C"),allow.cartesian=T)
@@ -224,8 +228,8 @@ G <- G[order(SPECIES_FK,ZONE,YEAR)]
 #		only if p-value of regression indicates slope is not zero
 
 
-T <- G[ZONE=="Manua",list(LBS=sum(LBS_CAUGHT)),by=list(YEAR)]
-ggplot(data=T)+geom_bar(aes(x=YEAR,y=LBS),stat="identity")
+Tt <- G[ZONE=="Manua",list(LBS=sum(LBS_CAUGHT)),by=list(YEAR)]
+ggplot(data=Tt)+geom_bar(aes(x=YEAR,y=LBS),stat="identity")
 
 E <- dcast(G,SPECIES_FK+YEAR~ZONE,value.var="LBS_CAUGHT")
 
