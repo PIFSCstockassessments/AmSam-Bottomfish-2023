@@ -2,7 +2,7 @@ Standardize_CPUE2 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
-root_dir <- this.path::here(.. = 1) # establish directories using this.path
+root_dir <- this.path::here(.. = 2) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),recursive=T,showWarnings=F)
 dir.create(paste0(root_dir,"/Outputs/Summary/CPUE figures"),recursive=T,showWarnings=F)
                                                               
