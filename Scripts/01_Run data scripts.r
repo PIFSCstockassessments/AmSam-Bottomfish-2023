@@ -6,8 +6,8 @@ pacman::p_load(boot,data.table,ggfortify,ggpubr,grid,gridExtra,directlabels,mgcv
 set.seed(123)
 
 # Need these specializes packages: r4ss v1.46.1 and ss3diags v2.0.3.9000 (branch "ndd" for now) 
-remotes::install_github("r4ss/r4ss")
-remotes::install_github("PIFSCstockassessments/ss3diags",ref="ndd")
+#remotes::install_github("r4ss/r4ss")
+#remotes::install_github("PIFSCstockassessments/ss3diags",ref="ndd")
 
 
 ########## DOWNLOAD DATA FROM GOOGLE DRIVE ###############

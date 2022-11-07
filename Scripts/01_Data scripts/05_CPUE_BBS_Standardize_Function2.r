@@ -2,7 +2,7 @@ Standardize_CPUE2 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
-root_dir <- this.path::here(.. = 1) # establish directories using this.path
+root_dir <- this.path::here(.. = 2) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),recursive=T,showWarnings=F)
 dir.create(paste0(root_dir,"/Outputs/Summary/CPUE figures"),recursive=T,showWarnings=F)
                                                               
@@ -78,7 +78,7 @@ if(Sp=="PRFL"){
 }
 
 if(Sp=="VALO"){
-  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(PC2)+TYPE_OF_DAY, method="REML")'
 }
 
 
@@ -120,6 +120,22 @@ Best.P.Model.Formula   <- gsub(" ","",as.character(LastModel$formula[3]))
 P.SelResults           <- rbind(P.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
 P.SelResults$CPUE_TYPE <- "Positive-only CPUE" 
 P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
+
+# Generate model diagnostic figures
+par(mfrow=c(1,4))
+gam.check(LastModel)
+M1 <- recordPlot()
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos1.png")),width=8,height=2,unit="in",res=300)
+replayPlot(M1)
+dev.off()
+
+par(mfrow=c(1,4))
+plot(LastModel,residuals=T,shade=T,shift = coef(LastModel)[1], seWithMean = TRUE)
+M2 <- recordPlot()
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos2.png")),width=8,height=2,unit="in",res=300)
+replayPlot(M2)
+dev.off()
+
 
 # Backward selection: Probability of catch-only models
 if(Interaction==T){
@@ -167,6 +183,24 @@ Best.B.Model.Formula    <- gsub(" ","",as.character(LastModel$formula[3]))
 B.SelResults            <- rbind(B.SelResults,data.table(DESCRIPTION="Best model",FORMULA=as.character(LastModel$formula[3]),AIC=AIC(LastModel),DELT_AIC=0))
 B.SelResults$CPUE_TYPE  <- "Probability CPUE" 
 B.SelResults            <- select(B.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
+
+# Generate model diagnostic figures
+par(mfrow=c(1,4))
+gam.check(LastModel)
+
+# QQ plots and other diagnostics are not relevant for logistic GAMs
+#M1 <- recordPlot()
+#png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb1.png")),width=8,height=2,unit="in",res=300)
+#replayPlot(M1)
+#dev.off()
+
+par(mfrow=c(1,4))
+plot(LastModel,trans=plogis,shade=T,residuals=T,shift = coef(LastModel)[1], seWithMean = TRUE)
+M2 <- recordPlot()
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb2.png")),width=8,height=2,unit="in",res=300)
+replayPlot(M2)
+dev.off()
+
 
 # Put final summary table together and export CPUE index for input into SS3 
 Final          <- rbind(P.SelResults,B.SelResults)
@@ -348,12 +382,12 @@ NOMI               <- select(NOMI,MODEL_PROB,MODEL_POS,YEAR,CPUE_TOT.STD,CPUE_PO
 Best.Mod <- rbind(select(Best.Mod,MODEL_POS,MODEL_PROB,YEAR,CPUE_TOT.STD,CPUE_POS.STD,CPUE_PROB.STD),NOMI) 
 Best.Mod <- melt(Best.Mod,id.var=1:3,variable.name="CPUE_TYPE",value.name="CPUE")
 
-Best.Mod$MODLABEL <- paste0("Positive model\n",str_wrap(Best.Mod$MODEL_POS,20),"\nProbability model\n",str_wrap(Best.Mod$MODEL_PROB,20))
+Best.Mod$MODLABEL <- paste0("Non-zero model\n",str_wrap(Best.Mod$MODEL_POS,20),"\nProb. of catch model\n",str_wrap(Best.Mod$MODEL_PROB,20))
 Best.Mod[MODEL_POS=="NOMI"]$MODLABEL <- "Nominal"
 
 # Best model vs. NOMI graph
 P1 <- ggplot(data=Best.Mod,aes(x=YEAR,y=CPUE,col=MODLABEL))+geom_line()+
-       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Positive-only CPUE","CPUE_PROB.STD"="Probability CPUE")))+
+       facet_wrap(~CPUE_TYPE,labeller=labeller(CPUE_TYPE=c("CPUE_TOT.STD"="Combined CPUE","CPUE_POS.STD"="Non-zero CPUE","CPUE_PROB.STD"="Prob. of catch CPUE")))+
        labs(col=paste0("Model type"),linetype=paste0("Model type"))+xlab("Year")+ylab("Standard CPUE (%)")+theme_bw()+
        theme(axis.title=element_text(size=8),legend.text=element_text(size=6),legend.key.height=unit(1.5,'cm'))
 
@@ -382,19 +416,19 @@ levels(Comp.Mod.B$MODEL) <- str_wrap(levels(Comp.Mod.B$MODEL),20)
 P3 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_POS.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.P,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
        scale_color_viridis(option="viridis",discrete=T,direction=1)+
-       xlab("Year")+ylab("Stand. pos.-only CPUE (%)")+
-       theme_bw()+theme(axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
+       xlab("Year")+ylab("Non-zero CPUE (%)")+
+       theme_bw()+theme(legend.position="right",axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
 
 P4 <- ggplot()+geom_line(data=NOMI,aes(x=YEAR,y=CPUE_PROB.STD),col="lightgray",size=3)+
        geom_line(data=Comp.Mod.B,aes(x=YEAR,y=CPUE.STD,col=MODEL))+
        scale_color_viridis(option="viridis",discrete=T,direction=1)+
-       xlab("Year")+ylab("Stand. prob. CPUE (%)")+
-       theme_bw()+theme(axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
+       xlab("Year")+ylab("Prob. of catch CPUE (%)")+
+       theme_bw()+theme(legend.position="right",axis.title=element_text(size=8),legend.title=element_blank(),legend.text=element_text(size=6),legend.key.height=unit(0.1,'cm'))
 
 gA <- ggplotGrob(P3)
 gB <- ggplotGrob(P4)
-Comp.Graph <- rbind(gA,gB)
-ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_Inter","_ModelComps.png"),height=5,width=8,unit="in")
+Comp.Graph <- cbind(gA,gB)
+ggsave(Comp.Graph,file=paste0(root_dir,"/Outputs/Summary/CPUE figures/",Sp,"_Inter","_ModelComps.png"),height=2,width=8,unit="in")
 
 print(paste("Done with", Sp))
 
