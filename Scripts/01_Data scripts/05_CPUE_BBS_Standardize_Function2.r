@@ -78,7 +78,7 @@ if(Sp=="PRFL"){
 }
 
 if(Sp=="VALO"){
-  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(WINDSPEED)+TYPE_OF_DAY, method="REML")'
+  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(PC2)+TYPE_OF_DAY, method="REML")'
 }
 
 
@@ -122,22 +122,19 @@ P.SelResults$CPUE_TYPE <- "Positive-only CPUE"
 P.SelResults           <- select(P.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Generate model diagnostic figures
-par(mfrow=c(2,2))
+par(mfrow=c(1,4))
 gam.check(LastModel)
 M1 <- recordPlot()
-png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos1.png")))
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos1.png")),width=8,height=2,unit="in",res=300)
 replayPlot(M1)
 dev.off()
 
-par(mfrow=c(2,2))
-plot(LastModel)
+par(mfrow=c(1,4))
+plot(LastModel,residuals=T,shade=T,shift = coef(LastModel)[1], seWithMean = TRUE)
 M2 <- recordPlot()
-png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos2.png")))
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos2.png")),width=8,height=2,unit="in",res=300)
 replayPlot(M2)
 dev.off()
-
-
-
 
 
 # Backward selection: Probability of catch-only models
@@ -188,20 +185,21 @@ B.SelResults$CPUE_TYPE  <- "Probability CPUE"
 B.SelResults            <- select(B.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
 # Generate model diagnostic figures
-par(mfrow=c(2,2))
+par(mfrow=c(1,4))
 gam.check(LastModel)
-M1 <- recordPlot()
-png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb1.png")))
-replayPlot(M1)
-dev.off()
 
-par(mfrow=c(2,2))
-plot(LastModel)
+# QQ plots and other diagnostics are not relevant for logistic GAMs
+#M1 <- recordPlot()
+#png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb1.png")),width=8,height=2,unit="in",res=300)
+#replayPlot(M1)
+#dev.off()
+
+par(mfrow=c(1,4))
+plot(LastModel,trans=plogis,shade=T,residuals=T,shift = coef(LastModel)[1], seWithMean = TRUE)
 M2 <- recordPlot()
-png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb2.png")))
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb2.png")),width=8,height=2,unit="in",res=300)
 replayPlot(M2)
 dev.off()
-
 
 
 # Put final summary table together and export CPUE index for input into SS3 
