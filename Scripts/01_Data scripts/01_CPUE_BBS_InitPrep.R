@@ -53,7 +53,7 @@
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is one EST_LBS value per CATCH_PK, instead of the value being repeated
    A <- A[,list(EST_LBS=max(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,SAMPLE_DATE,TYPE_OF_DAY,
-                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR,TOT_EST_LBS)] #TOT_EST_LBS
+                                               INTERVIEW_TIME,PORT_NAME,VESSEL_REGIST_NO,ISLAND_NAME,AREA_FK,METHOD_FK,SPECIES_FK,HOURS_FISHED,NUM_GEAR)] #TOT_EST_LBS
    
    A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
    A$MONTH        <- as.numeric(month(A$SAMPLE_DATE))
