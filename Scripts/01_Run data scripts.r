@@ -25,13 +25,13 @@ Date.GoogleFolder <- as_datetime(map_chr(a$drive_resource, "modifiedTime"))
     }          
 
 ########## PROCESS CATCH, CPUE, AND SIZE DATA ################
-source(paste0(here(..=1),"/Scripts/01_Data scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())
+set.seed(123); source(paste0(here(..=1),"/Scripts/01_Data scripts/01_CPUE_BBS_InitPrep.r"));   rm(list=ls())
 source(paste0(here(..=1),"/Scripts/01_Data scripts/02_CPUE_BBS_PropTable.r"));  rm(list=ls()) 
 source(paste0(here(..=1),"/Scripts/01_Data scripts/03a_CPUE_BBS_Wind.r"));      rm(list=ls())
 source(paste0(here(..=1),"/Scripts/01_Data scripts/03b_CPUE_BBS_PCA.r"));       rm(list=ls()) 
 source(paste0(here(..=1),"/Scripts/01_Data scripts/04_CPUE_BBS_FinalPrep.r"));  rm(list=ls())
 source(paste0(here(..=1),"/Scripts/01_Data scripts/06_CATCH_BBS_FinalPrep.r")); rm(list=ls()) 
-source(paste0(here(..=1),"/Scripts/01_Data scripts/07_CATCH_SBS_PropTable.r")); rm(list=ls()) 
+set.seed(123); source(paste0(here(..=1),"/Scripts/01_Data scripts/07_CATCH_SBS_PropTable.r")); rm(list=ls()) 
 source(paste0(here(..=1),"/Scripts/01_Data scripts/08_CATCH_SBS_FinalPrep.r")); rm(list=ls())
 source(paste0(here(..=1),"/Scripts/01_Data scripts/09_CATCH_Final.r"));         rm(list=ls())
 source(paste0(here(..=1),"/Scripts/01_Data scripts/10_SIZE.r"));                rm(list=ls()) 
