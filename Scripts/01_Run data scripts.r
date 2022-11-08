@@ -40,7 +40,7 @@ source(paste0(here(..=1),"/Scripts/01_Data scripts/10_SIZE.r"));                
 # Run CPUE standardization and export indices for input into SS
 #source(paste0(here(..=1),"/Scripts/05_CPUE_BBS_Standardize_Function.r"))
 source(paste0(here(..=1),"/Scripts/01_Data scripts/05_CPUE_BBS_Standardize_Function2.r"))
-
+root_dir <- root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 Area.List    <- c("Tutuila","Manua")

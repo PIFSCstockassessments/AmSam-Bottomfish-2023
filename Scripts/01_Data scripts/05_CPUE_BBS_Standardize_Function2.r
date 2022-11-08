@@ -2,12 +2,11 @@ Standardize_CPUE2 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
   
-root_dir <- this.path::here(.. = 2) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),recursive=T,showWarnings=F)
 dir.create(paste0(root_dir,"/Outputs/Summary/CPUE figures"),recursive=T,showWarnings=F)
                                                               
-C <- readRDS(paste0(root_dir,"/Outputs/CPUE_C.rds")); length(unique(C$INTERVIEW_PK))
-S <- data.table(  read.xlsx(paste0(root_dir,"/Data/METADATA.xlsx"),sheet="BMUS")  )
+C <- readRDS(file.path(root_dir,"Outputs","CPUE_C.rds")); length(unique(C$INTERVIEW_PK))
+S <- data.table(  read.xlsx(file.path(root_dir,"Data","METADATA.xlsx"),sheet="BMUS")  )
 S <- select(S,SPECIES_PK,SPECIES)
 S$SPECIES_PK <- as.character(S$SPECIES_PK)
 C <- merge(C,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
@@ -82,9 +81,6 @@ if(Sp=="VALO"){
 }
 
 
-#if(Sp=="VALO")    Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+SEASON+s(PC1), method="REML")'
-
-
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
 P.SelResults  <- data.table(DESCRIPTION="Full model",FORMULA=as.character(aModel$formula[3]),AIC=PreviousAIC,DELT_AIC=0)
@@ -129,13 +125,14 @@ png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos1.
 replayPlot(M1)
 dev.off()
 
-par(mfrow=c(1,4))
-plot(LastModel,residuals=T,shade=T,shift = coef(LastModel)[1], seWithMean = TRUE)
-M2 <- recordPlot()
-png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos2.png")),width=8,height=2,unit="in",res=300)
-replayPlot(M2)
-dev.off()
-
+if(!is.null(anova(LastModel)$s.table)){ # Check if there are nonlinear terms to plot
+ par(mfrow=c(1,4))
+ plot(LastModel,residuals=T,shade=T,shift = coef(LastModel)[1], seWithMean = TRUE)
+ M2 <- recordPlot()
+ png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsPos2.png")),width=8,height=2,unit="in",res=300)
+ replayPlot(M2)
+ dev.off()
+}
 
 # Backward selection: Probability of catch-only models
 if(Interaction==T){
@@ -194,13 +191,14 @@ gam.check(LastModel)
 #replayPlot(M1)
 #dev.off()
 
-par(mfrow=c(1,4))
-plot(LastModel,trans=plogis,shade=T,residuals=T,shift = coef(LastModel)[1], seWithMean = TRUE)
-M2 <- recordPlot()
-png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb2.png")),width=8,height=2,unit="in",res=300)
-replayPlot(M2)
-dev.off()
-
+if(nrow(anova(LastModel)$s.table>0)){ # Check if there are nonlinear terms to plot
+  par(mfrow=c(1,4))
+  plot(LastModel,trans=plogis,shade=T,residuals=T,shift = coef(LastModel)[1], seWithMean = TRUE)
+  M2 <- recordPlot()
+  png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb2.png")),width=8,height=2,unit="in",res=300)
+  replayPlot(M2)
+  dev.off()
+}
 
 # Put final summary table together and export CPUE index for input into SS3 
 Final          <- rbind(P.SelResults,B.SelResults)
