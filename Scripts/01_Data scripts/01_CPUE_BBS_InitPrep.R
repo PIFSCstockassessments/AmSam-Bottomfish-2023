@@ -15,6 +15,7 @@
   	options(scipen=999)		              # this option just forces R to never use scientific notation
   	root_dir <- this.path::here(.. = 2) # establish directories using this.path
   	dir.create(paste0(root_dir,"/Outputs"),showWarnings=F)
+  	set.seed(123)
  
 #  --------------------------------------------------------------------------------------------------------------
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling

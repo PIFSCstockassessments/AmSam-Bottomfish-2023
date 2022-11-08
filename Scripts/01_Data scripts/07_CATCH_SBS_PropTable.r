@@ -1,5 +1,6 @@
 require(data.table); require(tidyverse); require(gridExtra); require(directlabels);require(openxlsx)
 options(scipen = 999)
+set.seed(123)
 
 # establish directories using this.path::
 root_dir <- this.path::here(.. = 2)
