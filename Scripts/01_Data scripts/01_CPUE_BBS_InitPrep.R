@@ -35,20 +35,22 @@
 	
    A <- rbind.data.frame(aint_bbs1, aint_bbs2, aint_bbs3, aint_bbs4, aint_bbs5) # rbind coerce variable formats in the dfs to match		
    length(unique(A$INTERVIEW_PK))
-   
+  
+   A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
+    
    # Filter for the two bottomfishing methods 
-   A <- A[METHOD_FK==4|METHOD_FK==5] ; length(unique(A$INTERVIEW_PK))
+   A <- A[METHOD_FK==4|METHOD_FK==5] ; length(unique(A[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
    
    # -- 99 interviews flagged as incomplete
-   A <- A[INCOMPLETE_F=="F"]; length(unique(A$INTERVIEW_PK))
+   A <- A[INCOMPLETE_F=="F"]; length(unique(A[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
    
    # 393 interviews with EST_LBS and CATCH_PK == NA
-   A <- A[CATCH_PK!="NULL"|is.na(CATCH_PK)]; length(unique(A$INTERVIEW_PK))
+   A <- A[CATCH_PK!="NULL"|is.na(CATCH_PK)]; length(unique(A[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
    
    # -- Filter some strange or missing gear types (removes 19 trips overall, minor filter impact)
    A <- A[FISHING_METHOD!="BLANK"&FISHING_METHOD!="GLEANING"&FISHING_METHOD!="NULL"&
             FISHING_METHOD!="PALOLO FISHING"&FISHING_METHOD!="UNKNOWN - BOAT BASED"&FISHING_METHOD!="VERT. LONGLINE"]
-   length(unique(A$INTERVIEW_PK))
+   length(unique(A[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
    
    # Important the EST_LBS field is repeated over several SIZE_PK individual fish measurement (do not sum catch across CATCH_PK).
    # This steps gets rid of the size information so that there is one EST_LBS value per CATCH_PK, instead of the value being repeated
@@ -119,7 +121,7 @@
    
    A <- A[YEAR != 1985] # Incomplete year
    A <- A[YEAR != 1111] # Database artefact
-   length(unique(A$INTERVIEW_PK))
+   length(unique(A[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
    
 #  ----------------------------------------------
 #	241 'Pristipomoides flavipinnis' has local name "Palu sina (Yelloweye Snapper)"
@@ -306,6 +308,7 @@ length(unique(B$INTERVIEW_PK)) #3203  #3205
 length(unique(B[METHOD_FK==4]$INTERVIEW_PK)) #2427  #2428
 length(unique(B[METHOD_FK==5]$INTERVIEW_PK)) #776   #777
 
+length(unique(B[YEAR>=2016&METHOD_FK=="4"]$INTERVIEW_PK))
 
 saveRDS(B,file=paste0(root_dir,"/Outputs/CPUE_A.rds"))
 
