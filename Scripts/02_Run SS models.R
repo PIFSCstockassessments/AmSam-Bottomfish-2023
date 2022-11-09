@@ -16,13 +16,13 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (5)
-lapply(list(Lt[[9]]),function(x)     { # Run a single model
+lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "56_Base_HermaOff"
+  DirName   <- "mo_setseedtest"
   runmodels <- T   # Turn off if you want to process results only
-  N_boot    <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 0   # Set to 0 to turn forecast off
+  N_boot    <- 5   # Set to 0 to turn bootstrap off
+  N_foreyrs <- 3   # Set to 0 to turn forecast off
   RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
   Begin     <- c(1967,1986)[1]
@@ -43,7 +43,7 @@ lapply(list(Lt[[9]]),function(x)     { # Run a single model
                do_profile    = RD,profile = "SR_LN(R0)",
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),
                do_jitter     = RD, Njitter = 2,jitterFraction = 0.1,
-               printreport   = RD, r4ssplots = T,
+               printreport   = RD, r4ssplots = F,
                superyear     = x$SY,superyear_blocks = x$SY_block,
                F_report_basis = 0,lambdas = F,includeCPUE = T,init_values = 0,parmtrace = 0,last_est_phs = 10,
                seed = 123, SPR.target = 0.4, Btarget = x$Btarg, Bmark_relF_Basis = 1,
@@ -53,7 +53,7 @@ lapply(list(Lt[[9]]),function(x)     { # Run a single model
     source(file.path(x$root, "Scripts","02_SS scripts","07_Run_Bootstraps.R"))
     source(file.path(x$root, "Scripts","03_Report scripts","Create_Boot_Tables.R"))
     source(file.path(x$root, "Scripts","03_Report scripts","Create_Boot_Figs.R"))
-    Run_Bootstraps(model_dir, N_boot=N_boot, endyr=2021)
+    Run_Bootstraps(model_dir, N_boot=N_boot, endyr=2021, seed = 123)
     Create_Boot_Tables(x$root,model_dir)
     Create_Boot_Figs(x$root,model_dir)
 }
@@ -61,7 +61,7 @@ lapply(list(Lt[[9]]),function(x)     { # Run a single model
   if(N_foreyrs>0){  
     source(file.path(x$root, "Scripts", "02_SS scripts", "08_Run_Forecasts.R"))
     source(file.path(root_dir,"Scripts","03_Report scripts","Create_Forecast_Figs_Tables.R"))
-    Run_Forecasts(model_dir, N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles)
+    Run_Forecasts(model_dir, N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles, seed = 123)
     Create_Forecast_Figs_Tables(x$root,model_dir)
    }    
 })

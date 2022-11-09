@@ -2,8 +2,9 @@
 #' @param N_boot number of bootstrap models to run (>= 3)
 #' @param N_foreyrs number of forecast years
 #' @param FixedCatchSeq Sequence of catch containing start, end, and steps of the Fixed Catch values to forecast (ex. start=0, end=1.7 mt, by=0.1)
+#' @param seed seed for reproducing random number generator sequences 
 
-Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T){
+Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T, seed=123){
   
   require(data.table);  require(tidyverse)
   
@@ -130,6 +131,7 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   
   mvlns <- list()
   for(i in 1:length(models)){
+    set.seed(seed)
     
     aTS                      <- data.table( models[[i]]$timeseries )
     model.info$FixedCatch[i] <- aTS[Era=="FORE"]$`dead(B):_1`[3] # Skip the first 2 years since they are not using the "fixed" catch (i.e. years between model end and start management)
