@@ -3,30 +3,37 @@ options(scipen=999)		              # this option just forces R to never use scie
 root_dir <- this.path::here(.. = 2) # establish directories using this.path
 
 # Base processed data
-C <- readRDS(paste0(root_dir, "/Outputs/CPUE_B.rds")); length(unique(C$INTERVIEW_PK))
+C <- readRDS(paste0(root_dir, "/Outputs/CPUE_B.rds")); length(unique(C[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
 
 # Only select Bottomfishing (Method_FK==4) trips. Given that BTM includes hours spent trolling.
-C <- C[METHOD_FK==4]; length(unique(C$INTERVIEW_PK))
+C <- C[METHOD_FK==4]; length(unique(C[YEAR>=2016]$INTERVIEW_PK))
 
 # Remove years 1986-1987, most data collected in groups.
-C <- C[YEAR>=1988]; length(unique(C$INTERVIEW_PK))
+C <- C[YEAR>=1988]; length(unique(C[YEAR>=2016]$INTERVIEW_PK))
 
 # Make sure HOURS_FISHED is available and exclude some extreme NUM_GEAR values
-C <- C[HOURS_FISHED>0&(NUM_GEAR>0&NUM_GEAR<20)]; length(unique(C$INTERVIEW_PK))
+C <- C[HOURS_FISHED>0&(NUM_GEAR>0&NUM_GEAR<=6)]; length(unique(C[YEAR>=2016]$INTERVIEW_PK))
+
+# Remove extreme HOURS_FISHED outlier trips
+C <- C[HOURS_FISHED<=24]; length(unique(C[YEAR>=2016]$INTERVIEW_PK))
+
+# Remove the few random interviews that show up in the >2009 data
+C <- C[!(AREA_C=="Manua"&YEAR>=2009)]; length(unique(C[YEAR>=2016]$INTERVIEW_PK))
+
 
 # Add windspeed information
 W <- readRDS(paste0(root_dir,"/Outputs/CPUE_WIND.rds"))
 C <- merge(C,W,by="INTERVIEW_PK",all.x=T)
 
-length(unique(C$INTERVIEW_PK))
-length(unique(C[is.na(WINDSPEED)]$INTERVIEW_PK)) # no interview is missing Windspeed
+length(unique(C[YEAR>=2016]$INTERVIEW_PK))
+length(unique(C[is.na(WINDSPEED)&YEAR>=2016]$INTERVIEW_PK)) # no interview is missing Windspeed
 
 # Add PCs targeting information
 PC <- readRDS(paste0(root_dir,"/Outputs/CPUE_PCA.rds"))
 C  <- merge(C,PC,by="INTERVIEW_PK",all.x=T)
 
-length(unique(C$INTERVIEW_PK))
-length(unique(C[is.na(PC1)]$INTERVIEW_PK)) # No interviews are missing PCs
+length(unique(C[YEAR>=2016]$INTERVIEW_PK))
+length(unique(C[is.na(PC1)&YEAR>=2016]$INTERVIEW_PK)) # No interviews are missing PCs
 
 # Fill all interviews with zero catches for all species
 S <- C[,list(N=.N),by=list(BMUS,SPECIES_FK)]
@@ -51,7 +58,7 @@ C$MONTH        <- as.character(C$MONTH)
 C$PRES         <- ifelse(C$CPUE>0,1,0)
 C$SPECIES_FK   <- as.character(C$SPECIES_FK)
 
-length(unique(C$INTERVIEW_PK))
+length(unique(C[YEAR>=2016]$INTERVIEW_PK))
 
 # Remove an extreme outlier for PRZO
 C <- C[!(INTERVIEW_PK==890819113004&SPECIES_FK==245)]
