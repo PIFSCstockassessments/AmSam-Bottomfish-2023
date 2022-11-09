@@ -13,14 +13,11 @@ C <- merge(C,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 C <- select(C,-SPECIES_FK)
 length(unique(C$INTERVIEW_PK))
 
-# Last filters
-C <- C[NUM_GEAR<=6]; length(unique(C$INTERVIEW_PK))
-C <- C[HOURS_FISHED<=24]; length(unique(C$INTERVIEW_PK))
+# Last filter
 C <- C[as.numeric(YEAR)>=minYr&as.numeric(YEAR)<=maxYr]; length(unique(C$INTERVIEW_PK))
-C <- C[!(AREA_C=="Manua"&YEAR>=2009)] # Remove the 7 random post-2008 Manua interviews
-
 #C[AREA_C=="Bank"]$AREA_C <-"Tutuila" # Merge Bank with Tutuila 
 
+# Select species
 D <- C[SPECIES==Sp]
 
 if(Sp=="LERU") D <- D[AREA_C!="Manua"] # Filter out Manua data for LERU, it's too bad to use
