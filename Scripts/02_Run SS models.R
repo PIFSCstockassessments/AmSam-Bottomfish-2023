@@ -47,7 +47,7 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
                superyear     = x$SY,superyear_blocks = x$SY_block,
                F_report_basis = 0,lambdas = F,includeCPUE = T,init_values = 0,parmtrace = 0,last_est_phs = 10,
                seed = 123, SPR.target = 0.4, Btarget = x$Btarg, Bmark_relF_Basis = 1,
-               file_dir = DirName, root_dir = x$root, template_dir = file.path(x$root, "SS3 models", "TEMPLATE_FILES"), out_dir = file.path(x$root, "SS3 models"))
+               file_dir = DirName, root_dir = x$root, template_dir = file.path(x$root, "SS3 models", "TEMPLATE_FILES"), out_dir = file.path(x$root, "SS3 models"), readGoogle = TRUE)
   
   if(N_boot!=0 & N_foreyrs==0){
     source(file.path(x$root, "Scripts","02_SS scripts","07_Run_Bootstraps.R"))

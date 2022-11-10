@@ -49,6 +49,7 @@
 #' @param jitterFraction increment of change for each jitter run
 #' @param printreport default TRUE, produces summary diagnostics report
 #' @param r4ssplots default is FALSE, will produce full r4ss output plots
+#' @param readGoogle default is TRUE, pulls in ctl parameter and input files from google drive, if false will use them from Data folder on local computer
 #' 
 #' 
 
@@ -103,7 +104,8 @@ Build_All_SS <- function(species,
                          Njitter = 200,
                          jitterFraction = 0.1,
                          printreport = TRUE,
-                         r4ssplots = TRUE
+                         r4ssplots = TRUE,
+                         readGoogle = TRUE
                          ){
   
   if(write_files){
@@ -117,7 +119,7 @@ Build_All_SS <- function(species,
         error = function(e){
           message("Cannot connect to Google Drive to get parameter input files. \nReading from files in Data folder.")
           # DAT inputs, single value parameters
-          readxl::read_excel(file.path(root_dir, "Data", "CTL_inputs.xlsx"), sheet=scenario)
+          
           # Control and data file inputs
         }
       )
@@ -135,8 +137,7 @@ Build_All_SS <- function(species,
         error = function(e){
           message("Cannot connect to Google Drive to get parameter input files. \nReading from files in Data folder.")
           # DAT inputs, single value parameters
-          readxl::read_excel(file.path(root_dir, "Data", "CTL_parameters.xlsx"), 
-                             sheet=species)
+         
           # Control and data file inputs
         }
       )
@@ -152,9 +153,17 @@ Build_All_SS <- function(species,
   lencomp <- data.table(  read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"),header=T)  )
   
   # Control and data file inputs
-  ctl.params <- get.ctl.params(species)
-  ctl.inputs <- get.ctl.inputs(scenario)
+  if(readGoogle == T){
+      ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
+                           sheet=species)
+      ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   
+  }else{
+    ctl.inputs <- readxl::read_excel(file.path(root_dir, "Data", "CTL_inputs.xlsx"), sheet=scenario)
+    ctl.params <- readxl::read_excel(file.path(root_dir, "Data", "CTL_parameters.xlsx"), 
+                       sheet=species)
+  }
+
   
   ## Step 2. Source scripts with each function ###-------------------------------------
   ### Call the functions to build the SS3 files ####
