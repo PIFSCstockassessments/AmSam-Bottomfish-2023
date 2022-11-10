@@ -108,6 +108,41 @@ Build_All_SS <- function(species,
   
   if(write_files){
     
+    get.ctl.inputs <- function(scenario){
+      ctl.inputs <- tryCatch(
+        expr = {
+          # DAT inputs, single value parameters
+          read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
+        },
+        error = function(e){
+          message("Cannot connect to Google Drive to get parameter input files. \nReading from files in Data folder.")
+          # DAT inputs, single value parameters
+          readxl::read_excel(file.path(root_dir, "Data", "CTL_inputs.xlsx"), sheet=scenario)
+          # Control and data file inputs
+        }
+      )
+      return(ctl.inputs)
+    }
+    
+    
+    get.ctl.params <- function(species){
+      ctl.params <- tryCatch(
+        expr = {
+          # DAT inputs, single value parameters
+          read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
+                     sheet=species)
+        },
+        error = function(e){
+          message("Cannot connect to Google Drive to get parameter input files. \nReading from files in Data folder.")
+          # DAT inputs, single value parameters
+          readxl::read_excel(file.path(root_dir, "Data", "CTL_parameters.xlsx"), 
+                             sheet=species)
+          # Control and data file inputs
+        }
+      )
+      return(ctl.params)
+    }
+    
   ## Step 1. Read in all data components ###-------------------------------------------
   
   # Catch data
@@ -116,11 +151,9 @@ Build_All_SS <- function(species,
   # Length comp data
   lencomp <- data.table(  read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"),header=T)  )
   
-  # DAT inputs, single value parameters
-  ctl.inputs <- read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
   # Control and data file inputs
-  ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
-                           sheet=species)
+  ctl.params <- get.ctl.params(species)
+  ctl.inputs <- get.ctl.inputs(scenario)
   
   
   ## Step 2. Source scripts with each function ###-------------------------------------
