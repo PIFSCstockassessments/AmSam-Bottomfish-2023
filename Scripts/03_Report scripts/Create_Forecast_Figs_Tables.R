@@ -91,7 +91,7 @@ Preds   <- cbind(Preds.x,Preds)
 # Check the GLM model fit and range of data
 G$year <- as.character(G$year)
 ggplot()+geom_line(data=Preds,aes(x=Preds,y=ProbOverfishing,col=as.character(year)))+geom_point(data=G,aes(x=FixedCatch,y=ProbOverfishing,col=as.character(year)),shape=2,size=2)+
-  theme_bw()+labs(x="Catch",y="Prob. overfishing")
+  theme_bw()+labs(x="Catch",y="Prob. overfishing") + guides(col=guide_legend(title="Year"))
 ggsave(last_plot(),file=file.path(fore_dir,"03_Proj_CheckModelFit.png"),height=8, width=15,units="cm")
 
 # Create Prob. overfishing bins
