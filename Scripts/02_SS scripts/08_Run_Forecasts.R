@@ -27,9 +27,18 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   # Delete all files in that directory
   unlink(file.path(fore_dir,"*"),recursive=TRUE)
   
-  # Copy bootstrap data files and other SS input files to forecast folder
-  file.copy(list.files(file.path(model_dir, "bootstrap"), pattern = "data_boot_|control|starter|forecast|.exe", full.names = T),
+  # Run model one time to generate the data bootstrap files
+  #file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
+  file.copy(list.files(file.path(model_dir, "bootstrap"), pattern = "data|control|starter|forecast|.exe", full.names = T),
             to = fore_dir)
+  
+  # start <- r4ss::SS_readstarter(file = file.path(fore_dir, "starter.ss"))
+  # start$N_bootstraps <- N_boot + 2
+  # r4ss::SS_writestarter(start, dir = fore_dir, overwrite = T)
+  # r4ss::run(dir = fore_dir, 
+  #           exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
+  # 
+  message(paste0("Creating forecast data files in ", fore_dir))
   
   starter <- SS_readstarter(file =  file.path(fore_dir, "starter.ss")) # read starter file
   file.copy(file.path(fore_dir, "starter.ss"), file.path(fore_dir, "starter_backup.ss")) # make backup
@@ -113,6 +122,7 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
         file.copy(file.path(temp_dir, "Report.sso"), paste0(fore_dir, "/Report_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
         file.copy(file.path(temp_dir, "CompReport.sso"), paste0(fore_dir, "/CompReport_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
         file.copy(file.path(temp_dir, "covar.sso"), paste0(fore_dir, "/covar_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
+        file.copy(file.path(temp_dir, "data_echo.ss_new"), paste0(fore_dir, "/data_echo_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".ss_new"))
         # other .sso files could be copied as well
 
        })  # End of Fixed Catch loop
@@ -126,7 +136,7 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   
     # Read all model files and generate a list
   models <- SSgetoutput(keyvec = paste0("_",model.info$model.names), 
-                      dirvec = file.path(fore_dir), verbose = F)
+                      dirvec = file.path(fore_dir), verbose = T)
   
   mvlns <- list()
   for(i in 1:length(models)){
