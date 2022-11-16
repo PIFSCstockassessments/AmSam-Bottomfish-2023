@@ -7,9 +7,9 @@ dir.create(paste0(root_dir,"/Outputs/Summary/Size figures"),recursive=T,showWarn
 
 # Options
 Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
-Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
+Combine_Areas  <- F # Combine Tutuila, Manua, and the Banks
 MinN           <- 0 # Minimum sample size to do size frequency
-AW             <- data.table(AREA_C=c("Manua","Tutuila","Atoll"),WEIGHT=c(0.16,0.84,0)) # Area weight for effective sample size calculations
+AW             <- data.table(AREA_C=c("Manua","Tutuila","Bank","Atoll"),WEIGHT=c(0.13,0.79,0.08,0)) # Area weight for effective sample size calculations
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
                        BINWIDTH=c(5,5,5,5,5,3.5,2,5,3,2,3)) # in cm
 
@@ -140,7 +140,7 @@ if(Combine_BB_BIO==T){
 #  D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
 #  D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
   D[(SPECIES!="APVI")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
-  D <- D[!((SPECIES=="APVI")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
+  D <- D[!((SPECIES=="APVI")&DATASET=="Biosampling")] # The biosampling APVI size distribution are  anomalous. Exclude this data.
 }
 
 # Merge all years for Atoll
@@ -177,15 +177,24 @@ for(i in 1:length(Species.List)){
    NB$V2      <- as.numeric(NB$V2)
    setnames(NB,c("V1","V2","V3"),c("DATASET","YEAR","AREA_C"))
    NB         <- NB[order(DATASET,YEAR,AREA_C)]
-   NB2        <- NB  #[N>=MinN]
+   NB2        <- NB[N>=MinN]
    G          <- merge(E,NB2,by=c("DATASET","YEAR","AREA_C"))
    NB$SPECIES <- Sp
    
-   # Effective Sample size by YEAR
-   SAMPSIZE      <- G[,list(N=.N),by=list(DATASET,YEAR,AREA_C,WEIGHT)]
-   SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$WEIGHT
-   SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(DATASET,YEAR)]
-   G             <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
+   # Effective Sample size by year
+   N.AREA <- E %>% group_by(DATASET,YEAR,AREA_C,WEIGHT) %>% summarize(N=n()) # Sample size totals by Area
+   N.TOT  <- E %>% group_by(DATASET,YEAR) %>% summarize(N.TOT=n()) %>%         # Sample size totals by dataset
+                merge(N.AREA,by=c("DATASET","YEAR")) %>% mutate(OBS.WGT=N/N.TOT) %>% 
+                mutate(RATIO=WEIGHT/OBS.WGT,EFFN=0)
+   N.TOT  <- N.TOT %>% mutate(EFFN=ifelse(OBS.WGT>WEIGHT,N*RATIO,N)) %>% 
+              group_by(DATASET,YEAR) %>% summarize(EFFN=sum(EFFN))
+   G      <- merge(G,N.TOT,by=c("DATASET","YEAR"))
+   
+   # Effective Sample size by YEAR (OLD WAY - COMMENT OUT)
+   #SAMPSIZE      <- G[,list(N=.N),by=list(DATASET,YEAR,AREA_C,WEIGHT)]
+   #SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$WEIGHT
+   #SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(DATASET,YEAR)]
+   #G             <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
    
    Fld <- paste0(root_dir,"/Outputs/Summary/Size figures/")
    if(nrow(G[DATASET=="Biosampling"])>0){
@@ -240,12 +249,9 @@ for(i in 1:length(Species.List)){
  SizeData2 <- SizeData
  saveRDS(SizeData2,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final_LBSPR.rds"))
  
- 
- SizeData <- SizeData[AREA_C!="Atoll"]
- SizeData <- select(SizeData,SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START,N)
-
- SizeData <- SizeData[DATASET!="UVS"]
- SizeData <- SizeData[order(SPECIES,DATASET,YEAR,LENGTH_BIN_START)]
+ # Remove UVS and Atoll data
+ SizeData <- SizeData[AREA_C!="Atoll"&DATASET!="UVS"]
+ SizeData <- SizeData %>% group_by(SPECIES,DATASET,YEAR,EFFN,LENGTH_BIN_START) %>% summarize(N=sum(N))
  
  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
  
