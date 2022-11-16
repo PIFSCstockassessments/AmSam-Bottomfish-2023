@@ -7,6 +7,12 @@
 Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T, seed=123){
   
   require(data.table);  require(tidyverse)
+  if(!file.exists(file.path(model_dir, "bootstrap"))){
+    stop("No bootstrap runs were found. Please run bootstraps first and then re-run forecast.")
+  }
+  if(length(list.files(file.path(model_dir, "bootstrap"), pattern = "data_boot_")) < 1){
+    stop("No bootstrap data files were found. Please run bootstraps first and then re-run forecast.")
+  }
   
   fore_dir <- file.path(model_dir,"forecast")
   
@@ -21,20 +27,13 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   # Delete all files in that directory
   unlink(file.path(fore_dir,"*"),recursive=TRUE)
   
-  # Run model one time to generate the data bootstrap files
-  file.copy(list.files(model_dir, pattern = "data|control|starter|forecast|.exe", full.names = T),
+  # Copy bootstrap data files and other SS input files to forecast folder
+  file.copy(list.files(file.path(model_dir, "bootstrap"), pattern = "data_boot_|control|starter|forecast|.exe", full.names = T),
             to = fore_dir)
-  start <- r4ss::SS_readstarter(file = file.path(fore_dir, "starter.ss"))
-  start$N_bootstraps <- N_boot + 2
-  r4ss::SS_writestarter(start, dir = fore_dir, overwrite = T)
-  r4ss::run(dir = fore_dir, 
-            exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
-  
-  message(paste0("Creating forecast data files in ", fore_dir))
   
   starter <- SS_readstarter(file =  file.path(fore_dir, "starter.ss")) # read starter file
   file.copy(file.path(fore_dir, "starter.ss"), file.path(fore_dir, "starter_backup.ss")) # make backup
-  dat <- SS_readdat_3.30(file = file.path(fore_dir, "data.ss"))
+  #dat <- SS_readdat_3.30(file = file.path(fore_dir, "data.ss"))
   
   #create the forecast data file numbers (pad with leading 0s)
   #bootn <- stringr::str_pad(seq(1, N_boot, by = 1), 2, pad = "0")
@@ -44,10 +43,10 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   for (iboot in 1:N_boot) {
     
     # replace only original catch data with bootstrapped catch
-    dat_boot  <- SS_readdat_3.30(file = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")))
-    dat$catch <- dat_boot$catch
-    SS_writedat_3.30(dat, outfile = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")), overwrite = T)
-    
+    # dat_boot  <- SS_readdat_3.30(file = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")))
+    # dat$catch <- dat_boot$catch
+    # SS_writedat_3.30(dat, outfile = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")), overwrite = T)
+    # 
     # change data file name in starter file and overwrite the original starter file
     starter[["datfile"]] <- paste("data_boot_", str_pad(iboot,3,pad="0"), ".ss", sep = "")
     starter[["N_bootstraps"]] <- 1
