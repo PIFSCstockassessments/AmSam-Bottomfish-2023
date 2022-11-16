@@ -97,7 +97,7 @@
    A     <- merge(A,AREAS,by.x="AREA_FK",by.y="AREA_ID",all.x=T); length(unique(A$INTERVIEW_PK))
    
    # Assign unknown AREA_C trips to the region they were interviewed (Tutuila or Manua)
-   length(unique(A[AREA_FK==0|AREA_FK==99|AREA_FK==100|is.na(AREA_C)]$INTERVIEW_PK)) #138 interviews can be salvaged by assigning the island to the area
+   length(unique(A[AREA_FK==0|AREA_FK==99|AREA_FK==100|is.na(AREA_C)&YEAR>=2016]$INTERVIEW_PK)) #138 interviews can be salvaged by assigning the island to the area
    A[AREA_C=="Unk"|is.na(AREA_C)]$AREA_C <- A[AREA_C=="Unk"|is.na(AREA_C)]$ISLAND_NAME
    A <- A[AREA_C!="Imports/Filter"]; length(unique(A$INTERVIEW_PK))
    
