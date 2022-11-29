@@ -19,10 +19,10 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "mo_setseedtest"
+  DirName   <- "99_TEST"
   runmodels <- T   # Turn off if you want to process results only
-  N_boot    <- 5   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 3   # Set to 0 to turn forecast off
+  N_boot    <- 4   # Set to 0 to turn bootstrap off
+  N_foreyrs <- 0   # Set to 0 to turn forecast off
   RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
   Begin     <- c(1967,1986)[1]
@@ -61,7 +61,7 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
   if(N_foreyrs>0){  
     source(file.path(x$root, "Scripts", "02_SS scripts", "08_Run_Forecasts.R"))
     source(file.path(root_dir,"Scripts","03_Report scripts","Create_Forecast_Figs_Tables.R"))
-    Run_Forecasts(model_dir, N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles, seed = 123)
+    Run_Forecasts(model_dir, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles, seed = 123)
     Create_Forecast_Figs_Tables(x$root,model_dir)
    }    
 })
