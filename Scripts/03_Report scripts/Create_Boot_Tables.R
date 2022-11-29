@@ -30,7 +30,11 @@ Create_Boot_Tables <- function(root_dir,model_dir){
   setnames(SS,c("year","stock","harvest","F","Recr"),c("YEAR","B_BMSY","F_FMSY","FMORT","REC"))
   colnames(SS) <- toupper(colnames(SS))
   SS <- SS[TYPE=="fit"]
-  SS <- SS %>% mutate(BMSST=SSB/B_BMSY*0.9,FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
+  
+  # Nat M
+  NatM <- PAR[str_detect(PAR$Label,"NatM")]$Value
+  
+  SS <- SS %>% mutate(BMSST=SSB/B_BMSY*max(0.5,1-NatM),FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
          
   # Calculate some quantities and the CVs
   

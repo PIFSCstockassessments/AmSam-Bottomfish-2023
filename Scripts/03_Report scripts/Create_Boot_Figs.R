@@ -64,7 +64,11 @@ BS <- readRDS(file.path(boot_dir,"mvln_draws.rds"))
 setnames(BS,c("year","stock","harvest","F","Recr"),c("YEAR","B_BMSY","F_FMSY","FMORT","REC"))
 colnames(BS) <- toupper(colnames(BS))
 BS <- BS[TYPE=="fit"]
-BS <- BS %>% mutate(BMSST=SSB/B_BMSY*0.9,FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
+
+# Nat M
+NatM <- PAR[str_detect(PAR$Label,"NatM")]$Value
+
+BS <- BS %>% mutate(BMSST=SSB/B_BMSY*max(0.5,1-NatM),FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
 
 # Calculate some quantities and the CVs
 
@@ -150,7 +154,7 @@ x_max  <- max(TS$B_BMSST.50,3)*1.05
 x_min  <- 0
 y_max  <- max(TS$F_FMSY.50,1.5)*1.05
 y_min  <- 0
-MSST_x <- 0.9
+MSST_x <- max(0.5,1-NatM)
 max_yr <- max(TS$YEAR)
 
 ## Overfished triangles/trapezoids
