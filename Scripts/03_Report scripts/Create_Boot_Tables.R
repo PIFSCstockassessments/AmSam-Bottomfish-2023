@@ -4,6 +4,9 @@
 Create_Boot_Tables <- function(root_dir,model_dir){
 
   boot_dir <- file.path(model_dir,"bootstrap")
+  
+  SS.results <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
+  PAR        <- data.table( SS.results$parameters )
 
   # Get the base non-bootstrapped results for total biomass (and other results?)
   SS.results    <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
@@ -32,6 +35,7 @@ Create_Boot_Tables <- function(root_dir,model_dir){
   SS <- SS[TYPE=="fit"]
   
   # Nat M
+  
   NatM <- PAR[str_detect(PAR$Label,"NatM")]$Value
   
   SS <- SS %>% mutate(BMSST=SSB/B_BMSY*max(0.5,1-NatM),FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
