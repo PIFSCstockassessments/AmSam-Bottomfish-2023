@@ -8,7 +8,7 @@ Lt[[3]]<-list("CALU", "Fry_Then",        "SW_BBS_BIOS",     "Kamikawa",    "SW_B
 Lt[[4]]<-list("ETCO", "Andrews_Then",    "Andrews_Sex",     "Kamikawa",    "Reed",       F, c(0.5,1.3), 0.29,    T, list(c(2018,2020)),                          c(1,2.5,0.1)) 
 Lt[[5]]<-list("LERU", "Loubens_Then",    "Loubens",         "Kamikawa",    "Loubens",    T, c(2.6,3.6), 0.29,    F, NA,                                          c(3,5,0.1)) 
 Lt[[6]]<-list("LUKA", "Loubens_Then",    "Loubens2",        "Kamikawa",    "SW_BBS",     T, c(5.4,7.0), 0.23,    F, NA,                                          c(20,35,1)) 
-Lt[[7]]<-list("PRFL", "OMalley_Then",    "OMalley",         "Kamikawa",    "SW_BBS",     F, c(0.5,1.5), 0.29,    T, list(c(2004,2005),c(2011,2012),c(2018,2020)),c(0.5,1.5,0.1)) 
+Lt[[7]]<-list("PRFL", "OMalley_Then",    "OMalley",         "Kamikawa",    "SW_BIOS",    F, c(0.5,1.5), 0.29,    T, list(c(2004,2005),c(2011,2012),c(2018,2020)),c(0.5,1.5,0.1)) 
 Lt[[8]]<-list("PRZO", "Schemmel_Then",   "Schemmel_Sex",    "Kamikawa",    "Schemmel",   F, c(0.5,1.3), 0.29,    T, list(c(2009,2011),c(2012,2014),c(2015,2016), c(2018,2020)),c(0.5,1.0,0.05)) 
 Lt[[9]]<-list("VALO", "Grandcourt_Then", "SW_BBS_BIOS",     "Kamikawa",    "Schemmel",   F, c(1.0,2.4),  0.35,   T, list(c(2016,2020)),                          c(0.6,1.4,0.1)) 
 
@@ -19,9 +19,9 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "99_TEST"
+  DirName   <- "99_TEST_30BOOT"
   runmodels <- T   # Turn off if you want to process results only
-  N_boot    <- 4   # Set to 0 to turn bootstrap off
+  N_boot    <- 30   # Set to 0 to turn bootstrap off
   N_foreyrs <- 0   # Set to 0 to turn forecast off
   RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
