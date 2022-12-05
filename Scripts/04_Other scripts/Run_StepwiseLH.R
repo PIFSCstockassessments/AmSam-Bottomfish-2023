@@ -1,4 +1,5 @@
-#install_github("PIFSCstockassessments/StepwiseLH")
+#library(remotes)
+#remotes::install_github("PIFSCstockassessments/StepwiseLH")
 
 require(StepwiseLH); require(tidyverse); set.seed(123)
 
