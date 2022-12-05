@@ -1,6 +1,6 @@
 #install_github("PIFSCstockassessments/StepwiseLH")
 
-require(StepwiseLH); require(ggplot2); set.seed(123)
+require(StepwiseLH); require(tidyverse); set.seed(123)
 
 # Get APRU estimates
 # Based on L99 of BBS+Biosampling of 85.8 mm (FL)
