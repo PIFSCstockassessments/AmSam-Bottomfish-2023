@@ -3,7 +3,7 @@ require(pacman); pacman::p_load(this.path, parallel); root_dir <- here(..=1); se
 Lt     <-vector("list",9) # Species options
 #             Name    M                  Growth             LW             Mat           InitF? R0 prof.  Btarg. SupYer?   SuperYr blocks                        # Projections catch range
 Lt[[1]]<-list("APRU", "SW_Then",         "SW_BBS",          "Kamikawa",    "SW_BBS",     F, c(0.4,1.4), 0.29,    T, list(c(2019,2020)),                          c(1,4,0.2)) 
-Lt[[2]]<-list("APVI", "OMalley_Then",    "OMalley2",        "Biosampling", "Everson",    F, c(0.6,1.6), 0.29,    T, list(c(2004,2006),c(2010,2012)),             c(1.4,3,0.1)) 
+Lt[[2]]<-list("APVI", "OMalley_Then",    "OMalley2",        "Kamikawa",    "Everson",    F, c(0.6,1.6), 0.29,    T, list(c(2004,2006),c(2010,2012)),             c(1.4,3,0.1)) 
 Lt[[3]]<-list("CALU", "Fry_Then",        "SW_BBS_BIOS",     "Kamikawa",    "SW_BBS_BIOS",F, c(0.8,1.8), 0.29,    T, list(c(2009,2011),c(2016,2017),c(2018,2020)),c(0.8,2.0,0.1)) 
 Lt[[4]]<-list("ETCO", "Andrews_Then",    "Andrews_Sex",     "Kamikawa",    "Reed",       F, c(0.5,1.3), 0.29,    T, list(c(2018,2020)),                          c(1,2.5,0.1)) 
 Lt[[5]]<-list("LERU", "Loubens_Then",    "Loubens",         "Kamikawa",    "Loubens",    T, c(2.6,3.6), 0.29,    F, NA,                                          c(3,5,0.1)) 
