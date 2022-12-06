@@ -1,10 +1,9 @@
 #' @param model_dir directory where bootstraps are run
-#' @param N_boot number of bootstrap models to run (>= 3)
 #' @param N_foreyrs number of forecast years
 #' @param FixedCatchSeq Sequence of catch containing start, end, and steps of the Fixed Catch values to forecast (ex. start=0, end=1.7 mt, by=0.1)
 #' @param seed seed for reproducing random number generator sequences 
 
-Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T, seed=123){
+Run_Forecasts <- function(model_dir, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T, seed=123){
   
   require(data.table);  require(tidyverse)
   if(!file.exists(file.path(model_dir, "bootstrap"))){
@@ -32,12 +31,6 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   file.copy(list.files(file.path(model_dir, "bootstrap"), pattern = "data|control|starter|forecast|.exe", full.names = T),
             to = fore_dir)
   
-  # start <- r4ss::SS_readstarter(file = file.path(fore_dir, "starter.ss"))
-  # start$N_bootstraps <- N_boot + 2
-  # r4ss::SS_writestarter(start, dir = fore_dir, overwrite = T)
-  # r4ss::run(dir = fore_dir, 
-  #           exe = "ss_opt_win", extras = "-nohess",  skipfinished = FALSE, show_in_console = TRUE)
-  # 
   message(paste0("Creating forecast data files in ", fore_dir))
   
   starter <- SS_readstarter(file =  file.path(fore_dir, "starter.ss")) # read starter file
@@ -48,14 +41,12 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
   #bootn <- stringr::str_pad(seq(1, N_boot, by = 1), 2, pad = "0")
   #foren <- stringr::str_pad(seq(1, N_ForeCatch, by = 1), 2, pad = "0")
   
+  # Check how many bootstrapped data files exists
+  N_boot <- length(list.files(file.path(model_dir, "bootstrap"), pattern = "data_boot", full.names = T))
+  
   # loop over bootstrap files
   for (iboot in 1:N_boot) {
     
-    # replace only original catch data with bootstrapped catch
-    # dat_boot  <- SS_readdat_3.30(file = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")))
-    # dat$catch <- dat_boot$catch
-    # SS_writedat_3.30(dat, outfile = file.path(fore_dir, paste0("data_boot_", str_pad(iboot,3,pad="0"), ".ss")), overwrite = T)
-    # 
     # change data file name in starter file and overwrite the original starter file
     starter[["datfile"]] <- paste("data_boot_", str_pad(iboot,3,pad="0"), ".ss", sep = "")
     starter[["N_bootstraps"]] <- 1
@@ -64,7 +55,7 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
     # Create catch list to be sent into the lapply function
     FixedCatchList <- vector("list",length(FixedCatchVec))
     for(i in 1:length(FixedCatchVec)){
-      FixedCatchList[[i]] <- list(FixedCatch=FixedCatchVec[i],fore_dir=fore_dir,iboot=iboot,icatch=i)
+      FixedCatchList[[i]] <- list(FixedCatch=FixedCatchVec[i],fore_dir=fore_dir,iboot=iboot,icatch=i,N_foreyrs=N_foreyrs,endyr=endyr)
     }
     
     n_avail_cores <- detectCores()-SavedCores
@@ -79,6 +70,8 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
          fore_dir    <- x$fore_dir
          iboot       <- x$iboot
          icatch      <- x$icatch
+         N_foreyrs   <- x$N_foreyrs
+         endyr       <- x$endyr
          
          cat("\n##### Running forecast number", icatch, " #########\n","of ","bootstrap model number", iboot, " #########\n")
         
@@ -156,11 +149,18 @@ Run_Forecasts <- function(model_dir, N_boot, N_foreyrs, FixedCatchSeq, endyr, Sa
       , silent=F)
   }
   
+  # Natural mortality for MSST reference point
+  SS.results <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
+  PAR        <- data.table( SS.results$parameters )
+  NatM       <- PAR[str_detect(PAR$Label,"NatM")]$Value
+  
+  
+  # Aggregate results and calculate new parameters
   mv                  <- data.table::rbindlist(mvlns)
   
   mv_fore             <- mv[year>endyr]
   mv_fore$Fmsy        <- mv_fore$F/mv_fore$harvest
-  mv_fore$SSBmsst     <- mv_fore$SSB/mv_fore$stock*0.9 
+  mv_fore$SSBmsst     <- mv_fore$SSB/mv_fore$stock*max(0.5,1-NatM) 
   mv_fore$SSB_SSBmsst <- mv_fore$SSB/mv_fore$SSBmsst
   mv_fore             <- merge(mv_fore,model.info,by.x="run",by.y="model.names")
   setnames(mv_fore,"harvest","F_Fmsy") 

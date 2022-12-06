@@ -64,7 +64,11 @@ BS <- readRDS(file.path(boot_dir,"mvln_draws.rds"))
 setnames(BS,c("year","stock","harvest","F","Recr"),c("YEAR","B_BMSY","F_FMSY","FMORT","REC"))
 colnames(BS) <- toupper(colnames(BS))
 BS <- BS[TYPE=="fit"]
-BS <- BS %>% mutate(BMSST=SSB/B_BMSY*0.9,FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
+
+# Nat M
+NatM <- PAR[str_detect(PAR$Label,"NatM")]$Value
+
+BS <- BS %>% mutate(BMSST=SSB/B_BMSY*max(0.5,1-NatM),FMSY=FMORT/F_FMSY) %>% mutate(B_BMSST=SSB/BMSST)
 
 # Calculate some quantities and the CVs
 
@@ -150,7 +154,7 @@ x_max  <- max(TS$B_BMSST.50,3)*1.05
 x_min  <- 0
 y_max  <- max(TS$F_FMSY.50,1.5)*1.05
 y_min  <- 0
-MSST_x <- 0.9
+MSST_x <- max(0.5,1-NatM)
 max_yr <- max(TS$YEAR)
 
 ## Overfished triangles/trapezoids
@@ -169,7 +173,7 @@ K <- ggplot()+geom_polygon(aes(x=tri_x,y=tri_y),fill="khaki1",col="black")+geom_
          geom_segment(aes(x=1,xend=1,y=0,yend=1))+
          scale_x_continuous(expand=c(0,0),limits=c(0,x_max))+scale_y_continuous(expand=c(0,0),limits=c(0,y_max))+labs(x=expression(SSB/SSB[MSY]),y=expression(F/F[MSY]))
 K <- K + geom_point(data=Last.Year,aes(x=B_BMSST,y=F_FMSY))+geom_point(size=0.2)
-K <- K + geom_line(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50),size=0.1)+scale_fill_gradientn(colors=rev(rainbow(4)))+
+K <- K + geom_path(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50),size=0.1)+scale_fill_gradientn(colors=rev(rainbow(4)))+
          geom_point(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50,fill=YEAR),shape = 21,colour="black")
 K <- K + geom_point(data=TS[YEAR==max(YEAR)],aes(x=B_BMSST.50,y=F_FMSY.50),shape=21,fill="red",col="black",size=3)
 

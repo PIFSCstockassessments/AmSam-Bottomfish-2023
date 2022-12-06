@@ -4,8 +4,8 @@
 .Ruserdata
 Run_r4ss.R
 Data/*
-!Data/CTL_inputs.xlsx
-!Data/CTL_parameters.xlsx
+Data/CTL_inputs.xlsx
+Data/CTL_parameters.xlsx
 Old
 Outputs
 SS3/100_Profiles
