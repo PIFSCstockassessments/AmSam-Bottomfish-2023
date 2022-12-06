@@ -19,17 +19,18 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "mo_setseedtest"
-  runmodels <- T   # Turn off if you want to process results only
-  N_boot    <- 5   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 3   # Set to 0 to turn forecast off
+  DirName   <- "mo_specreport_ex"
+  runmodels <- F   # Turn off if you want to process results only
+  N_boot    <- 0   # Set to 0 to turn bootstrap off
+  N_foreyrs <- 0   # Set to 0 to turn forecast off
   RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
   Begin     <- c(1967,1986)[1]
   DeleteForecastFiles <- F
   SavedCores <- 2
+  Create_species_report_figs <- T
   
-  require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss)
+  require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss,officer,flextable)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
   model_dir <- file.path(x$root,"SS3 models",x$N,DirName)
   
@@ -63,7 +64,29 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
     source(file.path(root_dir,"Scripts","03_Report scripts","Create_Forecast_Figs_Tables.R"))
     Run_Forecasts(model_dir, N_boot=N_boot, N_foreyrs=N_foreyrs, FixedCatchSeq=x$FixedCatchSeq, endyr=2021,SavedCores,DeleteForecastFiles, seed = 123)
     Create_Forecast_Figs_Tables(x$root,model_dir)
-   }    
+  } 
+  
+  if(Create_species_report_figs){
+    
+    print(file.path(x$root,"Scripts","03_Report scripts",
+                      "Create_Figs_Tables_Formatted.qmd"))
+    file.copy(from = file.path(x$root,"Scripts","03_Report scripts",
+                               "Create_Figs_Tables_Formatted.qmd"), 
+              to = file.path(x$root, "SS3 models", x$N, x$DirName, paste0(x$N,
+                             "_Create_Figs_Tables_Formatted.qmd")),
+              overwrite = TRUE)
+    quarto::quarto_render(
+      input = file.path(x$root, "SS3 models", x$N, x$DirName, paste0(x$N,
+                        "_Create_Figs_Tables_Formatted.qmd")),
+      output_format = "docx",
+      execute_params = list(
+        species = paste0(x$N),
+        scenario = x$DirName
+      ),
+      execute_dir = file.path(x$root, "SS3 models", x$N, x$DirName))
+    
+  }
+  
 })
 
 #stopCluster (cl)
