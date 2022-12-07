@@ -247,9 +247,8 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir ){
     geom_path(data=TS, aes(x=B_BMSST, y=F_FMSY, group = Model), size=0.1) +
     geom_point(data = TS, aes(x=B_BMSST, y=F_FMSY, shape = Model, group = Model, color = Yr)) +
     scale_shape_manual(values=shapes) +
-    scale_fill_gradientn(colors=rev(rainbow(4))) 
-    
-  d <- d + geom_point(data=TS %>% filter(Yr == max(Yr)),
+    scale_fill_gradientn(colors=rev(rainbow(4))) +
+    geom_point(data=TS %>% filter(Yr == max(Yr)),
                       aes(x=B_BMSST, y=F_FMSY, group = Model), 
                       shape=21, fill="red", col="black", size=3)
   
