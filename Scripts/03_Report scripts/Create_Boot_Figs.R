@@ -72,12 +72,30 @@ BS <- BS %>% mutate(BMSST=SSB/B_BMSY*max(0.5,1-NatM),FMSY=FMORT/F_FMSY) %>% muta
 
 # Calculate some quantities and the CVs
 
-TS <- BS %>% group_by(YEAR) %>%  summarize(SSB.50=median(SSB),SSB.05=quantile(SSB,0.05),SSB.95=quantile(SSB,0.95),SSB.CV=sd(SSB)/mean(SSB),
-                                           B_BMSST.50=median(B_BMSST),B_BMSST.05=quantile(B_BMSST,0.05),B_BMSST.95=quantile(B_BMSST,0.95),B_BMSST.CV=sd(B_BMSST)/mean(B_BMSST),
-                                           FMORT.50=median(FMORT),FMORT.05=quantile(FMORT,0.05),FMORT.95=quantile(FMORT,0.95),FMORT.CV=sd(FMORT)/mean(FMORT),
-                                           F_FMSY.50=median(F_FMSY),F_FMSY.05=quantile(F_FMSY,0.05),F_FMSY.95=quantile(F_FMSY,0.95),F_FMSY.CV=sd(F_FMSY)/mean(F_FMSY),
-                                           REC.50=median(REC),REC.05=quantile(REC,0.05),REC.95=quantile(REC,0.95),REC.CV=sd(REC)/mean(REC),
-                                           CATCH=median(CATCH)) %>% as.data.table()
+TS <- BS %>% 
+  group_by(YEAR) %>% 
+  summarize(SSB.50=median(SSB),
+            SSB.05=quantile(SSB,0.05),
+            SSB.95=quantile(SSB,0.95),
+            SSB.CV=sd(SSB)/mean(SSB),
+            B_BMSST.50=median(B_BMSST),
+            B_BMSST.05=quantile(B_BMSST,0.05),
+            B_BMSST.95=quantile(B_BMSST,0.95),
+            B_BMSST.CV=sd(B_BMSST)/mean(B_BMSST),
+            FMORT.50=median(FMORT),
+            FMORT.05=quantile(FMORT,0.05),
+            FMORT.95=quantile(FMORT,0.95),
+            FMORT.CV=sd(FMORT)/mean(FMORT),
+            F_FMSY.50=median(F_FMSY),
+            F_FMSY.05=quantile(F_FMSY,0.05),
+            F_FMSY.95=quantile(F_FMSY,0.95),
+            F_FMSY.CV=sd(F_FMSY)/mean(F_FMSY),
+            REC.50=median(REC),
+            REC.05=quantile(REC,0.05),
+            REC.95=quantile(REC,0.95),
+            REC.CV=sd(REC)/mean(REC),
+            CATCH=median(CATCH)) %>% 
+  as.data.table()
 
 SSB_MSST <- BS %>% summarize(BMSST.50=median(BMSST)) %>% as.numeric()
 
@@ -168,10 +186,17 @@ Last.Year <- BS[YEAR==max(YEAR)]
 Last.Year <- Last.Year[sample(1:nrow(Last.Year),1000)]
 
 # Plot
-K <- ggplot()+geom_polygon(aes(x=tri_x,y=tri_y),fill="khaki1",col="black")+geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_min,y_min)),fill="palegreen",col="black")+
-         geom_polygon(aes(x=poly_x,y=poly_y),fill="salmon",col="black")+geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_max,y_max)),fill="khaki1",col="black")+
-         geom_segment(aes(x=1,xend=1,y=0,yend=1))+
-         scale_x_continuous(expand=c(0,0),limits=c(0,x_max))+scale_y_continuous(expand=c(0,0),limits=c(0,y_max))+labs(x=expression(SSB/SSB[MSY]),y=expression(F/F[MSY]))
+K <- ggplot() +
+  geom_polygon(aes(x=tri_x,y=tri_y),fill="khaki1",col="black") +
+  geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_min,y_min)),
+               fill="palegreen",col="black") +
+  geom_polygon(aes(x=poly_x,y=poly_y),fill="salmon",col="black") +
+  geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_max,y_max)),
+               fill="khaki1",col="black") + 
+  geom_segment(aes(x=1,xend=1,y=0,yend=1)) +
+  scale_x_continuous(expand=c(0,0),limits=c(0,x_max)) +
+  scale_y_continuous(expand=c(0,0),limits=c(0,y_max)) +
+  labs(x=expression(SSB/SSB[MSY]),y=expression(F/F[MSY]))
 K <- K + geom_point(data=Last.Year,aes(x=B_BMSST,y=F_FMSY))+geom_point(size=0.2)
 K <- K + geom_path(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50),size=0.1)+scale_fill_gradientn(colors=rev(rainbow(4)))+
          geom_point(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50,fill=YEAR),shape = 21,colour="black")
