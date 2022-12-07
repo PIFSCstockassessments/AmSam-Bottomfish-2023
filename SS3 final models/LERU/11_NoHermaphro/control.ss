@@ -71,7 +71,7 @@
    -1	   3	2.28e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
    -1	   4	    2.94	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
   0.1	  10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-1e-06	   1	       1	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+1e-06	   1	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
