@@ -1,9 +1,7 @@
 ##Create figures and tables for alternate model runs for American Samoa BMUS assessment 2023
 
-library(r4ss);library(ggplot2);library(reshape2);library(scales);library(RColorBrewer);library(gridExtra);library(dplyr);library(tidyr);library("png"); library("grid");library("gridExtra")
-library(ggsci);library(data.table);library(stringr)
-
-root_dir <- here(..=2)
+require(pacman); root_dir <- here(..=2)
+pacman::p_load(r4ss,tidyverse,reshape2,scales,RColorBrewer,gridExtra,dplyr,png,grid,gridExtra,ggsci,data.table)
 
 ## Example set up for function (use for testing purposes)
 # Summary <-SSsummarize(alt_mods1)
@@ -268,7 +266,7 @@ Summary <- SSsummarize(alt_models)
 max_yr=unique(Summary$endyrs)
 
 ## Ignores the 11_Alternate_Mods_Figs_Table folder
-Model.folders <- alt_mods_dir[-length(alt_mods_dir)]
+Model.folders <- alt_mods_dir
 N <- length(Model.folders)
 Results       <- data.table(Model=Model.folders, 
                             Fendyr=numeric(N),
@@ -318,7 +316,7 @@ names(Results) <- c("Model",
                     paste0("SSB", max_yr, "_SSBMSST"),
                     "CatchMSY")
 
-write.csv(Results,file= paste0(root_dir,"/SS3 final models/", species, "/11_Alternate_Mods_Figs_Tables/Results.csv"))
+write.csv(Results,file= paste0(root_dir,"/SS3 final models/", species, "/00_Alternate_Mods_Figs_Tables/Results.csv"))
 
 
 
