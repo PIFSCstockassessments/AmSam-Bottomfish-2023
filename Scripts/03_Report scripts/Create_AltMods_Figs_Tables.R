@@ -225,66 +225,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
 }
 
 
-### Create a summary table with all scenario runs #####
-max_yr=unique(Summary$endyrs)
-
-## Ignores the 11_Alternate_Mods_Figs_Table folder
-Model.folders <- alt_mods_dir[-length(alt_mods_dir)]
-N <- length(Model.folders)
-Results       <- data.table(Model=Model.folders, 
-                            Fendyr=numeric(N),
-                            Fmsy=numeric(N),
-                            Fendyr_Fmsy=numeric(N),
-                            SSBmsy=numeric(N),
-                            SSBMSST=numeric(N),
-                            SSBendyr=numeric(N),
-                            SSBendyr_SSBmsy=numeric(N),
-                            SSBendyr_SSBMSST=numeric(N),
-                            CatchMSY=numeric(N))
-
-Results$Model <- str_remove(Results$Model, paste0(root_dir,"/SS3 final models/", species, "/"))
-for(i in 1:length(Model.folders)){
-  
-  aModel                    <- SS_output(Model.folders[i],covar=FALSE, 
-                                         verbose=FALSE, printstats = FALSE)
-  rnames                    <- aModel$derived_quants$Label
-  index_SSB_MSY             <- which(rnames==paste("SSB_MSY",sep=""))
-  index_Fstd_MSY            <- which(rnames==paste("annF_MSY",sep=""))
-  index_SSB_TermYr          <- which(rnames==paste("SSB_",max_yr,sep=""))
-  index_Fstd_TermYr         <- which(rnames==paste("F_",max_yr,sep=""))
-  index_MSY                 <- which(rnames==paste("Dead_Catch_MSY",sep=""))
-  NatM                      <- aModel$parameters %>% 
-                               filter(str_detect(Label, "NatM")) %>% 
-                               pull(Value)
-  
-  Results[i]$SSBmsy         <- round(aModel$derived_quants[index_SSB_MSY,2],0)
-  Results[i]$SSBMSST        <- round(aModel$derived_quants[index_SSB_MSY,2]*max(0.5,1-NatM),0)
-  Results[i]$Fmsy           <- round(aModel$derived_quants[index_Fstd_MSY,2],2)
-  Results[i]$SSBendyr        <- round(aModel$derived_quants[index_SSB_TermYr,2],0)
-  Results[i]$Fendyr          <- round(aModel$derived_quants[index_Fstd_TermYr,2],3)
-  Results[i]$Fendyr_Fmsy     <- round(Results[i]$Fendyr/Results[i]$Fmsy,2)  
-  Results[i]$SSBendyr_SSBmsy <- round(Results[i]$SSBendyr/Results[i]$SSBmsy,2)
-  Results[i]$SSBendyr_SSBMSST <- round(Results[i]$SSBendyr/Results[i]$SSBMSST,2)
-  Results[i]$CatchMSY       <- round(aModel$derived_quants[index_MSY,2],0)
-}
-
-names(Results) <- c("Model", 
-                    paste0("F", max_yr),
-                    "Fmsy",
-                    paste0("F", max_yr, "_Fmsy"),
-                    "SSBmsy",
-                    "SSBMSST",
-                    paste0("SSB", max_yr),
-                    paste0("SSB", max_yr, "_SSBmsy"),
-                    paste0("SSB", max_yr, "_SSBMSST"),
-                    "CatchMSY")
-
-write.csv(Results,file= paste0(root_dir,"/SS3 final models/", species, "/11_Alternate_Mods_Figs_Tables/Results.csv"))
-
-
-
-
-### Run plot function for each species ####
+### Run plot function for individual species ####
 ## Change species name here
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
 species <- species_names[1]
@@ -321,6 +262,65 @@ ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch")
 Directory<-file.path(root_dir, "SS3 final models", species, "00_Alternate_Mods_Figs_Tables")
 NModels<-Summary$n
 plotsensitivity(Summary, ModelLabels, NModels, Directory, model_group = 2)
+
+### Create a summary table with all scenario runs #####
+Summary <- SSsummarize(alt_models)
+max_yr=unique(Summary$endyrs)
+
+## Ignores the 11_Alternate_Mods_Figs_Table folder
+Model.folders <- alt_mods_dir[-length(alt_mods_dir)]
+N <- length(Model.folders)
+Results       <- data.table(Model=Model.folders, 
+                            Fendyr=numeric(N),
+                            Fmsy=numeric(N),
+                            Fendyr_Fmsy=numeric(N),
+                            SSBmsy=numeric(N),
+                            SSBMSST=numeric(N),
+                            SSBendyr=numeric(N),
+                            SSBendyr_SSBmsy=numeric(N),
+                            SSBendyr_SSBMSST=numeric(N),
+                            CatchMSY=numeric(N))
+
+Results$Model <- str_remove(Results$Model, paste0(root_dir,"/SS3 final models/", species, "/"))
+for(i in 1:length(Model.folders)){
+  
+  aModel                    <- SS_output(Model.folders[i],covar=FALSE, 
+                                         verbose=FALSE, printstats = FALSE)
+  rnames                    <- aModel$derived_quants$Label
+  index_SSB_MSY             <- which(rnames==paste("SSB_MSY",sep=""))
+  index_Fstd_MSY            <- which(rnames==paste("annF_MSY",sep=""))
+  index_SSB_TermYr          <- which(rnames==paste("SSB_",max_yr,sep=""))
+  index_Fstd_TermYr         <- which(rnames==paste("F_",max_yr,sep=""))
+  index_MSY                 <- which(rnames==paste("Dead_Catch_MSY",sep=""))
+  NatM                      <- aModel$parameters %>% 
+    filter(str_detect(Label, "NatM")) %>% 
+    pull(Value)
+  
+  Results[i]$SSBmsy         <- round(aModel$derived_quants[index_SSB_MSY,2],0)
+  Results[i]$SSBMSST        <- round(aModel$derived_quants[index_SSB_MSY,2]*max(0.5,1-NatM),0)
+  Results[i]$Fmsy           <- round(aModel$derived_quants[index_Fstd_MSY,2],2)
+  Results[i]$SSBendyr        <- round(aModel$derived_quants[index_SSB_TermYr,2],0)
+  Results[i]$Fendyr          <- round(aModel$derived_quants[index_Fstd_TermYr,2],3)
+  Results[i]$Fendyr_Fmsy     <- round(Results[i]$Fendyr/Results[i]$Fmsy,2)  
+  Results[i]$SSBendyr_SSBmsy <- round(Results[i]$SSBendyr/Results[i]$SSBmsy,2)
+  Results[i]$SSBendyr_SSBMSST <- round(Results[i]$SSBendyr/Results[i]$SSBMSST,2)
+  Results[i]$CatchMSY       <- round(aModel$derived_quants[index_MSY,2],0)
+}
+
+names(Results) <- c("Model", 
+                    paste0("F", max_yr),
+                    "Fmsy",
+                    paste0("F", max_yr, "_Fmsy"),
+                    "SSBmsy",
+                    "SSBMSST",
+                    paste0("SSB", max_yr),
+                    paste0("SSB", max_yr, "_SSBmsy"),
+                    paste0("SSB", max_yr, "_SSBMSST"),
+                    "CatchMSY")
+
+write.csv(Results,file= paste0(root_dir,"/SS3 final models/", species, "/11_Alternate_Mods_Figs_Tables/Results.csv"))
+
+
 
 ### Loop for doing all species at one time ####
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
@@ -363,6 +363,8 @@ for(species in species_names){
     NModels<-Summary$n
     plotsensitivity(Summary, ModelLabels, NModels, Directory, model_group)
   }
+  
+  Summary <- SSsummarize(alt_models)
   ## Create results table csv file
   max_yr=unique(Summary$endyrs)
   
