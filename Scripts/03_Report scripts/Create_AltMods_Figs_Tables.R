@@ -323,7 +323,7 @@ NModels<-Summary$n
 plotsensitivity(Summary, ModelLabels, NModels, Directory, model_group = 2)
 
 ### Loop for doing all species at one time ####
-species_names <- c("APRU", "LERU")
+species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
 
 for(species in species_names){
   
