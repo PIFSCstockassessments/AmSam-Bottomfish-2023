@@ -1,7 +1,8 @@
 ##Create figures and tables for alternate model runs for American Samoa BMUS assessment 2023
 
-require(pacman); root_dir <- here(..=2)
-pacman::p_load(r4ss,tidyverse,reshape2,scales,RColorBrewer,gridExtra,dplyr,png,grid,gridExtra,ggsci,data.table)
+require(pacman)
+pacman::p_load(this.path,r4ss,tidyverse,reshape2,scales,RColorBrewer,gridExtra,dplyr,png,grid,gridExtra,ggsci,data.table)
+root_dir <- here(..=2)
 
 ## Example set up for function (use for testing purposes)
 # Summary <-SSsummarize(alt_mods1)
@@ -87,14 +88,15 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   thinned <- c(seq(from=1,to=nrow(SummaryBio),by=10))
   a<-ggplot(data=SummaryBio,aes(x=Yr,color=variable,shape=variable))+
-    geom_ribbon(aes(ymin=Lower,ymax=Upper),color=NA,data=SpawnBioUncertainty,fill="gray",alpha=0.2)+
-    geom_line(aes(y=value),size=1.5) +
-    geom_point(aes(y=value),data=SummaryBio[thinned,], size=4)+
-    xlab("Year") + ylab("Spawning biomass (mt)") +
-    geom_hline(aes(yintercept=value,color=Model),data=SSBMSST,size=1.5)+
-    scale_shape_manual(values=shapes)+
-    scale_color_jco()+
-    theme_bw(base_size=20)+aTheme+theme(legend.position="none")
+        geom_ribbon(aes(ymin=Lower,ymax=Upper),color=NA,data=SpawnBioUncertainty,fill="gray",alpha=0.2)+
+        geom_line(aes(y=value),size=1.5) +
+        geom_point(aes(y=value),data=SummaryBio[thinned,], size=4)+
+        xlab("Year") + ylab("Spawning biomass (mt)") +
+        geom_hline(aes(yintercept=value,color=Model),data=SSBMSST,size=1.5)+
+        scale_shape_manual(values=shapes)+
+        scale_color_jco()+
+        theme_bw(base_size=20)+aTheme+theme(legend.position="none")+
+        scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
   #a
   
   FishingMort<-Summary$Fvalue
@@ -133,14 +135,15 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   thinned <- c(seq(from=1,to=nrow(FishingMort),by=10))
   b<-ggplot(data=FishingMort,aes(x=Yr,color=variable,shape=variable))+
-    geom_ribbon(aes(ymin=FLower,ymax=FUpper),color=NA,data=Funcertainty,fill="gray",alpha=0.2)+
-    geom_line(aes(y=value),size=1.5) +
-    geom_point(aes(y=value),data=FishingMort[thinned,], size=4)+
-    xlab("Year") + ylab("Fishing mortality") +
-    geom_hline(aes(yintercept=value,color=variable),data=FMSY,size=1.5)+
-    scale_color_jco()+
-    scale_shape_manual(values=shapes)+
-    theme_bw(base_size=20)+aTheme +theme(legend.position="none")
+       geom_ribbon(aes(ymin=FLower,ymax=FUpper),color=NA,data=Funcertainty,fill="gray",alpha=0.2)+
+       geom_line(aes(y=value),size=1.5) +
+       geom_point(aes(y=value),data=FishingMort[thinned,], size=4)+
+       xlab("Year") + ylab("Fishing mortality") +
+       geom_hline(aes(yintercept=value,color=variable),data=FMSY,size=1.5)+
+       scale_color_jco()+
+       scale_shape_manual(values=shapes)+
+       theme_bw(base_size=20)+aTheme +theme(legend.position="none")+
+       scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
   #b
   
   
@@ -158,13 +161,15 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   thinned <- c(seq(from=1,to=nrow(Recruits),by=10))
   c<-ggplot(data=Recruits,aes(x=Yr,y=value,color=variable,shape=variable)) +
-    geom_line(size=1.5) +
-    geom_point(data=Recruits[thinned,],size=4)+
-    xlab("Year") + ylab("Age-0 recruits (1000s of fish)") +
-    scale_linetype_manual(values=c(1:NModels),labels=c(ModelLabels))+
-    scale_color_jco()+
-    scale_shape_manual(values=shapes)+
-    theme_bw(base_size=20)+aTheme 
+       geom_line(size=1.5) +
+       geom_point(data=Recruits[thinned,],size=4)+
+       xlab("Year") + ylab("Age-0 recruits (1000s of fish)") +
+       scale_linetype_manual(values=c(1:NModels),labels=c(ModelLabels))+
+       scale_color_jco()+
+       scale_shape_manual(values=shapes)+
+       theme_bw(base_size=20)+aTheme+
+       scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+  
   # CHECK: added the legend back in to this plot so can see what colors match up with what model, can remove or change which plot has legend just need to add in + theme(legend.position = "none")
   #c
   
@@ -204,16 +209,18 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   # Plot
   d <- ggplot() +
-    geom_polygon(aes(x=tri_x, y=tri_y), fill="khaki1", col="black") +
-    geom_polygon(aes(x=c(MSST_x, x_max, x_max, MSST_x), y=c(1, 1, y_min, y_min)),
+         geom_polygon(aes(x=tri_x, y=tri_y), fill="khaki1", col="black") +
+         geom_polygon(aes(x=c(MSST_x, x_max, x_max, MSST_x), y=c(1, 1, y_min, y_min)),
                  fill="palegreen", col="black") +
-    geom_polygon(aes(x=poly_x, y=poly_y), fill="salmon", col="black") +
-    geom_polygon(aes(x=c(MSST_x, x_max, x_max, MSST_x), y=c(1, 1, y_max, y_max)),
+         geom_polygon(aes(x=poly_x, y=poly_y), fill="salmon", col="black") +
+         geom_polygon(aes(x=c(MSST_x, x_max, x_max, MSST_x), y=c(1, 1, y_max, y_max)),
                  fill="khaki1", col="black") + 
-    geom_segment(aes(x=1, xend=1, y=0, yend=1)) +
-    scale_x_continuous(expand=c(0, 0), limits=c(0, x_max)) +
-    scale_y_continuous(expand=c(0, 0), limits=c(0, y_max)) +
-    labs(x=expression(SSB/SSB[MSY]), y=expression(F/F[MSY]))
+         geom_segment(aes(x=1, xend=1, y=0, yend=1)) +
+         scale_x_continuous(expand=c(0, 0), limits=c(0, x_max)) +
+         scale_y_continuous(expand=c(0, 0), limits=c(0, y_max)) +
+         labs(x=expression(SSB/SSB[MSY]), y=expression(F/F[MSY]))+
+         scale_y_continuous(expand=expansion(mult=c(0.01,0.01)))+theme_bw()+
+         theme(panel.border = element_blank())  
   
   # CHECK: Include last year uncertainty??
   #d <- d + geom_point(data=Last.Year,aes(x=B_BMSST,y=F_FMSY))+geom_point(size=0.2)
@@ -223,7 +230,6 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
                    shape=Model, fill = Model, color = Model), size=3) +
     scale_shape_manual(values=shapes) +
     scale_color_jco()
-  
   #d
   
   png(paste0(PlotDir,"\\Sensitivity", model_group,".png"),height=10,width=16,units="in",res=200)
