@@ -185,7 +185,7 @@ for(i in 1:length(Species.List)){
    N.AREA <- E %>% group_by(DATASET,YEAR,AREA_C,WEIGHT) %>% summarize(N=n()) # Sample size totals by Area
    N.TOT  <- E %>% group_by(DATASET,YEAR) %>% summarize(N.TOT=n()) %>%         # Sample size totals by dataset
                 merge(N.AREA,by=c("DATASET","YEAR")) %>% mutate(ExpN=ceiling(N.TOT*WEIGHT), EFFN=0) 
-   N.TOT  <- N.TOT %>% mutate(EFFN=ifelse(N>ExpN,N*WEIGHT,N)) %>% 
+   N.TOT  <- N.TOT %>% mutate(EFFN=ifelse(N>ExpN,ExpN,N)) %>% 
               group_by(DATASET,YEAR) %>% summarize(EFFN=sum(EFFN))
    G      <- merge(G,N.TOT,by=c("DATASET","YEAR"))
    
