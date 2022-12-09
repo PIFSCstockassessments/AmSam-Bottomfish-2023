@@ -23,10 +23,12 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   Startyrs <- data.frame("variable" = ModelLabels, "StartYear" = Summary$startyrs) %>% 
     group_by(variable)
+  max_yr=unique(Summary$endyrs)
+  NatM <- Summary$pars[which(Summary$pars$Label == "NatM_uniform_Fem_GP_1"),1:NModels]
+  
   SummaryBio<-Summary$SpawnBio
   names(SummaryBio)<-c(ModelLabels,"Label","Yr")
   SSBMSY<-Summary$quants[which(Summary$quants$Label=="SSB_MSY"),]
-  NatM <- Summary$pars[which(Summary$pars$Label == "NatM_uniform_Fem_GP_1"),1:NModels]
   # CHECK: Calculating SSBMSST correctly (SSB_MSY * (1-NatM) [or 0.5 if that is > 1-NatM])
   SSBMSST<- pmax(0.5,1-NatM) * SSBMSY[1,1:NModels]
   SummaryBratio<-as.data.frame(matrix(NA,ncol=NModels, nrow=nrow(SummaryBio)))
@@ -40,18 +42,20 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   SummaryBio<-reshape2::melt(SummaryBio,id.vars=c("Label","Yr"))
   SummaryBio <- SummaryBio %>% 
     merge(Startyrs, by = "variable") %>% 
-    filter(Yr >= StartYear) %>% 
+    filter(Yr >= StartYear & Yr <= max_yr) %>% 
     select(-StartYear)
   names(SummaryBratio)<-c(ModelLabels,"Label","Yr")
   SummaryBratio<-reshape2::melt(SummaryBratio,id.vars=c("Label","Yr"))
   SummaryBratio<-SummaryBratio %>% 
     merge(Startyrs, by = "variable") %>% 
-    filter(Yr >= StartYear) %>% 
+    filter(Yr >= StartYear & Yr <= max_yr) %>% 
     select(-StartYear)
   SpawnBioUpper<-Summary$SpawnBioUpper
+  #names(SpawnBioUpper)<-c(ModelLabels,"Label","Yr")
   SpawnBioUpper<-reshape2::melt(SpawnBioUpper, id.vars=c("Yr", "Label") )
   names(SpawnBioUpper)[3:4]<-c("Model","Upper")
   SpawnBioLower<-Summary$SpawnBioLower 
+  #names(SpawnBioLower)<-c(ModelLabels,"Label","Yr")
   SpawnBioLower<-reshape2::melt(SpawnBioLower, id.vars=c("Yr", "Label") )
   names(SpawnBioLower)[3:4]<-c("Model","Lower")
   SpawnBioUncertainty<-merge(SpawnBioUpper,SpawnBioLower,by=c("Yr","Label","Model"))  
@@ -59,9 +63,17 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   Model.names          <- data.frame(Model= unique(SpawnBioUncertainty$Model) ) 
   Model.names$variable <- ModelLabels
   
-  # CHECK: not sure what lines need to get removed here, previously it was just hardcoded lines 1-6. Maybe all ssb_virgin and initial?
-  SpawnBioUncertainty <- SpawnBioUncertainty[-c(1:14),] 
   SpawnBioUncertainty <- merge(SpawnBioUncertainty,Model.names,by="Model")
+  # CHECK: not sure what lines need to get removed here, previously it was just hardcoded lines 1-6. Maybe all ssb_virgin and initial?
+  #SpawnBioUncertainty <- SpawnBioUncertainty[-c(1:14),] 
+  # Replacing line above with filterting for years between start and max yr
+  SpawnBioUncertainty <- SpawnBioUncertainty %>% 
+    merge(Startyrs, by = "variable") %>% 
+    filter(Yr >= StartYear & Yr <= max_yr) %>% 
+    select(-StartYear) %>% 
+    group_by(variable) %>% 
+    arrange(Yr, .by_group = T)
+  
   SummaryBio          <- data.table(SummaryBio)
   SpawnBioUncertainty <- data.table(SpawnBioUncertainty)
   
@@ -90,7 +102,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   FishingMort<-reshape2::melt(FishingMort,id.vars=c("Label","Yr"))
   FishingMort<-FishingMort %>% 
     merge(Startyrs, by = "variable") %>% 
-    filter(Yr >= StartYear) %>% 
+    filter(Yr >= StartYear & Yr <= max_yr) %>% 
     select(-StartYear)
   FMSY<-Summary$quants[which(Summary$quants$Label=="annF_MSY"),1:NModels]
   FMSY<-reshape2::melt(FMSY)
@@ -106,6 +118,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   Model.names$variable <- ModelLabels
   
   Funcertainty <- merge(Funcertainty,Model.names,by="Model")
+  Funcertainty <- filter(Funcertainty, Yr <= max_yr)
   colnames(FMSY)   <- c("Model","value")
   FMSY             <- merge(FMSY,Model.names,by="Model")
   
@@ -137,7 +150,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   Recruits<-reshape2::melt(Recruits,id.vars=c("Label","Yr"))
   Recruits<-Recruits %>% 
     merge(Startyrs, by = "variable") %>% 
-    filter(Yr >= StartYear) %>% 
+    filter(Yr >= StartYear & Yr <= max_yr) %>% 
     select(-StartYear)
   
   Recruits <- data.table(Recruits)
@@ -156,8 +169,6 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   #c
   
   # Kobe plot
-  max_yr=unique(Summary$endyrs)
-  
   Results <- setNames(data.frame(matrix(ncol = 3, nrow = NModels)), 
                       c("Model", "B_Bmsy_term", "F_Fmsy_term"))
   Results$Model <- ModelLabels
