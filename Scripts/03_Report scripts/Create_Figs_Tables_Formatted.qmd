@@ -2,6 +2,7 @@
 title: "Species figures and tables"
 number-sections: true
 echo: false
+error: true
 format: 
   docx:
     reference-doc: ../../../custom-reference-doc.docx
