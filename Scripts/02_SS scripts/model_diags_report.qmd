@@ -266,7 +266,8 @@ if(dir.exists(file.path(getwd(), "jitter"))){
     mutate(Run = seq(1, params$Njitter + 1)) %>%
     ggplot(aes(x = Run, y = Likelihood)) +
     geom_point() +
-    geom_hline(yintercept = baselike)
+    geom_hline(yintercept = baselike) +
+    theme_classic()
 
   likes
   
@@ -279,7 +280,7 @@ if(dir.exists(file.path(getwd(), "jitter"))){
 ```{r }
 
 if(dir.exists(file.path(getwd(), "jitter"))){
-   SSplotComparisons(jittersum, subplots = c(2,8,10), new = F)
+   SSplotComparisons(jittersum, subplots = c(2,8,10), new = F, legend = F)
 }
 ```
 
