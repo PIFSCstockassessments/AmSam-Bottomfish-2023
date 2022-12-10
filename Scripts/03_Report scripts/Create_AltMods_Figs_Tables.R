@@ -217,9 +217,8 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
                  fill="khaki1", col="black") + 
          geom_segment(aes(x=1, xend=1, y=0, yend=1)) +
          scale_x_continuous(expand=c(0, 0), limits=c(0, x_max)) +
-         scale_y_continuous(expand=c(0, 0), limits=c(0, y_max)) +
          labs(x=expression(SSB/SSB[MSY]), y=expression(F/F[MSY]))+
-         scale_y_continuous(expand=expansion(mult=c(0.01,0.01)))+theme_bw()+
+         scale_y_continuous(expand=expansion(mult=c(0.01,0.01)),limits=c(0, y_max))+theme_bw()+
          theme(panel.border = element_blank())  
   
   # CHECK: Include last year uncertainty??
@@ -263,7 +262,7 @@ alt_mods2 <- alt_models[c(1,8:length(alt_mods_dir))]
 ## First set of alternate models
 Summary <-SSsummarize(alt_mods1)
 # Labels for model group 1
-ModelLabels<-c("Base","M = 0.16","M = 0.2","Linf = 75.5", "Linf = 92.3", "Steep = 0.65", "Steep = 0.79")
+ModelLabels<-c("Base","M-10%","M+10%","Linf-10%", "Linf+10%", "Steep-10%", "Steep+10%")
 Directory<-file.path(root_dir, "SS3 final models", species, "00_Alternate_Mods_Figs_Tables")
 dir.create(Directory)
 NModels<-Summary$n
@@ -363,8 +362,7 @@ for(species in species_names){
     
     if(model_group == 1){
       Summary <-SSsummarize(alt_mods1)
-      ModelLabels<-c("Base","M = 0.16","M = 0.2","Linf = 75.5", "Linf = 92.3", 
-                     "Steep = 0.65", "Steep = 0.79")
+      ModelLabels<-c("Base","M-10%","M+10%","Linf-10%", "Linf+10%", "Steep-10%", "Steep+10%")
     }
     if(model_group == 2){
       Summary <-SSsummarize(alt_mods2)
