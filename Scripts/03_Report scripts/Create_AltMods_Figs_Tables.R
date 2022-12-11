@@ -272,6 +272,10 @@ plotsensitivity(Summary, ModelLabels, NModels, Directory, model_group = 1)
 Summary <-SSsummarize(alt_mods2)
 # Labels for model group 2
 ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch")
+
+if(species=="LERU"|species=="VALO")
+ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch","No hermaphro.")
+
 #ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch", "No Hermaphro")
 Directory<-file.path(root_dir, "SS3 final models", species, "00_Alternate_Mods_Figs_Tables")
 NModels<-Summary$n
