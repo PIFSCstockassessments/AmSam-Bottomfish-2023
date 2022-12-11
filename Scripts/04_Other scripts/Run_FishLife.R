@@ -1,5 +1,5 @@
-#require(devtools)
-#devtools::install_github("james-thorson/FishLife")
+#require(remotes)
+#remotes::install_github("james-thorson/FishLife")
 #vignette("tutorial","FishLife")
 
 
