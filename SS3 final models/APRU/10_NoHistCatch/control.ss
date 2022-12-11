@@ -113,7 +113,8 @@
 4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
 #
 #_initial_F_parms; count = 0
-#
+#_LO  HI  INIT  PRIOR PR_SD PR_type PHASE
+0 0.6 0.1 0 0 0 1 #_1
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
     1	1	0	1	0	0	#_1         
