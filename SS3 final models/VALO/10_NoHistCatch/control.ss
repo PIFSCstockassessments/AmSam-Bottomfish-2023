@@ -125,7 +125,9 @@
 2.9 # max F or harvest rate, depends on F_Method
 4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
 #
-#_initial_F_parms; count = 0
+#_initial_F_parms
+#_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
+0	0.3	0.05	0	0	0	1	#_1
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname

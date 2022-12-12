@@ -88,7 +88,7 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-  2	5	       4	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+  2	5	    3.01	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
 0.2	1	0.655771	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
   0	2	0.552117	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
@@ -127,7 +127,7 @@
 #
 #_initial_F_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
-0	0.3	0.05	0	0	0	1	#_1
+0	0.3	0.02	0	0	0	1	#_1
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
@@ -135,8 +135,8 @@
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--2	2	0	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
- 0	2	0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
+-2	2	-1.04	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	    0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -149,12 +149,12 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
- 15	25	20	0	0	0	2	0	0	0	0	0	0	0	#_1
-0.5	 8	 2	0	0	0	2	0	0	0	0	0	0	0	#_2
+ 15	25	24	0	0	0	2	0	0	0	0	0	0	0	#_1
+0.5	 8	 4	0	0	0	2	0	0	0	0	0	0	0	#_2
 #_AgeSelex
 #_No age_selex_parm
 #_Dirichlet parameters
--5	10	0	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
+-5	10	-1.41	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
 #_no timevary selex parameters
 #
 0 #  use 2D_AR1 selectivity(0/1):  experimental feature
