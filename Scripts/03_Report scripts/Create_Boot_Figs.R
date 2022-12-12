@@ -194,13 +194,13 @@ K <- ggplot() +
   geom_polygon(aes(x=c(MSST_x,x_max,x_max,MSST_x),y=c(1,1,y_max,y_max)),
                fill="khaki1",col="black") + 
   geom_segment(aes(x=1,xend=1,y=0,yend=1)) +
-  scale_x_continuous(expand=c(0,0),limits=c(0,x_max)) +
-  scale_y_continuous(expand=c(0,0),limits=c(0,y_max)) +
   labs(x=expression(SSB/SSB[MSY]),y=expression(F/F[MSY]))
 K <- K + geom_point(data=Last.Year,aes(x=B_BMSST,y=F_FMSY))+geom_point(size=0.2)
 K <- K + geom_path(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50),size=0.1)+scale_fill_gradientn(colors=rev(rainbow(4)))+
          geom_point(data=TS,aes(x=B_BMSST.50,y=F_FMSY.50,fill=YEAR),shape = 21,colour="black")
 K <- K + geom_point(data=TS[YEAR==max(YEAR)],aes(x=B_BMSST.50,y=F_FMSY.50),shape=21,fill="red",col="black",size=3)
+K <- K + scale_y_continuous(expand=expansion(mult=c(0.01,NA)),limits=c(0,y_max))+
+         scale_x_continuous(expand=c(0,0),limits=c(0,x_max))+theme_bw()+theme(panel.border = element_blank(),panel.grid = element_blank())
 
 ggsave(last_plot(),file=file.path(boot_dir,"05_Kobe.png"),width=14,height=10,units="cm")
 

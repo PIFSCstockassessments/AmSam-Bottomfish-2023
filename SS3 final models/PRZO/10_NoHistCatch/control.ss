@@ -85,7 +85,7 @@
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
 0.5	1	     0.9	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
 0.2	1	0.726277	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	2	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+  0	2	  0.5943	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
   0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
@@ -120,7 +120,9 @@
 2.9 # max F or harvest rate, depends on F_Method
 4 # N iterations for tuning F in hybrid method (recommend 3 to 7)
 #
-#_initial_F_parms; count = 0
+#_initial_F_parms
+#_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE
+0	0.3	0.01	0	0	0	1	#_1
 #
 #_Q_setup for fleets with cpue or survey data
 #_fleet	link	link_info	extra_se	biasadj	float  #  fleetname
