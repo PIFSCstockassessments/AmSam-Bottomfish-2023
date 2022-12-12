@@ -242,7 +242,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
 ### Run plot function for individual species ####
 ## Change species name here
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
-species <- species_names[1]
+species <- species_names[5]
 
 ## List directories here
 # delete any previously created folder of figures and tables
@@ -314,15 +314,15 @@ for(i in 1:length(Model.folders)){
     filter(str_detect(Label, "NatM")) %>% 
     pull(Value)
   
-  Results[i]$SSBmsy         <- round(aModel$derived_quants[index_SSB_MSY,2],0)
-  Results[i]$SSBMSST        <- round(aModel$derived_quants[index_SSB_MSY,2]*max(0.5,1-NatM),0)
+  Results[i]$SSBmsy         <- round(aModel$derived_quants[index_SSB_MSY,2],1)
+  Results[i]$SSBMSST        <- round(aModel$derived_quants[index_SSB_MSY,2]*max(0.5,1-NatM),1)
   Results[i]$Fmsy           <- round(aModel$derived_quants[index_Fstd_MSY,2],2)
-  Results[i]$SSBendyr        <- round(aModel$derived_quants[index_SSB_TermYr,2],0)
+  Results[i]$SSBendyr        <- round(aModel$derived_quants[index_SSB_TermYr,2],1)
   Results[i]$Fendyr          <- round(aModel$derived_quants[index_Fstd_TermYr,2],3)
   Results[i]$Fendyr_Fmsy     <- round(Results[i]$Fendyr/Results[i]$Fmsy,2)  
-  Results[i]$SSBendyr_SSBmsy <- round(Results[i]$SSBendyr/Results[i]$SSBmsy,2)
-  Results[i]$SSBendyr_SSBMSST <- round(Results[i]$SSBendyr/Results[i]$SSBMSST,2)
-  Results[i]$CatchMSY       <- round(aModel$derived_quants[index_MSY,2],0)
+  Results[i]$SSBendyr_SSBmsy <- round(Results[i]$SSBendyr/Results[i]$SSBmsy,1)
+  Results[i]$SSBendyr_SSBMSST <- round(Results[i]$SSBendyr/Results[i]$SSBMSST,1)
+  Results[i]$CatchMSY       <- round(aModel$derived_quants[index_MSY,2],1)
 }
 
 names(Results) <- c("Model", 
@@ -414,15 +414,15 @@ for(species in species_names){
       filter(str_detect(Label, "NatM")) %>% 
       pull(Value)
     
-    Results[i]$SSBmsy         <- round(aModel$derived_quants[index_SSB_MSY,2],0)
-    Results[i]$SSBMSST        <- round(aModel$derived_quants[index_SSB_MSY,2]*max(0.5,1-NatM),0)
+    Results[i]$SSBmsy         <- round(aModel$derived_quants[index_SSB_MSY,2],1)
+    Results[i]$SSBMSST        <- round(aModel$derived_quants[index_SSB_MSY,2]*max(0.5,1-NatM),1)
     Results[i]$Fmsy           <- round(aModel$derived_quants[index_Fstd_MSY,2],2)
-    Results[i]$SSBendyr        <- round(aModel$derived_quants[index_SSB_TermYr,2],0)
+    Results[i]$SSBendyr        <- round(aModel$derived_quants[index_SSB_TermYr,2],1)
     Results[i]$Fendyr          <- round(aModel$derived_quants[index_Fstd_TermYr,2],3)
     Results[i]$Fendyr_Fmsy     <- round(Results[i]$Fendyr/Results[i]$Fmsy,2)  
-    Results[i]$SSBendyr_SSBmsy <- round(Results[i]$SSBendyr/Results[i]$SSBmsy,2)
-    Results[i]$SSBendyr_SSBMSST <- round(Results[i]$SSBendyr/Results[i]$SSBMSST,2)
-    Results[i]$CatchMSY       <- round(aModel$derived_quants[index_MSY,2],0)
+    Results[i]$SSBendyr_SSBmsy <- round(Results[i]$SSBendyr/Results[i]$SSBmsy,1)
+    Results[i]$SSBendyr_SSBMSST <- round(Results[i]$SSBendyr/Results[i]$SSBMSST,1)
+    Results[i]$CatchMSY       <- round(aModel$derived_quants[index_MSY,2],1)
   }
   
   names(Results) <- c("Model", 
