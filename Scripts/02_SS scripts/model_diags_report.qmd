@@ -278,7 +278,7 @@ if(dir.exists(file.path(getwd(), "jitter"))){
 ```
 
 ```{r }
-
+#| label: model-comparisons
 if(dir.exists(file.path(getwd(), "jitter"))){
    SSplotComparisons(jittersum, subplots = c(2,8,10), new = F, legend = F)
 }

@@ -117,8 +117,7 @@ include_graphics(path)
 ```{r}
 #| label: fig-lenfits
 #| fig-cap: "Observed (open dots) vs expected (blue line) mean length by year with standard deviations intervals (left). Mean length residuals by year, with the background color indicating the result of the Runs test (right panel; green=pass, red=fail). The root mean square error (RMSE) is 5%."
-#| out-width: 16.5cm
-#| out-height: 5.84cm
+#| out-width: 6.5in
 #| fig-align: center
 
 
@@ -153,6 +152,22 @@ path <- c(file.path(main.dir, paste0(params$species, "_", params$scenario, "_mod
 
 include_graphics(path)
 ```
+
+```{r}
+#| label: fig-jitter
+#| fig-cap: "Jitter analysis was run to ensure model converged at global solution."
+#| layout-ncol: 2
+#| out-width: 15cm
+
+path <- c(file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "jitter-1.png"),
+                  file.path(main.dir, 
+                            paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "model-comparisons-1.png"))
+
+include_graphics(path)
+```
+
 
 ```{r}
 #| label: fig-r0prof
@@ -276,6 +291,85 @@ refpoints.ft
 path <- file.path(main.dir, "bootstrap", "05_Kobe.png")
 include_graphics(path)
 ```
+
+```{r}
+#| tbl-cap: "Summary table of key model output for all sensitivity model runs."
+
+Results <- read.csv(file.path("../../..", "SS3 final models", params$species, "00_Alternate_Mods_Figs_Tables", "Results.csv"))
+Results <- Results[,-1]
+
+no_border <- fp_border(width = 0)
+set_flextable_defaults(
+  font.size = 9, font.family = "Arial", border.color = "black", font.color = "black",
+  padding.bottom = 0, padding.top = 0, line_spacing = 1, text.align = "center")
+
+
+Results.ft <- flextable(Results)
+Results.ft <- hline_bottom(Results.ft, border = no_border)
+
+Results.ft <- compose(Results.ft, j = 2, part = "header", 
+                        value = as_paragraph(as_i("F"), as_sub("2021")))
+Results.ft <- compose(Results.ft, j = 3, part = "header", 
+                        value = as_paragraph(as_i("F"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 4, part = "header", 
+                        value = as_paragraph(as_i("F"), as_sub("2021"), "/", as_i("F"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 5, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 6, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("MSST")))
+Results.ft <- compose(Results.ft, j = 7, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021")))
+Results.ft <- compose(Results.ft, j = 8, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021"), "/", as_i("SSB"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 9, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021"), "/", as_i("SSB"), as_sub("MSsT")))
+Results.ft <- compose(Results.ft, j = 10, part = "header", 
+                        value = as_paragraph("Catch", as_sub("MSY")))
+Results.ft <- align(Results.ft, align = "center", part = "body")
+
+Results.ft <- compose(Results.ft, j ="Model", i = 1, part = "body",
+                      value = as_paragraph("Base case"))
+Results.ft <- compose(Results.ft, j ="Model", i = 2, part = "body",
+                      value = as_paragraph(as_i("M"), "= XX cm"))
+Results.ft <- compose(Results.ft, j ="Model", i = 3, part = "body",
+                      value = as_paragraph(as_i("M"), "= XX cm"))
+Results.ft <- compose(Results.ft, j ="Model", i = 4, part = "body",
+                      value = as_paragraph(as_i("L"), as_sub("inf"), "= XX cm"))
+Results.ft <- compose(Results.ft, j ="Model", i = 5, part = "body",
+                      value = as_paragraph(as_i("L"), as_sub("inf"), "= XX cm"))
+Results.ft <- compose(Results.ft, j ="Model", i = 6, part = "body",
+                      value = as_paragraph("Steepness = XX"))
+Results.ft <- compose(Results.ft, j ="Model", i = 7, part = "body",
+                      value = as_paragraph("Steepness = XX"))
+Results.ft <- compose(Results.ft, j ="Model", i = 8, part = "body",
+                      value = as_paragraph("Alternate life history"))
+Results.ft <- compose(Results.ft, j ="Model", i = 9, part = "body",
+                      value = as_paragraph("Recruitment deviations"))
+Results.ft <- compose(Results.ft, j ="Model", i = 10, part = "body",
+                      value = as_paragraph("No historical catch"))
+if(nrow(Results) > 10){
+  Results.ft <- compose(Results.ft, j ="Model", i = 11, part = "body",
+                      value = as_paragraph("No hermaphroditism"))
+}
+Results.ft <- autofit(Results.ft)
+Results.ft
+
+```
+
+
+```{r}
+#| label: fig-altmods-1
+#| out-width: 16.5cm
+#| fig-cap: "Sensitivity analyses showing differences in spawning biomass, fishing mortality, recruitment, and final year stock status (Kobe plot) under different scenarios."
+
+path <- c(file.path("../../..", "SS3 final models", params$species, "00_Alternate_Mods_Figs_Tables", "Sensitivity1.png"),
+          file.path("../../..", "SS3 final models", params$species, "00_Alternate_Mods_Figs_Tables", "Sensitivity2.png"))
+include_graphics(path)
+
+```
+
+
+
 
 ```{r}
 #| tbl-cap: "Probability of overfishing (F/FMSY > 1) at different annual fixed catch values (metric tons) by final projected year. Catch values for a given probability of overfishing in a given year were applied in all previous years (i.e., 2024 to the year of interest). Catches for years prior to the start of the new catch guidance (2022 to 2023) were fixed at the mean of the last 3 years of catch data (2019 to 2021)."
