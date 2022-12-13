@@ -45,25 +45,38 @@
 1 #_maturity_option:  1=length logistic; 2=age logistic; 3=read age-maturity matrix by growth_pattern; 4=read age-fecundity; 5=disabled; 6=read length-maturity
 1 #_First_Mature_Age
 1 #_fecundity option:(1)eggs=Wt*(a+b*Wt);(2)eggs=a*L^b;(3)eggs=a*Wt^b; (4)eggs=a+b*L; (5)eggs=a+b*W
-0 #_hermaphroditism option:  0=none; 1=female-to-male age-specific fxn; -1=male-to-female age-specific fxn
+1 #_hermaphroditism option:  0=none; 1=female-to-male age-specific fxn; -1=male-to-female age-specific fxn
+-1 # Hermaphro_season 
+0 # Hermaphro_maleSSB
 1 #_parameter_offset_approach (1=none, 2= M, G, CV_G as offset from female-GP1, 3=like SS2 V1.x)
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-    0	      2	    0.18	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-    1	     60	     6.2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
-   50	    100	    83.3	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
- 0.05	   0.25	   0.129	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
- 0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
-   -1	      3	5.82e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-   -1	      4	    2.77	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-   35	     60	    46.2	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_2          
-   -3	      3	   -0.98	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
-   -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
-   -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
-  0.1	     10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-1e-06	0.99999	     0.5	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+    0	   2	   0.36	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
+    1	  20	   10.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   38	 100	   43.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
+ 0.05	0.35	   0.26	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
+   -1	   3	1.3e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+   -1	   4	   3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+   10	  60	     26	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+   -3	   3	  -0.74	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+   -3	   3	      1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
+   -3	   3	      0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
+    0	   2	   0.36	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Male_GP_1       
+    1	  20	   10.8	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Male_GP_1      
+   38	 100	   43.5	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Male_GP_1      
+ 0.05	0.35	   0.26	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Male_GP_1      
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Male_GP_1       
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Male_GP_1         
+   -1	   3	1.3e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
+   -1	   4	   3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
+  0.5	  10	    5.9	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_inflectionage       
+  0.1	 0.6	    0.4	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_StDev               
+    0	   1	      1	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_asymprate           
+  0.1	  10	      1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
+1e-06	   1	      1	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
@@ -75,11 +88,11 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-0.01	5	    1.07	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
- 0.2	1	0.717591	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-   0	2	0.448452	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
-  -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
-   0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
+0.1	5	       4	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.2	1	0.767674	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
+  0	2	0.411207	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+ -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
+  0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
 0 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
 1971 # first year of main recr_devs; early devs can preceed this era
@@ -120,7 +133,7 @@
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--5	3	-2	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
+-6	2	-2	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
  0	2	 0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
@@ -134,8 +147,8 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-20	55	39.6	0	0	0	2	0	0	0	0	0	0	0	#_1
- 5	30	12.6	0	0	0	2	0	0	0	0	0	0	0	#_2
+20	50	25	0	0	0	2	0	0	0	0	0	0	0	#_1
+ 1	20	 4	0	0	0	2	0	0	0	0	0	0	0	#_2
 #_AgeSelex
 #_No age_selex_parm
 #_Dirichlet parameters
