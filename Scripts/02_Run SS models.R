@@ -16,7 +16,7 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 cl    <- makeCluster (9)
-lapply(list(Lt[[5]]),function(x)     { # Run a single model
+lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
   DirName   <- "102_AlternatelH"
