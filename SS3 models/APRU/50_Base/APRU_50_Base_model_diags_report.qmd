@@ -2,16 +2,13 @@
 title: "American Samoa Model Checks"
 author: ""
 date: "`r Sys.Date()`"
-format: 
-  html:
-    self-contained: true
+format: html
 params: 
   species: "APVI"
   scenario: "base"
   profile: "InitF"
   profile_vec: !expr seq(0,2,0.2)
   Njitter: !expr 2
-
 ---
 
 ```{r setup}
@@ -28,7 +25,7 @@ library(gt)
 
 ```
 
-**This is a summary report for the `r params$species` `r params$scenario` model run.** 
+**This is a summary report for the `r params$species` `r params$scenario` model run.**
 
 ```{r}
 
@@ -36,16 +33,18 @@ report. <- SS_output(dir = getwd(), verbose = FALSE, printstats = FALSE)
 
 ```
 
-# Model Output 
+# Model Output
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ## Input Data
+
 ```{r }
+#| label: dataplot
 SSplotData(report.)
 ```
 
 ## Convergence Check
+
 ```{r}
 data.frame(Converged = file.exists(file.path(getwd(), "ss.std")), 
            MaxGrad = report.$maximum_gradient_component)
@@ -53,11 +52,12 @@ data.frame(Converged = file.exists(file.path(getwd(), "ss.std")),
 report.$warnings
 ```
 
+## Fit to Model
 
-## Fit to Model 
 ### CPUE
 
 ```{r}
+#| label: indexfits
 #| fig-show: hold
 #| message: false
 #| fig-align: center
@@ -72,9 +72,11 @@ if(n.indices > 0){
   # gt()
 
 for(i in 1:n.indices){
-  sspar(mfrow = c(1,2))
+  ylim <- SSrunstest(report., quants = "cpue", verbose = F)
+  sspar(mfrow = c(1,2), mai = c(.6,.6,.1,.1))
   SSplotIndices(report., subplots = 2, fleets = i, verbose = F)
-  SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i, ylim = c(-.5,.5), verbose = F)
+  SSplotRunstest(report., subplots = "cpue", add = TRUE, indexselect = i, 
+                 ylim = c(min(ylim$sigma3.lo), max(ylim$sigma3.hi)), verbose = F)
 }
  SSrmse(report., quants = "cpue")$RMSE %>% gt()
 
@@ -88,40 +90,46 @@ for(i in 1:n.indices){
 
 ```
 
-
 ### Length Comp
+
 ```{r}
 SSrmse(report., quants = "len")$RMSE %>% gt()
 ```
 
-
 ```{r}
+#| label: lenfits
 #| fig-show: hold
 #| message: false
 #| fig-align: center
 #| layout-ncol: 2
 
-#sspar(mfrow = c(1,2))
-SSplotComps(report., subplots = 8, fleets = 1, new = F, verbose = F)
-runs <- SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.3,.3), verbose = F)
-#SSplotJABBAres(report., subplots = "len", add = TRUE, indexselect = 1, ylim = c(-.4,.4))
+ylim <- SSrunstest(report., quants = "len", verbose = F)
+sspar(mfrow = c(1,2), omi = c(.35,.3,.1,.1), mai = c(.6,.55,.1,.1))
+SSMethod.TA1.8(report., type = "len", set.pars = F, fleet = 1, printit = F)
+SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1, 
+               ylim = c(min(ylim$sigma3.lo), max(ylim$sigma3.hi)), verbose = F)
+
+
 ```
 
 ```{r}
+#| label: lencompfits
 #| fig-align: center
-SSplotComps(report., subplots = 8, fleets = 1)
+sspar(mfrow = c(1,2))
 SSplotComps(report., subplots = 21, fleets = 1)
 SSplotComps(report., subplots = 1, fleets = 1)
 
-
 ```
 
-## Retrospective and Hindcasting  
-### Retrospective 
+## Retrospective and Hindcasting
+
+### Retrospective
+
 ```{r }
 #| message: false
 #| eval: true
 #| error: true
+#| label: retrospectives
 if(dir.exists(file.path(getwd(), "Retrospectives"))){
   
   retro.dirs <- list.files(file.path(getwd(), "Retrospectives"),
@@ -147,7 +155,9 @@ SSplotRetro(retrosum,
 ```
 
 ### Hindcasting
+
 ```{r}
+#| label: hindcast
 #| eval: true
 #| error: true
 
@@ -169,16 +179,17 @@ if(dir.exists(file.path(getwd(), "Retrospectives"))){
 
 ```
 
+## Recruitment Deviations
 
-## Recruitment Deviations 
 ```{r}
+#| label: recdevs
 SSplotRecdevs(report., subplots = c(2,3))
 ```
-
 
 ## Likelihood Profile
 
 ```{r }
+#| label: r0prof
 if(dir.exists(file.path(getwd(), paste0(params$profile, "_profile")))){
   
 r0.vec <- params$profile_vec
@@ -219,18 +230,21 @@ PinerPlot(profilesummary, component = "Surv_like",
 
 ```
 
-## Management Quantities  
-```{r }
+## Management Quantities
 
+```{r }
+#| label: mvlnkb
 mvln <- SSdeltaMVLN(report.)
 SSplotEnsemble(mvln$kb, subplots = c("stock", "harvest", "SSB", "F"), add = TRUE)
 dev.off()
 
 ```
 
+## Jitter
 
-## Jitter  
 ```{r}
+#| label: jitter
+
 if(dir.exists(file.path(getwd(), "jitter"))){
   
   jittermods <- SSgetoutput(keyvec=1:params$Njitter,
@@ -252,7 +266,8 @@ if(dir.exists(file.path(getwd(), "jitter"))){
     mutate(Run = seq(1, params$Njitter + 1)) %>%
     ggplot(aes(x = Run, y = Likelihood)) +
     geom_point() +
-    geom_hline(yintercept = baselike)
+    geom_hline(yintercept = baselike) +
+    theme_classic()
 
   likes
   
@@ -262,12 +277,32 @@ if(dir.exists(file.path(getwd(), "jitter"))){
   
 ```
 
+```{r }
 
-    
-```{r }  
 if(dir.exists(file.path(getwd(), "jitter"))){
-   SSplotComparisons(jittersum, subplots = c(2,8,10), new = F)
+   SSplotComparisons(jittersum, subplots = c(2,8,10), new = F, legend = F)
 }
 ```
+
+## Selectivity and Maturity
+
+```{r}
+#| label: selectivity
+#| out-width: 7.4cm
+
+#sspar(mfrow = c(1,2))
+SSplotSelex(report., subplots = c(1), mainTitle = F)
+SSplotSelex(report., subplots = c(2), mainTitle = F)
+```
+
+```{r}
+#| label: maturity
+#| out-width: 7.2cm
+
+#sspar(mfrow = c(1,2), mai = c(.6,.6,.1,.1))
+SSplotBiology(report., subplots = c(6))
+SSplotBiology(report., subplots = c(8))
+```
+
 
 :::
