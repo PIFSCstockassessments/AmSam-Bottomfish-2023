@@ -159,6 +159,9 @@ D <- D[LENGTH_FL > 15]
 # Add region weights
 D <- merge(D,AW,by="AREA_C")
 
+# Filter 2011 data for VALO, very odd size frequency
+#D <- D[!(SPECIES=="VALO"&YEAR==2011)]
+
 # Statistics
 Species.List <- unique(D$SPECIES)
 NList   <- list()

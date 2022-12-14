@@ -16,19 +16,19 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (9)
-lapply(list(Lt[[1]]),function(x)     { # Run a single model
+lapply(list(Lt[[9]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "102_AlternatelH"
+  DirName   <- "50_BOOT30"
   runmodels <- F   # Turn off if you want to process results only
   N_boot    <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 0   # Set to 0 to turn forecast off
-  RD        <- T  # Run Diagnostics (jitter, profile, retro)
+  N_foreyrs <- 7   # Set to 0 to turn forecast off
+  RD        <- F  # Run Diagnostics (jitter, profile, retro)
   ProfRes   <- 0.1 # R0 profile resolution
   Begin     <- c(1967,1986)[1]
-  DeleteForecastFiles <- F
+  DeleteForecastFiles <- T
   SavedCores <- 2
-  Create_species_report_figs <- T
+  Create_species_report_figs <- F
   
   require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss,officer,flextable)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
@@ -70,7 +70,7 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
   
   if(Create_species_report_figs){
     
-    file.copy(from = file.path(X$root,"Scripts","03_Report scripts",
+    file.copy(from = file.path(x$root,"Scripts","03_Report scripts",
                                "Create_Figs_Tables_Formatted.qmd"), 
               to = file.path(model_dir, 
                              "Create_Figs_Tables_Formatted.qmd"),
