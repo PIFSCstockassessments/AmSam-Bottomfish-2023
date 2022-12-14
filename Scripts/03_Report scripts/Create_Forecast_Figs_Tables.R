@@ -2,7 +2,7 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 
 
   # COMMENT OUT THIS LINE
-#  model_dir <- file.path(root_dir,"SS3 models","VALO","50_Base")
+  model_dir <- file.path(root_dir,"SS3 models","VALO","50_BOOT30")
   
   
   
