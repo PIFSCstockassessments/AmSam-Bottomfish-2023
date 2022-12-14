@@ -56,7 +56,7 @@ D$W.B <- 1
 D$W.P <- 1
 
 # Factors
-D$AREA_C      <- factor(D$AREA_C,levels=c("Tutuila","Bank"))
+D$AREA_C      <- factor(D$AREA_C,levels=c("Tutuila","Bank")) 
 D$SEASON      <- factor(D$SEASON,levels=c("fall","spring","summer","winter"))
 D$TYPE_OF_DAY <- factor(D$TYPE_OF_DAY,levels=c("WD","WE"))
 D$YEAR        <- factor(D$YEAR)
@@ -269,6 +269,7 @@ B.Model.Names       <- B.Model.Names[order(MODEL_ORDER)]
 #========================Generate standardized CPUE index for all models========================================
 # Create Walter's large table template and add add median for continuous variables and most commmon variable for categorical ones
 WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) #}
+WLT <- filter(WLT, N > 0)
 WLT <- select(WLT,-N)
 WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
 WLT$NUM_GEAR     <- median(D$NUM_GEAR)
@@ -292,8 +293,8 @@ for(i in 1:length(P.Models)){
   aWLT$MODEL_ORDER <- P.Model.Names[i]$MODEL_ORDER
   
   # Predict expected positive catch for all level combinations and calculate standard errors
-  LOG.CPUE       <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$fit
-  SD.LOG.CPUE    <- predict.gam(aP.Model,newdata=WLT, se.fit=T)$se
+  LOG.CPUE       <- predict.gam(aP.Model,newdata=aWLT, se.fit=T)$fit 
+  SD.LOG.CPUE    <- predict.gam(aP.Model,newdata=aWLT, se.fit=T)$se  
   aWLT           <- cbind(aWLT,LOG.CPUE)
   aWLT           <- cbind(aWLT,SD.LOG.CPUE)
   aWLT$CPUE      <- exp(aWLT$LOG.CPUE+aWLT$SD.LOG.CPUE[i]^2/2 )
