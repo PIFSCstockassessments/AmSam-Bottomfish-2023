@@ -363,8 +363,8 @@ NOMI               <- D[,list(CPUE_TOT=mean(CPUE),CPUE_PROB=mean(PRES)),by=list(
 NOMI               <- merge(NOMI,NOMI1,by=c("YEAR","SEASON","AREA_C"))
 NOMI$CPUE_TOT      <- NOMI$CPUE_PROB*NOMI$CPUE_POS
 NOMI$WEIGHT                    <- 1.0 # This is the value for the Manua I. model, which only has 1 AREA_C
-NOMI[AREA_C=="Tutuila"]$WEIGHT <- 0.87
-NOMI[AREA_C=="Manua"]$WEIGHT   <- 0.13
+NOMI[AREA_C=="Tutuila"]$WEIGHT <- 0.89
+NOMI[AREA_C=="Bank"]$WEIGHT   <- 0.11
 NOMI <- NOMI[,list(CPUE_TOT=sum(CPUE_TOT*WEIGHT),CPUE_POS=sum(CPUE_POS*WEIGHT),CPUE_PROB=sum(CPUE_PROB*WEIGHT)),by=list(YEAR,SEASON)] # Sum abundance in all region, by regional weight
 NOMI <- NOMI[,list(CPUE_TOT=mean(CPUE_TOT),CPUE_POS=mean(CPUE_POS),CPUE_PROB=mean(CPUE_PROB)),by=list(YEAR)] # Average all 12 SEASONs per year
 NOMI$CPUE_TOT.STD  <- NOMI$CPUE_TOT/mean(NOMI$CPUE_TOT)*100
