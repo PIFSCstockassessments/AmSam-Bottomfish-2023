@@ -5,7 +5,18 @@
 
 Run_Forecasts <- function(model_dir, N_foreyrs, FixedCatchSeq, endyr, SavedCores=2, DeleteForecastFiles=T, seed=123){
   
-  require(data.table);  require(tidyverse)
+  
+  # COMMENT OUT THIS LINE
+    root_dir      <- root_dir <- here(..=2); set.seed(123)
+    model_dir     <- file.path(root_dir,"SS3 models","VALO","50_BOOT30")
+    fore_dir <- file.path(model_dir,"forecast")
+    FixedCatchSeq <- c(0.6,1.4,0.1)
+    FixedCatchVec  <- seq(FixedCatchSeq[1],FixedCatchSeq[2],FixedCatchSeq[3])
+    N_ForeCatch    <- length(FixedCatchVec)
+  # COMMENT OUT ABOVE  
+    
+  require(data.table);  require(tidyverse); require(r4ss)
+    
   if(!file.exists(file.path(model_dir, "bootstrap"))){
     stop("No bootstrap runs were found. Please run bootstraps first and then re-run forecast.")
   }
@@ -112,34 +123,52 @@ Run_Forecasts <- function(model_dir, N_foreyrs, FixedCatchSeq, endyr, SavedCores
         r4ss::run(dir = temp_dir, exe = "ss_opt_win.exe", skipfinished = F)
     
         # copy output files (might be good to use "file.exists" command first to check if they exist
-        file.copy(file.path(temp_dir, "Report.sso"), paste0(fore_dir, "/Report_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
-        file.copy(file.path(temp_dir, "CompReport.sso"), paste0(fore_dir, "/CompReport_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
-        file.copy(file.path(temp_dir, "covar.sso"), paste0(fore_dir, "/covar_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
-        file.copy(file.path(temp_dir, "data_echo.ss_new"), paste0(fore_dir, "/data_echo_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".ss_new"))
+       # file.copy(file.path(temp_dir, "Report.sso"), paste0(fore_dir, "/Report_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
+       # file.copy(file.path(temp_dir, "CompReport.sso"), paste0(fore_dir, "/CompReport_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
+       #  file.copy(file.path(temp_dir, "covar.sso"), paste0(fore_dir, "/covar_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".sso"))
+       #  file.copy(file.path(temp_dir, "data_echo.ss_new"), paste0(fore_dir, "/data_echo_B",str_pad(iboot,2,pad="0"),"C",str_pad(icatch,2,pad="0"),".ss_new"))
         # other .sso files could be copied as well
 
        })  # End of Fixed Catch loop
-     stopCluster (cl)
+     stopCluster (cl) 
   } # End of Bootstrap loop
+ 
+
+  # THe SSgetoutput function seems to stop working when >120 models are loaded at once. Need to split the calls to this function to reduce load.
+  Model.Limit <- 120 
+  N_models <- N_boot*N_ForeCatch  
+  N_splits <- ceiling(N_models/Model.Limit)
+  
+  
   
   # Generate model names
   boot.names  <- paste0(  "B",str_pad(rep(1:N_boot, each=N_ForeCatch),2,pad="0")   )
   catch.names <- paste0(  "C",str_pad(rep(1:N_ForeCatch, times=N_boot),2,pad="0")    )
   model.info  <- data.table( model.names=paste0(boot.names,catch.names))
   
-    # Read all model files and generate a list
-  models <- SSgetoutput(keyvec = paste0("_",model.info$model.names), 
-                      dirvec = file.path(fore_dir), verbose = T)
   
-  mvlns <- list()
-  for(i in 1:length(models)){
-    set.seed(seed)
+  
+  # Read all model files and generate a list
+  
+  # This it the normal way of combining models into a list. It was giving me errors when trying to load a lot of models (>100)
+  #  models <- SSgetoutput(keyvec = paste0("_",model.info[150:200]$model.names), 
+  #                     dirvec = file.path(fore_dir), verbose = T)
+  
+  models <- list()
+  for(i in 1:nrow(model.info)){
+     models[[i]] <- SS_output(dir=file.path(fore_dir,model.info[i]),verbose=F,printstats=F,warn=F,readwt=F)  
+  }
+  
+  
+    mvlns <- list()
+    for(i in 1:length(models)){
+      set.seed(seed)
     
-    aTS                      <- data.table( models[[i]]$timeseries )
-    model.info$FixedCatch[i] <- aTS[Era=="FORE"]$`dead(B):_1`[3] # Skip the first 2 years since they are not using the "fixed" catch (i.e. years between model end and start management)
+      aTS                      <- data.table( models[[i]]$timeseries )
+      model.info$FixedCatch[i] <- aTS[Era=="FORE"]$`dead(B):_1`[3] # Skip the first 2 years since they are not using the "fixed" catch (i.e. years between model end and start management)
     
-    try(
-    mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
+      try(
+       mvlns[[i]] <- ss3diags::SSdeltaMVLN(models[[i]], mc = 1000, 
                                         weight = 1, 
                                         run =model.info$model.names[i], 
                                         plot = F,
@@ -147,8 +176,10 @@ Run_Forecasts <- function(model_dir, N_foreyrs, FixedCatchSeq, endyr, SavedCores
                                         bias_correct_mean = T,
                                         addprj = T)$kb
       , silent=F)
-  }
+     }
   
+
+        
   # Natural mortality for MSST reference point
   SS.results <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
   PAR        <- data.table( SS.results$parameters )
