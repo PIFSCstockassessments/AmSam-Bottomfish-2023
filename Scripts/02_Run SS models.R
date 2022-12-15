@@ -40,7 +40,7 @@ lapply(list(Lt[[9]]),function(x)     { # Run a single model
                LW_option     = x$LW,MAT_option = x$MT, initF = x$IF,
                startyr       = Begin, endyr = 2021, fleets = 1, N_samp = 40,
                write_files   = T, runmodels = runmodels, ext_args = "",
-               do_retro      = RD,retro_years = 0:-3,
+               do_retro      = RD,retro_years = 0:-5,
                do_profile    = RD,profile = "SR_LN(R0)",
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),
                do_jitter     = RD, Njitter = 2,jitterFraction = 0.1,
