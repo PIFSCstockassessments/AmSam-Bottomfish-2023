@@ -77,7 +77,7 @@ RP[2,2:4] <- TS %>% filter(YEAR==2021) %>% select(FMORT.50,FMORT.05,FMORT.95)
 RP[3,2:4] <- data.frame( RP[2]$MEDIAN/RP[1]$MEDIAN,RP[2]$L95/RP[1]$L95,RP[2]$U95/RP[1]$U95 )
 RP[4,2:4] <- SS %>% summarize(BMSST.50=median(BMSST),BMSST.05=quantile(BMSST,0.05),BMSST.95=quantile(BMSST,0.95))
 RP[5,2:4] <- TS %>% filter(YEAR==2021) %>% select(SSB.50,SSB.05,SSB.95)
-RP[6,2:4] <- data.frame( RP[5]$MEDIAN/RP[4]$MEDIAN,RP[5]$L95/RP[4]$L95,RP[5]$U95/RP[4]$U95 )
+RP[6,2:4] <- TS %>% filter(YEAR==2021) %>% select(B_BMSST.50,B_BMSST.05,B_BMSST.95)
 RP[7,2:4] <- MSY
 RP[8,2]   <- C %>% filter(Yr>=2019&Yr<=2021) %>% summarize(Catch=sum(Obs)/3) 
 RP[8,3]   <- C %>% filter(Yr>=2019&Yr<=2021) %>% summarize(L95=RP[8]$MEDIAN-sum(RP[8]$MEDIAN*LOGSD.MT)/3*1.96)
