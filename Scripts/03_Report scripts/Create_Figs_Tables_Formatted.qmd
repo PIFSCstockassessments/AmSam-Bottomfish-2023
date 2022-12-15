@@ -1,5 +1,6 @@
 ---
 title: "Species figures and tables"
+author: "Marc Nadon and Meg Oshima"
 number-sections: true
 echo: false
 error: true
