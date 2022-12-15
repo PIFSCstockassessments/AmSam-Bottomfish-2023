@@ -2,7 +2,7 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 
 
   # COMMENT OUT THIS LINE
-  model_dir <- file.path(root_dir,"SS3 models","VALO","50_BOOT30")
+ # model_dir <- file.path(root_dir,"SS3 models","VALO","50_Base")
   
   
   
@@ -16,17 +16,56 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 # Start projection analyses at first year of new catch advice (ex. 2021=last year in model,2024=first year model will be used to generate catch advice) 
   mv_fore <- mv_fore %>% filter(year>min(year)+1) 
   
-  # Code below is for troubleshooting
- # BootSummary <- mv_fore %>% group_by(BootRun,CatchRun,year,FixedCatch) %>% summarize(F_Fmsy=round(median(F_Fmsy),4),SSB_SSBmsst=round(median(SSB_SSBmsst),3)) %>% as.data.table()
- #  ggplot(BootSummary[year==2026],aes(x=FixedCatch,y=F_Fmsy,linetype=as.character(year)))+geom_point()+facet_wrap(~BootRun)
- # ggplot(mv_fore,aes(x=Catch))+geom_histogram()+facet_wrap(~run)
-#  ggplot(mv_fore[FixedCatch==1.8&year==2028],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))+facet_wrap(~BootRun)
-  #ggplot(mv_fore[FixedCatch==2.8&year==2028],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))
+  mv_fore <- mv_fore %>% mutate(FixedCatch=round(FixedCatch,2)) %>%
+               mutate(BootCatchYr=paste0(BootRun,CatchRun,"_",year))
+               
   
+  # Code below is for troubleshooting
+  #BootSummary <- mv_fore %>% group_by(BootRun,CatchRun,year,BootCatchYr,FixedCatch) %>% summarize(F_Fmsy=round(median(F_Fmsy),4),SSB_SSBmsst=round(median(SSB_SSBmsst),3)) %>%
+                    arrange(BootRun,year,CatchRun) %>%  as.data.table()
+  
+  #ggplot(BootSummary[year==2028],aes(x=FixedCatch,y=F_Fmsy,linetype=as.character(year)))+geom_point()+facet_wrap(~BootRun)
+  #ggplot(mv_fore,aes(x=Catch))+geom_histogram()+facet_wrap(~run)
+  #ggplot(mv_fore[FixedCatch==1.05&year==2028],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))+facet_wrap(~BootRun)
+  #ggplot(mv_fore[FixedCatch==1.2&year==2028],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))
+  
+  #ggplot(mv_fore[BootRun=="B07"&FixedCatch==1.05],aes(x=F_Fmsy))+geom_histogram()+scale_x_continuous(limits=c(0,5))+facet_wrap(~year)
+
+  #summary(mv_fore[BootRun=="B07"&FixedCatch==1.05&year==2027])
+  #summary(mv_fore[BootRun=="B07"&FixedCatch==1.05&year==2028]) # Why does the F jump so much from year to the next?
   
 # Set project x limits (sometimes necessary for high variance, low selectivity, low biomass species)
   xmax <- 9999
 
+# EXPERIMENTAL FILTERS TO REMOVE WEIRD PROJECTIONS ISSUE  
+
+  # 1) remove FixedCatch values when F_Fmsy starts going doing down after increasing FixedCatch
+  
+  #BootSummary        <- BootSummary %>% mutate(Diff=F_Fmsy-lag(F_Fmsy)) %>% 
+  #                        mutate(Diff=ifelse(CatchRun=="C01",0,Diff),BootYear=paste0(BootRun,"_",year))
+  
+#  BootYear.list <- unique(BootSummary$BootYear)
+#  Keep.BootCatchYr <- list()
+#  for(i in 1:length(BootYear.list)){
+#    
+ #   aBCY         <- BootSummary[BootYear==BootYear.list[i]]
+  #  FirstNegDiff <- aBCY[Diff<0][1]$FixedCatch
+   # 
+  #  if(!is.na(FirstNegDiff))
+  #  aBCY <- aBCY %>% filter(FixedCatch<FirstNegDiff)  
+  #  
+  #  aBCY <- aBCY %>% select(BootCatchYr) 
+  #  
+  #  Keep.BootCatchYr <- rbind(Keep.BootCatchYr,aBCY) 
+  #}
+  
+#  mv_fore <- merge(mv_fore,Keep.BootCatchYr,by="BootCatchYr")
+  
+#  NewBootSummary <- mv_fore %>% group_by(BootRun,CatchRun,year,BootCatchYr,FixedCatch) %>% summarize(F_Fmsy=round(median(F_Fmsy),4),SSB_SSBmsst=round(median(SSB_SSBmsst),3)) %>%
+#    arrange(BootRun,year,CatchRun) %>%  as.data.table()
+  
+#  ggplot(NewBootSummary[year==2028],aes(x=FixedCatch,y=F_Fmsy,linetype=as.character(year)))+geom_point()+facet_wrap(~BootRun)
+  
 
 Z <- mv_fore %>%  group_by(year,FixedCatch) %>% 
         summarize(F_Fmsy=median(F_Fmsy),SSB_SSBmsst=median(SSB_SSBmsst)) %>% 

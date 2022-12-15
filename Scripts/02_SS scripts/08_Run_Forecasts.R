@@ -7,12 +7,12 @@ Run_Forecasts <- function(model_dir, N_foreyrs, FixedCatchSeq, endyr, SavedCores
   
   
   # COMMENT OUT THIS LINE
-    root_dir      <- root_dir <- here(..=2); set.seed(123)
-    model_dir     <- file.path(root_dir,"SS3 models","VALO","50_BOOT30")
-    fore_dir <- file.path(model_dir,"forecast")
-    FixedCatchSeq <- c(0.6,1.4,0.1)
-    FixedCatchVec  <- seq(FixedCatchSeq[1],FixedCatchSeq[2],FixedCatchSeq[3])
-    N_ForeCatch    <- length(FixedCatchVec)
+  #  root_dir      <- root_dir <- here(..=2); set.seed(123)
+  #  model_dir     <- file.path(root_dir,"SS3 models","VALO","50_BOOT10")
+  #  fore_dir <- file.path(model_dir,"forecast")
+  #  FixedCatchSeq <- c(0.6,1.4,0.1)
+  #  FixedCatchVec  <- seq(FixedCatchSeq[1],FixedCatchSeq[2],FixedCatchSeq[3])
+  # N_ForeCatch    <- length(FixedCatchVec)
   # COMMENT OUT ABOVE  
     
   require(data.table);  require(tidyverse); require(r4ss)
@@ -134,19 +134,11 @@ Run_Forecasts <- function(model_dir, N_foreyrs, FixedCatchSeq, endyr, SavedCores
   } # End of Bootstrap loop
  
 
-  # THe SSgetoutput function seems to stop working when >120 models are loaded at once. Need to split the calls to this function to reduce load.
-  Model.Limit <- 120 
-  N_models <- N_boot*N_ForeCatch  
-  N_splits <- ceiling(N_models/Model.Limit)
-  
-  
-  
   # Generate model names
   boot.names  <- paste0(  "B",str_pad(rep(1:N_boot, each=N_ForeCatch),2,pad="0")   )
   catch.names <- paste0(  "C",str_pad(rep(1:N_ForeCatch, times=N_boot),2,pad="0")    )
   model.info  <- data.table( model.names=paste0(boot.names,catch.names))
-  
-  
+
   
   # Read all model files and generate a list
   

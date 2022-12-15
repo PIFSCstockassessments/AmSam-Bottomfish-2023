@@ -104,10 +104,10 @@ A0   <- median(Data$A0)
 # Based on L99 of 47 cm (FL) from biosamplling (note that a larger L99 is available with UVS)
 # Based on L99 of 49.4 cm (FL) from creel+biosamplling (note: very similar to diver survey value)
 
-set.seed(123); Data <-Get_distributions(Family="Serranidae", Lmax.mean=494/0.86, Lmax.SD=1, M_method="Then_2014",n_iter=10000)
+set.seed(123); Data <-Get_distributions(Family="Serranidae", Lmax.mean=494/1, Lmax.SD=1, M_method="Then_2014",n_iter=10000)
 
-Linf <- median(Data$Linf*0.87)
-Lmat <- median(Data$Lmat*0.87)
+Linf <- median(Data$Linf*1)
+Lmat <- median(Data$Lmat*1)
 K    <- median(Data$K)
 Amax <- median(Data$Amax)
 M    <- median(Data$M)
