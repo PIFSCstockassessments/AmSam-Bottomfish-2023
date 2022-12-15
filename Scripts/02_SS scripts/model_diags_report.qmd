@@ -105,7 +105,7 @@ SSrmse(report., quants = "len")$RMSE %>% gt()
 
 ylim <- SSrunstest(report., quants = "len", verbose = F)
 sspar(mfrow = c(1,2), omi = c(.35,.3,.1,.1), mai = c(.6,.55,.1,.1))
-SSMethod.TA1.8(report., type = "len", set.pars = F, fleet = 1, printit = F)
+SSMethod.TA1.8(report., type = "len", set.pars = F, fleet = 1, printit = F, plotadj = F)
 SSplotRunstest(report., subplots = "len", add = TRUE, indexselect = 1, 
                ylim = c(min(ylim$sigma3.lo), max(ylim$sigma3.hi)), verbose = F)
 

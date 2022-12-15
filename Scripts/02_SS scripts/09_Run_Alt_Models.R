@@ -180,7 +180,7 @@ if(run_recdevs){
                 values_from = paste0(species))
   
   
-  CTL$do_recdev <- ctl.sps$do_recdev
+  CTL$do_recdev <- 1
   if(CTL$do_recdev == 1){
     
     CTL$MainRdevYrFirst            <- ctl.sps$MainRdevYrFirst
@@ -295,3 +295,8 @@ if(run_noherm){
   
 }
 
+
+base.rep <- SS_output(dir = file.path(mods_dir, "01_Base"))
+rec.rep <- SS_output(dir = file.path(mods_dir, "09_RecDev_test"))
+SSplotRecdevs(rec.rep)
+SSplotRecdevs(base.rep)
