@@ -5,7 +5,7 @@ pacman::p_load(r4ss, dplyr, stringr, this.path)
 root_dir <- this.path::here(..=2)
 
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
-species <- species_names[5]
+species <- species_names[9]
 
 ### Alternate model options 
 run_M <- T
