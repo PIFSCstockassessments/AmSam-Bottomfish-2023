@@ -1,6 +1,6 @@
 ---
 title: "American Samoa Model Checks"
-author: ""
+author: "Marc Nadon and Meg Oshima"
 date: "`r Sys.Date()`"
 format: html
 params: 
