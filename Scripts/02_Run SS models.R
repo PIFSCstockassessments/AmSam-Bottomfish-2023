@@ -19,16 +19,17 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 lapply(list(Lt[[6]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName   <- "50_Base"
-  runmodels <- F   # Turn off if you want to process results only
-  N_boot    <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs <- 7   # Set to 0 to turn forecast off
-  RD        <- F  # Run Diagnostics (jitter, profile, retro)
-  ProfRes   <- 0.1 # R0 profile resolution
-  Begin     <- c(1967,1986)[1]
+  DirName    <- "50_Base"
+  runmodels  <- F   # Turn off if you want to process results only
+  printreport<- T   # Turn off to skip ss_diags report
+  N_boot     <- 0   # Set to 0 to turn bootstrap off
+  N_foreyrs  <- 0   # Set to 0 to turn forecast off
+  RD         <- F   # Run Diagnostics (jitter, profile, retro)
+  ProfRes    <- 0.1 # R0 profile resolution
+  Begin      <- c(1967,1986)[1]
   DeleteForecastFiles <- T
   SavedCores <- 2
-  Create_species_report_figs <- F
+  Create_species_report_figs <- T
   
   require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss,officer,flextable)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
@@ -44,7 +45,7 @@ lapply(list(Lt[[6]]),function(x)     { # Run a single model
                do_profile    = RD,profile = "SR_LN(R0)",
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),
                do_jitter     = RD, Njitter = 2,jitterFraction = 0.1,
-               printreport   = RD, r4ssplots = runmodels,
+               printreport   = printreport, r4ssplots = runmodels,
                superyear     = x$SY,superyear_blocks = x$SY_block,
                F_report_basis = 0,lambdas = F,includeCPUE = T,init_values = 0,parmtrace = 0,last_est_phs = 10,
                seed = 123, SPR.target = 0.4, Btarget = x$Btarg, Bmark_relF_Basis = 1,
