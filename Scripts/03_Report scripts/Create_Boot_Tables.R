@@ -5,11 +5,9 @@ Create_Boot_Tables <- function(root_dir,model_dir){
 
   boot_dir <- file.path(model_dir,"bootstrap")
   
+  # Get the base non-bootstrapped results for total biomass (and other results?)
   SS.results <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
   PAR        <- data.table( SS.results$parameters )
-
-  # Get the base non-bootstrapped results for total biomass (and other results?)
-  SS.results    <- r4ss::SS_output(model_dir,verbose = FALSE, printstats = FALSE)
 
   # Catch data to calculate catch 2019-2022
   C <- SS.results$catch %>% select(Yr,Obs,LOGSD.MT=se)
