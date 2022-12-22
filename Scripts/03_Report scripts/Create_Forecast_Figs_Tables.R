@@ -2,7 +2,7 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 
 
   # COMMENT OUT THIS LINE
- # model_dir <- file.path(root_dir,"SS3 models","VALO","50_Base")
+ # model_dir <- file.path(root_dir,"SS3 models","LUKA","50_Base")
   
   
   
@@ -22,7 +22,7 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
   
   # Code below is for troubleshooting
   #BootSummary <- mv_fore %>% group_by(BootRun,CatchRun,year,BootCatchYr,FixedCatch) %>% summarize(F_Fmsy=round(median(F_Fmsy),4),SSB_SSBmsst=round(median(SSB_SSBmsst),3)) %>%
-                    arrange(BootRun,year,CatchRun) %>%  as.data.table()
+   #                 arrange(BootRun,year,CatchRun) %>%  as.data.table()
   
   #ggplot(BootSummary[year==2028],aes(x=FixedCatch,y=F_Fmsy,linetype=as.character(year)))+geom_point()+facet_wrap(~BootRun)
   #ggplot(mv_fore,aes(x=Catch))+geom_histogram()+facet_wrap(~run)
