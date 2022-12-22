@@ -143,11 +143,13 @@ retrocomp <- SSretroComps(mod.retro)
 sspar(mfrow = c(1,2))
 SSplotRetro(retrosum,
             subplots = "SSB",
-            add = TRUE)
+            add = TRUE, 
+            legendloc = "bottomleft")
 
 SSplotRetro(retrosum,
             subplots = "F",
-            add =TRUE)
+            add =TRUE,
+            legend = F)
 }else{
   print("No retrospective runs were found")
 }

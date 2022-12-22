@@ -103,11 +103,14 @@ include_graphics(path)
 
 ```{r}
 #| label: fig-indexfits
-#| fig-cap: "Observed (open dots) vs expected (blue line) CPUE abundance index by year with standard deviations intervals (left). CPUE index residuals by year, with the background color indicating the result of the Runs test (right panel; green=pass, red=fail). The root mean square error (RMSE) is 33%."
+#| fig-cap: !expr 'sprintf("RMSE is %.2f", rmse)'
 #| out-width: 11cm
 #| out-height: 7.88cm
 #| fig-align: center
 
+report <- r4ss::SS_output(dir = main.dir, verbose = F,
+                          printstats = F)
+rmse <- ss3diags::SSrmse(report, quants = "cpue")$RMSE$RMSE.perc[1]
 
 path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
                   "figure-html", "indexfits-1.png")
@@ -117,11 +120,11 @@ include_graphics(path)
 
 ```{r}
 #| label: fig-lenfits
-#| fig-cap: "Observed (open dots) vs expected (blue line) mean length by year with standard deviations intervals (left). Mean length residuals by year, with the background color indicating the result of the Runs test (right panel; green=pass, red=fail). The root mean square error (RMSE) is 5%."
+#| fig-cap: !expr 'sprintf("RMSE is %.2f", rmse)'
 #| out-width: 6.5in
 #| fig-align: center
 
-
+rmse <- ss3diags::SSrmse(report, quants = "len")$RMSE$RMSE.perc[1]
 path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
                   "figure-html", "lenfits-1.png")
 include_graphics(path)
