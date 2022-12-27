@@ -21,11 +21,11 @@ lapply(list(Lt[[5]]),function(x)     { # Run a single model
   
   DirName    <- "51_NoInterviewer13_27"
   runmodels  <- T   # Turn off if you want to process results only
-  printreport<- F   # Turn off to skip ss_diags report
+  printreport<- T   # Turn off to skip ss_diags report
   Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
   N_foreyrs  <- 0   # Set to 0 to turn forecast off
-  RD         <- F   # Run Diagnostics (jitter, profile, retro)
+  RD         <- T   # Run Diagnostics (jitter, profile, retro)
   ProfRes    <- 0.1 # R0 profile resolution
   Begin      <- c(1967,1986)[1]
   DeleteForecastFiles <- T
