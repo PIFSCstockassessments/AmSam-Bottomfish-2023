@@ -16,12 +16,13 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (9)
-lapply(list(Lt[[6]]),function(x)     { # Run a single model
+lapply(list(Lt[[5]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "50_Base"
-  runmodels  <- F   # Turn off if you want to process results only
-  printreport<- T   # Turn off to skip ss_diags report
+  DirName    <- "51_NoInterviewer13_27"
+  runmodels  <- T   # Turn off if you want to process results only
+  printreport<- F   # Turn off to skip ss_diags report
+  Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
   N_foreyrs  <- 0   # Set to 0 to turn forecast off
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
@@ -29,7 +30,6 @@ lapply(list(Lt[[6]]),function(x)     { # Run a single model
   Begin      <- c(1967,1986)[1]
   DeleteForecastFiles <- T
   SavedCores <- 2
-  Create_species_report_figs <- T
   
   require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss,officer,flextable)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
