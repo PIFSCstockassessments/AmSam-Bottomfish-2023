@@ -48,7 +48,7 @@ S$LMAX       <- S$LMAX/10
  BB[SIZ_LBS==0]$SIZ_LBS <- NA
  BB[SIZ_LBS==as.numeric(EST_LBS)]$SIZ_LBS <- NA # remove weights where interviewers confused the SIZ_LBS field (individual weights) with EST_LBS (total pounds caught)
  
- BB                     <- select(BB,INTERVIEW_PK,SIZE_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
+ BB                     <- select(BB,INTERVIEW_PK,INTERVIEWER1_FK,SIZE_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
  
   #Merge metadata tables
  BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID",all.x=T)
@@ -56,7 +56,7 @@ S$LMAX       <- S$LMAX/10
  BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
  
  # Simplify this dataset
- BB <- select(BB,DATASET,INTERVIEW_PK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
+ BB <- select(BB,DATASET,INTERVIEW_PK,INTERVIEWER1_FK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,LBS=SIZ_LBS)
  
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
@@ -75,6 +75,10 @@ BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 # Select only bottomfishing methods
 table(BB$METHOD_C,BB$SPECIES)
 BB <- BB[METHOD_C=="Bottomfishing"]  # This filters a few spearfishing records for some species. Main impact is for VALO with 51 records removed.
+
+# For LERU <=2009, keep only interviewers 13 and 27
+BB <- BB %>% filter(!(SPECIES=="LERU"&YEAR<=2009&!(INTERVIEWER1_FK=="13"|INTERVIEWER1_FK=="27")))
+
 
 # Final options for BBS data
 BB <- BB[!is.na(LENGTH_FL)]
