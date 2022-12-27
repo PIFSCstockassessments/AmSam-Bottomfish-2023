@@ -3,11 +3,10 @@
 require(data.table); require(openxlsx); require(tidyverse); require(openxlsx); require(gridExtra);require(grid); options(scipen=999)
 root_dir <- this.path::here(.. = 2) # establish directories using this.path
 dir.create(paste0(root_dir,"/Outputs/Summary/Size figures"),recursive=T,showWarnings=F)
-dir.create(paste0(root_dir,"/Outputs/SS3_Inputs"),recursive=T,showWarnings=F)
 
 # Options
 Combine_BB_BIO <- T # Combine biosampling and creel survey lengths
-Combine_Areas  <- T # Combine Tutuila, Manua, and the Banks
+Combine_Areas  <- F # Combine Tutuila, Manua, and the Banks
 BIN.LIST       <- data.table(SPECIES=c("APRU","APVI","CALU","ETCA","ETCO","LERU","LUKA","PRFI","PRFL","PRZO","VALO"),
                              BINWIDTH=c(5,5,5,5,5,3,2,5,5,3,3)) # in cm
 
@@ -46,7 +45,7 @@ BB[LEN_MM==0]$LEN_MM   <- NA
 BB[SIZ_LBS==0]$SIZ_LBS <- NA
 BB[SIZ_LBS==as.numeric(EST_LBS)]$SIZ_LBS <- NA # remove weights where interviewers confused the SIZ_LBS field (individual weights) with EST_LBS (total pounds caught)
 
-BB                     <- select(BB,INTERVIEW_PK,SIZE_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
+BB                     <- select(BB,INTERVIEW_PK,SIZE_PK,YEAR,SPECIES_FK,ISLAND_NAME,AREA_FK,METHOD_FK,INTERVIEWER1_FK,INTERVIEWER2_FK,FISH_CONDITION,INCOMPLETE_F,NUM_KEPT,EST_LBS,LEN_MM,SIZ_LBS)
 
 #Merge metadata tables
 BB <- merge(BB,A[DATASET=="BBS"],by.x="AREA_FK",by.y="AREA_ID",all.x=T)
@@ -54,7 +53,7 @@ BB <- merge(BB,M[DATASET=="BBS"],by.x=c("METHOD_FK","DATASET"),by.y=c("METHOD_ID
 BB <- merge(BB,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
 
 # Simplify this dataset
-BB <- select(BB,DATASET,INTERVIEW_PK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LMAX,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,SIZ_LBS)
+BB <- select(BB,DATASET,INTERVIEW_PK,SIZE_PK,YEAR,SCIENTIFIC_NAME,SPECIES_FK,SPECIES,ISLAND_NAME,AREA_C,METHOD_C,LW_A,LW_B,LMAX,FISH_CONDITION,INCOMPLETE_F,INTERVIEWER1_FK,INTERVIEWER2_FK,LBS_CAUGHT=EST_LBS,NUM_KEPT,LENGTH_FL=LEN_MM,SIZ_LBS)
 
 # Fix known species ID issues
 # Assign Pristipomoides rutilans (code 243) to P. flavipinnis (code 241) (A. rutilans shares the common name "Palu-sina" with P. flavipinnis)
@@ -72,6 +71,41 @@ BB[is.na(AREA_C)]$AREA_C <- BB[is.na(AREA_C)]$ISLAND_NAME
 table(BB$METHOD_C,BB$SPECIES)
 BB <- BB[METHOD_C=="Bottomfishing"]  # This filters a few spearfishing records for some species. Main impact is for VALO with 51 records removed.
 BA <- BB
+
+# Explore length data issue for LERU
+LR <- BA %>% filter(SPECIES=="LERU"&YEAR>=2004&LENGTH_FL<=50&(SIZ_LBS<=5|is.na(SIZ_LBS)))
+
+ggplot(data=LR)+geom_histogram(aes(x=LENGTH_FL))+facet_wrap(~YEAR)
+ggplot(data=LR[YEAR<=2009])+geom_point(aes(x=LENGTH_FL,y=SIZ_LBS))
+
+# Check if some patterns exists in length data source
+table(LR$ISLAND_NAME)
+table(LR$FISH_CONDITION)
+table(LR$INCOMPLETE_F)
+
+# Investigate interviewers pre-2009
+LR2 <- LR %>% filter(YEAR<=2009) %>% mutate(INTERVIEWER1_FK=as.character(INTERVIEWER1_FK))
+
+table(LR2$INTERVIEWER1_FK)
+table(LR2$INTERVIEWER2_FK)
+
+# Filter for the important interviewers only
+INT.ONE <- data.table( table(LR2$INTERVIEWER1_FK) ) %>% setnames("V1","INTERVIEWER1_FK") %>% 
+               mutate(INTERVIEWER1_FK2=ifelse(N>=50&INTERVIEWER1_FK!=0,INTERVIEWER1_FK,"Others")) %>% 
+                group_by(INTERVIEWER1_FK,INTERVIEWER1_FK2) %>% summarize(N=sum(N))
+
+LR2     <- merge(LR2,INT.ONE,by="INTERVIEWER1_FK")
+
+LR.INT <- LR2 %>% group_by(INTERVIEWER1_FK2,YEAR) %>% summarize(N=n())
+ggplot(data=LR.INT)+geom_line(aes(x=YEAR,y=N,col=as.character(INTERVIEWER1_FK2)))
+
+ggplot(data=LR2[YEAR==2006])+geom_histogram(aes(x=LENGTH_FL))+facet_wrap(~INTERVIEWER1_FK2) # Interviewer 85 seems off here
+ggplot(data=LR2[YEAR==2007])+geom_histogram(aes(x=LENGTH_FL))+facet_wrap(~INTERVIEWER1_FK2) 
+ggplot(data=LR2[YEAR==2008])+geom_histogram(aes(x=LENGTH_FL))+facet_wrap(~INTERVIEWER1_FK2) 
+
+ggplot(data=LR2)+geom_histogram(aes(x=LENGTH_FL))+facet_grid(INTERVIEWER1_FK2~YEAR,scales="free_y") 
+
+
 
 # Check Tutuila vs. Manua size structure for L. kasmira
 BLUK       <- BB[SPECIES=="LUKA"&METHOD_C=="Bottomfishing"]
