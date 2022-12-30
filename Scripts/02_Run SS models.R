@@ -10,22 +10,22 @@ Lt[[5]]<-list("LERU", "Loubens_Then",    "Loubens",         "Kamikawa",    "Loub
 Lt[[6]]<-list("LUKA", "Loubens_Then",    "Loubens2",        "Kamikawa",    "SW_BBS_BIOS", T, c(5.4,7.0), 0.25,    F, NA,                                          c(1,8,1)) 
 Lt[[7]]<-list("PRFL", "OMalley_Then",    "OMalley",         "Kamikawa",    "SW_BBS_BIOS", F, c(0.5,1.5), 0.29,    T, list(c(2004,2005),c(2011,2012),c(2018,2020)),c(0.5,1.5,0.1)) 
 Lt[[8]]<-list("PRZO", "Schemmel_Then",   "Schemmel_Sex",    "Kamikawa",    "Schemmel",    F, c(0.5,1.3), 0.29,    T, list(c(2009,2011),c(2012,2014),c(2015,2016), c(2018,2020)),c(0.5,1.0,0.05)) 
-Lt[[9]]<-list("VALO", "Grandcourt_Then", "SW_BBS_BIOS",     "Kamikawa",    "Schemmel",    F, c(1.0,2.4), 0.33,    F, list(c(2016,2020)),                          c(0.1,0.95,0.05)) 
+Lt[[9]]<-list("VALO", "Grandcourt_Then", "SW_BBS_BIOS",     "Kamikawa",    "Schemmel",    F, c(1.0,2.4), 0.34,    F, list(c(2016,2020)),                          c(0.1,0.95,0.05)) 
 
 for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (9)
-lapply(list(Lt[[5]]),function(x)     { # Run a single model
+lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "51_NoInterviewer13_27"
-  runmodels  <- T   # Turn off if you want to process results only
-  printreport<- T   # Turn off to skip ss_diags report
+  DirName    <- "51_FixedSW"
+  runmodels  <- F   # Turn off if you want to process results only
+  printreport<- F   # Turn off to skip ss_diags report
   Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs  <- 0   # Set to 0 to turn forecast off
-  RD         <- T   # Run Diagnostics (jitter, profile, retro)
+  N_foreyrs  <- 7   # Set to 0 to turn forecast off
+  RD         <- F   # Run Diagnostics (jitter, profile, retro)
   ProfRes    <- 0.1 # R0 profile resolution
   Begin      <- c(1967,1986)[1]
   DeleteForecastFiles <- T
