@@ -109,14 +109,15 @@ TBIO       <- SS %>% filter(Era=="TIME") %>% select(Yr,Bio_all) %>% rename("TBIO
 
 TS <- TS %>% merge(TBIO,by.x="YEAR",by.y="Yr")
 
-P1 <- ggplot(data=TS)+geom_point(aes(x=1967,y=SSB0),col="red",size=1.5)+#geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")
+P1 <- ggplot(data=TS)+geom_point(aes(x=1968,y=SSB0),col="red",size=1.5)+#geom_line(aes(x=YEAR,y=TBIO),linetype="dashed")
   geom_ribbon(aes(x=YEAR,ymin=SSB.05,ymax=SSB.95),alpha=0.1)+scale_y_continuous(limits=c(0,max(TS$SSB.95)*1.1),expand=c(0,0))+
-  scale_x_continuous(breaks=seq(1960,2030,10))+
+  scale_x_continuous(breaks=seq(1960,2030,10),limits=c(1967,2023),expand=c(0,0))+
   geom_line(aes(x=YEAR,y=SSB.50),linetype="solid")+geom_hline(aes(yintercept=SSB_MSST),linetype="dotdash",col="blue")+
   theme_bw()+theme(axis.text.x=element_blank(),axis.title.x=element_blank())+ylab("Biomass (mt)")
+  
 
 P2 <- ggplot(data=TS,aes(x=YEAR,y=FMORT.50))+geom_ribbon(aes(ymin=FMORT.05,ymax=FMORT.95),alpha=0.1)+geom_line()+
-  scale_x_continuous(breaks=seq(1960,2030,10))+
+  scale_x_continuous(breaks=seq(1960,2030,10),limits=c(1967,2023),expand=c(0,0))+
   scale_y_continuous(expand=c(0,0))+theme_bw()+xlab("Year")+ylab(expression(Fishing~mortality~(yr^-1)))
   
 P1 <- ggplotGrob(P1)
