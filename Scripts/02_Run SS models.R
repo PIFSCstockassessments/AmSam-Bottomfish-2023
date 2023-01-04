@@ -19,12 +19,12 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 lapply(list(Lt[[1]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "51_FixedSW"
+  DirName    <- "102_test_species_report"
   runmodels  <- F   # Turn off if you want to process results only
   printreport<- F   # Turn off to skip ss_diags report
-  Create_species_report_figs <- F
+  Create_species_report_figs <- T
   N_boot     <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs  <- 7   # Set to 0 to turn forecast off
+  N_foreyrs  <- 0   # Set to 0 to turn forecast off
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
   ProfRes    <- 0.1 # R0 profile resolution
   Begin      <- c(1967,1986)[1]

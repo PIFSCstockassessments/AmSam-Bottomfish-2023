@@ -95,8 +95,21 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
         geom_hline(aes(yintercept=value,color=Model),data=SSBMSST,size=1.5)+
         scale_shape_manual(values=shapes)+
         scale_color_jco()+
-        theme_bw(base_size=20)+aTheme+theme(legend.position="none")+
+        theme_bw(base_size=20)+aTheme+
+        theme(legend.position="none")+
         scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+  
+  alegend<-ggplot(data=SummaryBio,aes(x=Yr,color=variable,shape=variable))+
+    geom_ribbon(aes(ymin=Lower,ymax=Upper),color=NA,data=SpawnBioUncertainty,fill="gray",alpha=0.2)+
+    geom_line(aes(y=value),size=1.5) +
+    geom_point(aes(y=value),data=SummaryBio[thinned,], size=4)+
+    xlab("Year") + ylab("Spawning biomass (mt)") +
+    geom_hline(aes(yintercept=value,color=Model),data=SSBMSST,size=1.5)+
+    scale_shape_manual(values=shapes)+
+    scale_color_jco()+
+    theme_bw(base_size=20)+aTheme+
+    theme(legend.position="right")+
+    scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
   #a
   
   FishingMort<-Summary$Fvalue
@@ -142,7 +155,8 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
        geom_hline(aes(yintercept=value,color=variable),data=FMSY,size=1.5)+
        scale_color_jco()+
        scale_shape_manual(values=shapes)+
-       theme_bw(base_size=20)+aTheme +theme(legend.position="none")+
+       theme_bw(base_size=20)+aTheme +
+       theme(legend.position="none")+
        scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
   #b
   
@@ -167,8 +181,10 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
        scale_linetype_manual(values=c(1:NModels),labels=c(ModelLabels))+
        scale_color_jco()+
        scale_shape_manual(values=shapes)+
-       theme_bw(base_size=20)+aTheme+
-       scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+       theme_bw(base_size=20) + aTheme+ 
+       theme(legend.position="none")+
+       scale_x_continuous(expand=c(0,0)) +
+       scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
   
   # CHECK: added the legend back in to this plot so can see what colors match up with what model, can remove or change which plot has legend just need to add in + theme(legend.position = "none")
   #c
@@ -218,7 +234,8 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
          geom_segment(aes(x=1, xend=1, y=0, yend=1)) +
          scale_x_continuous(expand=c(0, 0), limits=c(0, x_max)) +
          labs(x=expression(SSB/SSB[MSY]), y=expression(F/F[MSY]))+
-         scale_y_continuous(expand=expansion(mult=c(0.01,0.01)),limits=c(0, y_max))+theme_bw()+
+         scale_y_continuous(expand=expansion(mult=c(0.01,0.01)),limits=c(0, y_max))+
+         theme_bw(base_size=20) + aTheme+
          theme(panel.border = element_blank())  
   
   # CHECK: Include last year uncertainty??
@@ -228,11 +245,25 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
                aes(x=B_Bmsy_term, y=F_Fmsy_term, group = Model, 
                    shape=Model, fill = Model, color = Model), size=3) +
     scale_shape_manual(values=shapes) +
+    theme(legend.position = "none") +
     scale_color_jco()
   #d
   
+  # Create user-defined function, which extracts legends from ggplots
+  extract_legend <- function(my_ggp) {
+    step1 <- ggplot_gtable(ggplot_build(my_ggp))
+    step2 <- which(sapply(step1$grobs, function(x) x$name) == "guide-box")
+    step3 <- step1$grobs[[step2]]
+    return(step3)
+  }
+  
+  # Apply user-defined function to extract legend
+  shared_legend <- extract_legend(alegend)
   png(paste0(PlotDir,"\\Sensitivity", model_group,".png"),height=10,width=16,units="in",res=200)
-  grid.arrange(a,c,b,d, nrow=2)
+  
+  grid.arrange(arrangeGrob(a,c, b, d, ncol=2, nrow=2),
+               arrangeGrob(shared_legend, ncol=1, nrow=1), widths=c(4,1))
+  #grid.arrange(a,c,b,d, nrow=2)
   dev.off()
   
   
@@ -242,7 +273,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
 ### Run plot function for individual species ####
 ## Change species name here
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
-species <- species_names[9]
+species <- species_names[1]
 
 ## List directories here
 # delete any previously created folder of figures and tables
