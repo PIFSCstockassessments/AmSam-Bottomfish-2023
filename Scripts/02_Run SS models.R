@@ -73,12 +73,12 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
     
     file.copy(from = file.path(x$root,"Scripts","03_Report scripts",
                                "Create_Figs_Tables_Formatted.qmd"), 
-              to = file.path(model_dir, 
-                             "Create_Figs_Tables_Formatted.qmd"),
+              to = file.path(model_dir,
+                             paste0("00_", x$N, "_Figs_Tables_Formatted.qmd")),
               overwrite = TRUE)
     quarto::quarto_render(
       input = file.path(model_dir,
-                        "Create_Figs_Tables_Formatted.qmd"),
+                        paste0("00_", x$N, "_Figs_Tables_Formatted.qmd")),
       output_format = "docx",
       execute_params = list(
         species = paste0(x$N),
@@ -93,12 +93,4 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
 
 
 #stopCluster (cl)
-
-
-
-
-
-
-
-
 

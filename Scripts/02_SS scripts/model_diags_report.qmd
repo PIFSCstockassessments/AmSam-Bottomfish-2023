@@ -164,15 +164,20 @@ SSplotRetro(retrosum,
 #| error: true
 
 if(dir.exists(file.path(getwd(), "Retrospectives"))){
-  for(i in 1:n.indices){
-    sspar(mfrow = c(1,2))
-    SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = i)
-  }
   
-  for(i in 1:n.comps){
-    sspar(mfrow = c(1,2))
-    SSplotHCxval(retrocomp, subplots = "len", add = TRUE, indexselect = i)
-  }
+  sspar(mfrow = c(1,2))
+  SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = 1, legendloc = "bottomleft")
+  SSplotHCxval(retrocomp, subplots = "len", add = TRUE, indexselect = 1, legend = F)
+  ## can use this if you have multiple indices or length comp fleets
+  # for(i in 1:n.indices){
+  #   sspar(mfrow = c(1,n.indices))
+  #   SSplotHCxval(retrosum, subplots = "cpue", add = TRUE, indexselect = i)
+  # }
+  # 
+  # for(i in 1:n.comps){
+  #   sspar(mfrow = c(1,n.comps))
+  #   SSplotHCxval(retrocomp, subplots = "len", add = TRUE, indexselect = i)
+  # }
   
 }else{
   print("No information for hindcast was found")

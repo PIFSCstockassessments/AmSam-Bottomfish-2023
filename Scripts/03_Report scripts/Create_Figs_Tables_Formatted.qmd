@@ -190,7 +190,7 @@ include_graphics(path)
 
 ```{r}
 #| label: fig-retro
-#| fig-cap: "R Retrospective analysis of spawning biomass (left) and fishing mortality (right) consisting of 5 reruns of the base case model each fitted with one less year of data from the base case model (blue line)."
+#| fig-cap: "Retrospective analysis of spawning biomass (left) and fishing mortality (right) consisting of 5 reruns of the base case model each fitted with one less year of data from the base case model (blue line)."
 #| out-width: 11.7cm
 #| fig-align: center
 
@@ -198,6 +198,18 @@ path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model
                   "figure-html", "retrospectives-1.png")
 include_graphics(path)
 ```
+
+```{r}
+#| label: fig-hindcast
+#| fig-cap: Hindcast for index of abundance and length composition data.
+#| out-width: 11.7cm
+#| fig-align: center
+
+path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "hindcast-1.png")
+include_graphics(path)
+```
+
 
 
 ```{r}
@@ -249,7 +261,7 @@ include_graphics(path)
 ```
 
 ```{r}
-#| tbl-cap: " Estimated biological reference points with 95% confidence interval (SD) derived from the Stock Synthesis base-case model where F is the instantaneous annual fishing mortality rate, SPR is spawning potential ratio, SSB is spawning stock biomass, MSST indicates minimum stock size threshold, and MSY indicates maximum sustainable yield."
+#| tbl-cap: "Estimated biological reference points with 95% confidence interval (SD) derived from the Stock Synthesis base-case model where F is the instantaneous annual fishing mortality rate, SPR is spawning potential ratio, SSB is spawning stock biomass, MSST indicates minimum stock size threshold, and MSY indicates maximum sustainable yield."
 
 refpoints <- read.xlsx(file.path(main.dir, "bootstrap", "01_tables.xlsx"), sheet = "02_RefPoints")
 set_flextable_defaults(
@@ -348,21 +360,17 @@ Results.ft <- compose(Results.ft, j ="Model", i = 2, part = "body",
 Results.ft <- compose(Results.ft, j ="Model", i = 3, part = "body",
                       value = as_paragraph(as_i("M"), "= XX cm"))
 Results.ft <- compose(Results.ft, j ="Model", i = 4, part = "body",
-                      value = as_paragraph(as_i("L"), as_sub("inf"), "= XX cm"))
+                      value = as_paragraph("Steepness = XX"))
 Results.ft <- compose(Results.ft, j ="Model", i = 5, part = "body",
-                      value = as_paragraph(as_i("L"), as_sub("inf"), "= XX cm"))
+                      value = as_paragraph("Steepness = XX"))
 Results.ft <- compose(Results.ft, j ="Model", i = 6, part = "body",
-                      value = as_paragraph("Steepness = XX"))
-Results.ft <- compose(Results.ft, j ="Model", i = 7, part = "body",
-                      value = as_paragraph("Steepness = XX"))
-Results.ft <- compose(Results.ft, j ="Model", i = 8, part = "body",
                       value = as_paragraph("Alternate life history"))
-Results.ft <- compose(Results.ft, j ="Model", i = 9, part = "body",
+Results.ft <- compose(Results.ft, j ="Model", i = 7, part = "body",
                       value = as_paragraph("Recruitment deviations"))
-Results.ft <- compose(Results.ft, j ="Model", i = 10, part = "body",
+Results.ft <- compose(Results.ft, j ="Model", i = 8, part = "body",
                       value = as_paragraph("No historical catch"))
-if(nrow(Results) > 10){
-  Results.ft <- compose(Results.ft, j ="Model", i = 11, part = "body",
+if(nrow(Results) > 8){
+  Results.ft <- compose(Results.ft, j ="Model", i = 9, part = "body",
                       value = as_paragraph("No hermaphroditism"))
 }
 Results.ft <- Results.ft %>% set_table_properties(layout = "autofit")

@@ -88,7 +88,10 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   thinned <- c(seq(from=1,to=nrow(SummaryBio),by=10))
   a<-ggplot(data=SummaryBio,aes(x=Yr,color=variable,shape=variable))+
-        geom_ribbon(aes(ymin=Lower,ymax=Upper),color=NA,data=SpawnBioUncertainty,fill="gray",alpha=0.2)+
+        geom_ribbon(aes(ymin=Lower,ymax=Upper),
+                    color=NA,
+                    data=SpawnBioUncertainty %>% filter(str_detect(variable, "Base")),
+                    fill="gray",alpha=0.2) +
         geom_line(aes(y=value),size=1.5) +
         geom_point(aes(y=value),data=SummaryBio[thinned,], size=4)+
         xlab("Year") + ylab("Spawning biomass (mt)") +
@@ -97,10 +100,14 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
         scale_color_jco()+
         theme_bw(base_size=20)+aTheme+
         theme(legend.position="none")+
-        scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+    coord_cartesian(xlim = c(min(SummaryBio$Yr), max(SummaryBio$Yr)),  expand=T) +
+    scale_x_continuous(breaks=seq(min(SummaryBio$Yr), max(SummaryBio$Yr), by = 10))
   
   alegend<-ggplot(data=SummaryBio,aes(x=Yr,color=variable,shape=variable))+
-    geom_ribbon(aes(ymin=Lower,ymax=Upper),color=NA,data=SpawnBioUncertainty,fill="gray",alpha=0.2)+
+    geom_ribbon(aes(ymin=Lower,ymax=Upper),
+                color=NA,
+                data=SpawnBioUncertainty %>% filter(str_detect(variable, "Base")),
+                fill="gray",alpha=0.2) +
     geom_line(aes(y=value),size=1.5) +
     geom_point(aes(y=value),data=SummaryBio[thinned,], size=4)+
     xlab("Year") + ylab("Spawning biomass (mt)") +
@@ -108,8 +115,9 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
     scale_shape_manual(values=shapes)+
     scale_color_jco()+
     theme_bw(base_size=20)+aTheme+
-    theme(legend.position="right")+
-    scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+    theme(legend.position="bottom", legend.text=element_text(size=rel(1)))+
+    coord_cartesian(xlim = c(min(SummaryBio$Yr), max(SummaryBio$Yr)),  expand=T) +
+    scale_x_continuous(breaks=seq(min(SummaryBio$Yr), max(SummaryBio$Yr), by = 10))
   #a
   
   FishingMort<-Summary$Fvalue
@@ -148,7 +156,10 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   
   thinned <- c(seq(from=1,to=nrow(FishingMort),by=10))
   b<-ggplot(data=FishingMort,aes(x=Yr,color=variable,shape=variable))+
-       geom_ribbon(aes(ymin=FLower,ymax=FUpper),color=NA,data=Funcertainty,fill="gray",alpha=0.2)+
+     geom_ribbon(aes(ymin=FLower,ymax=FUpper),
+                color=NA,
+                data=Funcertainty %>% filter(str_detect(variable, "Base")),
+                fill="gray",alpha=0.2) +
        geom_line(aes(y=value),size=1.5) +
        geom_point(aes(y=value),data=FishingMort[thinned,], size=4)+
        xlab("Year") + ylab("Fishing mortality") +
@@ -157,7 +168,9 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
        scale_shape_manual(values=shapes)+
        theme_bw(base_size=20)+aTheme +
        theme(legend.position="none")+
-       scale_x_continuous(expand=c(0,0))+scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+       coord_cartesian(xlim = c(min(FishingMort$Yr), max(FishingMort$Yr)),  expand=T) +
+      scale_x_continuous(breaks=seq(min(FishingMort$Yr), max(FishingMort$Yr), by = 10))
+  
   #b
   
   
@@ -183,8 +196,8 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
        scale_shape_manual(values=shapes)+
        theme_bw(base_size=20) + aTheme+ 
        theme(legend.position="none")+
-       scale_x_continuous(expand=c(0,0)) +
-       scale_y_continuous(expand=expansion(mult=c(0.01,0.05)),limits=c(0,NA))
+    coord_cartesian(xlim = c(min(Recruits$Yr), max(Recruits$Yr)),  expand=T) +
+    scale_x_continuous(breaks=seq(min(Recruits$Yr), max(Recruits$Yr), by = 10))
   
   # CHECK: added the legend back in to this plot so can see what colors match up with what model, can remove or change which plot has legend just need to add in + theme(legend.position = "none")
   #c
@@ -261,8 +274,10 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
   shared_legend <- extract_legend(alegend)
   png(paste0(PlotDir,"\\Sensitivity", model_group,".png"),height=10,width=16,units="in",res=200)
   
+  # grid.arrange(arrangeGrob(a,c, b, d, ncol=2, nrow=2),
+  #              arrangeGrob(shared_legend, ncol=1, nrow=1), widths=c(4,1))
   grid.arrange(arrangeGrob(a,c, b, d, ncol=2, nrow=2),
-               arrangeGrob(shared_legend, ncol=1, nrow=1), widths=c(4,1))
+               arrangeGrob(shared_legend, ncol=1, nrow=1), heights = c(4,.5))
   #grid.arrange(a,c,b,d, nrow=2)
   dev.off()
   
@@ -285,15 +300,15 @@ alt_models <- SSgetoutput(dirvec = alt_mods_dir)
 
 ## Separate models for easier plotting 
 ## base model, M+/-, Linf +/-, steep +/-
-alt_mods1 <- alt_models[1:7]
+alt_mods1 <- alt_models[1:5]
 ## base model, alt LH, rec dev on, no historical catch
-alt_mods2 <- alt_models[c(1,8:length(alt_mods_dir))]
+alt_mods2 <- alt_models[c(1,6:length(alt_mods_dir))]
 
 
 ## First set of alternate models
 Summary <-SSsummarize(alt_mods1)
 # Labels for model group 1
-ModelLabels<-c("Base","M-10%","M+10%","Linf-10%", "Linf+10%", "Steep-10%", "Steep+10%")
+ModelLabels<-c("Base","M-10%", "M+10%", "Steep-10%", "Steep+10%")
 Directory<-file.path(root_dir, "SS3 final models", species, "00_Alternate_Mods_Figs_Tables")
 dir.create(Directory)
 NModels<-Summary$n
