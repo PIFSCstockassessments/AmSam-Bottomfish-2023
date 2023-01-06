@@ -15,21 +15,21 @@ Lt[[9]]<-list("VALO", "Grandcourt_Then", "SW_BBS_BIOS",     "Kamikawa",    "Sche
 for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
-#cl    <- makeCluster (9)
-lapply(list(Lt[[1]]),function(x)     { # Run a single model
-#parLapply(cl,Lt,function(x){ # Run all models
+cl    <- makeCluster (10)
+#lapply(list(Lt[[1]]),function(x)     { # Run a single model
+parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "102_test_species_report"
+  DirName    <- "60_Base"
   runmodels  <- F   # Turn off if you want to process results only
   printreport<- F   # Turn off to skip ss_diags report
-  Create_species_report_figs <- T
+  Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs  <- 0   # Set to 0 to turn forecast off
+  N_foreyrs  <- 7   # Set to 0 to turn forecast off
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
   ProfRes    <- 0.1 # R0 profile resolution
   Begin      <- c(1967,1986)[1]
   DeleteForecastFiles <- T
-  SavedCores <- 2
+  SavedCores <- 1
   
   require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss,officer,flextable)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
@@ -92,5 +92,5 @@ lapply(list(Lt[[1]]),function(x)     { # Run a single model
 
 
 
-#stopCluster (cl)
+stopCluster (cl)
 
