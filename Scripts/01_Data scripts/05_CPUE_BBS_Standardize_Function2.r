@@ -269,7 +269,6 @@ B.Model.Names       <- B.Model.Names[order(MODEL_ORDER)]
 #========================Generate standardized CPUE index for all models========================================
 # Create Walter's large table template and add add median for continuous variables and most commmon variable for categorical ones
 WLT <- data.table(  table(D$YEAR,D$SEASON,D$AREA_C)  ); setnames(WLT,c("YEAR","SEASON","AREA_C","N")) #}
-WLT <- filter(WLT, N > 0)
 WLT <- select(WLT,-N)
 WLT$HOURS_FISHED <- median(D$HOURS_FISHED)
 WLT$NUM_GEAR     <- median(D$NUM_GEAR)
