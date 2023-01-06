@@ -9,7 +9,6 @@ species <- species_names[9]
 
 ### Alternate model options 
 run_M <- T
-run_Linf <- T
 run_steep <- T
 run_recdevs <- T
 run_nohistcatch <- T
@@ -63,87 +62,44 @@ if(run_M){
   
 }
 
-if(run_Linf){
-  
-  if(!dir.exists(file.path(mods_dir, "04_Linf1"))){
-    dir.create(file.path(mods_dir, "04_Linf1"))
-  }
-  
-  copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "04_Linf1"),
-                 overwrite = T, copy_exe = TRUE)
-  
-  ctl <- SS_readctl_3.30(file.path(mods_dir, "04_Linf1", "control.ss"),
-                         datlist = file.path(mods_dir, "04_Linf1", "data.ss"))
-  ## L_at_Amax
-  ctl$MG_parms[3,3] <- round(ctl$MG_parms[3,3] - ctl$MG_parms[3,3]*.1,2)
-  SS_writectl_3.30(ctl, outfile = file.path(mods_dir, "04_Linf1", "control.ss"), overwrite = T)
-  r4ss::run(
-    dir = file.path(mods_dir, "04_Linf1"),
-    exe = "ss_opt_win.exe",
-    skipfinished = F
-  )
-  
-  
-  if(!dir.exists(file.path(mods_dir, "05_Linf2"))){
-    dir.create(file.path(mods_dir, "05_Linf2"))
-  }
-  
-  copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "05_Linf2"),
-                 overwrite = T, copy_exe = TRUE)
-  
-  ctl <- SS_readctl_3.30(file.path(mods_dir, "05_Linf2", "control.ss"),
-                         datlist = file.path(mods_dir, "05_Linf2", "data.ss"))
-  ## L_at_Amax
-  ctl$MG_parms[3,3] <- round(ctl$MG_parms[3,3] + ctl$MG_parms[3,3]*.1, 2)
-  SS_writectl_3.30(ctl, outfile = file.path(mods_dir, "05_Linf2", "control.ss"), overwrite = T)
-  r4ss::run(
-    dir = file.path(mods_dir, "05_Linf2"),
-    exe = "ss_opt_win.exe",
-    skipfinished = F
-  )
-  
-  
-}
 
 if(run_steep){
   
-  if(!dir.exists(file.path(mods_dir, "06_Steep1"))){
-    dir.create(file.path(mods_dir, "06_Steep1"))
+  if(!dir.exists(file.path(mods_dir, "04_Steep1"))){
+    dir.create(file.path(mods_dir, "04_Steep1"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "06_Steep1"),
+                 dir.new = file.path(mods_dir, "04_Steep1"),
                  overwrite = T, copy_exe = TRUE)
   
-  ctl <- SS_readctl_3.30(file.path(mods_dir, "06_Steep1", "control.ss"),
-                         datlist = file.path(mods_dir, "06_Steep1", "data.ss"))
+  ctl <- SS_readctl_3.30(file.path(mods_dir, "04_Steep1", "control.ss"),
+                         datlist = file.path(mods_dir, "04_Steep1", "data.ss"))
   ## Steepness
   ctl$SR_parms[2,3] <- round(ctl$SR_parms[2,3] - ctl$SR_parms[2,3]*.1,2)
-  SS_writectl_3.30(ctl, outfile = file.path(mods_dir, "06_Steep1", "control.ss"), overwrite = T)
+  SS_writectl_3.30(ctl, outfile = file.path(mods_dir, "04_Steep1", "control.ss"), overwrite = T)
   r4ss::run(
-    dir = file.path(mods_dir, "06_Steep1"),
+    dir = file.path(mods_dir, "04_Steep1"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )
   
   
-  if(!dir.exists(file.path(mods_dir, "07_Steep2"))){
-    dir.create(file.path(mods_dir, "07_Steep2"))
+  if(!dir.exists(file.path(mods_dir, "05_Steep2"))){
+    dir.create(file.path(mods_dir, "05_Steep2"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "07_Steep2"),
+                 dir.new = file.path(mods_dir, "05_Steep2"),
                  overwrite = T, copy_exe = TRUE)
   
-  ctl <- SS_readctl_3.30(file.path(mods_dir, "07_Steep2", "control.ss"),
-                         datlist = file.path(mods_dir, "07_Steep2", "data.ss"))
+  ctl <- SS_readctl_3.30(file.path(mods_dir, "05_Steep2", "control.ss"),
+                         datlist = file.path(mods_dir, "05_Steep2", "data.ss"))
   ## Steepness
   ctl$SR_parms[2,3] <- round(ctl$SR_parms[2,3] + ctl$SR_parms[2,3]*.1, 2)
-  SS_writectl_3.30(ctl, outfile = file.path(mods_dir, "07_Steep2", "control.ss"), overwrite = T)
+  SS_writectl_3.30(ctl, outfile = file.path(mods_dir, "05_Steep2", "control.ss"), overwrite = T)
   r4ss::run(
-    dir = file.path(mods_dir, "07_Steep2"),
+    dir = file.path(mods_dir, "05_Steep2"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )
@@ -153,16 +109,16 @@ if(run_steep){
 
 if(run_recdevs){
   
-  if(!dir.exists(file.path(mods_dir, "09_RecDev"))){
-    dir.create(file.path(mods_dir, "09_RecDev"))
+  if(!dir.exists(file.path(mods_dir, "07_RecDev"))){
+    dir.create(file.path(mods_dir, "07_RecDev"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "09_RecDev"),
+                 dir.new = file.path(mods_dir, "07_RecDev"),
                  overwrite = T, copy_exe = TRUE)
   
-  CTL <- SS_readctl_3.30(file.path(mods_dir, "09_RecDev", "control.ss"),
-                         datlist = file.path(mods_dir, "09_RecDev", "data.ss"))
+  CTL <- SS_readctl_3.30(file.path(mods_dir, "07_RecDev", "control.ss"),
+                         datlist = file.path(mods_dir, "07_RecDev", "data.ss"))
   
 
   if(readGoogle == T){
@@ -203,9 +159,9 @@ if(run_recdevs){
     
   }
   
-  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "09_RecDev", "control.ss"), overwrite = T)
+  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "07_RecDev", "control.ss"), overwrite = T)
   r4ss::run(
-    dir = file.path(mods_dir, "09_RecDev"),
+    dir = file.path(mods_dir, "07_RecDev"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )
@@ -214,16 +170,16 @@ if(run_recdevs){
 
 if(run_nohistcatch){
   
-  if(!dir.exists(file.path(mods_dir, "10_NoHistCatch"))){
-    dir.create(file.path(mods_dir, "10_NoHistCatch"))
+  if(!dir.exists(file.path(mods_dir, "08_NoHistCatch"))){
+    dir.create(file.path(mods_dir, "08_NoHistCatch"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "10_NoHistCatch"),
+                 dir.new = file.path(mods_dir, "08_NoHistCatch"),
                  overwrite = T, copy_exe = TRUE)
   
-  CTL <- SS_readctl_3.30(file.path(mods_dir, "10_NoHistCatch", "control.ss"),
-                         datlist = file.path(mods_dir, "10_NoHistCatch", "data.ss"))
+  CTL <- SS_readctl_3.30(file.path(mods_dir, "08_NoHistCatch", "control.ss"),
+                         datlist = file.path(mods_dir, "08_NoHistCatch", "data.ss"))
   
   if(readGoogle == T){
     
@@ -241,9 +197,9 @@ if(run_nohistcatch){
     select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
     data.table::as.data.table()
  
-  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "10_NoHistCatch", "control.ss"), overwrite = T)
+  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "08_NoHistCatch", "control.ss"), overwrite = T)
   
-  DAT <- SS_readdat_3.30(file = file.path(mods_dir, "10_NoHistCatch", "data.ss"))
+  DAT <- SS_readdat_3.30(file = file.path(mods_dir, "08_NoHistCatch", "data.ss"))
   ## Change start year
   DAT$styr <- 1986
   ## Filter catch to remove any catch before new startyear
@@ -253,10 +209,10 @@ if(run_nohistcatch){
   DAT$catch$catch[1] <- DAT$catch[DAT$catch$year == DAT$styr, "catch"]
   DAT$catch$catch_se[1] <- DAT$catch[DAT$catch$year == DAT$styr, "catch_se"]
   
-  SS_writedat_3.30(DAT, outfile = file.path(mods_dir, "10_NoHistCatch", "data.ss"), overwrite = T)
+  SS_writedat_3.30(DAT, outfile = file.path(mods_dir, "08_NoHistCatch", "data.ss"), overwrite = T)
   
   r4ss::run(
-    dir = file.path(mods_dir, "10_NoHistCatch"),
+    dir = file.path(mods_dir, "08_NoHistCatch"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )
@@ -265,16 +221,16 @@ if(run_nohistcatch){
 
 if(run_noherm){
   
-  if(!dir.exists(file.path(mods_dir, "11_NoHermaphro"))){
-    dir.create(file.path(mods_dir, "11_NoHermaphro"))
+  if(!dir.exists(file.path(mods_dir, "09_NoHermaphro"))){
+    dir.create(file.path(mods_dir, "09_NoHermaphro"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "11_NoHermaphro"),
+                 dir.new = file.path(mods_dir, "09_NoHermaphro"),
                  overwrite = T, copy_exe = TRUE)
   
-  CTL <- SS_readctl_3.30(file.path(mods_dir, "11_NoHermaphro", "control.ss"),
-                         datlist = file.path(mods_dir, "11_NoHermaphro", "data.ss"))
+  CTL <- SS_readctl_3.30(file.path(mods_dir, "09_NoHermaphro", "control.ss"),
+                         datlist = file.path(mods_dir, "09_NoHermaphro", "data.ss"))
   
   CTL$hermaphroditism_option <- 0
   CTL$Herm_MalesInSSB <- NULL
@@ -285,10 +241,10 @@ if(run_noherm){
   ind <- which(str_detect(row.names(CTL$MG_parms), "FracFemale"))
   CTL$MG_parms[ind, 3] <- 0.5
   
-  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "11_NoHermaphro", "control.ss"), overwrite = T)
+  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "09_NoHermaphro", "control.ss"), overwrite = T)
 
   r4ss::run(
-    dir = file.path(mods_dir, "11_NoHermaphro"),
+    dir = file.path(mods_dir, "09_NoHermaphro"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )
@@ -296,7 +252,4 @@ if(run_noherm){
 }
 
 
-base.rep <- SS_output(dir = file.path(mods_dir, "01_Base"))
-rec.rep <- SS_output(dir = file.path(mods_dir, "09_RecDev_test"))
-SSplotRecdevs(rec.rep)
-SSplotRecdevs(base.rep)
+
