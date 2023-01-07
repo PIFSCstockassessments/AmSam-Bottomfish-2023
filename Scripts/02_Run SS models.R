@@ -15,16 +15,16 @@ Lt[[9]]<-list("VALO", "Grandcourt_Then", "SW_BBS_BIOS",     "Kamikawa",    "Sche
 for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
-cl    <- makeCluster (10)
-#lapply(list(Lt[[1]]),function(x)     { # Run a single model
-parLapply(cl,Lt,function(x){ # Run all models
+#cl    <- makeCluster (10)
+lapply(list(Lt[[7]]),function(x)     { # Run a single model
+#parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "60_Base"
-  runmodels  <- F   # Turn off if you want to process results only
+  DirName    <- "61_Base"
+  runmodels  <- T   # Turn off if you want to process results only
   printreport<- F   # Turn off to skip ss_diags report
   Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs  <- 7   # Set to 0 to turn forecast off
+  N_foreyrs  <- 0   # Set to 0 to turn forecast off
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
   ProfRes    <- 0.1 # R0 profile resolution
   Begin      <- c(1967,1986)[1]
