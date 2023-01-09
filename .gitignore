@@ -88,5 +88,5 @@ plots
 **/Retrospectives
 **/*_profile
 **/mv_projections.rds
-
 /.quarto/
+.secrets
