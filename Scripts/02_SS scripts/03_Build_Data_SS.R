@@ -105,7 +105,7 @@ Build_Data <- function(species = NULL, scenario = "base", catch = NULL, initF = 
       tidyr::pivot_wider(names_from = LENGTH_BIN_START, values_from = N) %>% 
       dplyr::mutate(totN = rowSums(select(., starts_with("l"))))
     
-    lencomp.sp <- lencomp.sp[which(is.na(lencomp.sp$SP) & lencomp.sp$Nsamp > N_samp | !is.na(lencomp.sp$SP)), ]
+    lencomp.sp <- lencomp.sp[which(is.na(lencomp.sp$SP) & lencomp.sp$totN > N_samp | !is.na(lencomp.sp$SP)), ]
       
     sp_to_remove <- lencomp.sp[which(lencomp.sp$Seas == -1 & lencomp.sp$FltSvy == 1 & lencomp.sp$totN < N_samp), "SP"]
     
