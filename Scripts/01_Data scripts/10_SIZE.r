@@ -168,6 +168,7 @@ D <- merge(D,AW,by="AREA_C")
 
 # Statistics
 Species.List <- unique(D$SPECIES)
+Species.List <- Species.List[order(Species.List)]
 NList   <- list()
 GList   <- list()
 L99List <- list()
@@ -177,31 +178,18 @@ for(i in 1:length(Species.List)){
    BIN_SIZE  <- BIN.LIST[SPECIES==Sp]$BINWIDTH
    E         <- D[SPECIES==Sp&LENGTH_FL>0]
    
-   if(Combine_Areas==T)  E[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main"
-   
-   # Filter YEARs with low N
-   NB         <- data.table( table(E$DATASET,E$YEAR,E$AREA_C) )
-   NB$V2      <- as.numeric(NB$V2)
-   setnames(NB,c("V1","V2","V3"),c("DATASET","YEAR","AREA_C"))
-   NB         <- NB[order(DATASET,YEAR,AREA_C)]
-   NB2        <- NB[N>=MinN]
-   G          <- merge(E,NB2,by=c("DATASET","YEAR","AREA_C"))
-   NB$SPECIES <- Sp
-   
+  
    # Effective Sample size by year
    N.AREA <- E %>% group_by(DATASET,YEAR,AREA_C,WEIGHT) %>% summarize(N=n()) # Sample size totals by Area
    N.TOT  <- E %>% group_by(DATASET,YEAR) %>% summarize(N.TOT=n()) %>%         # Sample size totals by dataset
                 merge(N.AREA,by=c("DATASET","YEAR")) %>% mutate(ExpN=ceiling(N.TOT*WEIGHT), EFFN=0) 
    N.TOT  <- N.TOT %>% mutate(EFFN=ifelse(N>ExpN,ExpN,N)) %>% 
-              group_by(DATASET,YEAR) %>% summarize(EFFN=sum(EFFN))
-   G      <- merge(G,N.TOT,by=c("DATASET","YEAR"))
+              group_by(DATASET,YEAR) %>% summarize(EFFN=sum(EFFN),N=sum(N))
+   G       <- merge(E,N.TOT,by=c("DATASET","YEAR"))
+  
    
-   # Effective Sample size by YEAR (OLD WAY - COMMENT OUT)
-   #SAMPSIZE      <- G[,list(N=.N),by=list(DATASET,YEAR,AREA_C,WEIGHT)]
-   #SAMPSIZE$EFFN <- SAMPSIZE$N*SAMPSIZE$WEIGHT
-   #SAMPSIZE      <- SAMPSIZE[,list(EFFN=sum(EFFN)),by=list(DATASET,YEAR)]
-   #G             <- merge(G,SAMPSIZE,by=c("DATASET","YEAR"),all.x=T)
-   
+   if(Combine_Areas==T)  E[AREA_C=="Tutuila"|AREA_C=="Manua"|AREA_C=="Bank"]$AREA_C <- "Main" 
+ 
    Fld <- paste0(root_dir,"/Outputs/Summary/Size figures/")
    if(nrow(G[DATASET=="Biosampling"])>0){
       ggplot(data=G[DATASET=="Biosampling"])+geom_histogram(aes(x=LENGTH_FL,y=..density..),binwidth=BIN_SIZE)+facet_wrap(~YEAR,scales="free_y",ncol=5)
@@ -243,7 +231,10 @@ for(i in 1:length(Species.List)){
    
    G <- G[order(DATASET,AREA_C,YEAR)]
    
-   NList[[i]] <- NB 
+   N.TOT$SPECIES <- Sp
+   N.TOT$AREA_C  <- "Main"
+   
+   NList[[i]] <- N.TOT 
    GList[[i]] <- G
 }
 
@@ -262,7 +253,7 @@ for(i in 1:length(Species.List)){
  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
  
 # Output a sample size summary (includes YEARs with < MinN)
-Summary <- do.call(rbind.data.frame, NList)
+Summary <- rbindlist(NList)#do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_C+DATASET~YEAR,value.var="N",fill=0)
 write.xlsx(Summary,paste0(root_dir,"/Outputs//Summary//Size_N_YEAR.xlsx"))
 
