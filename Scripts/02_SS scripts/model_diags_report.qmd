@@ -132,24 +132,32 @@ SSplotComps(report., subplots = 1, fleets = 1)
 #| label: retrospectives
 if(dir.exists(file.path(getwd(), "Retrospectives"))){
   
-  retro.dirs <- list.files(file.path(getwd(), "Retrospectives"),
-                           full.names = TRUE)
+   retro.dirs <- list.files(file.path(getwd(), "Retrospectives"))
+  n.retro <- length(retro.dirs)
+  peel <- seq(0,-n.retro+1)
+  retro.vec <- c()
+  for(i in seq_along(peel)){
+    retro.vec[i] <- paste0("retro", peel[i])
+  }
+  retro.dirs <- paste0(file.path(getwd(), "Retrospectives"), "/", retro.vec)
+  
   mod.retro <- SSgetoutput(dirvec = retro.dirs, verbose = FALSE)
-
-
-retrosum <- SSsummarize(mod.retro, verbose = FALSE)
+  
+  retrosum <- SSsummarize(mod.retro)
 retrocomp <- SSretroComps(mod.retro)
 
 sspar(mfrow = c(1,2))
 SSplotRetro(retrosum,
             subplots = "SSB",
             add = TRUE, 
-            legendloc = "bottomleft")
+            legendloc = "bottomleft",
+            tickEndYr = F)
 
 SSplotRetro(retrosum,
             subplots = "F",
             add =TRUE,
-            legend = F)
+            legend = F,
+            tickEndYr = F)
 }else{
   print("No retrospective runs were found")
 }
