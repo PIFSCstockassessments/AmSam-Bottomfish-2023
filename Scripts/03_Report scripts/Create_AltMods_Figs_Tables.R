@@ -412,7 +412,7 @@ for(species in species_names){
     
     if(model_group == 1){
       Summary <-SSsummarize(alt_mods1)
-      ModelLabels<-c("Base","M-10%","M+10%","Linf-10%", "Linf+10%", "Steep-10%", "Steep+10%")
+      ModelLabels<-c("Base","M-10%","M+10%","Steep-10%", "Steep+10%")
     }
     if(model_group == 2){
       Summary <-SSsummarize(alt_mods2)
