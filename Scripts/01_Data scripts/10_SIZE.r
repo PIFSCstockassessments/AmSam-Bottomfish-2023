@@ -231,6 +231,9 @@ for(i in 1:length(Species.List)){
    
    G <- G[order(DATASET,AREA_C,YEAR)]
    
+   N.TOT$SPECIES <- Sp
+   N.TOT$AREA_C  <- "Main"
+   
    NList[[i]] <- N.TOT 
    GList[[i]] <- G
 }
@@ -250,7 +253,7 @@ for(i in 1:length(Species.List)){
  write.csv(SizeData,paste0(root_dir,"/Outputs/SS3_Inputs/SIZE_Final.csv"),row.names=F)
  
 # Output a sample size summary (includes YEARs with < MinN)
-Summary <- do.call(rbind.data.frame, NList)
+Summary <- rbindlist(NList)#do.call(rbind.data.frame, NList)
 Summary <- dcast.data.table(Summary,SPECIES+AREA_C+DATASET~YEAR,value.var="N",fill=0)
 write.xlsx(Summary,paste0(root_dir,"/Outputs//Summary//Size_N_YEAR.xlsx"))
 
