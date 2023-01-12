@@ -52,13 +52,13 @@
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
     0	      2	    0.18	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1  
     1	     60	     6.2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1 
-   50	    100	    83.9	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1 
- 0.05	   0.25	   0.127	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1 
+   50	    100	    83.3	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1 
+ 0.05	   0.25	   0.129	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1 
  0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1  
  0.05	   0.25	     0.1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1    
    -1	      3	5.82e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1   
    -1	      4	    2.77	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1   
-   35	     60	    46.8	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1    
+   35	     60	    46.2	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1    
    -3	      3	   -0.98	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1 
    -3	      3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs_alpha_Fem_GP_1
    -3	      3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs_beta_Fem_GP_1 
@@ -81,29 +81,11 @@
   -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
    0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
-0 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
-1971 # first year of main recr_devs; early devs can preceed this era
-2001 # last year of main recr_devs; forecast devs start in following year
+1 #do_recdev:  0=none; 1=devvector (R=F(SSB)+dev); 2=deviations (R=F(SSB)+dev); 3=deviations (R=R0*dev; dev2=R-f(SSB)); 4=like 3 with sum(dev2) adding penalty
+2004 # first year of main recr_devs; early devs can preceed this era
+2020 # last year of main recr_devs; forecast devs start in following year
 2 #_recdev phase
-1 # (0/1) to read 13 advanced options
-0 #_recdev_early_start (0=none; neg value makes relative to recdev_start)
--4 #_recdev_early_phase
-0 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
-1 #_lambda for Fcast_recr_like occurring before endyr+1
-1900 #_last_yr_nobias_adj_in_MPD; begin of ramp
-1900 #_first_yr_fullbias_adj_in_MPD; begin of plateau
-2001 #_last_yr_fullbias_adj_in_MPD
-2002 #_end_yr_for_ramp_in_MPD (can be in forecast to shape ramp, but SS sets bias_adj to 0.0 for fcast yrs)
-1 #_max_bias_adj_in_MPD (-1 to override ramp and set biasadj=1.0 for all estimated recdevs)
-0 #_period of cycles in recruitment (N parms read below)
--5 #min rec_dev
-5 #max rec_dev
-0 #_read_recdevs
-#_end of advanced SR options
-#
-#_placeholder for full parameter lines for recruitment cycles
-# read specified recr devs
-#_Yr Input_value
+0 # (0/1) to read 13 advanced options
 #
 #Fishing Mortality info
 0.3 # F ballpark
