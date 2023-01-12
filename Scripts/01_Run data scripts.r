@@ -7,7 +7,8 @@ pacman::p_load(boot,data.table,ggfortify,ggpubr,grid,gridExtra,directlabels,mgcv
 #remotes::install_github("r4ss/r4ss")
 #remotes::install_github("PIFSCstockassessments/ss3diags",ref="ndd")
 
-# Note: if encountering authentication error with Google Drive, delete the "Gargle" folder in users/AppData/Local/R/etc. (note that AppData is a hidden folder)
+# Note: if encountering authentication error with Google Drive, delete the "Gargle" folder in C:\Users\<you name>\AppData\Local\R\win-library\4.2\gargle
+# (note that AppData is a hidden folder)
 
 ########## DOWNLOAD DATA FROM GOOGLE DRIVE ###############
 # Check latest data from Google Drive but only download if its more recent than on local repo
