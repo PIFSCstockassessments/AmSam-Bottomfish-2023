@@ -352,7 +352,7 @@ Build_All_SS <- function(species,
     lbin_method = 2,
     superyear = superyear,
     superyear_blocks = superyear_blocks,
-    N_samp = 40,
+    N_samp = N_samp,
     file_dir = file_dir,
     template_dir = template_dir,
     out_dir = out_dir

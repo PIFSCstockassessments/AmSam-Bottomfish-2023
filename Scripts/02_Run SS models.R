@@ -19,9 +19,9 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 lapply(list(Lt[[7]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "61_Base"
-  runmodels  <- T   # Turn off if you want to process results only
-  printreport<- F   # Turn off to skip ss_diags report
+  DirName    <- "63_Base"
+  runmodels  <- F   # Turn off if you want to process results only
+  printreport<- T   # Turn off to skip ss_diags report
   Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
   N_foreyrs  <- 0   # Set to 0 to turn forecast off
