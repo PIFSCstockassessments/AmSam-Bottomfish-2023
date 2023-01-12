@@ -42,7 +42,7 @@ include_graphics(path)
 #| fig-cap: "Growth curve following a Von Bertalanffy model with 95% confidence intervals associated with the CV Linf parameter. The central growth platoon (solid line) and the two secondary ones (dashed lines) used in the model are also displayed."  
 #| label: fig-growth
 #| out-width:  15cm
-#| out-height: 6.04cm
+#| out-height: 7cm
 path <- file.path(main.dir, "bootstrap", "02_Growth.png")
 
 include_graphics(path)
