@@ -1,9 +1,9 @@
 
-require(this.path); require(tidyverse);require(data.table);seed(123)
+require(this.path); require(tidyverse);require(data.table);set.seed(123)
 
 root_dir <- here(..=2)
 
-  model_dir <- file.path(root_dir,"SS3 models","LUKA","50_Base")
+  model_dir <- file.path(root_dir,"SS3 models","LUKA","65_Base")
   boot_dir <- file.path(model_dir,"bootstrap")
   
     # Extract MSY and SD for each bootstrap report file
