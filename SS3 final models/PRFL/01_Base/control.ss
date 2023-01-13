@@ -120,7 +120,7 @@
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--4	2	-1	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
+-4	2	-2	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
  0	2	 0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
@@ -135,11 +135,11 @@
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
  20	32	25	  50	0	0	2	0	0	0	0	0	0	0	#_1
-0.1	12	 8	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
+0.1	12	 3	-1.7	0	0	2	0	0	0	0	0	0	0	#_2
 #_AgeSelex
 #_No age_selex_parm
 #_Dirichlet parameters
--5	10	0	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
+-5	10	1	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
 #_no timevary selex parameters
 #
 0 #  use 2D_AR1 selectivity(0/1):  experimental feature

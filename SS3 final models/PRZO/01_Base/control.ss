@@ -85,7 +85,7 @@
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
 0.5	1	     0.9	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
 0.2	1	0.726277	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
-  0	2	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
+  0	2	  0.5943	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
   0	0	       0	0	0	0	-99	0	0	0	0	0	0	0	#_SR_autocorr
 #_no timevary SR parameters
@@ -128,7 +128,7 @@
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--4	4	-1	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
+-4	4	-2	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
  0	2	 0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
@@ -147,7 +147,7 @@
 #_AgeSelex
 #_No age_selex_parm
 #_Dirichlet parameters
--5	10	0	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
+-5	10	1.5	0	1.816	6	2	0	0	0	0	0	0	0	#_Dirichlet_Theta
 #_no timevary selex parameters
 #
 0 #  use 2D_AR1 selectivity(0/1):  experimental feature
