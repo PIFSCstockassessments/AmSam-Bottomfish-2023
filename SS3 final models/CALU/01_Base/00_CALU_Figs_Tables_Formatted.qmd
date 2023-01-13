@@ -1,0 +1,455 @@
+---
+title: "Species figures and tables"
+author: "Marc Nadon and Meg Oshima"
+number-sections: true
+echo: false
+error: true
+format: 
+  docx:
+    reference-doc: ../../../custom-reference-doc.docx
+params: 
+  species: "APRU"
+  scenario: "102_test_species_report"
+---
+
+```{r}
+#| message: false
+#| warning: false
+library(r4ss)
+library(ss3diags)
+library(knitr)
+main.dir <- getwd()
+```
+
+
+```{r}
+paste0(params$species)
+```
+
+
+```{r}
+#| label: fig-data
+#| fig-cap: "Summary of data types used in the Stock Synthesis model. Catches include boat-based and shore-based landings from creel surveys (1986-2021), as well as historical catches from reports (1967-1985). The abundance index is from boat-based creel survey \"bottomfishing\" gear type. Length compositions are from creel surveys (all years) and the biosampling program (2010-2015), filtered for the \"bottomfishing\" gear. "
+#| out-width: 10.51cm
+#| fig-align: center
+
+path <- file.path(main.dir, "plots", "data_plot2.png")
+
+include_graphics(path)
+```
+
+```{r}
+#| fig-cap: "Growth curve following a Von Bertalanffy model with 95% confidence intervals associated with the CV Linf parameter. The central growth platoon (solid line) and the two secondary ones (dashed lines) used in the model are also displayed."  
+#| label: fig-growth
+#| out-width:  15cm
+#| out-height: 7cm
+path <- file.path(main.dir, "bootstrap", "02_Growth.png")
+
+include_graphics(path)
+```
+
+```{r}
+#| label: fig-repro
+#| fig-cap: " Maturity at length (FL; left) and fecundity at weight (right) used in the stock assessment model." 
+#| fig-align: center
+#| out-width: 14.4cm
+#| out-height: 3.8cm
+#| layout-ncol: 2
+
+path <- c(file.path(main.dir, 
+                    paste0(params$species, "_", params$scenario,
+                           "_model_diags_report_files"),
+                  "figure-html", "maturity-1.png"),
+          file.path(main.dir, paste0(params$species, "_", params$scenario,
+                           "_model_diags_report_files"),
+                  "figure-html", "maturity-2.png"))
+
+include_graphics(path)
+```
+
+```{r}
+#| fig-cap: "Annual total catch in metric tons (mt). The vertical dashed line indicates the start of the creel survey program (1986), with older data coming from historical catch reports." 
+#| label: fig-catch
+#| out-width: 14.99cm
+#| out-height: 6.91cm
+
+
+path <- file.path(main.dir, "bootstrap", "01_Catch.png")
+
+include_graphics(path)
+
+```
+
+
+```{r}
+#| fig-cap: "Length-based selectivity estimated by the Stock Synthesis model (left) and the resulting selectivity-at-age for all 3 growth platoons (right)."
+#| label: fig-selectivity
+#| fig-align: center
+#| out-width: 14.4cm
+#| out-height: 4.8cm
+#| layout-ncol: 2
+
+path <- c(file.path(main.dir, 
+                    paste0(params$species, "_", 
+                           params$scenario, "_model_diags_report_files"),
+                  "figure-html", "selectivity-1.png"),
+          file.path(main.dir, 
+                    paste0(params$species, "_", 
+                           params$scenario, "_model_diags_report_files"),
+                  "figure-html", "selectivity-2.png"))
+
+include_graphics(path)
+```
+
+
+```{r}
+#| label: fig-jitter
+#| fig-cap: "Results of jitter analysis where one hundred models were run with randomly varying initial parameter values. Left panel shows the variation in minimum model likelihood value for all 100 model runs. Right panel shows the variation in SSB time series for the 100 different model runs."
+#| layout-ncol: 2
+#| out-width: 15cm
+
+path <- c(file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "jitter-1.png"),
+                  file.path(main.dir, 
+                            paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "model-comparisons-1.png"))
+
+include_graphics(path)
+```
+
+
+```{r}
+#| label: fig-indexfits
+#| fig-cap: !expr 'sprintf("The root mean square error (RMSE) is %.2f", rmse)'
+#| out-width: 11cm
+#| out-height: 7.88cm
+#| fig-align: center
+
+report <- r4ss::SS_output(dir = main.dir, verbose = F,
+                          printstats = F)
+rmse <- ss3diags::SSrmse(report, quants = "cpue")$RMSE$RMSE.perc[1]
+
+path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "indexfits-1.png")
+include_graphics(path)
+
+```
+
+```{r}
+#| label: fig-lenfits
+#| fig-cap: !expr 'sprintf("The root mean square error (RMSE) is %.2f", rmse)'
+#| out-width: 11cm
+#| out-height: 7.88cm
+#| fig-align: center
+
+rmse <- ss3diags::SSrmse(report, quants = "len")$RMSE$RMSE.perc[1]
+path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "lenfits-1.png")
+include_graphics(path)
+
+```
+
+```{r}
+#| label: fig-pearsonresid
+#| fig-cap: "Pearson residual plot of observed vs. expected data by size bin and year."
+#| fig-align: center
+#| out-width: 7.6cm
+path <- file.path(main.dir, "plots", "comp_lenfit__multi-fleet_comparison.png")
+
+include_graphics(path)
+
+```
+
+```{r}
+#| label: fig-lencompfits
+#| fig-cap: "Observed (gray area) vs. expected (green line) abundance-at-length from bottomfishing catch by year (left) and overall (right)."
+#| layout-ncol: 2
+#| out-width: 15cm
+
+path <- c(file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "lencompfits-2.png"),
+                  file.path(main.dir, 
+                            paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "lencompfits-1.png"))
+
+include_graphics(path)
+```
+
+
+```{r}
+#| label: fig-r0prof
+#| fig-cap: "Profiles of the negative log-likelihoods relative to the minimum value of each component for the different likelihood components affecting the unfished recruitment parameter (R~0~) in log-scale."
+#| fig-align: center
+#| out-width: 12.8cm
+
+path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "r0prof-1.png")
+include_graphics(path)
+
+```
+
+```{r}
+#| label: fig-retro
+#| fig-cap: "Retrospective analysis of spawning biomass (left) and fishing mortality (right) consisting of 5 reruns of the base case model each fitted with one less year of data from the base case model (blue line)."
+#| out-width: 11.7cm
+#| fig-align: center
+
+path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "retrospectives-1.png")
+include_graphics(path)
+```
+
+```{r}
+#| label: fig-hindcast
+#| fig-cap: Hindcast for index of abundance and length composition data.
+#| out-width: 11.7cm
+#| fig-align: center
+
+path <- file.path(main.dir, paste0(params$species, "_", params$scenario, "_model_diags_report_files"),
+                  "figure-html", "hindcast-1.png")
+include_graphics(path)
+```
+
+
+
+```{r}
+#| warning: false
+#| tbl-cap: "Time series of spawning biomass (SSB, mt), age-0 recruitment (Rec., 1000s of recruits), and instantaneous fishing mortality (F, yr^-1^) estimated by the Stock Synthesis model. CV is the coefficient of variation."
+
+library(openxlsx)
+library(flextable)
+library(gt)
+library(officer)
+
+set_flextable_defaults(
+  font.size = 8, font.family = "Arial", border.color = "black", font.color = "black",
+  padding.bottom = 0, padding.top = 0, line_spacing = 1)
+border <- fp_border()
+
+quants <- read.xlsx(file.path(main.dir, "bootstrap", "01_tables.xlsx"), sheet = "01_Quants")
+colnames(quants) <- c("Year", "SSB", "CV(SSB)", "Rec.", "CV(Rec)", "F", "CV(F)", "Year.2", "SSB.2", "CV.2(SSB)", "Rec.2", "CV.2(Rec)", "F.2", "CV.2(F)")
+quants.ft <- flextable(quants) 
+quants.ft <- colformat_num(quants.ft, big.mark = "") 
+quants.ft <- width(quants.ft, width = 1.12, unit = "cm")
+quants.ft <- vline(quants.ft, j = "CV(F)", border = border, part = "all")
+quants.ft <- hline_bottom(quants.ft, border = border)
+quants.ft <- hline_top(quants.ft, border = border, part = "header")
+quants.ft <- hline_bottom(quants.ft, border = border, part = "header")
+quants.ft
+```
+
+```{r}
+#| label: fig-timeseries
+#| fig-cap: "Time series of spawning biomass (solid line) with its 95% confidence interval and SSB~0~ estimate (red dot; top panel). The dot-and-dash blue line shows the spawning biomass at the MSST reference point (SSB~MSST~). Time series of fishing mortality rate with its 95% confidence intervals (bottom panel)."
+#| out-width: 14cm
+#| out-height: 10cm
+#| fig-align: center
+
+path <- file.path(main.dir, "bootstrap", "03_Quants.png")
+include_graphics(path)
+```
+
+```{r}
+#| label: fig-sr
+#| fig-cap: "Expected recruitment from the stock-recruitment relationship (black line) and estimated annual recruitment (dots) from Stock Synthesis. Estimated virgin SSB and recruitment is indicated with a red diamond."
+#| out-width: 14cm
+#| fig-align: center
+
+path <- file.path(main.dir, "bootstrap", "04_SR.png")
+include_graphics(path)
+
+```
+
+```{r}
+#| tbl-cap: "Estimated biological reference points with 95% confidence interval (SD) derived from the Stock Synthesis base-case model where F is the instantaneous annual fishing mortality rate, SPR is spawning potential ratio, SSB is spawning stock biomass, MSST indicates minimum stock size threshold, and MSY indicates maximum sustainable yield."
+
+refpoints <- read.xlsx(file.path(main.dir, "bootstrap", "01_tables.xlsx"), sheet = "02_RefPoints")
+set_flextable_defaults(
+  font.size = 11, font.family = "Arial", border.color = "black", font.color = "black")
+
+refpoints.ft <- flextable(refpoints)
+refpoints.ft <- set_header_labels(refpoints.ft, REF_POINT = "Reference point", ALL = "Value")
+refpoints.ft <- hline_bottom(refpoints.ft, border = border)
+refpoints.ft <- hline_top(refpoints.ft, border = border, part = "header")
+refpoints.ft <- hline_bottom(refpoints.ft, border = border, part = "header")
+refpoints.ft <- autofit(refpoints.ft)
+refpoints.ft <- compose(refpoints.ft, i = 1, j = 1, part = "body", 
+                        value = as_paragraph(as_i("F"), as_sub("MSY"), " (yr", as_sup("-1"), ")"))
+
+refpoints.ft <- compose(refpoints.ft, i = 2, j = 1, part = "body", 
+                        value = as_paragraph(as_i("F"), as_sub("2021"), " (yr", as_sup("-1"), ")"))
+
+refpoints.ft <- compose(refpoints.ft, i = 3, j = 1, part = "body", 
+                        value = as_paragraph(as_i("F"), as_sub("2021"), "/", as_i("F"), as_sub("MSY")))
+
+refpoints.ft <- compose(refpoints.ft, i = 4, j = 1, part = "body", 
+                        value = as_paragraph(as_i("SSB"), as_sub("MSST")))
+refpoints.ft <- compose(refpoints.ft, i = 5, j = 1, part = "body", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021"), " (mt)"))
+refpoints.ft <- compose(refpoints.ft, i = 6, j = 1, part = "body", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021"), "/", as_i("SSB"), as_sub("MSST")))
+refpoints.ft <- compose(refpoints.ft, i = 7, j = 1, part = "body", 
+                        value = as_paragraph("MSY (mt)"))
+refpoints.ft <- compose(refpoints.ft, i = 8, j = 1, part = "body", 
+                        value = as_paragraph("Catch", as_sub("2019-2021"), " (mt)"))
+refpoints.ft <- compose(refpoints.ft, i = 9, j = 1, part = "body", 
+                        value = as_paragraph(as_i("SPR"), as_sub("MSY")))
+refpoints.ft <- compose(refpoints.ft, i = 10, j = 1, part = "body", 
+                        value = as_paragraph(as_i("SPR"), as_sub("2021")))
+refpoints.ft <- align(refpoints.ft, j = 2, align = "right", part = "body")
+refpoints.ft
+```
+
+
+```{r}
+#| label: fig-kobe
+#| fig-cap: "Kobe plot representing the trend in relative fishing mortality and spawning stock biomass between 1969 and 2021 with their associated biological reference areas (red: overfished and overfishing, yellow: overfishing or overfished, green: no overfishing and not overfished). The large red dot indicates median stock status in 2021 and the black dots are one thousand Monte Carlo draws from the stock status distribution to represent the uncertainty around the final year status."
+#| out-width: 14cm
+#| fig-align: center
+
+path <- file.path(main.dir, "bootstrap", "05_Kobe.png")
+include_graphics(path)
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| tbl-cap: "Summary table of key model output for all sensitivity model runs."
+
+Results <- read.csv(file.path("../../..", "SS3 final models", params$species, "00_Alternate_Mods_Figs_Tables", "Results.csv"))
+Results <- Results[,-1]
+
+no_border <- fp_border(width = 0)
+border <- fp_border()
+
+set_flextable_defaults(
+  font.size = 9, font.family = "Arial", border.color = "black", font.color = "black",
+  padding.bottom = 0, padding.top = 0, line_spacing = 1, text.align = "center")
+
+
+Results.ft <- flextable(Results)
+#Results.ft <- hline_bottom(Results.ft, border = no_border)
+Results.ft <- hline_bottom(Results.ft, border = border)
+Results.ft <- hline_top(Results.ft, border = border, part = "header")
+Results.ft <- hline_bottom(Results.ft, border = border, part = "header")
+
+Results.ft <- compose(Results.ft, j = 2, part = "header", 
+                        value = as_paragraph(as_i("F"), as_sub("2021")))
+Results.ft <- compose(Results.ft, j = 3, part = "header", 
+                        value = as_paragraph(as_i("F"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 4, part = "header", 
+                        value = as_paragraph(as_i("F"), as_sub("2021"), "/", as_i("F"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 5, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 6, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("MSST")))
+Results.ft <- compose(Results.ft, j = 7, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021")))
+Results.ft <- compose(Results.ft, j = 8, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021"), "/", as_i("SSB"), as_sub("MSY")))
+Results.ft <- compose(Results.ft, j = 9, part = "header", 
+                        value = as_paragraph(as_i("SSB"), as_sub("2021"), "/", as_i("SSB"), as_sub("MSsT")))
+Results.ft <- compose(Results.ft, j = 10, part = "header", 
+                        value = as_paragraph("Catch", as_sub("MSY")))
+Results.ft <- align(Results.ft, align = "center", part = "body")
+
+Results.ft <- compose(Results.ft, j ="Model", i = 1, part = "body",
+                      value = as_paragraph("Base case"))
+Results.ft <- compose(Results.ft, j ="Model", i = 2, part = "body",
+                      value = as_paragraph(as_i("M"), "= XX cm"))
+Results.ft <- compose(Results.ft, j ="Model", i = 3, part = "body",
+                      value = as_paragraph(as_i("M"), "= XX cm"))
+Results.ft <- compose(Results.ft, j ="Model", i = 4, part = "body",
+                      value = as_paragraph("Steepness = XX"))
+Results.ft <- compose(Results.ft, j ="Model", i = 5, part = "body",
+                      value = as_paragraph("Steepness = XX"))
+Results.ft <- compose(Results.ft, j ="Model", i = 6, part = "body",
+                      value = as_paragraph("Alternate life history"))
+Results.ft <- compose(Results.ft, j ="Model", i = 7, part = "body",
+                      value = as_paragraph("Recruitment deviations"))
+Results.ft <- compose(Results.ft, j ="Model", i = 8, part = "body",
+                      value = as_paragraph("No historical catch"))
+if(nrow(Results) > 8){
+  Results.ft <- compose(Results.ft, j ="Model", i = 9, part = "body",
+                      value = as_paragraph("No hermaphroditism"))
+}
+Results.ft <- Results.ft %>% set_table_properties(layout = "autofit")
+Results.ft
+
+```
+
+{{< linebreak >}}
+
+```{r}
+#| label: fig-altmods-1
+#| out-width: 16.5cm
+#| fig-cap: "Sensitivity analyses showing differences in spawning biomass, fishing mortality, recruitment, and final year stock status (Kobe plot) under moderate life history parameter variation (plus and minus 10% of base parameter values)."
+
+path <- file.path("../../..", "SS3 final models", params$species, "00_Alternate_Mods_Figs_Tables", "Sensitivity1.png")
+include_graphics(path)
+
+```
+
+```{r}
+#| label: fig-altmods-2
+#| out-width: 16.5cm
+#| fig-cap: "Sensitivity analyses showing differences in spawning biomass, fishing mortality, recruitment, and final year stock status (Kobe plot) under b) an alternate life history parameter source (Lmat from StepwiseLH), c) with recruitment deviations, and d) without historical catch data (model starts in 1986)."
+
+path <- file.path("../../..", "SS3 final models", params$species, "00_Alternate_Mods_Figs_Tables", "Sensitivity2.png")
+include_graphics(path)
+
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| tbl-cap: "The annual fixed catch values (metric tons) applied from 2024 to a final projection year resulting in a given probability of overfishing (F/FMSY>1) in that final year. Catches for years prior to the start of the new catch guidance (2022 and 2023) were fixed at the mean of the last 3 years of catch data (2019 to 2021)."
+#| tbl-cap-location: top
+
+no_border <- fp_border(width = 0)
+set_flextable_defaults(
+  font.size = 9, font.family = "Arial", border.color = "black", font.color = "black",
+  padding.bottom = 0, padding.top = 0, line_spacing = 1)
+
+proj.table <- read.xlsx(file.path(main.dir, "forecast", "04_Proj_Table.xlsx"))
+
+proj.table.ft <- flextable(proj.table)
+
+proj.table.ft <- hline_bottom(proj.table.ft, border = border)
+
+proj.table.ft <- autofit(proj.table.ft)
+proj.table.ft <- compose(proj.table.ft, j = 1, part = "header", 
+                        value = as_paragraph("Probability of ", as_i("F"), " > ", 
+                                             as_i("F"),as_sub("MSY")))
+proj.table.ft <- align(proj.table.ft, align = "right", part = "body")
+proj.table.ft <- add_header_row(proj.table.ft, 
+                                values = c("", "Fixed catch (mt) from 2024 to:"), colwidths = c(1, 5))
+proj.table.ft <- hline_top(proj.table.ft, border = border, part = "header")
+proj.table.ft <- hline_bottom(proj.table.ft, border = border, part = "header")
+proj.table.ft <- border_inner_h(proj.table.ft, border = no_border, part = "header")
+proj.table.ft
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: fig-medproj
+#| fig-cap: "Median stock status for a range of catch values (metric tons) fixed for a given range of years. The stock status is for the final projected year."
+#| fig-align: center
+
+path <- file.path(main.dir, "forecast", "01_Proj_MedianStatus.png")
+include_graphics(path)
+```
+
+```{r}
+#| label: fig-projstatus
+#| fig-cap: "Probability of overfishing (left panel) and of stock being overfished (right panel) for a range of catch values (metric tons) fixed for a given range of years starting in 2024. The stock status probabilities are for the final projection year."
+#| fig-align: center
+
+
+path <- file.path(main.dir, "forecast", "02_Proj_ProbStatus.png")
+include_graphics(path)
+
+```
+
