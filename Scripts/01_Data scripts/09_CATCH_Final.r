@@ -49,8 +49,9 @@ D            <- select(D,SOURCE,SPECIES_FK,AREA_C,YEAR,LBS,SD.LBS)
 E <- rbind(A,B,D)
 E <- merge(E,S,by="SPECIES_FK")
 
-C1 <- ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y")
-ggsave(plot=C1,filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=4,units="in")
+C1 <- ggplot(data=E,aes(x=YEAR,y=LBS,fill=AREA_C))+geom_bar(stat="identity",position="stack")+facet_wrap(~SPECIES,scales="free_y",ncol=3)+theme_bw()+
+       theme(legend.position = "bottom")+scale_fill_discrete(labels=c("Historical","Creel - Manua","Creel - Tutuila"))+ylab("Annual catch (lb)")
+ggsave(plot=C1,filename=paste0(root_dir,"/Outputs/Summary/CATCH_Final.png"),width=8,height=8,units="in")
 
 # Save final catch file
 Z          <- E[,list(LBS=round(sum(LBS),0),SD.LBS=round(sum(SD.LBS),1)),by=list(SPECIES,YEAR)]
