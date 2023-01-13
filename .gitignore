@@ -83,7 +83,6 @@ Scripts/000_Run SS models - Paral No sync.R
 !01_Proj_MedianStatus.png
 !02_Proj_ProbStatus.png
 !03_Proj_CheckModelFit.png
-plots
 **/jitter
 **/Retrospectives
 **/*_profile
