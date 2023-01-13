@@ -90,5 +90,6 @@ plots
 **/mv_projections.rds
 /.quarto/
 .secrets
-!SS3 final models/*/01_Base
+!SS3 final models/*/01_Base/*_model_diags_report_files/figure-html/*.png
+!SS3 final models/*/01_Base/plots/*.png
 !SS3 final models/*/00_Alternate_Mods_Figs_Tables
