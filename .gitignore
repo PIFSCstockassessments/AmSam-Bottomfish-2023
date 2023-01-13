@@ -90,3 +90,5 @@ plots
 **/mv_projections.rds
 /.quarto/
 .secrets
+!SS3 final models/*/01_Base
+!SS3 final models/*/00_Alternate_Mods_Figs_Tables
