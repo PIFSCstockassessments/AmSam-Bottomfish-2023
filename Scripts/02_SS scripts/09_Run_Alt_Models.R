@@ -109,16 +109,16 @@ if(run_steep){
 
 if(run_recdevs){
   
-  if(!dir.exists(file.path(mods_dir, "07_RecDev"))){
-    dir.create(file.path(mods_dir, "07_RecDev"))
+  if(!dir.exists(file.path(mods_dir, "06_RecDev"))){
+    dir.create(file.path(mods_dir, "06_RecDev"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "07_RecDev"),
+                 dir.new = file.path(mods_dir, "06_RecDev"),
                  overwrite = T, copy_exe = TRUE)
   
-  CTL <- SS_readctl_3.30(file.path(mods_dir, "07_RecDev", "control.ss"),
-                         datlist = file.path(mods_dir, "07_RecDev", "data.ss"))
+  CTL <- SS_readctl_3.30(file.path(mods_dir, "06_RecDev", "control.ss"),
+                         datlist = file.path(mods_dir, "06_RecDev", "data.ss"))
   
 
   if(readGoogle == T){
@@ -159,9 +159,9 @@ if(run_recdevs){
     
   }
   
-  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "07_RecDev", "control.ss"), overwrite = T)
+  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "06_RecDev", "control.ss"), overwrite = T)
   r4ss::run(
-    dir = file.path(mods_dir, "07_RecDev"),
+    dir = file.path(mods_dir, "06_RecDev"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )
@@ -170,16 +170,16 @@ if(run_recdevs){
 
 if(run_nohistcatch){
   
-  if(!dir.exists(file.path(mods_dir, "08_NoHistCatch"))){
-    dir.create(file.path(mods_dir, "08_NoHistCatch"))
+  if(!dir.exists(file.path(mods_dir, "07_NoHistCatch"))){
+    dir.create(file.path(mods_dir, "07_NoHistCatch"))
   }
   
   copy_SS_inputs(dir.old = file.path(mods_dir, "01_Base"),
-                 dir.new = file.path(mods_dir, "08_NoHistCatch"),
+                 dir.new = file.path(mods_dir, "07_NoHistCatch"),
                  overwrite = T, copy_exe = TRUE)
   
-  CTL <- SS_readctl_3.30(file.path(mods_dir, "08_NoHistCatch", "control.ss"),
-                         datlist = file.path(mods_dir, "08_NoHistCatch", "data.ss"))
+  CTL <- SS_readctl_3.30(file.path(mods_dir, "07_NoHistCatch", "control.ss"),
+                         datlist = file.path(mods_dir, "07_NoHistCatch", "data.ss"))
   
   if(readGoogle == T){
     
@@ -197,9 +197,9 @@ if(run_nohistcatch){
     select(c(LO, HI, INIT, PRIOR, PR_SD, PR_type, PHASE, LABEL)) %>% 
     data.table::as.data.table()
  
-  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "08_NoHistCatch", "control.ss"), overwrite = T)
+  SS_writectl_3.30(CTL, outfile = file.path(mods_dir, "07_NoHistCatch", "control.ss"), overwrite = T)
   
-  DAT <- SS_readdat_3.30(file = file.path(mods_dir, "08_NoHistCatch", "data.ss"))
+  DAT <- SS_readdat_3.30(file = file.path(mods_dir, "07_NoHistCatch", "data.ss"))
   ## Change start year
   DAT$styr <- 1986
   ## Filter catch to remove any catch before new startyear
@@ -209,10 +209,10 @@ if(run_nohistcatch){
   DAT$catch$catch[1] <- DAT$catch[DAT$catch$year == DAT$styr, "catch"]
   DAT$catch$catch_se[1] <- DAT$catch[DAT$catch$year == DAT$styr, "catch_se"]
   
-  SS_writedat_3.30(DAT, outfile = file.path(mods_dir, "08_NoHistCatch", "data.ss"), overwrite = T)
+  SS_writedat_3.30(DAT, outfile = file.path(mods_dir, "07_NoHistCatch", "data.ss"), overwrite = T)
   
   r4ss::run(
-    dir = file.path(mods_dir, "08_NoHistCatch"),
+    dir = file.path(mods_dir, "07_NoHistCatch"),
     exe = "ss_opt_win.exe",
     skipfinished = F
   )

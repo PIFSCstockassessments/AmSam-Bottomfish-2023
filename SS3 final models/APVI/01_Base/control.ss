@@ -51,7 +51,7 @@
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
     0	      2	 0.16875	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-   10	     60	      35	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   10	     60	      34	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
    50	    100	    76.9	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
  0.05	    0.5	    0.13	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
  0.05	   0.25	    0.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
@@ -120,8 +120,8 @@
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--1	2	0.76	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
- 0	2	   0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
+-1	2	0	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
+ 0	2	0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
 #_size_selex_patterns
@@ -134,8 +134,8 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-20	50	43	0	0	0	2	0	0	0	0	0	0	0	#_1
- 1	20	13	0	0	0	2	0	0	0	0	0	0	0	#_2
+5	80	43	0	0	0	2	0	0	0	0	0	0	0	#_1
+1	20	13	0	0	0	2	0	0	0	0	0	0	0	#_2
 #_AgeSelex
 #_No age_selex_parm
 #_Dirichlet parameters

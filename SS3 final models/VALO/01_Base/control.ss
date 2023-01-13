@@ -52,31 +52,31 @@
 #
 #_growth_parms
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env_var&link	dev_link	dev_minyr	dev_maxyr	dev_PH	Block	Block_Fxn
-       0	   2	    0.36	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
-       1	  20	      20	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
-      38	 100	    46.1	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
-    0.05	0.35	    0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
-    0.05	0.25	    0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
-    0.05	0.25	    0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
-      -1	   3	0.000013	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
-      -1	   4	    3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
-      10	  60	      26	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
-      -3	   3	   -0.74	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
-      -3	   3	       1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
-      -3	   3	       0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
-       0	   2	    0.36	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Male_GP_1       
-       1	  20	      20	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Male_GP_1      
-      38	 100	    46.1	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Male_GP_1      
-    0.05	0.35	    0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Male_GP_1      
-    0.05	0.25	    0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Male_GP_1       
-    0.05	0.25	    0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Male_GP_1         
-      -1	   3	0.000013	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
-      -1	   4	    3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
-     0.5	  10	     5.9	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_inflectionage       
-     0.1	 0.6	     0.4	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_StDev               
-       0	   1	       1	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_asymprate           
-     0.1	  10	       1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
-0.000001	   1	       1	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
+    0	   2	   0.36	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Fem_GP_1        
+    1	  20	   15.2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Fem_GP_1       
+   38	 100	   46.1	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Fem_GP_1       
+ 0.05	0.35	   0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Fem_GP_1       
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Fem_GP_1        
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Fem_GP_1          
+   -1	   3	1.3e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Fem_GP_1         
+   -1	   4	   3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Fem_GP_1         
+   10	  60	     26	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat50%_Fem_GP_1          
+   -3	   3	  -0.74	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Mat_slope_Fem_GP_1       
+   -3	   3	      1	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_inter_Fem_GP_1   
+   -3	   3	      0	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Eggs/kg_slope_wt_Fem_GP_1
+    0	   2	   0.36	  0	  0	0	 -3	0	0	0	0	0	0	0	#_NatM_p_1_Male_GP_1       
+    1	  20	   15.2	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amin_Male_GP_1      
+   38	 100	   46.1	  0	  0	0	 -4	0	0	0	0	0	0	0	#_L_at_Amax_Male_GP_1      
+ 0.05	0.35	   0.25	  0	  0	0	 -3	0	0	0	0	0	0	0	#_VonBert_K_Male_GP_1      
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_young_Male_GP_1       
+ 0.05	0.25	   0.12	  0	  0	0	 -3	0	0	0	0	0	0	0	#_CV_old_Male_GP_1         
+   -1	   3	1.3e-05	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_1_Male_GP_1        
+   -1	   4	   3.09	  0	  0	0	 -3	0	0	0	0	0	0	0	#_Wtlen_2_Male_GP_1        
+  0.5	  10	    5.9	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_inflectionage       
+  0.1	 0.6	    0.4	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_StDev               
+    0	   1	      1	  0	  0	0	 -2	0	0	0	0	0	0	0	#_Herm_asymprate           
+  0.1	  10	      1	  1	  1	0	 -1	0	0	0	0	0	0	0	#_CohortGrowDev            
+1e-06	   1	      1	0.5	0.5	0	-99	0	0	0	0	0	0	0	#_FracFemale_GP_1          
 #_no timevary MG parameters
 #
 #_seasonal_effects_on_biology_parms
@@ -88,7 +88,7 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 # future feature: 0/1 to make realized sigmaR a function of SR curvature
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn # parm_name
-0.1	5	       1	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
+0.1	5	     1.5	0	0	0	  1	0	0	0	0	0	0	0	#_SR_LN(R0)  
 0.2	1	0.767674	0	0	0	 -2	0	0	0	0	0	0	0	#_SR_BH_steep
   0	2	0.411207	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_sigmaR  
  -5	5	       0	0	0	0	 -4	0	0	0	0	0	0	0	#_SR_regime  
@@ -133,7 +133,7 @@
 -9999	0	0	0	0	0	#_terminator
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
--6	2	-2	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
+-6	2	-3	0	0	0	 1	0	0	0	0	0	0	0	#_LnQ_base        
  0	2	 0	0	0	0	-1	0	0	0	0	0	0	0	#_LnQ_base_extraSE
 #_no timevary Q parameters
 #
@@ -147,8 +147,8 @@
 #
 #_SizeSelex
 #_LO	HI	INIT	PRIOR	PR_SD	PR_type	PHASE	env-var	use_dev	dev_mnyr	dev_mxyr	dev_PH	Block	Blk_Fxn  #  parm_name
-1	70	25	0	0	0	2	0	0	0	0	0	0	0	#_1
-1	30	 4	0	0	0	2	0	0	0	0	0	0	0	#_2
+1	50	25	0	0	0	2	0	0	0	0	0	0	0	#_1
+1	15	 4	0	0	0	2	0	0	0	0	0	0	0	#_2
 #_AgeSelex
 #_No age_selex_parm
 #_Dirichlet parameters

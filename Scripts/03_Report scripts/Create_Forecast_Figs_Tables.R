@@ -2,7 +2,7 @@ Create_Forecast_Figs_Tables <- function(root_dir,model_dir){
 
 
   # COMMENT OUT THIS LINE
- # model_dir <- file.path(root_dir,"SS3 models","LUKA","50_Base")
+#  model_dir <- file.path(root_dir,"SS3 models","VALO","65_Base")
   
   
   
@@ -105,11 +105,11 @@ E <- E %>% mutate(N_overfished=replace(N_overfished,is.na(N_overfished),0)) %>%
   mutate(ProbOverfished=N_overfished/N_tot)
 
 P3 <- ggplot(data=C,aes(x=FixedCatch,y=ProbOverfishing,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. F > Fmsy")+
-  theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5)+scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+  theme_bw()+theme(legend.position="none")+geom_smooth(col="black",se=F,size=0.5)+scale_y_continuous(expand=c(0,0),limits=c(0,1))+coord_cartesian(ylim=c(0,0.6))+
   scale_x_continuous(limits=c(min(C$FixedCatch),max(C$FixedCatch)),expand=c(0,0))#+geom_point(aes(fill=as.character(year)),size=1,shape=21)
 
 P4 <- ggplot(data=E,aes(x=FixedCatch,y=ProbOverfished,linetype=as.character(year)))+geom_point(size=0.5)+labs(x="Fixed catch (mt)",y="Prob. SSB < SSBmsst")+
-  guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5)+scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+  guides(linetype=guide_legend(title="Final year"))+theme_bw()+geom_smooth(col="black",se=F,size=0.5)+scale_y_continuous(expand=c(0,0),limits=c(0,1))+coord_cartesian(ylim=c(0,0.6))+
   scale_x_continuous(limits=c(min(C$FixedCatch),max(C$FixedCatch)),expand=c(0,0))
 
 aLegend <- get_legend(P4)
