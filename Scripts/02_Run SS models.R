@@ -16,14 +16,14 @@ for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
 
 #cl    <- makeCluster (9)
-for(i in 1:9){
-lapply(list(Lt[[i]]),function(x)     { # Run a single model
+#for(i in 1:9){
+lapply(list(Lt[[4]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
   DirName    <- "65_Base"
   runmodels  <- F   # Turn off if you want to process results only
-  printreport<- F   # Turn off to skip ss_diags report
-  Create_species_report_figs <- T
+  printreport<- T   # Turn off to skip ss_diags report
+  Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
   N_foreyrs  <- 0   # Set to 0 to turn forecast off
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
@@ -45,7 +45,7 @@ lapply(list(Lt[[i]]),function(x)     { # Run a single model
                do_retro      = RD,retro_years = 0:-5,
                do_profile    = RD,profile = "SR_LN(R0)",
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),
-               do_jitter     = RD, Njitter = 2,jitterFraction = 0.1,
+               do_jitter     = RD, Njitter = 1,jitterFraction = 0.1,
                printreport   = printreport, r4ssplots = runmodels,
                superyear     = x$SY,superyear_blocks = x$SY_block,
                F_report_basis = 0,lambdas = F,includeCPUE = T,init_values = 0,parmtrace = 0,last_est_phs = 10,
@@ -91,7 +91,7 @@ lapply(list(Lt[[i]]),function(x)     { # Run a single model
   
 })
 
-}
+#}
 
 #stopCluster (cl)
 
