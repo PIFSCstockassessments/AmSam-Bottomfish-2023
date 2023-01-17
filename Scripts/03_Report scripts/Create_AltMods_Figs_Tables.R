@@ -299,7 +299,7 @@ alt_mods_dir <- list.dirs(file.path(root_dir, "SS3 final models", species), recu
 alt_models <- SSgetoutput(dirvec = alt_mods_dir) 
 
 ## Separate models for easier plotting 
-## base model, M+/-, Linf +/-, steep +/-
+## base model, M+/-, steep +/-
 alt_mods1 <- alt_models[1:5]
 ## base model, alt LH, rec dev on, no historical catch
 alt_mods2 <- alt_models[c(1,6:length(alt_mods_dir))]
@@ -317,10 +317,10 @@ plotsensitivity(Summary, ModelLabels, NModels, Directory, model_group = 1)
 ## Second set of alternate models
 Summary <-SSsummarize(alt_mods2)
 # Labels for model group 2
-ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch")
+ModelLabels<-c("Base","RecDev","No Historical Catch","Alternate LH")
 
 if(species=="LERU"|species=="VALO")
-ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch","No hermaphro.")
+ModelLabels<-c("Base","RecDev","No Historical Catch","Alternate LH","No hermaphro.")
 
 #ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch", "No Hermaphro")
 Directory<-file.path(root_dir, "SS3 final models", species, "00_Alternate_Mods_Figs_Tables")
@@ -417,9 +417,9 @@ for(species in species_names){
     if(model_group == 2){
       Summary <-SSsummarize(alt_mods2)
       if(species == "LERU"| species == "VALO"){
-        ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch", "No Hermaphro")
+        ModelLabels<-c("Base","RecDev","No Historical Catch","Alternate LH", "No Hermaphro")
       }else{
-        ModelLabels<-c("Base","Alternate LH","RecDev","No Historical Catch")
+        ModelLabels<-c("Base","RecDev","No Historical Catch","Alternate LH")
       }
     }
 
