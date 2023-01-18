@@ -5,14 +5,14 @@ pacman::p_load(r4ss, dplyr, stringr, this.path)
 root_dir <- this.path::here(..=2)
 
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
-species <- species_names[1]
+species <- species_names[5]
 
 ### Alternate model options 
 run_M <- T
 run_steep <- T
 run_recdevs <- T
 run_nohistcatch <- T
-run_noherm <- F
+run_noherm <- T
 ## Get parameter values from online (T) or Excel file on local computer
 readGoogle <- T
 
