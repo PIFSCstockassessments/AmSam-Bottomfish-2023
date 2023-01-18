@@ -17,12 +17,12 @@ names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","Fix
 
 #cl    <- makeCluster (9)
 #for(i in 1:9){
-lapply(list(Lt[[4]]),function(x)     { # Run a single model
+lapply(list(Lt[[3]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "65_Base"
+  DirName    <- "65a_AlternateLH"
   runmodels  <- F   # Turn off if you want to process results only
-  printreport<- T   # Turn off to skip ss_diags report
+  printreport<- F   # Turn off to skip ss_diags report
   Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
   N_foreyrs  <- 0   # Set to 0 to turn forecast off
