@@ -1,3 +1,6 @@
+# This function runs CPUE by area (Tutuila vs Manua)
+
+
 Standardize_CPUE <- function(Sp, Ar,minYr=1988,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
