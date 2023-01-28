@@ -39,6 +39,7 @@
    A$YEAR         <- as.numeric(year(A$SAMPLE_DATE))
     
    # Filter for the two bottomfishing methods 
+   length(unique(A[YEAR>=2016&(METHOD_FK==4|METHOD_FK==5)]$INTERVIEW_PK))
    A <- A[METHOD_FK==4|METHOD_FK==5] ; length(unique(A[YEAR>=2016&METHOD_FK==4]$INTERVIEW_PK))
    
    # -- 99 interviews flagged as incomplete
@@ -282,7 +283,7 @@ for (i in 1:length(CATCH_PK.list)){
 B <- select(B,-SPECIES_FK,-FAMILY,-SCIENTIFIC_NAME,-BMUS)
 setnames(B,"SPECIES_FK2","SPECIES_FK")
 B <- merge(B,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
-length(unique(B$INTERVIEW_PK)) #3203
+length(unique(B[B$YEAR>=2016]$INTERVIEW_PK)) #3203
 
 # Add proportion unidentified per INTERVIEW_PK
 SUM.GROUP   <- B[BMUS=="BMUS_Containing_Group",list(LBS_GROUP=sum(EST_LBS)),by=list(INTERVIEW_PK)]
@@ -293,7 +294,7 @@ P$PROP_UNID <- round(P$LBS_GROUP/(P$LBS_BMUS+P$LBS_GROUP),3)
 P           <- select(P,INTERVIEW_PK,PROP_UNID)
 B           <- merge(B,P,by="INTERVIEW_PK",all.x=T)
 
-length(unique(B[is.na(PROP_UNID)]$INTERVIEW_PK)) # 179 interviews that don't contain a BMUS or BMUS-containing group
+length(unique(B[is.na(PROP_UNID)&YEAR>=2016]$INTERVIEW_PK)) # 179 interviews that don't contain a BMUS or BMUS-containing group
 B[is.na(PROP_UNID)]$PROP_UNID <- 0 # Assign zero for these interviews
 
 # Collapse data and select only used variables
@@ -304,9 +305,9 @@ B <- B[,list(EST_LBS=sum(EST_LBS)),by=list(INTERVIEW_PK,CATCH_PK,AREA_C,YEAR,SEA
 B <- B[order(SAMPLE_DATE,INTERVIEW_TIME_LOCAL,INTERVIEW_PK)]
 
 # save in nullfile()# save in the output folder.
-length(unique(B$INTERVIEW_PK)) #3203  #3205
-length(unique(B[METHOD_FK==4]$INTERVIEW_PK)) #2427  #2428
-length(unique(B[METHOD_FK==5]$INTERVIEW_PK)) #776   #777
+length(unique(B[YEAR>=2016]$INTERVIEW_PK)) #3203  #3205
+length(unique(B[METHOD_FK==4&YEAR>=2016]$INTERVIEW_PK)) #2427  #2428
+length(unique(B[METHOD_FK==5&YEAR>=2016]$INTERVIEW_PK)) #776   #777
 
 length(unique(B[YEAR>=2016&METHOD_FK=="4"]$INTERVIEW_PK))
 
