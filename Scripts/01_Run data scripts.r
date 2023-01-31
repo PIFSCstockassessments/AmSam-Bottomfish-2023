@@ -1,6 +1,6 @@
 # Check if all required packages are installed, and install if not. Note: You need r4ss v.1.44.0 and ss3diags obtained from github repos.
 require(pacman)
-pacman::p_load(boot,data.table,ggfortify,ggpubr,grid,gridExtra,directlabels,mgcv,ncdf4,httr,
+pacman::p_load(boot,data.table,DHARMa,ggfortify,ggpubr,grid,gridExtra,directlabels,mgcv,mgcViz,ncdf4,httr,
                lubridate,lunar,purrr,googledrive,googlesheets4,tidyverse,tinytex,this.path,nFactors,openxlsx)
 
 # Need these specializes packages: r4ss v1.46.1 and ss3diags v2.0.3.9000 (branch "ndd" for now) 
@@ -62,6 +62,6 @@ for(i in 1:length(Species.List)){
 #Standardize_CPUE(Sp = "APRU" , Ar = c("Tutuila","Manua") [1])
 Standardize_CPUE2(Sp = "VALO",Interaction=T,minYr=2016,maxYr=2021)
 Standardize_CPUE2(Sp = "PRFL",Interaction=T,minYr=2016,maxYr=2021)
-Sp<-"APRU"; Ar<-"Tutuila"; minYr=2016; maxYr=2021; Interaction<-T
+Sp<-"LERU"; Ar<-"Tutuila"; minYr=2016; maxYr=2021; Interaction<-T
 
 
