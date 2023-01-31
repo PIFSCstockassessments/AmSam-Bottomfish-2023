@@ -178,15 +178,17 @@ B.SelResults            <- rbind(B.SelResults,data.table(DESCRIPTION="Best model
 B.SelResults$CPUE_TYPE  <- "Probability CPUE" 
 B.SelResults            <- select(B.SelResults,CPUE_TYPE,DESCRIPTION,FORMULA,AIC,DELT_AIC)
 
-# Generate model diagnostic figures
+# Check model results
 par(mfrow=c(1,4))
 gam.check(LastModel)
+dev.off()
 
-# QQ plots and other diagnostics are not relevant for logistic GAMs
-#M1 <- recordPlot()
-#png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb1.png")),width=8,height=2,unit="in",res=300)
-#replayPlot(M1)
-#dev.off()
+# QQ plots for logistic GAM using DHARMa package
+#par(mfrow=c(1,4))
+simulationOutput <- simulateResiduals(fittedModel = LastModel)
+png(file.path(root_dir,"Outputs","Summary","CPUE figures",paste0(Sp,"_DiagsProb1.png")),width=1.27,height=1.27,unit="in",res=300,pointsize=5)
+plotQQunif(simulationOutput, testDispersion = FALSE,testUniformity = FALSE,testOutliers = FALSE)
+dev.off()
 
 if(nrow(anova(LastModel)$s.table>0)){ # Check if there are nonlinear terms to plot
   par(mfrow=c(1,4))
