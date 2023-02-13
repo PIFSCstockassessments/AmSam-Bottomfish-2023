@@ -69,19 +69,19 @@ D$YEAR        <- factor(D$YEAR)
 # Backward selection: Positive catch-only models
 if(Interaction==T){
   #interaction between area and year "YEAR:AREA_C"
-Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+   Model.String <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+YEAR:AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+   
+   out   <- tryCatch(eval(parse(text=Model.String)),error = function(e) e)
+   Error <- any(class(out) == "error")
+   
+   if(Error==TRUE){
+   Model.String <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(PC1)+TYPE_OF_DAY, method="REML")'
+   }
+   
 } else{
-Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
+
+   Model.String <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
 }
-
-#if(Sp=="PRFL"){
-#  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+AREA_C+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+SEASON+s(WINDSPEED)+s(PC1)+s(PC2)+TYPE_OF_DAY, method="REML")'
-#}
-
-#if(Sp=="VALO"){
-#  Model.String  <- 'gam(data=D[CPUE>0],weights=W.P,log(CPUE)~YEAR+s(HOURS_FISHED,k=3)+s(NUM_GEAR,k=3)+s(PC2)+TYPE_OF_DAY, method="REML")'
-#}
-
 
 aModel        <- eval(parse(text=Model.String))
 PreviousAIC   <- AIC(aModel)
@@ -96,7 +96,8 @@ for(i in 1:10){
   if(nrow(a)==0) c <- b
   c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
   #c             <- c[!(TERMS=="YEAR")] # Keep those 2 variables, no matter what
-    if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
+  if(nrow(c)==0) break; #Stops if "c" variable list is empty
+  if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0" 
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
   if(RM=="s(NUM_GEAR)")     RM <- "s(NUM_GEAR,k=3)"
@@ -127,8 +128,9 @@ png(file.path(Fig.Folder,paste0(Sp,"_DiagsPos1.png")),width=8,height=2,unit="in"
 replayPlot(M1)
 dev.off()
 
-if(!is.null(anova(LastModel)$s.table)){ # Check if there are nonlinear terms to plot
- par(mfrow=c(1,4))
+N_nonlinear <- nrow(anova(LastModel)$s.table>0)
+if(!is.null(N_nonlinear)){ # Check if there are nonlinear terms to plot
+ par(mfrow=c(1,N_nonlinear))
  plot(LastModel,residuals=T,shade=T,shift = coef(LastModel)[1], seWithMean = TRUE)
  M2 <- recordPlot()
  png(file.path(Fig.Folder,paste0(Sp,"_DiagsPos2.png")),width=8,height=2,unit="in",res=300)
@@ -167,6 +169,7 @@ for(i in 1:10){
   if(nrow(a)==0) c <- b
   c             <- c[!(TERMS=="YEAR"|TERMS=="AREA_C")] # Keep those 2 variables, no matter what
   #c             <- c[!(TERMS=="YEAR")] # Keep those 2 variables, no matter what
+  if(nrow(c)==0) break; #Stops if "c" variable list is empty
   if (max(c$PVALUE)==0) break; # End model selection if the p-values left are so low, they equal "0"
   RM            <- c[PVALUE==max(c$PVALUE)]$TERMS
   if(RM=="s(HOURS_FISHED)") RM <- "s(HOURS_FISHED,k=3)"
@@ -202,8 +205,9 @@ png(file.path(Fig.Folder,paste0(Sp,"_DiagsProb1.png")),width=1.27,height=1.27,un
 plotQQunif(simulationOutput, testDispersion = FALSE,testUniformity = FALSE,testOutliers = FALSE)
 dev.off()
 
-if(nrow(anova(LastModel)$s.table>0)){ # Check if there are nonlinear terms to plot
-  par(mfrow=c(1,4))
+N_nonlinear <- nrow(anova(LastModel)$s.table>0)
+if(!is.null(N_nonlinear)){ # Check if there are nonlinear terms to plot
+  par(mfrow=c(1,N_nonlinear))
   plot(LastModel,trans=plogis,shade=T,residuals=T,shift = coef(LastModel)[1], seWithMean = TRUE)
   M2 <- recordPlot()
   png(file.path(Fig.Folder,paste0(Sp,"_DiagsProb2.png")),width=8,height=2,unit="in",res=300)
