@@ -39,7 +39,7 @@ source(paste0(here(..=1),"/Scripts/01_Data scripts/10_SIZE.r"));                
 ################ RUN CPUE STANDARDIZATION############################
 # Run CPUE standardization and export indices for input into SS
 #source(paste0(here(..=1),"/Scripts/05_CPUE_BBS_Standardize_Function.r"))
-source(paste0(here(..=1),"/Scripts/01_Data scripts/05_CPUE_BBS_Standardize_Function2.r"))
+source(paste0(here(..=1),"/Scripts/01_Data scripts/05_CPUE_BBS_Standardize_Function3.r"))
 root_dir <- root_dir <- this.path::here(.. = 1) # establish directories using this.path
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
@@ -54,7 +54,7 @@ Area.List    <- c("Tutuila","Manua")
 
 # Run CPUE standardization for all species, areas combined in a loop
 for(i in 1:length(Species.List)){
-    Standardize_CPUE2(Sp=Species.List[i],Interaction=T,minYr=2016,maxYr=2021)
+    Standardize_CPUE3(Sp=Species.List[i],Interaction=T,minYr=1988,maxYr=2015)
 }
 
 
