@@ -2,7 +2,7 @@ Standardize_CPUE3 <- function(Sp, Interaction=T,minYr=2016,maxYr=2021) {
   
 require(data.table); require(tidyverse); require(mgcv): require(DHARMa); require(mgcViz); require(RColorBrewer); require(openxlsx); require(boot); require(gridExtra); require(grid); require(viridis)
 
-Model.Years <- paste0(minYr,"-",maxYr)
+Model.Years <- paste0(minYr,"_",maxYr)
 Fig.Folder  <- paste0(root_dir,"/Outputs/Summary/CPUE figures ",Model.Years)
 SS.Folder   <- paste0(root_dir,"/Outputs/SS3_Inputs/CPUE_",Model.Years)
     
@@ -407,7 +407,7 @@ Best.Mod$LOGSD.CPUE_TOT <- sqrt( log((Best.Mod$SD.CPUE_TOT/Best.Mod$CPUE_TOT)^2+
 Best.Mod.Final <- select(Best.Mod,YEAR,CPUE_TOT,LOGSD.CPUE_TOT)
 Best.Mod.Final[LOGSD.CPUE_TOT<0.2]$LOGSD.CPUE_TOT <- 0.2 # Insure that the CV for any year is at least 0.2
   
-write.csv(Best.Mod.Final,file=file.path(SS.Folder,paste0(Sp,"_AllAreas.csv")),row.names =F)
+write.csv(Best.Mod.Final,file=file.path(SS.Folder,paste0("CPUE_",Sp,"_",Model.Years,".csv")),row.names =F)
 
 # Add nominal CPUE information
 NOMI1              <- D[PRES>0,list(CPUE_POS=mean(CPUE)),by=list(YEAR,SEASON,AREA_C)]
