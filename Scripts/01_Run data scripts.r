@@ -62,6 +62,6 @@ for(i in 1:length(Species.List)){
 #Standardize_CPUE(Sp = "APRU" , Ar = c("Tutuila","Manua") [1])
 Standardize_CPUE2(Sp = "VALO",Interaction=T,minYr=2016,maxYr=2021)
 Standardize_CPUE2(Sp = "PRFL",Interaction=T,minYr=2016,maxYr=2021)
-Sp<-"LERU"; Ar<-"Tutuila"; minYr=2016; maxYr=2021; Interaction<-T
+Sp<-"LERU"; Ar<-"Tutuila"; minYr=1988; maxYr=2015; Interaction<-T
 
 
