@@ -45,7 +45,7 @@ lapply(list(Lt[[i]]),function(x)     { # Run a single model
                do_retro      = RD,retro_years = 0:-5,
                do_profile    = RD,profile = "SR_LN(R0)",
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),
-               do_jitter     = RD, Njitter = 100,jitterFraction = 0.1,
+               do_jitter     = RD, Njitter = 2,jitterFraction = 0.1,
                printreport   = printreport, r4ssplots = runmodels,
                superyear     = x$SY,superyear_blocks = x$SY_block,
                F_report_basis = 0,lambdas = F,includeCPUE = T,init_values = 0,parmtrace = 0,last_est_phs = 10,
