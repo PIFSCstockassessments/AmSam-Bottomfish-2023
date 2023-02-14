@@ -151,7 +151,7 @@ Build_All_SS <- function(species,
   catch <- catch %>% mutate(MT = ifelse(MT == 0, 0.001, MT))
   # Length comp data
   lencomp <- data.table(  read.csv(file.path(root_dir, "Outputs", "SS3_Inputs", "SIZE_Final.csv"),header=T)  )
-  
+
   # Control and data file inputs
   if(readGoogle == T){
       ctl.params <- read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
@@ -175,7 +175,7 @@ Build_All_SS <- function(species,
   ## Step 3. Create other inputs ###---------------------------------------------------
   ### Create subdirectory
   if(!dir.exists(file.path(root_dir, "SS3 models", species, file_dir))){
-    dir.create(file.path(root_dir, "SS3 models", species, file_dir))
+    dir.create(file.path(root_dir, "SS3 models", species, file_dir), showWarnings = F)
   }
   
   ## Create text file with notes from CTL_params sheet for reference
@@ -229,20 +229,26 @@ Build_All_SS <- function(species,
     cpue_files <- list.files(path = paste0(root_dir,"/Outputs/SS3_Inputs/CPUE"),
                              pattern = species,
                              full.names = TRUE)
-    
+    if(Nfleets == 1){
+      cpue_files <- cpue_files[str_detect(cpue_files, "2016_2021")]
+    }
     cpue.list <- lapply(cpue_files, function(i){read.csv(i)})
-    area <- unlist(str_extract_all(cpue_files, 
-                                   pattern = c("Manua|Tutuila")))
+    time.period <- unlist(str_extract_all(cpue_files, 
+                                   pattern = "\\d+\\d+\\d+\\d+([_])+\\d+\\d+\\d+\\d"))
     
     cpue <- map(cpue.list, set_names, c("year", "obs", "se_log")) %>% 
-      mapply(cbind, ., "index"= area, SIMPLIFY=F)  %>% 
+      mapply(cbind, ., "index"= time.period, SIMPLIFY=F)  %>% 
       rbindlist() %>% 
       mutate(seas = 7,
-             index = as.numeric(factor(index, levels = c("Tutuila", "Manua")))) %>% 
+             index = as.numeric(factor(index, levels = time.period))) %>% 
       select(year, seas, index, obs, se_log) %>% 
       filter(index %in% fleets) %>% 
       filter(year >= startyr & year <= endyr) %>% 
       as.data.frame()
+    
+    if(Nfleets > 1){
+      cpue$index <- cpue$index + 1
+    }
     
   }else{
     cpue <- NULL
@@ -296,6 +302,10 @@ Build_All_SS <- function(species,
       filter(Fleet %in% fleets) %>% 
       pivot_wider(names_from = Parameter, values_from = paste0(species)) %>% 
       setNames(c("fleet", "link", "link_info", "extra_se", "biasadj", "float"))
+    if(Nfleets > 1){
+      Q.options <- Q.options %>% 
+        filter(fleet > 1)
+    }
   }else{
     Q.options <- NULL
   }

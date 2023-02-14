@@ -212,7 +212,7 @@ Build_Data <- function(species = NULL, scenario = "base", catch = NULL, initF = 
                                combine_M_F    = rep(0, DAT$Nfleets),
                                CompressBins   = rep(0, DAT$Nfleets),
                                CompError      = rep(1, DAT$Nfleets),
-                               ParmSelect     = seq(1, DAT$Nfleets),
+                               ParmSelect     = rep(1, DAT$Nfleets),
                                minsamplesize  = rep(0.001, DAT$Nfleets))  
     }
     

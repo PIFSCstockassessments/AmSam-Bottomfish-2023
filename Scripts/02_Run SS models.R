@@ -20,10 +20,10 @@ for(i in 3:8){
 lapply(list(Lt[[i]]),function(x)     { # Run a single model
 #parLapply(cl,Lt,function(x){ # Run all models
   
-  DirName    <- "01_Base"
-  runmodels  <- F   # Turn off if you want to process results only
+  DirName    <- "68_2CPUE"
+  runmodels  <- T   # Turn off if you want to process results only
   printreport<- F   # Turn off to skip ss_diags report
-  Create_species_report_figs <- T
+  Create_species_report_figs <- F
   N_boot     <- 0   # Set to 0 to turn bootstrap off
   N_foreyrs  <- 0   # Set to 0 to turn forecast off
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
@@ -34,14 +34,14 @@ lapply(list(Lt[[i]]),function(x)     { # Run a single model
   
   require(pacman); pacman::p_load(boot,data.table,httr,lubridate,ggpubr,grid,parallel,purrr,googledrive,googlesheets4,gt,quarto,openxlsx,tidyverse,r4ss,officer,flextable)
   source(file.path(x$root,"Scripts","02_SS scripts","01_Build_All_SS.R")); source(file.path(x$root,"Scripts","02_SS scripts","06_Run_Diags.R"))
-  model_dir <- file.path(x$root,"SS3 final models",x$N,DirName)
+  model_dir <- file.path(x$root,"SS3 models",x$N,DirName)
   
   # Species options
   Build_All_SS(species       = x$N, EST_option = "Normal", scenario = "base",
                SR_option     = "FishLife", M_option = x$M, GROWTH_option = x$G,
                LW_option     = x$LW,MAT_option = x$MT, initF = x$IF,
-               startyr       = Begin, endyr = 2021, fleets = 1, N_samp = 45,
-               write_files   = F, runmodels = runmodels, ext_args = "",
+               startyr       = Begin, endyr = 2021, fleets = c(1,2,3), N_samp = 45,
+               write_files   = T, runmodels = runmodels, ext_args = "",
                do_retro      = RD,retro_years = 0:-5,
                do_profile    = RD,profile = "SR_LN(R0)",
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),

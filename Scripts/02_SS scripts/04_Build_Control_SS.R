@@ -207,9 +207,34 @@ Build_Control <- function(species = species,
       filter(str_detect(category, "EST")) %>% 
       filter(str_detect(X1, fixed("size", ignore_case = TRUE))) %>%
       filter(str_detect(OPTION, EST_option)) %>%
-      slice_head(n = Nfleets*2) %>% 
+      slice_head(n = 2) %>% 
       select(-c(category, OPTION, "X1")) %>% 
       as.data.frame()
+    if(Nfleets > 1){
+      
+      nn <- (Nfleets * 2) - nrow(CTL$size_selex_parms)
+      
+      selex_params_extra <- data.frame(
+        "LO" = rep(-1, nn),
+        "HI" = rep(-1, nn),
+        "INIT" = rep(-1, nn),
+        "PRIOR" = rep(-1, nn),
+        "PR_SD" = rep(99, nn),
+        "PR_type" = rep(0, nn),
+        "PHASE" = rep(-99, nn),
+        "env_var" = rep(0, nn),
+        "use_dev" = rep(0, nn), 
+        "dev_mnyr" = rep(0, nn),	
+        "dev_mxyr" = rep(0, nn),
+        "dev_PH" = rep(0, nn),
+        "Block"	= rep(0, nn),
+        "Blk_Fxn" = rep(0, nn)
+      )
+      colnames(selex_params_extra) <- colnames(CTL$size_selex_parms)
+      
+      CTL$size_selex_parms <- rbind(CTL$size_selex_parms, selex_params_extra)
+      
+    }
 
   }else{
 
