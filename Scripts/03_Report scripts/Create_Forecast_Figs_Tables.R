@@ -118,34 +118,38 @@ ggsave(last_plot(),file=file.path(fore_dir,"02_Proj_ProbStatus.png"),height=8, w
 
 # Catch risk table 
 G <- C %>% filter(ProbOverfishing>=0.1&ProbOverfishing<=0.6&FixedCatch<=xmax) %>% select(-N_tot,-N_overfishing)
+if(nrow(G) > 0){ # only make risk table if there are cases where probability of overfishing is > 0.1, some cases have Probability = 0 and this breaks the code.
+  
+  Preds.x <- expand.grid(ProbOverfishing=seq(0.1,0.5,by=0.01),year=as.factor(seq(min(G$year),max(G$year))))
+  G$year  <- factor(G$year)
+  #model   <- gam(data=G,Catch~year+s(ProbOverfishing,by=year),method="REML")
+  #Preds   <- predict.gam(model,newdata=Preds.x)
+  model   <- glm(data=G,FixedCatch~year*poly(ProbOverfishing,2))
+  Preds   <- predict(model,newdata=Preds.x)
+  Preds   <- cbind(Preds.x,Preds)
+  
+  # Check the GLM model fit and range of data
+  G$year <- as.character(G$year)
+  ggplot()+geom_line(data=Preds,aes(x=Preds,y=ProbOverfishing,col=as.character(year)))+geom_point(data=G,aes(x=FixedCatch,y=ProbOverfishing,col=as.character(year)),shape=2,size=2)+
+    theme_bw()+labs(x="Catch",y="Prob. overfishing") + guides(col=guide_legend(title="Year"))
+  ggsave(last_plot(),file=file.path(fore_dir,"03_Proj_CheckModelFit.png"),height=8, width=15,units="cm")
+  
+  # Create Prob. overfishing bins
+  G$ProbOverfishing     <- round(G$ProbOverfishing,2)
+  
+  H <- merge(Preds,G,by.x=c("year","ProbOverfishing"),by.y=c("year","ProbOverfishing"),all.x=T)
+  H <- select(H,Year=year,ProbOverfishing,FixedCatch,Preds)
+  H$Year <- as.numeric(as.character(H$Year))
+  
+  # Fill in the catch advice using the model predictions
+  H <- H %>% mutate(Catch=Preds) %>% select(-Preds) %>%  filter(Year>=2024) %>% 
+    group_by(Year,ProbOverfishing) %>% summarize(Catch=round(mean(Catch),2)) %>% 
+    mutate(Catch=format(Catch,nsmall=2),ProbOverfishing=format(ProbOverfishing,nsmall=2)) %>% 
+    spread(Year,Catch) %>% arrange(desc(ProbOverfishing))
+  
+  write.xlsx(H,file=file.path(fore_dir,"04_Proj_Table.xlsx"),sheets="CatchProj")
+  
+}
 
-Preds.x <- expand.grid(ProbOverfishing=seq(0.1,0.5,by=0.01),year=as.factor(seq(min(G$year),max(G$year))))
-G$year  <- factor(G$year)
-#model   <- gam(data=G,Catch~year+s(ProbOverfishing,by=year),method="REML")
-#Preds   <- predict.gam(model,newdata=Preds.x)
-model   <- glm(data=G,FixedCatch~year*poly(ProbOverfishing,2))
-Preds   <- predict(model,newdata=Preds.x)
-Preds   <- cbind(Preds.x,Preds)
-
-# Check the GLM model fit and range of data
-G$year <- as.character(G$year)
-ggplot()+geom_line(data=Preds,aes(x=Preds,y=ProbOverfishing,col=as.character(year)))+geom_point(data=G,aes(x=FixedCatch,y=ProbOverfishing,col=as.character(year)),shape=2,size=2)+
-  theme_bw()+labs(x="Catch",y="Prob. overfishing") + guides(col=guide_legend(title="Year"))
-ggsave(last_plot(),file=file.path(fore_dir,"03_Proj_CheckModelFit.png"),height=8, width=15,units="cm")
-
-# Create Prob. overfishing bins
-G$ProbOverfishing     <- round(G$ProbOverfishing,2)
-
-H <- merge(Preds,G,by.x=c("year","ProbOverfishing"),by.y=c("year","ProbOverfishing"),all.x=T)
-H <- select(H,Year=year,ProbOverfishing,FixedCatch,Preds)
-H$Year <- as.numeric(as.character(H$Year))
-
-# Fill in the catch advice using the model predictions
-H <- H %>% mutate(Catch=Preds) %>% select(-Preds) %>%  filter(Year>=2024) %>% 
-  group_by(Year,ProbOverfishing) %>% summarize(Catch=round(mean(Catch),2)) %>% 
-  mutate(Catch=format(Catch,nsmall=2),ProbOverfishing=format(ProbOverfishing,nsmall=2)) %>% 
-  spread(Year,Catch) %>% arrange(desc(ProbOverfishing))
-
-write.xlsx(H,file=file.path(fore_dir,"04_Proj_Table.xlsx"),sheets="CatchProj")
 
 }
