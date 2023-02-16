@@ -24,6 +24,8 @@ S            <- select(S,SPECIES_PK,SPECIES,SCIENTIFIC_NAME,FAMILY,LMAX,TL_TO_FL
 S$SPECIES_PK <- as.character(S$SPECIES_PK)
 S$LMAX       <- S$LMAX/10
 
+LH <- select(S,SPECIES,LMAX)
+
 # ===============Boat-based creel survey sizes======================================================================      
 #  STEP 1: read in 4 "flatview" datafiles, followed by some basic data handling
  aint_bbs1 <- fread(paste0(root_dir, "/Data/a_bbs_int_flat1.csv"), header=T, stringsAsFactors=FALSE) 			
@@ -140,6 +142,16 @@ US <- select(US,DATASET,SPECIES,YEAR=OBS_YEAR,AREA_C,LENGTH_FL)
 #================Put size data together===============================================
 D <- rbind(US,BIO,BB)
 
+# Create size comparison graph BBS vs Biosampling
+EX <- D[DATASET!="UVS"&SPECIES!="ETCA"&SPECIES!="PRFI"]
+EX <- merge(EX,LH,by="SPECIES")
+EX <- EX[LENGTH_FL< LMAX&LENGTH_FL>15]
+
+table(EX$DATASET,EX$SPECIES)
+PLOT <- ggplot(data=EX,aes(x=LENGTH_FL,after_stat(density),col=DATASET))+geom_freqpoly(binwidth=5,linewidth=1)+facet_wrap(~SPECIES,scales="free")
+ggsave(PLOT,file=file.path(root_dir,"Outputs","Summary","BBSvBIO size comparison.png"),height=6, width=9,unit="in")
+
+
 if(Combine_BB_BIO==T){
 #  D[(SPECIES!="APVI"&SPECIES!="LUKA")&(DATASET=="Biosampling"|DATASET=="BBS")]$DATASET <- "BIO and BBS"
 #  D <- D[!((SPECIES=="APVI"|SPECIES=="LUKA")&DATASET=="Biosampling")] # The biosampling APVI and LUKA size distribution are  anomalous. Exclude this data.
@@ -151,7 +163,6 @@ if(Combine_BB_BIO==T){
 D[AREA_C=="Atoll"]$YEAR <- 2022
 
 # Add some LH info
-LH <- select(S,SPECIES,LMAX)
 D  <- merge(D,LH,by="SPECIES")
 
 # Remove lengths that are unrealistically big (see METADATA.xlsx file for source)
