@@ -6,11 +6,11 @@ The folder structure is as follows:
 
 **/Data**: contains all raw data files, not available in the repository for confidentiality reasons but available in the "02_Assessment Report/Data folder image" folder on Google Drive (unzip content in /Data folder). Please contact Marc Nadon for permisions.
 
-**/Scripts**: 
-    * **/01_Data scripts**: data processing scripts, all called by 01_Run data scripts.R  
-    * **/02_SS scripts**: scripts to create SS files and run bootstraps, diagnostics, forecasts, and alternate models  
-    * **/03_Report scripts**: scripts to create figures and tables for the assessment report  
-    * **/04_Other scripts**: scripts for extra analyses  
+**/Scripts**:  
+* **/01_Data scripts**: data processing scripts, all called by 01_Run data scripts.R  
+* **/02_SS scripts**: scripts to create SS files and run bootstraps, diagnostics, forecasts, and alternate models  
+* **/03_Report scripts**: scripts to create figures and tables for the assessment report  
+* **/04_Other scripts**: scripts for extra analyses  
 
 **/SS3 models**: contains history of model runs during development by species. Model runs include the 4 SS input files, the executable `ss_opt_win.exe` can be found in the TEMPLATE_FILES directory.
 
