@@ -13,6 +13,7 @@ K    <- median(Data$K)
 Amax <- median(Data$Amax)
 M    <- median(Data$M)
 A0   <- median(Data$A0)
+Linf.95 <- quantile(Data$Linf*.85, c(0.05,0.95))
 
 
 # Get APVI estimates

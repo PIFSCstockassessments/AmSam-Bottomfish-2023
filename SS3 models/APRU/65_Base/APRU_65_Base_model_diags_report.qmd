@@ -209,7 +209,7 @@ if(dir.exists(file.path(getwd(), paste0(params$profile, "_profile")))){
   
 r0.vec <- params$profile_vec
 Nprofile <- length(r0.vec)
-profile.str <- substr(params$profile, start=1, stop=5)
+profile.str <- substr(params$profile, start=1, stop=9)
 print(profile.str)
 # read the output files (with names like Report1.sso, Report2.sso, etc.)
 profile.dirs <- file.path(getwd(), paste0(params$profile, "_profile"))
@@ -235,6 +235,33 @@ PinerPlot(profilesummary, component = "Surv_like",
           profile.string = profile.str,
           profile.label = params$profile,
           main = "Changes in survey likelihood by fleet")
+
+delta.like <- profilesummary$likelihoods %>% 
+  filter(str_detect(Label, "TOTAL")) %>% 
+  pivot_longer(cols = -Label) %>%
+  mutate(delta.like = value - 346.095) %>% 
+  filter(str_detect(name, "MLE", negate = T)) %>% 
+  mutate(linf = r0.vec)
+
+b0 <- profilesummary$SpawnBio %>% 
+  filter(str_detect(Label, "SSB_Virgin")) %>% 
+  select(-c(Yr, MLE)) %>% 
+  pivot_longer(cols = -c(Label))
+
+delta.like %>% 
+  left_join(b0, by = "name") %>% 
+  ggplot(aes(y = value.y,x = linf, colour = linf)) + 
+  geom_point()+ 
+  labs(y = "B0") +
+  theme_classic()
+
+delta.like %>% 
+  left_join(b0, by = "name") %>% 
+  ggplot(aes(y = delta.like,x = value.y, colour = linf)) + 
+  geom_point()+ 
+  labs(x = "B0", y = "Change in Likelihood") +
+  theme_classic()
+
 
 }else{
   print("No likelihood runs were found")
@@ -295,7 +322,7 @@ if(dir.exists(file.path(getwd(), "jitter"))){
 ```{r }
 #| label: model-comparisons
 if(dir.exists(file.path(getwd(), "jitter"))){
-   SSplotComparisons(jittersum, subplots = c(2,8,10), new = F, legend = F)
+   SSplotComparisons(jittersum, subplots = c(1,7,9), new = F, legend = F)
 }
 ```
 
