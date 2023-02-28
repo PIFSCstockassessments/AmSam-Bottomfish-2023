@@ -2,15 +2,9 @@
 ## Estimating Linf for APRU and ETCO
 
 library(r4ss)
-#library(ss3diags)
 library(tidyverse)
 
 ### Plotting function ##############################################################################
-prof.vec <- seq(70.3,96.1,by=1)
-Nprofile <- length(prof.vec)
-profile.str <- "L_at_Amax"
-print(profile.str)
-
 
 linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE = NULL, base.Linf, two.sex = F){
   # read the output files (with names like Report1.sso, Report2.sso, etc.)
@@ -39,19 +33,24 @@ linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathML
                   print = T,
                   plotdir = profile.dirs
     )
+    file.rename(from = file.path(profile.dirs, "profile_plot_likelihood.png"),
+                to = file.path(profile.dirs, "fem_profile_plot_likelihood.png"))
     SSplotProfile(profilesummary, # summary object
                   profile.string = paste0(profile.str, "_Mal"), # substring of profile parameter
                   profile.label = profile.str,
                   print = T,
                   plotdir = profile.dirs
     )
+    file.rename(from = file.path(profile.dirs, "profile_plot_likelihood.png"),
+                to = file.path(profile.dirs, "male_profile_plot_likelihood.png"))
+  }else{
+    SSplotProfile(profilesummary, # summary object
+                  profile.string = profile.str, # substring of profile parameter
+                  profile.label = profile.str,
+                  print = T,
+                  plotdir = profile.dirs
+    )
   }
-  SSplotProfile(profilesummary, # summary object
-                profile.string = profile.str, # substring of profile parameter
-                profile.label = profile.str,
-                print = T,
-                plotdir = profile.dirs
-  )
   
   MSY <- profilesummary$quants %>% 
     filter(str_detect(Label, "SSB_MSY")) %>% 
@@ -63,16 +62,26 @@ linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathML
     select(-c(Label, Yr, recdev)) %>% 
     pivot_longer(cols = everything(), 
                  values_to = "M") 
-  Linf <- profilesummary$pars %>% 
-    filter(str_detect(Label, profile.str)) %>% 
-    separate(Label, into = c("l",  "at", "a", "Group", "gp", "x"), sep = c("_")) %>% 
-    select(-c(Yr, recdev, l, at, a, gp, x)) %>% 
-    pivot_longer(cols = -Group, 
-                 values_to = "Linf")
+  if(two.sex){
+    Linf <- profilesummary$pars %>% 
+      filter(str_detect(Label, profile.str)) %>% 
+      separate(Label, into = c("l",  "at", "a", "Group", "gp", "x"), sep = c("_")) %>%
+      select(-c(Yr, recdev, l, at, a, gp, x)) %>% 
+      pivot_longer(cols = -Group, 
+                   values_to = "Linf")
+  }else{
+    Linf <- profilesummary$pars %>% 
+      filter(str_detect(Label, profile.str)) %>% 
+      select(-c(Yr, recdev, Label)) %>% 
+      pivot_longer(cols = everything(), 
+                   values_to = "Linf")
+  }
+  
   if(include.MLE){
     mle <- profilesummary$pars %>% 
       filter(str_detect(Label, profile.str))%>% 
       pull(MLE)
+  }
     ## MSST = SSB_MSY*(1-M)
     profilesummary$SpawnBio %>% 
       filter(Yr == 2021 ) %>% 
@@ -87,42 +96,8 @@ linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathML
       geom_col() +
       geom_hline(yintercept = 1) + 
       geom_vline(aes(xintercept = base.Linf, color = "Base Case"), size = 1.5) +
-      geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB/SSBMSST") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "Linf_bratio.png", path = profile.dirs)
-    
-    profilesummary$SpawnBio %>% 
-      filter(str_detect(Label, "SSB_Virgin")) %>% #> 2016 & Yr < 2022
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB0") %>% 
-      left_join(Linf, by = "name") %>% 
-      ggplot(aes(x = Linf, y = SSB0)) +
-      geom_col() +
-      geom_vline(aes(xintercept = base.Linf, color = "Base Case"), size = 1.5) +
-      geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB0") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "Linf_ssb0.png", path = profile.dirs)
-    
-    
-  }else{
-    profilesummary$SpawnBio %>% 
-      filter(Yr == 2021 ) %>% 
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB") %>% 
-      left_join(MSY, by = "name") %>% 
-      left_join(M, by = "name") %>% 
-      left_join(Linf, by = "name") %>% 
-      mutate(MSST = SSB_MSY * max(0.5, 1-M),
-             SSB_SSBMSST = SSB/MSST) %>%
-      ggplot(aes(x = Linf, y = SSB_SSBMSST)) +
-      geom_col() +
-      geom_hline(yintercept = 1) + 
-      geom_vline(aes(xintercept = base.Linf, color = "Base Case"), size = 1.5) +
-      #geom_vline(aes(xintercept = 85.7, color = "MLE"), size = 1.5) +
+      {if(include.MLE)geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5)} +
+      {if(two.sex)facet_wrap(~Group)} +
       theme_classic() +
       labs(y = "SSB/SSBMSST") +
       theme(legend.title = element_blank())
@@ -137,49 +112,13 @@ linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathML
       ggplot(aes(x = Linf, y = SSB0)) +
       geom_col() +
       geom_vline(aes(xintercept = base.Linf, color = "Base Case"), size = 1.5) +
+      {if(include.MLE)geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5)} +
+      {if(two.sex)facet_wrap(~Group)} +
       theme_classic() +
       labs(y = "SSB0") +
       theme(legend.title = element_blank())
     ggsave(filename = "Linf_ssb0.png", path = profile.dirs)
-    
-  }
   
-  if(two.sex){
-    profilesummary$SpawnBio %>% 
-      filter(Yr == 2021 ) %>% 
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB") %>% 
-      left_join(MSY, by = "name") %>% 
-      left_join(M, by = "name") %>% 
-      left_join(Linf, by = "name") %>% 
-      mutate(MSST = SSB_MSY * max(0.5, 1-M),
-             SSB_SSBMSST = SSB/MSST) %>%
-      ggplot(aes(x = Linf, y = SSB_SSBMSST)) +
-      geom_col() +
-      geom_hline(yintercept = 1) + 
-      geom_vline(aes(xintercept = base.Linf, color = "Base Case"), size = 1.5) +
-      facet_wrap(~Group) +
-      #geom_vline(aes(xintercept = 85.7, color = "MLE"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB/SSBMSST") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "Linf_bratio.png", path = profile.dirs)
-    
-    
-    profilesummary$SpawnBio %>% 
-      filter(str_detect(Label, "SSB_Virgin")) %>% #> 2016 & Yr < 2022
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB0") %>% 
-      left_join(Linf, by = "name") %>% 
-      ggplot(aes(x = Linf, y = SSB0)) +
-      geom_col() +
-      geom_vline(aes(xintercept = base.Linf, color = "Base Case"), size = 1.5) +
-      facet_wrap(~Group) +
-      theme_classic() +
-      labs(y = "SSB0") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "Linf_ssb0.png", path = profile.dirs)
-  }
   
 }
 
@@ -213,7 +152,8 @@ linf_profile_plot(path = file.path(root_dir, "SS3 models", "LERU", "104_Linf_est
                   prof.vec = seq(28,42, by = 1),
                   profile.str = "L_at_Amax",
                   include.MLE = F,
-                  base.Linf = 33.9)
+                  base.Linf = 33.9,
+                  two.sex = T)
 
 
 linf_profile_plot(path = file.path(root_dir, "SS3 models", "PRZO", "104_Linf_est"), 
@@ -227,10 +167,11 @@ linf_profile_plot(path = file.path(root_dir, "SS3 models", "VALO", "104_Linf_est
                   prof.vec = seq(42,60, by = 1),
                   profile.str = "L_at_Amax",
                   include.MLE = F,
-                  base.Linf = 46.1)
+                  base.Linf = 46.1,
+                  two.sex = T)
 
 ### M #
-M_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE = NULL, base.M){
+M_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE = NULL, base.M, two.sex = FALSE){
   # read the output files (with names like Report1.sso, Report2.sso, etc.)
   Nprofile <- length(prof.vec)
   profile.dirs <- file.path(path)
@@ -249,95 +190,59 @@ M_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE =
   }
   
   # plot profile using summary created above
-  SSplotProfile(profilesummary, # summary object
-                profile.string = profile.str, # substring of profile parameter
-                profile.label = profile.str,
-                print = T,
-                plotdir = profile.dirs
-  )
+  if(two.sex){
+    SSplotProfile(profilesummary, # summary object
+                  profile.string = paste0(profile.str, "_uniform_Fem"), # substring of profile parameter
+                  profile.label = profile.str,
+                  print = T,
+                  plotdir = profile.dirs
+    )
+    file.rename(from = file.path(profile.dirs, "profile_plot_likelihood.png"),
+                to = file.path(profile.dirs, "fem_profile_plot_likelihood.png"))
+    SSplotProfile(profilesummary, # summary object
+                  profile.string = paste0(profile.str, "_uniform_Mal"), # substring of profile parameter
+                  profile.label = profile.str,
+                  print = T,
+                  plotdir = profile.dirs
+    )
+    file.rename(from = file.path(profile.dirs, "profile_plot_likelihood.png"),
+                to = file.path(profile.dirs, "male_profile_plot_likelihood.png"))
+  }else{
+    SSplotProfile(profilesummary, # summary object
+                  profile.string = profile.str, # substring of profile parameter
+                  profile.label = profile.str,
+                  print = T,
+                  plotdir = profile.dirs
+    )
+  }
   
   MSY <- profilesummary$quants %>% 
     filter(str_detect(Label, "SSB_MSY")) %>% 
     select(-c(Label, Yr)) %>% 
     pivot_longer(cols = everything(),
                  values_to = "SSB_MSY") 
-  M <- profilesummary$pars %>% 
-    filter(str_detect(Label, profile.str)) %>% 
-    separate(Label, into = c("Nat",  "unif", "Group", "gp", "x"), sep = c("_")) %>% 
-    select(-c(Yr, recdev, Nat, unif, gp, x)) %>% 
-    pivot_longer(cols = -Group, 
-                 values_to = "M")
+  
+  
+  if(two.sex){
+    M <- profilesummary$pars %>% 
+      filter(str_detect(Label, profile.str)) %>% 
+      separate(Label, into = c("Nat",  "unif", "Group", "gp", "x"), sep = c("_")) %>% 
+      select(-c(Yr, recdev, Nat, unif, gp, x)) %>% 
+      pivot_longer(cols = -Group, 
+                   values_to = "M")
+  }else{
+    M <- profilesummary$pars %>% 
+      filter(str_detect(Label, profile.str)) %>% 
+      select(-c(Yr, recdev, Label)) %>% 
+      pivot_longer(cols = everything(), 
+                   values_to = "M")
+  }
   
   if(include.MLE){
     mle <- profilesummary$pars %>% 
       filter(str_detect(Label, profile.str))%>% 
       pull(MLE)
-    ## MSST = SSB_MSY*(1-M)
-    profilesummary$SpawnBio %>% 
-      filter(Yr == 2021 ) %>% 
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB") %>% 
-      left_join(MSY, by = "name") %>% 
-      left_join(M, by = "name") %>% 
-      mutate(MSST = SSB_MSY * max(0.5, 1-M),
-             SSB_SSBMSST = SSB/MSST) %>%
-      ggplot(aes(x = M, y = SSB_SSBMSST)) +
-      geom_col() +
-      geom_hline(yintercept = 1) + 
-      geom_vline(aes(xintercept = base.M, color = "Base Case"), size = 1.5) +
-      geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB/SSBMSST") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "M_bratio.png", path = profile.dirs)
-    
-    profilesummary$SpawnBio %>% 
-      filter(str_detect(Label, "SSB_Virgin")) %>% #> 2016 & Yr < 2022
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB0") %>% 
-      ggplot(aes(x = M, y = SSB0)) +
-      geom_col() +
-      geom_vline(aes(xintercept = base.M, color = "Base Case"), size = 1.5) +
-      geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB0") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "M_ssb0.png", path = profile.dirs)
-    
-    
-  }else{
-    profilesummary$SpawnBio %>% 
-      filter(Yr == 2021 ) %>% 
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB") %>% 
-      left_join(MSY, by = "name") %>% 
-      left_join(M, by = "name") %>% 
-      mutate(MSST = SSB_MSY * max(0.5, 1-M),
-             SSB_SSBMSST = SSB/MSST) %>%
-      ggplot(aes(x = M, y = SSB_SSBMSST)) +
-      geom_col() +
-      geom_hline(yintercept = 1) + 
-      geom_vline(aes(xintercept = base.M, color = "Base Case"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB/SSBMSST") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "M_bratio.png", path = profile.dirs)
-    
-    profilesummary$SpawnBio %>% 
-      filter(str_detect(Label, "SSB_Virgin")) %>% #> 2016 & Yr < 2022
-      select(-c(Label)) %>% 
-      pivot_longer(cols = -Yr, values_to = "SSB0") %>% 
-      left_join(M, by = "name") %>% 
-      ggplot(aes(x = M, y = SSB0)) +
-      geom_col() +
-      geom_vline(aes(xintercept = base.M, color = "Base Case"), size = 1.5) +
-      theme_classic() +
-      labs(y = "SSB0") +
-      theme(legend.title = element_blank())
-    ggsave(filename = "M_ssb0.png", path = profile.dirs)
   }
-  
-  if(two.sex){
     profilesummary$SpawnBio %>% 
       filter(Yr == 2021 ) %>% 
       select(-c(Label)) %>% 
@@ -350,29 +255,27 @@ M_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE =
       geom_col() +
       geom_hline(yintercept = 1) + 
       geom_vline(aes(xintercept = base.M, color = "Base Case"), size = 1.5) +
-      facet_wrap(~Group) +
-      #geom_vline(aes(xintercept = 85.7, color = "MLE"), size = 1.5) +
+      {if(include.MLE)geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5)} +
+      {if(two.sex)facet_wrap(~Group)} +
       theme_classic() +
       labs(y = "SSB/SSBMSST") +
       theme(legend.title = element_blank())
     ggsave(filename = "M_bratio.png", path = profile.dirs)
     
-    
     profilesummary$SpawnBio %>% 
       filter(str_detect(Label, "SSB_Virgin")) %>% #> 2016 & Yr < 2022
       select(-c(Label)) %>% 
       pivot_longer(cols = -Yr, values_to = "SSB0") %>% 
-      left_join(M, by = "name") %>%
+      left_join(M, by = "name") %>% 
       ggplot(aes(x = M, y = SSB0)) +
       geom_col() +
       geom_vline(aes(xintercept = base.M, color = "Base Case"), size = 1.5) +
-      #facet_wrap(~Group) +
+      {if(include.MLE)geom_vline(aes(xintercept = mle, color = "MLE"), size = 1.5)} +
+      {if(two.sex)facet_wrap(~Group)} +
       theme_classic() +
       labs(y = "SSB0") +
       theme(legend.title = element_blank())
     ggsave(filename = "M_ssb0.png", path = profile.dirs)
-  }
-  
   
 }
 
@@ -409,18 +312,20 @@ M_profile_plot(path = file.path(root_dir, "SS3 models", "PRZO", "105_M_est"),
                include.MLE = F,
                base.M = 0.18)
 
-
+## Models run with 2 sexes
 M_profile_plot(path = file.path(root_dir, "SS3 models", "LERU", "105_M_est"), 
                prof.vec = seq(.3,.5, by = 0.01),
                profile.str = "NatM",
                include.MLE = F,
-               base.M = 0.36)
+               base.M = 0.36,
+               two.sex = TRUE)
 
 M_profile_plot(path = file.path(root_dir, "SS3 models", "VALO", "105_M_est"), 
                prof.vec = seq(.3,.5, by = 0.01),
                profile.str = "NatM",
                include.MLE = F,
-               base.M = 0.36)
+               base.M = 0.36,
+               two.sex = TRUE)
 
 ### Linf ####################################################################################################
 ## APRU ####
