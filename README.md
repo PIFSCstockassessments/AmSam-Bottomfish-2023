@@ -4,19 +4,19 @@ This repository contains the code and models used for the 2023 American Samoa BM
 ## Repository Structure
 The folder structure is as follows: 
 
-/Data: contains all raw data files, not available in the repository because of confidentiality reasons but available in the "01_ASSESSMENT_DATA" folder on Google Drive (unzip content in /Data folder). Please contact Marc Nadon for permisions.
+**/Data**: contains all raw data files, not available in the repository because of confidentiality reasons but available in the "02_Assessment Report/Data folder image" folder on Google Drive (unzip content in /Data folder). Please contact Marc Nadon for permisions.
 
-/Scripts: 
+**/Scripts**: 
     /01_Data scripts: data processing scripts, all called by 01_Run data scripts.R
     /02_SS scripts: scripts to create SS files and run bootstraps, diagnostics, forecasts, and alternate models
     /03_Report scripts: scripts to create figures and tables for the assessment report
     /04_Other scripts: scripts for extra analyses
 
-/SS3 models: contains history of model runs during development by species. Model runs include the 4 SS input files, the executable `ss_opt_win.exe` can be found in the TEMPLATE_FILES directory.
+**/SS3 models**: contains history of model runs during development by species. Model runs include the 4 SS input files, the executable `ss_opt_win.exe` can be found in the TEMPLATE_FILES directory.
 
-/SS3 final models: contains the final model runs (base and alternates) discussed in the assessment report by species. 
+**/SS3 final models**: contains the final model runs (base and alternates) discussed in the assessment report by species. 
 
-/Images: high resolution .jpg images of BMUS species used in report and presentations.
+**/Images**: high resolution .jpg images of BMUS species used in report and presentations.
 
 
 
@@ -49,7 +49,7 @@ The folder structure is as follows:
    * Njitter = 100 (inside Build_All_SS function)
    * jitterFraction = 0.1
 9. Once diagnostics are run on the single model, run bootstraps by setting N_boot = 30, keeping write_files = F, runmodels = F, and setting RD = F and printreport = F.
-10. To run projections, set N_boot back to 0 and N_foreyrs = 7. Projections will be run based on the specified catch range in Lt$FixedCatchSeq. 
+10. To run projections, set N_boot back to 0 and N_foreyrs = 7. Projections will be run based on the specified catch range in `Lt$FixedCatchSeq`. 
 11. Alternate models can be run by /Scripts/02_SS scripts/09_Run_Alt_Models.R. Note that alternate life history scenarios were changed and run manually. Figures and tables for alternate model runs can be created with /Scripts/03_Report scripts/Create_AltMods_Figs_Tables.R. 
 12. Once all models and figures are created, formatted figures and tables for the report can be created with 02_Run SS models.R by turning all model runs off and only creating the species report figures:
     * runmodels = F
