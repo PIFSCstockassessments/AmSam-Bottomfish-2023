@@ -1,24 +1,25 @@
-library(r4ss)
-library(tidyverse)
+## Request from reviewers
+## This code runs profiles across a range of M values for each species to try and determine at what M will the stock be overfished. The code is divided into 2 sections, one for the species with single-sex growth curves, and the second section for species with 2-sex growth curves.
 
-require(pacman); pacman::p_load(this.path, parallel); root_dir <- here(..=2)
-
-Lt  <-vector("list",4) # Species options
+require(pacman); pacman::p_load(this.path, parallel, r4ss, tidyverse); root_dir <- here(..=2)
+## Create a list of 5 objects for each single-sex growth curve species. Include the species ID code, the name of the directory to run the models in, the name of the parameter to be profiled across, and the range of values to be profiled across.
+Lt  <-vector("list",5) # Species options
 #Name, Run dir name, name of param, param min and max to profile
-#Lt[[1]]<-list("APRU", "105_M_est", "NatM", c(0.32,0.38)) 
-Lt[[1]]<-list("APVI", "105_M_est","NatM", c(0.1,0.25)) 
-Lt[[2]]<-list("CALU", "105_M_est","NatM", c(0.39, 0.53)) 
-Lt[[3]]<-list("LUKA", "105_M_est", "NatM", c(0.58,0.74)) 
-Lt[[4]]<-list("PRFL", "105_M_est", "NatM", c(0.05,0.25)) 
+Lt[[1]]<-list("APRU", "105_M_est", "NatM", c(0.32,0.38)) 
+Lt[[2]]<-list("APVI", "105_M_est","NatM", c(0.1,0.25)) 
+Lt[[3]]<-list("CALU", "105_M_est","NatM", c(0.39, 0.53)) 
+Lt[[4]]<-list("LUKA", "105_M_est", "NatM", c(0.58,0.74)) 
+Lt[[5]]<-list("PRFL", "105_M_est", "NatM", c(0.05,0.25)) 
 
-
+## Name each item in lists
 for(i in 1:length(Lt)){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","dirname", "String", "Prof.vec", "root")}
 
+## For running in parallel, make sure you are using fewer than the max number of cores on your computer.
 cl    <- makeCluster (5)
 for(i in 1:length(Lt)){
-  lapply(list(Lt[[i]]),function(x)     { # Run a single model
-  #parLapply(cl,Lt,function(x){ # Run all models
+  #lapply(list(Lt[[i]]),function(x)     { # Run a single model at a time, not in parallel
+  parLapply(cl,Lt,function(x){ # Run all models in parallel
     
     ProfRes <- .01
     
@@ -66,29 +67,34 @@ stopCluster (cl)
 
 
 ## Sex-specific cases
-Lt  <-vector("list",2) # Species options
+Lt  <-vector("list",4) # Species options
 #Name, Run dir name, name of param, param min and max to profile
-#Lt[[1]]<-list("ETCO", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(87,91)) 
-Lt[[1]]<-list("LERU", "105_M_est", c("NatM_uniform_Fem","NatM_uniform_Mal"), c(.3,.5))
-#Lt[[2]]<-list("PRZO", "105_M_est", c("NatM"), c(.1,.3))
-Lt[[2]]<-list("VALO", "105_M_est", c("NatM_uniform_Fem","NatM_uniform_Mal"), c(.3,.5)) 
+Lt[[1]]<-list("ETCO", "104_Linf_est", c("NatM"), c(.076,.12)) 
+Lt[[2]]<-list("LERU", "105_M_est", c("NatM_uniform_Fem","NatM_uniform_Mal"), c(.3,.5))
+Lt[[3]]<-list("PRZO", "105_M_est", c("NatM"), c(.1,.3))
+Lt[[4]]<-list("VALO", "105_M_est", c("NatM_uniform_Fem","NatM_uniform_Mal"), c(.3,.5)) 
 for(i in 1:length(Lt)){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","dirname", "String", "Prof.vec", "root")}
 
-
+## Running in parallel doesn't work well for 2 parameter profiling so suggested to run with lapply function instead
 #cl    <- makeCluster (3)
 for(i in 1:length(Lt)){
   
   #parLapply(cl,Lt,function(x){ # Run all models
   lapply(list(Lt[[i]]),function(x)     {
-    ProfRes <- 0.01
+    
+    if(x$N == "ETCO"){
+      ProfRes <- 0.002
+    }else{
+      ProfRes <- 0.01
+    }
     
     require(pacman); pacman::p_load(r4ss)
     
     dir.profile <- file.path(x$root,"SS3 models",x$N,x$dirname)
     
-    
-    if(x$N == "PRZO"){
+    ## If PRZO need to change growth curve values to pooled model values
+    if(x$N == "PRZO|ETCO"){
       
       r4ss::copy_SS_inputs(dir.old = file.path(x$root, "SS3 final models", x$N, "08_AlternateLH"),
                            dir.new = dir.profile,
@@ -102,10 +108,13 @@ for(i in 1:length(Lt)){
                            verbose = TRUE)
       control <- r4ss::SS_readctl_3.30(file = file.path(dir.profile, "control.ss"), use_datlist = T, 
                                        datlist = file.path(dir.profile, "data.ss"))
-      control$MG_parms$INIT[2] <- 12.7
-      control$MG_parms$INIT[3] <- 36.9
-      control$MG_parms$INIT[4] <- 0.29
       
+      if(x$N == "PRZO"){ #use pooled growth curve for PRZO
+        control$MG_parms$INIT[2] <- 12.7
+        control$MG_parms$INIT[3] <- 36.9
+        control$MG_parms$INIT[4] <- 0.29
+      }
+  
       r4ss::SS_writectl_3.30(control, outfile = file.path(dir.profile, "control.ss"), overwrite = T)
       starter <- r4ss::SS_readstarter(file.path(dir.profile, "starter.ss"))
       starter[["ctlfile"]] <- "control_modified.ss"

@@ -1,11 +1,19 @@
 ## Requests from reviewers
-## Estimating Linf for APRU and ETCO
+## Creating plots for visualizing the results of profiling over Linf and M to determine at what values the stock would be considered overfished. Run after running `/Scripts/04_Other scripts/01_Linf_search_profile.R` and `/Scripts/04_Other scripts/02_M_search_profile.R`
 
 library(r4ss)
 library(tidyverse)
 
 ### Plotting function ##############################################################################
 
+## Parameters for plotting function
+## path - path to the directory of profile runs
+## prof.vec - the vector of values profiled across
+## profile.str - the parameter name that was profiled across
+## inlcude.MLE - if T, will look for an MLE subdirectory and add the MLE value of parameter onto the plots
+## pathMLE - required if include.MLE is TRUE, path to the MLE directory 
+## base.Linf - numeric value of the Linf value used in the base model
+## two.sex - if a two-sex growth curve was used, will create plots for each sex (logical value)
 linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE = NULL, base.Linf, two.sex = F){
   # read the output files (with names like Report1.sso, Report2.sso, etc.)
   Nprofile <- length(prof.vec)
@@ -123,11 +131,23 @@ linf_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathML
 }
 
 
+linf_profile_plot(path = file.path(root_dir, "SS3 models", "APRU", "104_Linf_est"), 
+                  prof.vec = seq(70.3,96.1, by = 1),
+                  profile.str = "L_at_Amax",
+                  include.MLE = F,
+                  base.Linf = 83.3)
+
 linf_profile_plot(path = file.path(root_dir, "SS3 models", "APVI", "104_Linf_est"), 
                   prof.vec = seq(70, 90, by = 1),
                   profile.str = "L_at_Amax",
                   include.MLE = F,
                   base.Linf = 76.9)
+
+linf_profile_plot(path = file.path(root_dir, "SS3 models", "ETCO", "104_Linf_est"), 
+                  prof.vec = seq(73,99, by = 1),
+                  profile.str = "L_at_Amax",
+                  include.MLE = F,
+                  base.Linf = 86.3)
 
 linf_profile_plot(path = file.path(root_dir, "SS3 models", "LUKA", "104_Linf_est"), 
                   prof.vec = seq(19, 27, by = 0.1),
@@ -148,20 +168,19 @@ linf_profile_plot(path = file.path(root_dir, "SS3 models", "PRFL", "104_Linf_est
                   include.MLE = F,
                   base.Linf = 41.2)
 
-linf_profile_plot(path = file.path(root_dir, "SS3 models", "LERU", "104_Linf_est"), 
-                  prof.vec = seq(28,42, by = 1),
-                  profile.str = "L_at_Amax",
-                  include.MLE = F,
-                  base.Linf = 33.9,
-                  two.sex = T)
-
-
 linf_profile_plot(path = file.path(root_dir, "SS3 models", "PRZO", "104_Linf_est"), 
                   prof.vec = seq(33,50, by = 1),
                   profile.str = "L_at_Amax",
                   include.MLE = F,
                   base.Linf = 36.9)
 
+## two-sex growth
+linf_profile_plot(path = file.path(root_dir, "SS3 models", "LERU", "104_Linf_est"), 
+                  prof.vec = seq(28,42, by = 1),
+                  profile.str = "L_at_Amax",
+                  include.MLE = F,
+                  base.Linf = 33.9,
+                  two.sex = T)
 
 linf_profile_plot(path = file.path(root_dir, "SS3 models", "VALO", "104_Linf_est"), 
                   prof.vec = seq(42,60, by = 1),
@@ -171,6 +190,14 @@ linf_profile_plot(path = file.path(root_dir, "SS3 models", "VALO", "104_Linf_est
                   two.sex = T)
 
 ### M #
+## Parameters for plotting function
+## path - path to the directory of profile runs
+## prof.vec - the vector of values profiled across
+## profile.str - the parameter name that was profiled across
+## inlcude.MLE - if T, will look for an MLE subdirectory and add the MLE value of parameter onto the plots
+## pathMLE - required if include.MLE is TRUE, path to the MLE directory 
+## base.Linf - numeric value of the Linf value used in the base model
+## two.sex - default is FALSE, if a two-sex growth curve was used, will create plots for each sex (logical value)
 M_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE = NULL, base.M, two.sex = FALSE){
   # read the output files (with names like Report1.sso, Report2.sso, etc.)
   Nprofile <- length(prof.vec)
@@ -279,12 +306,23 @@ M_profile_plot <- function(path, prof.vec, profile.str, include.MLE=T, pathMLE =
   
 }
 
+M_profile_plot(path = file.path(root_dir, "SS3 models", "APRU", "105_M_est"), 
+                  prof.vec = seq(.09,.35, by = .01),
+                  profile.str = "NatM",
+                  include.MLE = F,
+                  base.Linf = 0.18)
 
 M_profile_plot(path = file.path(root_dir, "SS3 models", "APVI", "105_M_est"), 
                   prof.vec = seq(0.1, 0.25, by = .01),
                   profile.str = "NatM",
                   include.MLE = F,
                   base.M = 0.169)
+
+M_profile_plot(path = file.path(root_dir, "SS3 models", "ETCO", "105_M_est"), 
+               prof.vec = seq(.076,.12, by = .002),
+               profile.str = "NatM",
+               include.MLE = F,
+               base.M = 0.098)
 
 M_profile_plot(path = file.path(root_dir, "SS3 models", "LUKA", "105_M_est"), 
                   prof.vec = seq(0.58,0.74, by = 0.01),
@@ -327,6 +365,7 @@ M_profile_plot(path = file.path(root_dir, "SS3 models", "VALO", "105_M_est"),
                base.M = 0.36,
                two.sex = TRUE)
 
+### Stop here, code below this is deprecated and was used for initial runs #################################
 ### Linf ####################################################################################################
 ## APRU ####
 apru.base <- SS_output(dir = file.path(root_dir, "SS3 models", "APRU", "65_Base"))

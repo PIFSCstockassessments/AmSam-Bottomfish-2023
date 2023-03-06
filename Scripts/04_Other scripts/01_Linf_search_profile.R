@@ -1,27 +1,29 @@
-library(r4ss)
-library(tidyverse)
+## Request from reviewers
+## This code runs profiles across a range of Linf values for each species to try and determine at what Linf will the stock be overfished. The code is divided into 2 sections, one for the species with single-sex growth curves, and the second section for species with 2-sex growth curves. 
 
-require(pacman); pacman::p_load(this.path, parallel); root_dir <- here(..=2)
+require(pacman); pacman::p_load(this.path, parallel,r4ss,tidyverse); root_dir <- here(..=2)
 
-Lt  <-vector("list",4) # Species options
+## Create a list of 5 objects for each single-sex growth curve species. Include the species ID code, the name of the directory to run the models in, the name of the parameter to be profiled across, and the range of values to be profiled across.
+Lt  <-vector("list",5) # Species options
               #Name, Run dir name, name of param, param min and max to profile
-#Lt[[1]]<-list("APRU", "104_Linf_est", "L_at_Amax", c(80,84)) 
-Lt[[1]]<-list("APVI", "104_Linf_est","L_at_Amax", c(70,90)) 
-Lt[[2]]<-list("CALU", "104_Linf_est","L_at_Amax", c(60,85)) 
-Lt[[3]]<-list("LUKA", "104_Linf_est", "L_at_Amax", c(19,27)) 
-Lt[[4]]<-list("PRFL", "104_Linf_est", "L_at_Amax", c(37,55)) 
+Lt[[1]]<-list("APRU", "104_Linf_est", "L_at_Amax", c(80,84)) 
+Lt[[2]]<-list("APVI", "104_Linf_est","L_at_Amax", c(70,90)) 
+Lt[[3]]<-list("CALU", "104_Linf_est","L_at_Amax", c(60,85)) 
+Lt[[4]]<-list("LUKA", "104_Linf_est", "L_at_Amax", c(19,27)) 
+Lt[[5]]<-list("PRFL", "104_Linf_est", "L_at_Amax", c(37,55)) 
 
-
+## Name each item in lists
 for(i in 1:length(Lt)){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","dirname", "String", "Prof.vec", "root")}
 
+## For running in parallel, make sure you are using fewer than the max number of cores on your computer.
 cl    <- makeCluster (4)
 for(i in 1:length(Lt)){
-  lapply(list(Lt[[i]]),function(x)     { # Run a single model
-    #parLapply(cl,Lt,function(x){ # Run all models
+  #lapply(list(Lt[[i]]),function(x)     { # Run a single model, not in parallel
+    parLapply(cl,Lt,function(x){ # Run all models in parallel
     
     if(x$N == "LUKA"){
-      ProfRes <- 0.1
+      ProfRes <- 0.1 # because LUKA has such a small Linf range make the resolution smaller
     }else{
       ProfRes <- 1
     }
@@ -70,17 +72,17 @@ stopCluster (cl)
 
 
 ## Sex-specific cases
-Lt  <-vector("list",2) # Species options
+Lt  <-vector("list",4) # Species options
 #Name, Run dir name, name of param, param min and max to profile
-#Lt[[1]]<-list("ETCO", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(87,91)) 
-Lt[[1]]<-list("LERU", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(28,42))
-#Lt[[2]]<-list("PRZO", "104_Linf_est", c("L_at_Amax_Fem"), c(33,50))
-Lt[[2]]<-list("VALO", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(42,60)) 
+Lt[[1]]<-list("ETCO", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(87,91)) 
+Lt[[2]]<-list("LERU", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(28,42))
+Lt[[3]]<-list("PRZO", "104_Linf_est", c("L_at_Amax_Fem"), c(33,50))
+Lt[[4]]<-list("VALO", "104_Linf_est", c("L_at_Amax_Fem","L_at_Amax_Mal"), c(42,60)) 
 for(i in 1:length(Lt)){  Lt[[i]]        <- append(Lt[[i]], root_dir)
 names(Lt[[i]]) <- c("N","dirname", "String", "Prof.vec", "root")}
 
-
-cl    <- makeCluster (3)
+## Parallel option did not work well for 2 sex curves, so suggested to use lapply function instead
+#cl    <- makeCluster (3)
 for(i in 1:length(Lt)){
   
   #parLapply(cl,Lt,function(x){ # Run all models
@@ -91,7 +93,7 @@ for(i in 1:length(Lt)){
     
     dir.profile <- file.path(x$root,"SS3 models",x$N,x$dirname)
 
-
+## Need to change the PRZO growth curve values to the pooled model values
 if(x$N == "PRZO"){
   
   r4ss::copy_SS_inputs(dir.old = file.path(x$root, "SS3 final models", x$N, "08_AlternateLH"),
@@ -166,4 +168,4 @@ if(x$N == "PRZO"){
 }
 })
 }
-stopCluster (cl)
+#stopCluster (cl)
