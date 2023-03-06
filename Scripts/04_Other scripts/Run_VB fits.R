@@ -43,7 +43,7 @@ VB2_Fit <- function(param,BreakAge,x){
 R0 <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE))),data=D,start=list(Linf=70,K=0.4))
 R1 <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE-a0))),data=D,start=list(Linf=70,K=0.4,a0=0))
 R1.NoYoung <- nls(LENGTH_FL~Linf*(1-exp(-K*(AGE-a0))),data=D[AGE>=BreakAge],start=list(Linf=76,K=0.1,a0=-2))
-R2 <- nlm(VB2_Fit,p=c(76.9,0.13,-2,10,4.6,0.1),BreakAge=BreakAge,x=D)
+R2 <- nlm(VB2_Fit,p=c(76.9,0.13,-2,10,4.6,0.1),BreakAge=BreakAge,x=D[REGION=="EIO"])
 
 
 #coef(R1)
