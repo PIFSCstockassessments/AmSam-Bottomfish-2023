@@ -210,6 +210,12 @@ ggplot(data=test3[SPECIES_FK=="S229"])+geom_line(aes(x=YEAR,y=LBS_CAUGHT),col="b
 G <- Z[BMUS=="T",list(LBS_CAUGHT=sum(LBS_CAUGHT),VAR_LBS_CAUGHT=sum(VAR_LBS_CAUGHT)),by=list(SPECIES_FK,ZONE,YEAR)]
 G <- G[order(SPECIES_FK,ZONE,YEAR)]
 
+# Explore the Catch by Year and Area
+#EX <- merge(G,S,by.x="SPECIES_FK",by.y="SPECIES_PK")
+#EX <- EX %>% group_by(SCIENTIFIC_NAME,YEAR,ZONE) %>% summarize(LBS=sum(LBS_CAUGHT)) %>% as.data.table() %>% filter(SCIENTIFIC_NAME!="Etelis carbunculus"&SCIENTIFIC_NAME!="Pristipomoides filamentosus")
+#ggplot(data=EX[YEAR<=2008],aes(x=YEAR,y=LBS,col=ZONE))+geom_line()+facet_wrap(~SCIENTIFIC_NAME,scale="free_y")+theme_bw()
+#ggsave(last_plot(),file=file.path(root_dir,"CATCH_BY_AREA.png"))
+
 
 # =============== Reconstruct Manua 2009-2021 based on regression with Tutuila data=====================================
 
