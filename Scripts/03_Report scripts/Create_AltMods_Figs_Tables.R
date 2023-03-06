@@ -288,7 +288,7 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir, model_group ){
 ### Run plot function for individual species ####
 ## Change species name here
 species_names <- c("APRU", "APVI", "CALU", "ETCO", "LERU", "LUKA", "PRFL", "PRZO", "VALO")
-species <- species_names[9]
+species <- species_names[6]
 
 ## List directories here
 # delete any previously created folder of figures and tables

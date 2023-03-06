@@ -1,12 +1,12 @@
 ## Wrapper function for building SS files and running the models
 #' This function takes several arguments, for a specific species, and builds the 4 SS3 input files, and saves the files into the subdirectory of that species-scenario.
-#' Note, you will need to set up Google Drive authentication with the `googlesheets4` package which will allow you to directly pull parameter input files from Google Drive into R session.
-#' @param species the species to use
+#' Note, you will need to set up Google Drive authentication with the `googlesheets4` package which will allow you to directly pull parameter input files from Google Drive into R session. If you do not wish to use Google Drive, please download and unzip the data folder from the Territorial bottomfish Google Drive folder into a 'Data' folder on your local computer and then set `readGoogle = FALSE`.
+#' @param species the species ID code to use (4 letter scientific name code, e.g. APRU)
 #' @param scenario a string to identify which scenario model is being developed under, needs to match name of sheet in CTL_inputs.xlsx file
 #' @param startyr start year of the model
 #' @param endyr end year of the model
-#' @param fleets an integer or vector of integers of fleet id numbers (tutuila = 1, manua = 2), default is 1
-#' @param M_option which option being used for natural mortality and Nages (found in CTL_parameters.xlsx), default is "Option1"
+#' @param fleets an integer or vector of integers of fleet id numbers, default is 1
+#' @param M_option which option being used for natural mortality and Nages (found in CTL_parameters.xlsx$OPTION), default is "Option1"
 #' @param GROWTH_option see M_option (growth curve parameters: Lamin, Lamax, k, CV young & CV old)
 #' @param LW_option see M_option (length-weight relationship)
 #' @param MAT_option see M_option (maturity and fecundity: L50, L95,a,b,cohort growth, frac female)
@@ -36,20 +36,20 @@
 #' @param file_dir name of subdirectory to save files to, default is same as scenario
 #' @param template_dir path to template SS files
 #' @param out_dir first part of path to directory for saving files to, do not include species name or scenario
-#' @param write_files default TRUE, create new input files for ss models
-#' @param runmodels default TRUE, runs ss model
-#' @param est_args extra arguments that can be added to ss call (i.e. -nohess)
-#' @param do_retro TRUE or FALSE to run retrospective
+#' @param write_files default TRUE, create new input files for ss models. Once the model files are written, can be set to FALSE to increase speed when running diagnostics.
+#' @param runmodels default TRUE, runs ss model. If model has been run, can set to FALSE when running diagnostics to increase speed.
+#' @param est_args extra arguments that can be added to ss call (i.e. "-nohess")
+#' @param do_retro TRUE to run retrospective (see r4ss::retro() for specific details of how retrospectives are run)
 #' @param retro_years years for retrospective peels, relative to end year, ie 0:-3 is 3 year peels
-#' @param do_profile TRUE or FALSE to run likelihood profiling
+#' @param do_profile TRUE to run likelihood profiling (see r4ss::profile() for specific details of how likelihood profiles are run)
 #' @param profile string vector of parameter to profile, can be a vector of strings if changing multiple (ie "SR_LN(R0)")
 #' @param profile.vec vector of values to profile over for the parameter of interest
-#' @param do_jitter TRUE to run jitter analysis
+#' @param do_jitter TRUE to run jitter analysis (see r4ss::jitter() for specific details of how jitter analyses are run)
 #' @param Njitter number of jitters to run
 #' @param jitterFraction increment of change for each jitter run
 #' @param printreport default TRUE, produces summary diagnostics report
 #' @param r4ssplots default is FALSE, will produce full r4ss output plots
-#' @param readGoogle default is TRUE, pulls in ctl parameter and input files from google drive, if false will use them from Data folder on local computer
+#' @param readGoogle default is TRUE, pulls in ctl parameter and input files from Google Drive. If false, will use them from Data folder on local computer
 #' 
 #' 
 
@@ -109,40 +109,6 @@ Build_All_SS <- function(species,
                          ){
   
   if(write_files){
-    
-    get.ctl.inputs <- function(scenario){
-      ctl.inputs <- tryCatch(
-        expr = {
-          # DAT inputs, single value parameters
-          read_sheet("11lPJV7Ub9eoGbYjoPNRpcpeWUM5RYl4W65rHHFcQ9fQ", sheet=scenario)
-        },
-        error = function(e){
-          message("Cannot connect to Google Drive to get parameter input files. \nReading from files in Data folder.")
-          # DAT inputs, single value parameters
-          
-          # Control and data file inputs
-        }
-      )
-      return(ctl.inputs)
-    }
-    
-    
-    get.ctl.params <- function(species){
-      ctl.params <- tryCatch(
-        expr = {
-          # DAT inputs, single value parameters
-          read_sheet("1XvzGtPls8hnHHGk7nmVwhggom4Y1Zp-gOHNw4ncUs8E", 
-                     sheet=species)
-        },
-        error = function(e){
-          message("Cannot connect to Google Drive to get parameter input files. \nReading from files in Data folder.")
-          # DAT inputs, single value parameters
-         
-          # Control and data file inputs
-        }
-      )
-      return(ctl.params)
-    }
     
   ## Step 1. Read in all data components ###-------------------------------------------
   
@@ -488,31 +454,6 @@ Build_All_SS <- function(species,
                                paste0("0_", species, "_", file_dir, 
                                       "_model_diags_report.pdf")))
         
-    # rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
-    #                             paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
-    #                   output_format = c("pdf_document"),
-    #                   output_file = paste("0", species, file_dir, "SS3_Diags_Report", sep = "_"),
-    #                   output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
-    #                   params = list(
-    #                     species = paste0(species),
-    #                     scenario = scenario,
-    #                     profile = profile,
-    #                     profile_vec = profile.vec,
-    #                     Njitter = Njitter
-    #                   ))
-
-    # rmarkdown::render(file.path(root_dir, "SS3 models", species, file_dir, 
-    #                             paste0(species, "_", file_dir, "_model_diags_report.Rmd")), 
-    #                   output_format = "pdf_document",
-    #                   output_file = paste("0", species, file_dir, "SS3_Diags_Report", sep = "_"),
-    #                   output_dir =  file.path(root_dir, "SS3 models", species, file_dir),
-    #                   params = list(
-    #                     species = paste0(species),
-    #                     scenario = scenario,
-    #                     profile = profile,
-    #                     profile_vec = profile.vec,
-    #                     Njitter = Njitter
-    #                   ))
 
   }
 

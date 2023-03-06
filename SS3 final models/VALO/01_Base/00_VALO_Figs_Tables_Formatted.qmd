@@ -8,8 +8,8 @@ format:
   docx:
     reference-doc: ../../../custom-reference-doc.docx
 params: 
-  species: "APRU"
-  scenario: "102_test_species_report"
+  species: "VALO"
+  scenario: "65_Base"
 ---
 
 ```{r}
@@ -356,22 +356,22 @@ Results.ft <- align(Results.ft, align = "center", part = "body")
 Results.ft <- compose(Results.ft, j ="Model", i = 1, part = "body",
                       value = as_paragraph("Base case"))
 Results.ft <- compose(Results.ft, j ="Model", i = 2, part = "body",
-                      value = as_paragraph(as_i("M"), "= XX cm"))
+                      value = as_paragraph(as_i("M"), " - 10%"))
 Results.ft <- compose(Results.ft, j ="Model", i = 3, part = "body",
-                      value = as_paragraph(as_i("M"), "= XX cm"))
+                      value = as_paragraph(as_i("M"), " + 10%"))
 Results.ft <- compose(Results.ft, j ="Model", i = 4, part = "body",
-                      value = as_paragraph("Steepness = XX"))
+                      value = as_paragraph("Steep. - 10%"))
 Results.ft <- compose(Results.ft, j ="Model", i = 5, part = "body",
-                      value = as_paragraph("Steepness = XX"))
+                      value = as_paragraph("Steep. + 10%"))
 Results.ft <- compose(Results.ft, j ="Model", i = 6, part = "body",
-                      value = as_paragraph("Alternate life history"))
+                      value = as_paragraph("Rec. Dev"))
 Results.ft <- compose(Results.ft, j ="Model", i = 7, part = "body",
-                      value = as_paragraph("Recruitment deviations"))
+                      value = as_paragraph("No hist. catch"))
 Results.ft <- compose(Results.ft, j ="Model", i = 8, part = "body",
-                      value = as_paragraph("No historical catch"))
+                      value = as_paragraph("Alternate LH"))
 if(nrow(Results) > 8){
   Results.ft <- compose(Results.ft, j ="Model", i = 9, part = "body",
-                      value = as_paragraph("No hermaphroditism"))
+                      value = as_paragraph("No hermaph."))
 }
 Results.ft <- Results.ft %>% set_table_properties(layout = "autofit")
 Results.ft

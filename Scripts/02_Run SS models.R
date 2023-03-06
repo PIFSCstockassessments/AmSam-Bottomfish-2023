@@ -2,33 +2,37 @@ require(pacman); pacman::p_load(this.path, parallel); root_dir <- here(..=1); se
 
 Lt     <-vector("list",9) # Species options
 #             Name    M                  Growth             LW             Mat           InitF? R0 prof.  Btarg. SupYer?   SuperYr blocks                        # Projections catch range
-Lt[[1]]<-list("APRU", "SW_Then",         "SW_BBS_BIOS",     "Kamikawa",    "SW_BBS_BIOS", F, c(0.7,1.7), 0.29,    T, list(c(2019,2020)),                          c(2.5,5.5,0.2)) 
+Lt[[1]]<-list("APRU", "SW_Then",         "SW_BBS_BIOS",     "Kamikawa",    "SW_BBS_BIOS", F, c(0.5,1.6), 0.29,    T, list(c(2019,2020)),                          c(2.5,5.5,0.2)) 
 Lt[[2]]<-list("APVI", "OMalley_Then",    "OMalley2",        "Kamikawa",    "Everson",     F, c(0.6,1.6), 0.29,    T, list(c(2004,2006),c(2010,2012)),             c(1.4,3,0.1)) 
 Lt[[3]]<-list("CALU", "Fry_Then",        "SW_BBS_BIOS",     "Kamikawa",    "SW_BBS_BIOS", F, c(0.8,1.8), 0.29,    T, list(c(2009,2011),c(2016,2017),c(2018,2020)),c(0.8,2.0,0.1)) 
-Lt[[4]]<-list("ETCO", "Andrews_Then",    "Andrews_Sex",     "Kamikawa",    "Reed",        F, c(0.5,1.3), 0.29,    T, list(c(2018,2020)),                          c(1.5,3,0.1)) 
+Lt[[4]]<-list("ETCO", "Andrews_Then",    "Andrews_Sex",     "Kamikawa",    "Reed",        F, c(0.2,1.6), 0.29,    T, list(c(2018,2020)),                          c(1.5,3,0.1)) 
 Lt[[5]]<-list("LERU", "Loubens_Then",    "Loubens",         "Kamikawa",    "Loubens",     T, c(2.8,3.6), 0.29,    F, NA,                                          c(3,5,0.1)) 
 Lt[[6]]<-list("LUKA", "Loubens_Then",    "Loubens2",        "Kamikawa",    "SW_BBS_BIOS", T, c(5.4,7.0), 0.25,    F, NA,                                          c(1,8,1)) 
 Lt[[7]]<-list("PRFL", "OMalley_Then",    "OMalley",         "Kamikawa",    "SW_BBS_BIOS", F, c(0.5,1.5), 0.29,    T, list(c(2011,2012),c(2018,2020)),c(0.7,1.7,0.1)) 
 Lt[[8]]<-list("PRZO", "Schemmel_Then",   "Schemmel_Sex",    "Kamikawa",    "Schemmel",    F, c(0.5,1.3), 0.29,    T, list(c(2009,2011),c(2012,2014),c(2015,2016)),c(0.5,1.0,0.05)) 
 Lt[[9]]<-list("VALO", "Grandcourt_Then", "SW_BBS_BIOS",     "Kamikawa",    "Schemmel",    F, c(1.0,2.4), 0.34,    F, NA,                                          c(0.5,1.20,0.05)) 
 
-for(i in 1:9){  Lt[[i]]        <- append(Lt[[i]], root_dir)
-names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")}
+## Name items in list
+for(i in 1:9){  
+  Lt[[i]]        <- append(Lt[[i]], root_dir)
+  names(Lt[[i]]) <- c("N","M","G","LW","MT","IF","R0","Btarg","SY","SY_block","FixedCatchSeq","root")
+  }
 
 #cl    <- makeCluster (9)
-for(i in 3:8){
-lapply(list(Lt[[i]]),function(x)     { # Run a single model
-#parLapply(cl,Lt,function(x){ # Run all models
+for(i in 1:length(Lt)){
+lapply(list(Lt[[i]]),function(x)     { # Run a single model at a time
+#parLapply(cl,Lt,function(x){ # Run all models in parallel
   
-  DirName    <- "68_2CPUE"
-  runmodels  <- T   # Turn off if you want to process results only
-  printreport<- F   # Turn off to skip ss_diags report
-  Create_species_report_figs <- F
+  DirName    <- "65_Base" # Name of directory to create for this model run
+  runmodels  <- F   # Turn off if you want to process results only
+  printreport<- T   # Turn off to skip ss_diags report
+  Create_species_report_figs <- F # Turn on to produce formatted figures and tables word document. Run after running all r4ss plots and diags
   N_boot     <- 0   # Set to 0 to turn bootstrap off
-  N_foreyrs  <- 0   # Set to 0 to turn forecast off
+  N_foreyrs  <- 0   # Set to 0 to turn forecast off or 7 to run for 7 years
   RD         <- F   # Run Diagnostics (jitter, profile, retro)
-  ProfRes    <- 0.1 # R0 profile resolution
-  Begin      <- c(1967,1986)[1]
+  ProfRes    <- .1 # R0 profile resolution
+  profile    <- "SR_LN(R0)" # string of parameter to profile across
+  Begin      <- c(1967,1986)[1] #start year of model, adjust to run no historical catch scenario
   DeleteForecastFiles <- T
   SavedCores <- 1
   
@@ -40,15 +44,16 @@ lapply(list(Lt[[i]]),function(x)     { # Run a single model
   Build_All_SS(species       = x$N, EST_option = "Normal", scenario = "base",
                SR_option     = "FishLife", M_option = x$M, GROWTH_option = x$G,
                LW_option     = x$LW,MAT_option = x$MT, initF = x$IF,
-               startyr       = Begin, endyr = 2021, fleets = c(1,2,3), N_samp = 45,
+               startyr       = Begin, endyr = 2021, 
+               fleets        = c(1,2,3), N_samp = 45,
                write_files   = T, runmodels = runmodels, ext_args = "",
                do_retro      = RD,retro_years = 0:-5,
-               do_profile    = RD,profile = "SR_LN(R0)",
+               do_profile    = RD,profile = profile,
                profile.vec   = seq(x$R0[1], x$R0[2], ProfRes),
-               do_jitter     = RD, Njitter = 2,jitterFraction = 0.1,
+               do_jitter     = RD, Njitter = 100, jitterFraction = 0.1,
                printreport   = printreport, r4ssplots = runmodels,
                superyear     = x$SY,superyear_blocks = x$SY_block,
-               F_report_basis = 0,lambdas = F,includeCPUE = T,init_values = 0,parmtrace = 0,last_est_phs = 10,
+               F_report_basis = 0, lambdas = F, includeCPUE = T, init_values = 0, parmtrace = 0, last_est_phs = 10,
                seed = 123, SPR.target = 0.4, Btarget = x$Btarg, Bmark_relF_Basis = 1,
                file_dir = DirName, root_dir = x$root, 
                template_dir = file.path(x$root, "SS3 models", "TEMPLATE_FILES"), 
@@ -94,4 +99,3 @@ lapply(list(Lt[[i]]),function(x)     { # Run a single model
 }
 
 #stopCluster (cl)
-
