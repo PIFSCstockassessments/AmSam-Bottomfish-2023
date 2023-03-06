@@ -1,8 +1,9 @@
-## Running ASPM for APRU
+## Running Age-structured production models (ASPM) for BMUS species
+## Request from Reviewers during 2023 WPSAR review 
 library(r4ss)
 
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
-recdev_on <- F
+recdev_on <- F # if T, leave recruitment deviations on in model
 likelihood.checks <- stock.status <- list()
 for(i in 1:length(Species.List)){
   
@@ -13,85 +14,88 @@ for(i in 1:length(Species.List)){
   
   
   ## aspm directory
-  # model.dir <- file.path(root_dir, "SS3 models", species, "102_ASPM")
-  #dir.create(model.dir)
-  # copy_SS_inputs(
-  #   dir.old = orig.mod.dir,
-  #   dir.new = model.dir,
-  #   create.dir = T,
-  #   overwrite = T,
-  #   recursive = T,
-  #   copy_exe = T,
-  #   copy_par = T
-  # 
-  # )
-  # 
-  # ## figures folders
-  # fig.dir <- file.path(model.dir, "plots")
-  # dir.create(fig.dir)
-  # r4ss::run(model.dir, exe = "ss_opt_win")
-  # 
-  # 
-  # if(recdev_on){
-  # ## set rec devs to 0
-  # pars <- SS_readpar_3.30(file.path(model.dir, "ss.par"),
-  #                         datsource = file.path(model.dir, "data_echo.ss_new"),
-  #                         ctlsource = file.path(model.dir, "control.ss_new"))
-  # pars$recdev_early[,2] <- 0
-  # pars$recdev1[,2] <- 0
-  # pars$recdev_forecast[,2] <- 0
-  # SS_writepar_3.30(pars, outfile = file.path(model.dir, "ss.par"))
-  # }
-  # 
-  # starter <- SS_readstarter(file = file.path(model.dir, "starter.ss"))
-  # starter$init_values_src <- 1
-  # starter$datfile <- "data_echo.ss_new"
-  # starter$ctlfile <- "control.ss_new"
-  # SS_writestarter(starter, dir = model.dir, overwrite = TRUE)
-  # 
-  # SS_changepars(dir = model.dir,
-  #               newctlfile = "control.ss_new",
-  #               strings = c("steep", "sigmaR"),
-  #               newphs = c(-4, -5))
-  # 
-  # # Step 7. Change control file to fix rec devs at value read from par file (change phase to negative (recdev phase =-3, recdev_early_phase = -4))
-  # 
-  # control <- SS_readctl(file = file.path(model.dir, "control.ss_new"),
-  #                       datlist = file.path(model.dir, "data_echo.ss_new"))
-  # 
-  # ## turn off the likelihoods for length comps and recruitment
-  # if(recdev_on){
-  # 
-  #   control$lambdas <- as.data.frame(rbind(
-  #     c(4,1,1,0,1),
-  #     c(4,2,1,0,1),
-  #     c(4,3,1,0,1)
-  #   ))
-  # }else{
-  #   control$recdev_early_phase <- -4
-  #   control$recdev_phase <- -3
-  #   control$lambdas <- as.data.frame(rbind(
-  #     c(4,1,1,0,1),
-  #     c(4,2,1,0,1),
-  #     c(4,3,1,0,1),
-  #     c(10,1,1,0,1)
-  #   ))
-  # }
-  # control$N_lambdas <- nrow(control$lambdas)
-  # 
-  # # Manually fix the selectivity parameters by changing the phase to a negative value
-  # control$size_selex_parms$PHASE <- abs(control$size_selex_parms$PHASE) * -1
-  # 
-  # SS_writectl_3.30(control, outfile = file.path(model.dir, "control.ss_new"), overwrite = TRUE)
-  # 
-  # r4ss::run(model.dir, exe = "ss_opt_win", skipfinished = F)
+  model.dir <- file.path(root_dir, "SS3 models", species, "102_ASPM")
+  dir.create(model.dir)
+  copy_SS_inputs(
+    dir.old = orig.mod.dir,
+    dir.new = model.dir,
+    create.dir = T,
+    overwrite = T,
+    recursive = T,
+    copy_exe = T,
+    copy_par = T
+
+  )
+
+  ## figures folders
+  fig.dir <- file.path(model.dir, "plots")
+  dir.create(fig.dir)
+  r4ss::run(model.dir, exe = "ss_opt_win")
+
+
+  if(recdev_on){
+  ## set rec devs to 0
+  pars <- SS_readpar_3.30(file.path(model.dir, "ss.par"),
+                          datsource = file.path(model.dir, "data_echo.ss_new"),
+                          ctlsource = file.path(model.dir, "control.ss_new"))
+  pars$recdev_early[,2] <- 0
+  pars$recdev1[,2] <- 0
+  pars$recdev_forecast[,2] <- 0
+  SS_writepar_3.30(pars, outfile = file.path(model.dir, "ss.par"))
+  }
+  
+  ## change name of data and control files to use, and set to run from par file
+  starter <- SS_readstarter(file = file.path(model.dir, "starter.ss"))
+  starter$init_values_src <- 1
+  starter$datfile <- "data_echo.ss_new"
+  starter$ctlfile <- "control.ss_new"
+  SS_writestarter(starter, dir = model.dir, overwrite = TRUE)
+
+  ## fix steepness and sigmaR, not estimated
+  SS_changepars(dir = model.dir,
+                newctlfile = "control.ss_new",
+                strings = c("steep", "sigmaR"),
+                newphs = c(-4, -5))
+
+  ## Change control file to fix rec devs at value read from par file (change phase to negative (recdev phase =-3, recdev_early_phase = -4))
+
+  control <- SS_readctl(file = file.path(model.dir, "control.ss_new"),
+                        datlist = file.path(model.dir, "data_echo.ss_new"))
+
+  ## turn off the likelihoods for length comps and recruitment
+  if(recdev_on){
+
+    control$lambdas <- as.data.frame(rbind(
+      c(4,1,1,0,1),
+      c(4,2,1,0,1),
+      c(4,3,1,0,1)
+    ))
+  }else{
+    control$recdev_early_phase <- -4
+    control$recdev_phase <- -3
+    control$lambdas <- as.data.frame(rbind(
+      c(4,1,1,0,1),
+      c(4,2,1,0,1),
+      c(4,3,1,0,1),
+      c(10,1,1,0,1)
+    ))
+  }
+  control$N_lambdas <- nrow(control$lambdas)
+
+  # Fix the selectivity parameters by changing the phase to a negative value
+  control$size_selex_parms$PHASE <- abs(control$size_selex_parms$PHASE) * -1
+
+  SS_writectl_3.30(control, outfile = file.path(model.dir, "control.ss_new"), overwrite = TRUE)
+
+  r4ss::run(model.dir, exe = "ss_opt_win", skipfinished = F)
 
   report <- SS_output(orig.mod.dir)
   
-  # likelihood.checks[[i]] <- report$likelihoods_by_fleet %>% filter(str_detect(Label, "Length_like"))
-  # likelihood.checks[[i]]$species <- species
+  ## Check likelihoods to make sure length comps are turned off
+  likelihood.checks[[i]] <- report$likelihoods_by_fleet %>% filter(str_detect(Label, "Length_like"))
+  likelihood.checks[[i]]$species <- species
   
-  #SS_plots(report)
+  SS_plots(report)
   
   ssb <- report$derived_quants %>% 
     filter(str_detect(Label, "SSB_MSY|SSB_2021|SSB_Virgin")) %>% 
@@ -103,6 +107,7 @@ for(i in 1:length(Species.List)){
     pull(Value)
 
   
+  ## create list of dataframes of stock status quantities for plotting afterwards
   stock.status.base[[i]] <- data.frame("Species" = species, 
                      "SSB" = ssb[2,2],
                      "MSY" = ssb[3,2],
@@ -116,9 +121,9 @@ for(i in 1:length(Species.List)){
   
 }
 
-
 stock.status.base <- rbindlist(stock.status.base)
 
+## plot for showing stock status from ASPM runs
 stock.status %>% 
   rbindlist() %>% 
   mutate(Model = "No Length Comp") %>% 
@@ -132,6 +137,8 @@ stock.status %>%
   labs(x = "", y = "")
 ggsave("Stock_Status_ASPM.png", path = file.path(root_dir, "For presentations"))
 
+
+## Create comparison plots for different aspm model runs
 aspms.dirs <- list.dirs(file.path(root_dir, "SS3 models", species, "102_ASPM"), recursive = F)
 
 aspm.mods <- SSgetoutput(dirvec = c(orig.mod.dir, 
@@ -161,7 +168,7 @@ aspm.mods <- SS_output(file.path(root_dir, "SS3 models", "APVI", "103a_ghostedle
 SS_plots(aspm.mods)
 
 
-
+## Get results and create comparison plots for different aspm/ghosted length comp runs for species
 Species.List <- c("APRU","APVI","CALU","ETCO","LERU","LUKA","PRFL","PRZO","VALO")
 likelihood.checks <- list()
 stock.status <- list()
