@@ -91,7 +91,7 @@ Scripts/000_Run SS models - Paral No sync.R
 .secrets
 !SS3 final models/*/01_Base/*.docx
 !SS3 final models/*/01_Base/*.html
-!SS3 final models/*/01_Base/*_model_diags_report_files/figure-html/*.png
+!SS3 final models/*/01_Base/*_model_diags_report_files/**
 !SS3 final models/*/01_Base/plots/*.png
 !SS3 final models/*/00_Alternate_Mods_Figs_Tables/*.png
 !SS3 final models/*/00_Alternate_Mods_Figs_Tables
